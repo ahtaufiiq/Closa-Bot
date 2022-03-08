@@ -1,5 +1,6 @@
 const {CHANNEL_REMINDER} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
+const Time = require('../helpers/time')
 let listFocusRoom = {
 	"949245624094687283":true,
 	"949245665601552395":true
@@ -61,14 +62,14 @@ module.exports = {
 					.is('session',null)
 					.single()
 					.then(response=>{
-                    console.log("🚀 ~ file: voiceStateUpdate.js ~ line 67 ~ execute ~ response", response)
-						const {hours, minutes,totalInMinutes} = getGapTime(response.data.createdAt)
+						const {totalInMinutes} = getGapTime(response.data.createdAt)
 						if (totalInMinutes < 5) {
 							supabase.from('FocusSessions')
 								.delete()
 								.eq('id',response.data.id)
 								.then()
 						}else{
+							channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`)
 							supabase.from("FocusSessions")
 								.update({
 									'session':totalInMinutes
@@ -90,7 +91,8 @@ function kickUser(userId,channelReminder,user) {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
-					channelReminder.send(`${user}  I see you joined the focus-room a minute ago but haven't turned on your camera or screenshare yet. Please do this within 1 minute or you will be kicked from the focus room call.`)
+					channelReminder.send(`Hi ${user}, **__please turn on your camera or screenshare__** to keep accountable. 
+Please do it within 1 minute before you get auto-kick from the call.`)
 					setTimeout(() => {
 						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 						if (!selfVideo && !streaming) {
@@ -110,7 +112,5 @@ function getGapTime(date) {
 	const todayDateInMinutes = new Date().getTime() / 1000 / 60
 	const joinedDateInMinutes = new Date(date).getTime() / 1000 / 60
 	const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
-	const hours = Math.floor(diff / 60)
-	const minutes = diff % 60
-	return {hours,minutes,totalInMinutes:diff}
+	return {totalInMinutes:diff}
 }
