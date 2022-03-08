@@ -1,3 +1,4 @@
+const RequestAxios = require('../helpers/axios');
 const {CHANNEL_REMINDER} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time')
@@ -56,6 +57,7 @@ module.exports = {
 		}else if(newMember.channel === null){
 			if (listFocusRoom[oldMember.channelId]) {
 				delete focusRoomUser[userId]
+
 				supabase.from('FocusSessions')
 					.select()
 					.eq('UserId',userId)
@@ -69,7 +71,14 @@ module.exports = {
 								.eq('id',response.data.id)
 								.then()
 						}else{
-							channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`)
+							RequestAxios.get(`voice/daily/${userId}`)
+								.then((data)=>{
+                                    console.log("🚀 ~ file: voiceStateUpdate.js ~ line 75 ~ .then ~ data", data)
+									channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
+-
+⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
+
+								})
 							supabase.from("FocusSessions")
 								.update({
 									'session':totalInMinutes
