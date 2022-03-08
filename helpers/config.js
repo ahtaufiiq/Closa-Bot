@@ -8,4 +8,6 @@ module.exports = {
     CHANNEL_REMINDER: process.env.CHANNEL_REMINDER,
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_KEY: process.env.SUPABASE_KEY,
+    SECRET_TOKEN: process.env.SECRET_TOKEN,
+    BASE_URL: process.env.BASE_URL
 }
