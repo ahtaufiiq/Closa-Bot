@@ -1,7 +1,6 @@
 const { Client, Intents, Collection } = require('discord.js')
 const fs = require('fs')
-const { TOKEN } = require('./helpers/config');
-const supabase  = require('./helpers/supabaseClient');
+const { TOKEN} = require('./helpers/config');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES] });
 client.commands = new Collection();
