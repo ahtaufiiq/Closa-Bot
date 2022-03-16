@@ -15,7 +15,7 @@ module.exports = {
 		schedule.scheduleJob(ruleReminderHighlight,function(){
 			supabase.from('Users')
 			.select()
-			.neq('last_highlight',new Date().toISOString().substring(0,10))
+			.neq('last_highlight',Time.getDate().toISOString().substring(0,10))
 			.then(async data=>{
 				for (let i = 0; i < data.body.length; i++) {
 					const userId = data.body[i].id;

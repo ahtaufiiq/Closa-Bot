@@ -1,3 +1,4 @@
+const {TIMEZONE} = require('../helpers/config')
 class Time {
     static convertTime(time){
         let hour = Math.floor(time/60)
@@ -28,8 +29,12 @@ class Time {
             }
           }
     }
-
-    static add7Hours(hour){
+    static getDate(){
+        const date= new Date()
+        date.setHours(date.getHours()+Number(TIMEZONE))
+        return date
+    }
+    static minus7Hours(hour){
     	hour = hour - 7		
         return hour < 0 ? 24 + hour : hour
     }

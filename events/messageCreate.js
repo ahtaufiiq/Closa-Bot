@@ -2,6 +2,7 @@ const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
 const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
+const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 
 module.exports = {
@@ -15,8 +16,9 @@ module.exports = {
 					UserId: msg.author.id
 				})
 				.then(()=>{
+					
 					supabase.from('Users')
-						.update({last_highlight:new Date().toISOString().substring(0,10)})
+						.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
 						.eq('id',msg.author.id)
 						.then()
 				})
