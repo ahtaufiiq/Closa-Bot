@@ -68,7 +68,7 @@ module.exports = {
 					let dailyStreak = values[0][0].length
 					let longestStreak = values[1][0].length
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)
-					ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)]})
+					ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
 				})
 				.catch(err => {
 					console.log(err)

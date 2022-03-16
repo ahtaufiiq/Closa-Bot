@@ -27,14 +27,12 @@ class DailyStreakMessage{
             return new MessageEmbed()
             .setColor(color)
             .setAuthor({name:`${streak}x day streak!`,iconURL:url})
-            .setDescription(`${user}`)
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }else{
             return new MessageEmbed()
             .setColor(color)
             .setAuthor({name:`🔥 ${streak}x day streak!`})
-            .setDescription(`${user}`)
-            .setFooter({text:`${user.username}`, iconURL:user.displayAvatarURL})
+            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }
     }
 
