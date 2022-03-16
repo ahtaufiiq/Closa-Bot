@@ -1,6 +1,7 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
 const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO} = require("../helpers/config");
+const supabase = require("../helpers/supabaseClient");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 
 module.exports = {
@@ -13,6 +14,13 @@ module.exports = {
 					description: msg.content,
 					UserId: msg.author.id
 				})
+				.then(()=>{
+					supabase.from('Users')
+						.update({last_highlight:new Date().toISOString().substring(0,10)})
+						.eq('id',msg.author.id)
+						.then()
+				})
+					
 				break;
 			case CHANNEL_TODO:
 				let todos = []
@@ -27,7 +35,6 @@ module.exports = {
 					}
 				});
 				
-				console.log("🚀 ~ file: messageCreate.js ~ line 18 ~ execute ~ todos", todos)
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then((data) => {
