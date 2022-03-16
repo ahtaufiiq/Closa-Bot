@@ -1,3 +1,4 @@
+const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
 const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO} = require("../helpers/config");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -52,6 +53,7 @@ module.exports = {
 				.then(values => {
 					let dailyStreak = values[0][0].length
 					let longestStreak = values[1][0].length
+					DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)
 					ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)]})
 				})
 				.catch(err => {

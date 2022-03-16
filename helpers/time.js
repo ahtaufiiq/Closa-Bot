@@ -28,6 +28,11 @@ class Time {
             }
           }
     }
+
+    static add7Hours(hour){
+    	hour = hour - 7		
+        return hour < 0 ? 24 + hour : hour
+    }
 }
 
 module.exports = Time

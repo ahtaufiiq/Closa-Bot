@@ -1,22 +1,25 @@
-const DailyStreakMessage = require('../views/DailyStreakMessage')
+const DailyStreakMessage = require('../views/DailyStreakMessage');
+const MemberController = require('./MemberController');
+const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK} = require('../helpers/config')
 class DailyStreakController {
-    static achieveDailyStreak(ChannelReminder,dailyStreak,author){
+    
+    static achieveDailyStreak(bot,ChannelReminder,dailyStreak,author){
         switch (dailyStreak) {
             case 7:
-                ChannelReminder.send(DailyStreakMessage.notify7DaysStreak(author))
-              //  MemberController.addRole(bot, author.id, IdRole7Streak)
+               ChannelReminder.send({embeds:[DailyStreakMessage.notify7DaysStreak(author)]})
+               MemberController.addRole(bot, author.id, ROLE_7STREAK)
                 break;
             case 30:
-                ChannelReminder.send(DailyStreakMessage.notifyDailyStreak(author, 30))
-                //MemberController.addRole(bot, author.id, IdRole30Streak)
+                ChannelReminder.send({embeds:[DailyStreakMessage.notifyDailyStreak(author, 30)]})
+                MemberController.addRole(bot, author.id, ROLE_30STREAK)
                 break;
             case 100:
-                ChannelReminder.send(DailyStreakMessage.notifyDailyStreak(author, 100))
-                //MemberController.addRole(bot, author.id, IdRole100Streak)
+                ChannelReminder.send({embeds:[DailyStreakMessage.notifyDailyStreak(author, 100)]})
+                MemberController.addRole(bot, author.id, ROLE_100STREAK)
                 break;
             case 365:
-                ChannelReminder.send(DailyStreakMessage.notifyDailyStreak(author, 365))
-                //MemberController.addRole(bot, author.id, IdRole365Streak)
+                ChannelReminder.send({embeds:[DailyStreakMessage.notifyDailyStreak(author, 365)]})
+                MemberController.addRole(bot, author.id, ROLE_365STREAK)
                 break;
         }
     }

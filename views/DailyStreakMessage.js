@@ -51,7 +51,7 @@ You can check the badge on your profile.`)
 You can check the new badge on your profile.`)
     }
     static embedMessage(text){
-        return new Discord.MessageEmbed()
+        return new MessageEmbed()
         .setColor('#fefefe')
         .setDescription(text)
     }
