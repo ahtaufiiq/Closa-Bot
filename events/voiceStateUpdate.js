@@ -65,18 +65,14 @@ module.exports = {
 					.single()
 					.then(response=>{
 						const {totalInMinutes} = getGapTime(response.data.createdAt)
-						if (totalInMinutes < 5) {
-							supabase.from('FocusSessions')
-								.delete()
-								.eq('id',response.data.id)
-								.then()
-						}else{
+
 							RequestAxios.get(`voice/daily/${userId}`)
 								.then((data)=>{
-                                    console.log("🚀 ~ file: voiceStateUpdate.js ~ line 75 ~ .then ~ data", data)
-									channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
--
-⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
+                                    if (totalInMinutes >= 5) {
+										channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
+	-
+	⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
+									}
 
 								})
 							supabase.from("FocusSessions")
@@ -85,7 +81,6 @@ module.exports = {
 								})
 								.eq('id',response.data.id)
 								.then()
-						}
 					})
 			}
 		}
