@@ -11,6 +11,7 @@ module.exports = {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		switch (msg.channelId) {
 			case CHANNEL_HIGHLIGHT:
+				
 				RequestAxios.post('highlights', {
 					description: msg.content,
 					UserId: msg.author.id
@@ -60,6 +61,10 @@ module.exports = {
 						])
 				})
 				.then(values => {
+					supabase.from('Users')
+						.update({last_done:Time.getDate().toISOString().substring(0,10)})
+						.eq('id',msg.author.id)
+						.then()
 					let dailyStreak = values[0][0].length
 					let longestStreak = values[1][0].length
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)

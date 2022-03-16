@@ -35,7 +35,7 @@ class Time {
         return date
     }
     static minus7Hours(hour){
-    	hour = hour - 7		
+    	hour = hour - Number(TIMEZONE)		
         return hour < 0 ? 24 + hour : hour
     }
 }

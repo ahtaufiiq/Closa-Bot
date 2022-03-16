@@ -2,7 +2,7 @@ const { MessageEmbed } = require("discord.js")
 const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
 
 class HighlightReminderMessage{
-    static reminderHighlight(userId){
+    static highlightReminder(userId){
         return `Hi <@${userId}>, let's start your day and do what matters by writing your <#${CHANNEL_HIGHLIGHT}> today`
     }
     static embedMessage(text){

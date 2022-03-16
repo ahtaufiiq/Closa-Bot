@@ -6,7 +6,6 @@ class FocusSessionMessage{
     
     static report(user,data){
         const {daily,weekly,monthly,all,average,dailyStreak,longestStreak} = data
-        console.log("🚀 ~ file: FocusSessionMessage.js ~ line 18 ~ FocusSessionMessage ~ report2 ~ {daily,weekly,monthly,average,dailyStreak,longestStreak}", {daily,weekly,monthly,average,dailyStreak,longestStreak,all})
         const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
         return new MessageEmbed()
             .setColor('#FEFEFE')
