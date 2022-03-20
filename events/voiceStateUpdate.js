@@ -3,8 +3,7 @@ const {CHANNEL_REMINDER} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time')
 let listFocusRoom = {
-	"949245624094687283":true,
-	"949245665601552395":true
+	"737311735308091423":true
 }
 let focusRoomUser = {
 
