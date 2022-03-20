@@ -19,7 +19,7 @@ module.exports = {
 						const time = msg.content.match(patternTime)[0]
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
-						date.setHours(hours)
+						date.setHours(Time.minus7Hours(hours))
 						date.setMinutes(minutes-10)
 						RequestAxios.post('highlights', {
 							description: msg.content,
@@ -31,11 +31,6 @@ module.exports = {
 								.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
 								.eq('id',msg.author.id)
 								.then()
-
-							msg.react('✅')
-							const date = new Date()
-							date.setHours(Time.minus7Hours(date.getHours()))
-							date.setMinutes(Number(date.getMinutes()))
 							const reminderHighlight = schedule.scheduleJob(date,function () {
 								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
 							})
