@@ -31,11 +31,12 @@ module.exports = {
 								.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
 								.eq('id',msg.author.id)
 								.then()
-							
-							const ruleReminderHighlight = new schedule.RecurrenceRule();
-							ruleReminderHighlight.hour = Time.minus7Hours(date.getHours())
-							ruleReminderHighlight.minute = Number(date.getMinutes()) 
-							const reminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function () {
+
+							msg.react('✅')
+							const date = new Date()
+							date.setHours(Time.minus7Hours(date.getHours()))
+							date.setMinutes(Number(date.getMinutes()))
+							const reminderHighlight = schedule.scheduleJob(date,function () {
 								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
 							})
 						})
@@ -49,57 +50,60 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					
 				break;
 			case CHANNEL_TODO:
-				let todos = []
-				msg.content.split('\n').forEach(el => {
-					if (el != '') {
-						if (el.includes(`✅`) || el.includes(':white_check_mark:')) {
-							todos.push({
-								description:el,
-								UserId:msg.author.id
-							})
+				const patternEmojiDone = /^✅/
+				if (patternEmojiDone.test(msg.content.trimStart())) {
+					let todos = []
+					msg.content.split('\n').forEach(el => {
+						if (el != '') {
+							if (el.includes(`✅`) || el.includes(':white_check_mark:')) {
+								todos.push({
+									description:el,
+									UserId:msg.author.id
+								})
+							}
 						}
-					}
-				});
-				
-				
-				RequestAxios.get(`todos/${msg.author.id}`)
-				.then((data) => {
-					if (data.length > 0) {
-						RequestAxios.post('todos/many', {
-							todos
-						})
-						throw new Error("Tidak perlu kirim daily streak ke channel")
-					} else {
-						return RequestAxios.post('todos/many', {
-							todos
-						})
-						
-					}
-				})
-				.then(()=>{
-					return Promise.all(
-						[
-							RequestAxios.get(`todos/dailyStreak/${msg.author.id}`),
-							RequestAxios.get(`todos/longestStreak/${msg.author.id}`),
-						])
-				})
-				.then(values => {
-					supabase.from('Users')
-						.update({last_done:Time.getDate().toISOString().substring(0,10)})
-						.eq('id',msg.author.id)
-						.then()
-					let dailyStreak = values[0][0].length
-					let longestStreak = values[1][0].length
-					DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)
-					ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
-				})
-				.catch(err => {
-					console.log(err)
-				})
+					});
+					
+					
+					RequestAxios.get(`todos/${msg.author.id}`)
+					.then((data) => {
+						if (data.length > 0) {
+							RequestAxios.post('todos/many', {
+								todos
+							})
+							throw new Error("Tidak perlu kirim daily streak ke channel")
+						} else {
+							return RequestAxios.post('todos/many', {
+								todos
+							})
+							
+						}
+					})
+					.then(()=>{
+						return Promise.all(
+							[
+								RequestAxios.get(`todos/dailyStreak/${msg.author.id}`),
+								RequestAxios.get(`todos/longestStreak/${msg.author.id}`),
+							])
+					})
+					.then(values => {
+						supabase.from('Users')
+							.update({last_done:Time.getDate().toISOString().substring(0,10)})
+							.eq('id',msg.author.id)
+							.then()
+						let dailyStreak = values[0][0].length
+						let longestStreak = values[1][0].length
+						DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)
+						ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
+					})
+					.catch(err => {
+						console.log(err)
+					})
+				}
 				break;
-		
 			default:
 				break;
+				
 		}
 	},
 };
