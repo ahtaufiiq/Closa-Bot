@@ -14,47 +14,28 @@ module.exports = {
 	async execute(oldMember,newMember,tes) {
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		let userId = newMember.member.id
-		if(oldMember.channel === null ){
-			
+		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
-			if (listFocusRoom[newMember.channelId]) {
-				supabase.from('FocusSessions')
-					.insert({
-						UserId:oldMember.member.user.id
-					})
-					.then()
-				focusRoomUser[userId] = {
-					selfVideo : newMember.selfVideo,
-					streaming : newMember.streaming,
-					status : 'processed'
-				}
-				kickUser(userId,channelReminder,newMember.member.user)
-					.then(()=>{
-						newMember.disconnect()
-					})
-					.catch(()=>{
-						focusRoomUser[userId].status = 'done'
-					})
-			}
-		}else if (listFocusRoom[newMember.channelId]) {
+		}
+		if(listFocusRoom[newMember.channelId]){
+			supabase.from('FocusSessions')
+				.insert({
+					UserId:oldMember.member.user.id
+				})
+				.then()
 			focusRoomUser[userId] = {
 				selfVideo : newMember.selfVideo,
 				streaming : newMember.streaming,
+				status : 'processed'
 			}
-			
-			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
-				if (focusRoomUser[userId].status !== 'processed' ) {
-					focusRoomUser[userId].status === 'processed'
-					kickUser(userId,channelReminder,newMember.member.user)
-						.then(()=>{		
-							newMember.disconnect()	
-						})
-						.catch(()=>{
-							focusRoomUser[userId].status = 'done'
-						})
-				}
-			}
-		}else if(newMember.channel === null){
+			kickUser(userId,channelReminder,newMember.member.user)
+				.then(()=>{
+					newMember.disconnect()
+				})
+				.catch(()=>{
+					focusRoomUser[userId].status = 'done'
+				})
+		}else if(listFocusRoom[oldMember.channelId] ){
 			if (listFocusRoom[oldMember.channelId]) {
 				delete focusRoomUser[userId]
 
