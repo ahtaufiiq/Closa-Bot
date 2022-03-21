@@ -70,8 +70,8 @@ module.exports = {
 								.then((data)=>{
                                     if (totalInMinutes >= 5) {
 										channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
-	-
-	⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
+-
+⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
 									}
 
 								})
@@ -89,7 +89,8 @@ module.exports = {
 
 
 function kickUser(userId,channelReminder,user) {
-	const time = 1000 * 60
+	const time = 1000 * 120
+	const time2 = 1000 * 60
 	return new Promise((resolve,reject)=>{
 		setTimeout(() => {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
@@ -104,7 +105,7 @@ Please do it within 1 minute before you get auto-kick from the call.`)
 						}else{
 							reject('user already open camera or sharescreen')
 						}
-					}, time);
+					}, time2);
 				}
 			}
 		}, time);
