@@ -13,11 +13,11 @@ module.exports = {
 	name: 'voiceStateUpdate',
 	async execute(oldMember,newMember,tes) {
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
-		let userId = newMember.member.id
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
 		if(listFocusRoom[newMember.channelId]){
+			const userId = newMember.member.id || oldMember.member.id
 			supabase.from('FocusSessions')
 				.insert({
 					UserId:oldMember.member.user.id
@@ -36,34 +36,33 @@ module.exports = {
 					focusRoomUser[userId].status = 'done'
 				})
 		}else if(listFocusRoom[oldMember.channelId] ){
-			if (listFocusRoom[oldMember.channelId]) {
-				delete focusRoomUser[userId]
+			const userId = newMember.member.id || oldMember.member.id
+			delete focusRoomUser[userId]
 
-				supabase.from('FocusSessions')
-					.select()
-					.eq('UserId',userId)
-					.is('session',null)
-					.single()
-					.then(response=>{
-						const {totalInMinutes} = getGapTime(response.data.createdAt)
+			supabase.from('FocusSessions')
+				.select()
+				.eq('UserId',userId)
+				.is('session',null)
+				.single()
+				.then(response=>{
+					const {totalInMinutes} = getGapTime(response.data.createdAt)
 
-							RequestAxios.get(`voice/daily/${userId}`)
-								.then((data)=>{
-                                    if (totalInMinutes >= 5) {
-										channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
+						RequestAxios.get(`voice/daily/${userId}`)
+							.then((data)=>{
+								if (totalInMinutes >= 5) {
+									channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
 -
 ⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
-									}
+								}
 
-								})
-							supabase.from("FocusSessions")
-								.update({
-									'session':totalInMinutes
-								})
-								.eq('id',response.data.id)
-								.then()
-					})
-			}
+							})
+						supabase.from("FocusSessions")
+							.update({
+								'session':totalInMinutes
+							})
+							.eq('id',response.data.id)
+							.then()
+				})
 		}
 	},
 };
