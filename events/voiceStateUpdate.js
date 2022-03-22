@@ -35,6 +35,23 @@ module.exports = {
 				.catch(()=>{
 					focusRoomUser[userId].status = 'done'
 				})
+		}else if (listFocusRoom[newMember.channelId]) {
+			focusRoomUser[userId].selfVideo = newMember.selfVideo
+			focusRoomUser[userId].streaming = newMember.streaming
+			
+			
+			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
+				if (focusRoomUser[userId].status !== 'processed' ) {
+					focusRoomUser[userId].status === 'processed'
+					kickUser(userId,channelReminder,newMember.member.user)
+						.then(()=>{		
+							newMember.disconnect()	
+						})
+						.catch(()=>{
+							focusRoomUser[userId].status = 'done'
+						})
+				}
+			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
 			delete focusRoomUser[userId]
 
