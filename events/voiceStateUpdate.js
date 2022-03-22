@@ -16,8 +16,8 @@ module.exports = {
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
+		const userId = newMember.member.id || oldMember.member.id
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
-			const userId = newMember.member.id || oldMember.member.id
             console.log("🚀 ~ file: voiceStateUpdate.js ~ line 21 ~ execute ~ userId", userId)
 			supabase.from('FocusSessions')
 				.insert({
@@ -37,7 +37,6 @@ module.exports = {
 					focusRoomUser[userId].status = 'done'
 				})
 		}else if(listFocusRoom[oldMember.channelId] && focusRoomUser[userId] ){
-			const userId = newMember.member.id || oldMember.member.id
             console.log("🚀 ~ file: voiceStateUpdate.js ~ line 41 ~ execute ~ userId", userId,focusRoomUser)
 			delete focusRoomUser[userId]
 
