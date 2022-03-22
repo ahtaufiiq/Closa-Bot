@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -9,6 +9,7 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
+		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
@@ -88,8 +89,8 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							.then()
 						let dailyStreak = values[0][0].length
 						let longestStreak = values[1][0].length
-						DailyStreakController.achieveDailyStreak(msg.client,ChannelReminder,dailyStreak,msg.author)
-						ChannelReminder.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
+						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,msg.author)
+						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
 					})
 					.catch(err => {
 						console.log(err)
