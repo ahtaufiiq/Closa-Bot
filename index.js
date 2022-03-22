@@ -1,6 +1,8 @@
 const { Client, Intents, Collection } = require('discord.js')
 const fs = require('fs')
-const { TOKEN} = require('./helpers/config');
+const { TOKEN, SENTRY_DSN} = require('./helpers/config');
+const Sentry = require('@sentry/node')
+const Tracing = require('@sentry/tracing')
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES,Intents.FLAGS.GUILD_MEMBERS] });
 client.commands = new Collection();
@@ -13,6 +15,15 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
+Sentry.init({
+	dsn: SENTRY_DSN,
+  
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: 1.0,
+  });
+  
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {

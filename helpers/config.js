@@ -18,5 +18,6 @@ module.exports = {
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_KEY: process.env.SUPABASE_KEY,
     SECRET_TOKEN: process.env.SECRET_TOKEN,
+    SENTRY_DSN: process.env.SENTRY_DSN,
     BASE_URL: process.env.BASE_URL
 }

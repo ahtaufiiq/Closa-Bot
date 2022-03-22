@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "@discordjs/rest": "^0.3.0",
+    "@sentry/node": "^6.19.1",
+    "@sentry/tracing": "^6.19.1",
     "@supabase/supabase-js": "^1.30.7",
     "axios": "^0.26.0",
     "discord-api-types": "^0.27.3",
