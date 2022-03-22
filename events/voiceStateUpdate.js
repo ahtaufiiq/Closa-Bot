@@ -16,7 +16,7 @@ module.exports = {
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
-		if(listFocusRoom[newMember.channelId]){
+		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			const userId = newMember.member.id || oldMember.member.id
 			supabase.from('FocusSessions')
 				.insert({
@@ -35,7 +35,7 @@ module.exports = {
 				.catch(()=>{
 					focusRoomUser[userId].status = 'done'
 				})
-		}else if(listFocusRoom[oldMember.channelId] ){
+		}else if(listFocusRoom[oldMember.channelId] && focusRoomUser[userId] ){
 			const userId = newMember.member.id || oldMember.member.id
 			delete focusRoomUser[userId]
 
