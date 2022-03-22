@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -48,29 +48,44 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^✅/
 				if (patternEmojiDone.test(msg.content.trimStart())) {
-					let todos = []
-					msg.content.split('\n').forEach(el => {
-						if (el != '') {
-							if (el.includes(`✅`) || el.includes(':white_check_mark:')) {
-								todos.push({
-									description:el,
-									UserId:msg.author.id
-								})
-							}
-						}
-					});
-					
+	
+					// const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+					// const message = channel.awaitMessages()
+					// const message = await channel.messages.fetch("955362282144141382")
+
+					// Bikin thread
+					// const thread = await message.startThread({
+					// 	name: 'food-talk',
+					// 	reason: 'Needed a separate thread for food',
+				
+					// });
+
+					// kalau udah ada threadnya
+					// const thread = channel.threads.cache.find(x => x.name === 'food-talk');
+
+					// let files = []
+					// msg.attachments.each(data=>{
+					// 	files.push({
+					// 		attachment:data.attachment
+					// 	})
+					// })
+					// thread.send({
+					// 	content:msg.content,
+					// 	files
+					// })
 					
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
 						if (data.length > 0) {
-							RequestAxios.post('todos/many', {
-								todos
+							RequestAxios.post('todos', {
+								description:msg.content,
+								UserId:msg.author.id
 							})
 							throw new Error("Tidak perlu kirim daily streak ke channel")
 						} else {
-							return RequestAxios.post('todos/many', {
-								todos
+							return RequestAxios.post('todos', {
+								description:msg.content,
+								UserId:msg.author.id
 							})
 							
 						}
