@@ -18,7 +18,6 @@ module.exports = {
 		}
 		const userId = newMember.member.id || oldMember.member.id
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
-            console.log("🚀 ~ file: voiceStateUpdate.js ~ line 21 ~ execute ~ userId", userId)
 			supabase.from('FocusSessions')
 				.insert({
 					UserId:userId
@@ -36,8 +35,7 @@ module.exports = {
 				.catch(()=>{
 					focusRoomUser[userId].status = 'done'
 				})
-		}else if(listFocusRoom[oldMember.channelId] && focusRoomUser[userId] ){
-            console.log("🚀 ~ file: voiceStateUpdate.js ~ line 41 ~ execute ~ userId", userId,focusRoomUser)
+		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
 			delete focusRoomUser[userId]
 
 			supabase.from('FocusSessions')
