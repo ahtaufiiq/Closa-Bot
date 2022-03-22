@@ -63,12 +63,14 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					// kalau udah ada threadnya
 					// const thread = channel.threads.cache.find(x => x.name === 'food-talk');
 
-					// let files = []
-					// msg.attachments.each(data=>{
-					// 	files.push({
-					// 		attachment:data.attachment
-					// 	})
-					// })
+					let files = []
+					const attachments = []
+					msg.attachments.each(data=>{
+						files.push({
+							attachment:data.attachment
+						})
+						attachments.push(data.attachment)
+					})
 					// thread.send({
 					// 	content:msg.content,
 					// 	files
@@ -78,12 +80,14 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					.then((data) => {
 						if (data.length > 0) {
 							RequestAxios.post('todos', {
+								attachments,
 								description:msg.content,
 								UserId:msg.author.id
 							})
 							throw new Error("Tidak perlu kirim daily streak ke channel")
 						} else {
 							return RequestAxios.post('todos', {
+								attachments,
 								description:msg.content,
 								UserId:msg.author.id
 							})
