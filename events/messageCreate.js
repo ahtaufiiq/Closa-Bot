@@ -46,7 +46,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					
 				break;
 			case CHANNEL_TODO:
-				const patternEmojiDone = /^✅/
+				const patternEmojiDone = /^[✅<:Neutral:821044410375471135>]/
 				if (patternEmojiDone.test(msg.content.trimStart())) {
 	
 					// const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
