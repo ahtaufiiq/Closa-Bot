@@ -6,7 +6,7 @@ name: CD
 # events but only for the main branch
 on:
   push:
-    branches: [devnet]
+    branches: [main]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,9 +25,9 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           script: |
-            cd ~/bot-dev
-            git pull origin devnet
+            cd ~/bot
+            git pull origin main
             git status
             npm install
-            pm2 restart bot-dev --update-env
+            pm2 restart bot --update-env
             node registerSlashCommand.js
