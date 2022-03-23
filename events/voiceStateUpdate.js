@@ -86,14 +86,13 @@ module.exports = {
 
 function kickUser(userId,channelReminder,user) {
 	const time = 1000 * 120
-	const time2 = 1000 * 60
 	return new Promise((resolve,reject)=>{
 		setTimeout(() => {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
 					channelReminder.send(`Hi ${user}, **__please turn on your camera or screenshare__** to keep accountable. 
-Please do it within 1 minute before you get auto-kick from the call.`)
+Please do it within 2 minute before you get auto-kick from the call.`)
 					setTimeout(() => {
 						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 						if (!selfVideo && !streaming) {
@@ -101,7 +100,7 @@ Please do it within 1 minute before you get auto-kick from the call.`)
 						}else{
 							reject('user already open camera or sharescreen')
 						}
-					}, time2);
+					}, time);
 				}
 			}
 		}, time);
