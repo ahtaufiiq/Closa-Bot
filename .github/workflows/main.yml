@@ -6,7 +6,7 @@ name: CD
 # events but only for the main branch
 on:
   push:
-    branches: [ main ]
+    branches: [devnet]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,17 +17,17 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        port: 22
-        script: |
-          cd ~/bot
-          git pull origin main
-          git status
-          npm install
-          pm2 restart bot
-          node registerSlashCommand.js
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/bot
+            git pull origin main
+            git status
+            npm install
+            pm2 restart bot
+            node registerSlashCommand.js
