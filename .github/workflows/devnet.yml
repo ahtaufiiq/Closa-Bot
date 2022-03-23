@@ -25,9 +25,9 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           script: |
-            cd ~/bot
-            git pull origin main
+            cd ~/bot-dev
+            git pull origin devnet
             git status
             npm install
-            pm2 restart bot
+            pm2 restart bot-dev
             node registerSlashCommand.js
