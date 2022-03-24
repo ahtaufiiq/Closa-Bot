@@ -5,12 +5,29 @@ const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
+let users = {
+	"410304072621752320":"956506233903394857"
+}
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
+			case CHANNEL_GOALS:
+				if (msg.content.includes("In order to achieve that :")) {
+					const name = msg.author.username
+					const splittedMessage = msg.content.split('\n')
+					const msgGoal = splittedMessage[2].trim().split(' ')
+					msgGoal.splice(0,3)
+					
+					const thread = await msg.startThread({
+						name: name + ' - ' + msgGoal.join(' '),
+				
+					});
+					users[msg.author.id] = thread.id
+				}
+				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
 				const patternEmoji = /^🔆/
@@ -46,22 +63,11 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					
 				break;
 			case CHANNEL_TODO:
-				const patternEmojiDone = /^[✅<:Neutral:821044410375471135>]/
-				if (patternEmojiDone.test(msg.content.trimStart())) {
-	
-					// const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					// const message = channel.awaitMessages()
-					// const message = await channel.messages.fetch("955362282144141382")
+				const patternEmojiDone = /^[✅]/
+				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 
-					// Bikin thread
-					// const thread = await message.startThread({
-					// 	name: 'food-talk',
-					// 	reason: 'Needed a separate thread for food',
-				
-					// });
-
-					// kalau udah ada threadnya
-					// const thread = channel.threads.cache.find(x => x.name === 'food-talk');
+					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+					const thread = channel.threads.cache.find(x => x.id === users[msg.author.id]);
 
 					let files = []
 					const attachments = []
@@ -71,10 +77,10 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						})
 						attachments.push(data.attachment)
 					})
-					// thread.send({
-					// 	content:msg.content,
-					// 	files
-					// })
+					thread.send({
+						content:msg.content,
+						files
+					})
 					
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
