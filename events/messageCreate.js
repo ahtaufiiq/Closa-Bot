@@ -5,9 +5,7 @@ const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
-let users = {
-	"410304072621752320":"956506233903394857"
-}
+
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
@@ -25,7 +23,12 @@ module.exports = {
 						name: name + ' - ' + msgGoal.join(' '),
 				
 					});
-					users[msg.author.id] = thread.id
+					supabase.from('Users')
+						.update({
+							goal_id:thread.id
+						})
+						.eq('id',msg.author.id)
+						.then()
 				}
 				break;
 			case CHANNEL_HIGHLIGHT:
@@ -66,22 +69,32 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				const patternEmojiDone = /^[✅]/
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 
-					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = channel.threads.cache.find(x => x.id === users[msg.author.id]);
+					const { data, error } = await supabase
+											.from('Users')
+											.select()
+											.eq('id',msg.author.id)
+											.single()
 
-					let files = []
-					const attachments = []
-					msg.attachments.each(data=>{
-						files.push({
-							attachment:data.attachment
+                    if (data.goal_id) {
+						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
+	
+						let files = []
+						const attachments = []
+						msg.attachments.each(data=>{
+							files.push({
+								attachment:data.attachment
+							})
+							attachments.push(data.attachment)
 						})
-						attachments.push(data.attachment)
-					})
-					thread.send({
-						content:msg.content,
-						files
-					})
-					
+						thread.send({
+							content:msg.content,
+							files
+						})
+						
+						
+					}
+
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
 						if (data.length > 0) {
