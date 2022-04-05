@@ -12,25 +12,25 @@ module.exports = {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
-			case CHANNEL_GOALS:
-				if (msg.content.includes("In order to achieve that :")) {
-					const name = msg.author.username
-					const splittedMessage = msg.content.split('\n')
-					const msgGoal = splittedMessage[2].trim().split(' ')
-					msgGoal.splice(0,3)
+			// case CHANNEL_GOALS:
+			// 	if (msg.content.includes("In order to achieve that :")) {
+			// 		const name = msg.author.username
+			// 		const splittedMessage = msg.content.split('\n')
+			// 		const msgGoal = splittedMessage[2].trim().split(' ')
+			// 		msgGoal.splice(0,3)
 					
-					const thread = await msg.startThread({
-						name: name + ' - ' + msgGoal.join(' '),
+			// 		const thread = await msg.startThread({
+			// 			name: name + ' - ' + msgGoal.join(' '),
 				
-					});
-					supabase.from('Users')
-						.update({
-							goal_id:thread.id
-						})
-						.eq('id',msg.author.id)
-						.then()
-				}
-				break;
+			// 		});
+			// 		supabase.from('Users')
+			// 			.update({
+			// 				goal_id:thread.id
+			// 			})
+			// 			.eq('id',msg.author.id)
+			// 			.then()
+			// 	}
+			// 	break;
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
 				const patternEmoji = /^🔆/
