@@ -43,13 +43,13 @@ module.exports = {
 				
 			})
 		let ruleReminderHighlight = new schedule.RecurrenceRule();
-		ruleReminderHighlight.hour = Time.minus7Hours(6)
+		ruleReminderHighlight.hour = Time.minus7Hours(7)
 		ruleReminderHighlight.minute = 30
 		schedule.scheduleJob(ruleReminderHighlight,function(){
 			supabase.from('Users')
 			.select()
 			.neq('last_highlight',Time.getDate().toISOString().substring(0,10))
-			.eq('reminder_highlight',null)
+			.is('reminder_highlight',null)
 			.then(async data=>{
 				for (let i = 0; i < data.body.length; i++) {
 					const userId = data.body[i].id;
@@ -95,7 +95,7 @@ module.exports = {
 			supabase.from('Users')
 			.select()
 			.neq('last_done',Time.getDate().toISOString().substring(0,10))
-			.eq('reminder_progress',null)
+			.is('reminder_progress',null)
 			.then(async data=>{
 				for (let i = 0; i < data.body.length; i++) {
 					const userId = data.body[i].id;
