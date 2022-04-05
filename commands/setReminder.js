@@ -16,22 +16,31 @@ module.exports = {
 			subcommand
 				.setName('highlight')
 				.setDescription('set custom reminder for highlight')
-				.addStringOption(option => option.setName('time').setDescription('07.30').setRequired(true)))
+				.addStringOption(option => option.setName('at').setDescription('07.30').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('progress')
 				.setDescription('set custom reminder for progress')
-				.addStringOption(option => option.setName('time').setDescription('21.00').setRequired(true))),
+				.addStringOption(option => option.setName('at').setDescription('21.00').setRequired(true))),
 	async execute(interaction) {
         
 		const userId = interaction.user.id
 		const patternTime = /\d+[.:]\d+/
-		const time = interaction.options.getString('time')
+		const command = interaction.options.getSubcommand()
+
+		const time = interaction.options.getString('at')
 		if (!patternTime.test(time)) {
-			await interaction.reply(`Format Time tidak sesuai`)	
+			if (command === 'highlight') {
+				await interaction.reply(`Incorrect format, try:
+/remind highlight 06.30
+(for example) - use 24h format`)	
+}else if(command === 'progress'){
+				await interaction.reply(`Incorrect format, try:
+/remind progress 21.00
+(for example) - use 24h format`)	
+			}
 			return 		
 		}
-		const command = interaction.options.getSubcommand()
 		const channelReminder = await interaction.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
 		const {data} = await supabase.from("Users")
 			.select()
