@@ -43,10 +43,10 @@ Now your fire have animation 👀every time you keep the streak.
 You can check the badge on your profile.`)
     }
 
-    static notifyDailyStreak(user,total){
-        return DailyStreakMessage.embedMessage(`Congratulations ${user} in honor of your consistency to do what matters every day.  you just got 🔥**${total}x day streak** badge! 
-
-You can check the new badge on your profile.`)
+    static notifyDailyStreak(total){
+        return DailyStreakMessage.embedMessage(`In honor of your consistency to do what matters every day. You just got 🔥 ${total}x day streak badge!
+Now you have fire animation every time you keep the streak. 👀
+You can check the badge on your profile.`)
     }
     static embedMessage(text){
         return new MessageEmbed()
