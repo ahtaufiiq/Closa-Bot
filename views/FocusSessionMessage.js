@@ -1,10 +1,12 @@
 const { MessageEmbed } = require("discord.js")
+const Time = require("../helpers/time")
 
 class FocusSessionMessage{
 
     //-----------------------    Daily Streak    -----------------------// 
     
     static report(user,data){
+        
         const {daily,weekly,monthly,all,average,dailyStreak,longestStreak} = data
         const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
         return new MessageEmbed()
@@ -14,7 +16,7 @@ Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${monthly} h
 All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
-            .addField("\u200B",`Average/day (March): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
+            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }
@@ -44,7 +46,7 @@ Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F${monthly} h
 All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
-            .addField("\u200B",`Average/day (March): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
+            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }

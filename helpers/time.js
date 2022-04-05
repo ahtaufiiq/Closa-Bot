@@ -34,6 +34,12 @@ class Time {
         date.setHours(date.getHours()+Number(TIMEZONE))
         return date
     }
+
+    static getThisMonth(){
+        let months = ["January","February","March","April","May","June","July","August","September",'October',"November","December"]
+        let today = this.getDate()
+        return months[today.getMonth()]
+    }
     static minus7Hours(hour){
     	hour = hour - Number(TIMEZONE)		
         return hour < 0 ? 24 + hour : hour
