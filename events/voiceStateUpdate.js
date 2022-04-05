@@ -1,7 +1,8 @@
 const RequestAxios = require('../helpers/axios');
 const {CHANNEL_REMINDER} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
-const Time = require('../helpers/time')
+const Time = require('../helpers/time');
+const FocusSessionMessage = require('../views/FocusSessionMessage');
 let listFocusRoom = {
 	"737311735308091423":true,
 	"949245624094687283":true
@@ -63,15 +64,17 @@ module.exports = {
 				.then(response=>{
 					const {totalInMinutes} = getGapTime(response.data.createdAt)
 
-						RequestAxios.get(`voice/daily/${userId}`)
-							.then((data)=>{
-								if (totalInMinutes >= 5) {
-									channelReminder.send(`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}
--
-⌛️Daily focus time: ${Time.convertTime(data[0].total)}.`)
-								}
+					
+						if (totalInMinutes >= 5) {
+							RequestAxios.get('voice/report/'+userId)
+								.then(async data=>{
+									channelReminder.send({
+										content:`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`, 
+										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
+									})
+								})
+						}
 
-							})
 						supabase.from("FocusSessions")
 							.update({
 								'session':totalInMinutes
