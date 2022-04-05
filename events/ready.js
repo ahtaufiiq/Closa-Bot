@@ -43,8 +43,8 @@ module.exports = {
 				
 			})
 		let ruleReminderHighlight = new schedule.RecurrenceRule();
-		ruleReminderHighlight.hour = Time.minus7Hours(9)
-		ruleReminderHighlight.minute = 0
+		ruleReminderHighlight.hour = Time.minus7Hours(6)
+		ruleReminderHighlight.minute = 30
 		schedule.scheduleJob(ruleReminderHighlight,function(){
 			supabase.from('Users')
 			.select()
