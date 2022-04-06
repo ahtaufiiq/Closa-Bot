@@ -1,5 +1,5 @@
 const RequestAxios = require('../helpers/axios');
-const {CHANNEL_REMINDER} = require('../helpers/config');
+const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
@@ -14,6 +14,7 @@ module.exports = {
 	name: 'voiceStateUpdate',
 	async execute(oldMember,newMember,tes) {
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
+		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
@@ -68,7 +69,7 @@ module.exports = {
 						if (totalInMinutes >= 5) {
 							RequestAxios.get('voice/report/'+userId)
 								.then(async data=>{
-									channelReminder.send({
+									channelSessionLog.send({
 										content:`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`, 
 										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
 									})
