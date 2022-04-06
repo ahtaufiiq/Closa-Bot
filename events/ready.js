@@ -10,7 +10,16 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const channelReminder = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
-
+		supabase.from('Reminders')
+			.select()
+			.gte('time',new Date().toUTCString())
+			.then(data=>{
+				data.body.forEach(reminder=>{
+					schedule.scheduleJob(reminder.time,function() {
+						channelReminder.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
+					})
+				})
+			})
 		supabase.from('Users')
 			.select()
 			.neq('reminder_highlight',null)

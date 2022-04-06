@@ -38,6 +38,16 @@ module.exports = {
 						const date = new Date()
 						date.setHours(Time.minus7Hours(hours))
 						date.setMinutes(minutes-10)
+						const dateReminder = new Date()
+						dateReminder.setHours(hours)
+						dateReminder.setMinutes(minutes)
+						supabase.from('Reminders')
+							.insert({
+								message:msg.content,
+								time:dateReminder,
+								UserId:msg.author.id,
+							})
+							.then()
 						RequestAxios.post('highlights', {
 							description: msg.content,
 							UserId: msg.author.id
@@ -124,7 +134,8 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							.then()
 						let dailyStreak = values[0][0].length
 						let longestStreak = values[1][0].length
-						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,msg.author)
+						
+						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
 					})
 					.catch(err => {
