@@ -38,13 +38,10 @@ module.exports = {
 						const date = new Date()
 						date.setHours(Time.minus7Hours(hours))
 						date.setMinutes(minutes-10)
-						const dateReminder = new Date()
-						dateReminder.setHours(hours)
-						dateReminder.setMinutes(minutes-10)
 						supabase.from('Reminders')
 							.insert({
 								message:msg.content,
-								time:dateReminder,
+								time:date,
 								UserId:msg.author.id,
 							})
 							.then()
