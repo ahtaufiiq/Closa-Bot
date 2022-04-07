@@ -1,10 +1,5 @@
-const DailyStreakController = require("../controllers/DailyStreakController");
-const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS} = require("../helpers/config");
-const supabase = require("../helpers/supabaseClient");
-const Time = require("../helpers/time");
-const DailyStreakMessage = require("../views/DailyStreakMessage");
-const schedule = require('node-schedule');
+const MemberController = require("../controllers/MemberController");
+const getIdTopics = require("../helpers/getIdTopic");
 
 module.exports = {
 	name: 'messageReactionRemove',
