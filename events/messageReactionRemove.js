@@ -3,7 +3,7 @@ const getIdTopics = require("../helpers/getIdTopic");
 
 module.exports = {
 	name: 'messageReactionRemove',
-	async (reaction,user) {
+	async execute(reaction,user) {
 		// handle only message with this id
 		if(reaction.message.id !== "960790258256064542") return
 		if (reaction.partial) {
