@@ -71,7 +71,12 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
-
+					if (msg.attachments.size > 0 || msg.content.includes('http')) {
+						msg.startThread({
+							name:msg.content.split('\n')[0].substring(1),
+							autoArchiveDuration:60
+						})	
+					}
 					const { data, error } = await supabase
 											.from('Users')
 											.select()
