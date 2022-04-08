@@ -73,7 +73,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
 						msg.startThread({
-							name:msg.content.split('\n')[0].substring(1),
+							name:"💬 "+msg.content.split('\n')[0].substring(1),
 							autoArchiveDuration:60
 						})	
 					}
@@ -92,17 +92,6 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						})
 						attachments.push(data.attachment)
 					})
-                    if (data.goal_id) {
-						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
-	
-						thread.send({
-							content:msg.content,
-							files
-						})
-						
-						
-					}
 
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
@@ -143,6 +132,18 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					.catch(err => {
 						console.log(err)
 					})
+
+					if (data.goal_id) {
+						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
+	
+						thread.send({
+							content:msg.content,
+							files
+						})
+						
+						
+					}
 				}
 				break;
 			default:
