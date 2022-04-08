@@ -12,21 +12,21 @@ module.exports = {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
-			// case CHANNEL_GOALS:
-			// 	if (msg.content.includes("Success Criteria")) {
-			// 		const msgGoal = msg.content.split('\n')[0]
+			case CHANNEL_GOALS:
+				if (msg.content.includes("Success Criteria")) {
+					const msgGoal = `${msg.content.split('\n')[0]} by ${msg.author.username}`
 					
-			// 		const thread = await msg.startThread({
-			// 			name: msgGoal,
-			// 		});
-			// 		supabase.from('Users')
-			// 			.update({
-			// 				goal_id:thread.id
-			// 			})
-			// 			.eq('id',msg.author.id)
-			// 			.then()
-			// 	}
-			// 	break;
+					const thread = await msg.startThread({
+						name: msgGoal,
+					});
+					supabase.from('Users')
+						.update({
+							goal_id:thread.id
+						})
+						.eq('id',msg.author.id)
+						.then()
+				}
+				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
 				const patternEmoji = /^🔆/
@@ -73,7 +73,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
 						msg.startThread({
-							name:"💬 "+msg.content.split('\n')[0].substring(1),
+							name:`💬  ${msg.content.split('\n')[0].substring(1)}`,
 							autoArchiveDuration:60
 						})	
 					}
