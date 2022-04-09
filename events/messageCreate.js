@@ -116,8 +116,9 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						}
 					})
 					.then(data=>{
-						if (Time.isValidStreak(data.body.last_done)) {
-							let current_streak = data.body.current_streak + 1
+						let current_streak = data.body.current_streak + 1
+						
+						if (Time.isValidStreak(data.body.last_done,current_streak)) {
 							
 							if (current_streak > data.body.longest_streak) {
 								return supabase.from("Users")

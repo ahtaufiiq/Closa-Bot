@@ -89,8 +89,8 @@ class Time {
         return false
     }
 
-    static isValidStreak(date) {
-        return this.isYesterday(date) || this.isVacationMode(date)
+    static isValidStreak(date,currentStreak) {
+        return this.isYesterday(date) || (this.isVacationMode(date) && currentStreak >=3)
     }
 }
 
