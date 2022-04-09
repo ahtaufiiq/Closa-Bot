@@ -105,14 +105,14 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						} else {
 							supabase.from("Users")
 								.select()
-								.eq('id',MY_ID)
+								.eq('id',msg.author.id)
 								.single()
 								.then(data => {
 									if (isValidStreak(data.body.last_done)) {
 										let current_streak = data.body.current_streak + 1
 										supabase.from("Users")
 											.update({current_streak})
-											.eq('id',MY_ID)
+											.eq('id',msg.author.id)
 											.then()
 										if (current_streak > data.body.longest_streak) {
 											return supabase.from("Users")
@@ -120,13 +120,13 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 												'longest_streak':current_streak,
 												'end_longest_streak':Time.getDate().toISOString().substring(0,10)
 											})
-											.eq('id',MY_ID)
+											.eq('id',msg.author.id)
 											.single()
 										}
 									}else{
 										return supabase.from("Users")
 											.update({'current_streak':1})
-											.eq('id',MY_ID)
+											.eq('id',msg.author.id)
 											.single()
 									}
 								})
