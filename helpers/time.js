@@ -90,7 +90,7 @@ class Time {
     }
 
     static isValidStreak(date) {
-        return isYesterday(date) || isVacationMode(date)
+        return this.isYesterday(date) || this.isVacationMode(date)
     }
 }
 

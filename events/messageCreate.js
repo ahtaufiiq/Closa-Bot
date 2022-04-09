@@ -92,7 +92,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						})
 						attachments.push(data.attachment)
 					})
-
+					
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
 						if (data.length > 0) {
@@ -103,34 +103,42 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							})
 							throw new Error("Tidak perlu kirim daily streak ke channel")
 						} else {
-							supabase.from("Users")
+							RequestAxios.post('todos', {
+								attachments,
+								description:msg.content,
+								UserId:msg.author.id
+							})
+								
+							return supabase.from("Users")
 								.select()
 								.eq('id',msg.author.id)
 								.single()
-								.then(data => {
-									if (isValidStreak(data.body.last_done)) {
-										let current_streak = data.body.current_streak + 1
-										supabase.from("Users")
-											.update({current_streak})
-											.eq('id',msg.author.id)
-											.then()
-										if (current_streak > data.body.longest_streak) {
-											return supabase.from("Users")
-											.update({
-												'longest_streak':current_streak,
-												'end_longest_streak':Time.getDate().toISOString().substring(0,10)
-											})
-											.eq('id',msg.author.id)
-											.single()
-										}
-									}else{
-										return supabase.from("Users")
-											.update({'current_streak':1})
-											.eq('id',msg.author.id)
-											.single()
-									}
-								})
+						}
+					})
+					.then(data=>{
+						if (Time.isValidStreak(data.body.last_done)) {
+							let current_streak = data.body.current_streak + 1
 							
+							if (current_streak > data.body.longest_streak) {
+								return supabase.from("Users")
+								.update({
+									current_streak,
+									'longest_streak':current_streak,
+									'end_longest_streak':Time.getDate().toISOString().substring(0,10)
+								})
+								.eq('id',msg.author.id)
+								.single()
+							}else{
+								return supabase.from("Users")
+								.update({current_streak})
+								.eq('id',msg.author.id)
+								.single()
+							}
+						}else{
+							return supabase.from("Users")
+								.update({'current_streak':1})
+								.eq('id',msg.author.id)
+								.single()
 						}
 					})
 					.then(data => {
@@ -139,7 +147,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							.eq('id',msg.author.id)
 							.then()
 						let dailyStreak = data.body.current_streak
-						let longestStreak = data.body.longestStreak
+						let longestStreak = data.body.longest_streak
 						
 						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
@@ -152,10 +160,10 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
 	
-						thread.send({
-							content:msg.content,
-							files
-						})
+						// thread.send({
+						// 	content:msg.content,
+						// 	files
+						// })
 						
 						
 					}
