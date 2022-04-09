@@ -103,28 +103,43 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							})
 							throw new Error("Tidak perlu kirim daily streak ke channel")
 						} else {
-							return RequestAxios.post('todos', {
-								attachments,
-								description:msg.content,
-								UserId:msg.author.id
-							})
+							supabase.from("Users")
+								.select()
+								.eq('id',MY_ID)
+								.single()
+								.then(data => {
+									if (isValidStreak(data.body.last_done)) {
+										let current_streak = data.body.current_streak + 1
+										supabase.from("Users")
+											.update({current_streak})
+											.eq('id',MY_ID)
+											.then()
+										if (current_streak > data.body.longest_streak) {
+											return supabase.from("Users")
+											.update({
+												'longest_streak':current_streak,
+												'end_longest_streak':Time.getDate().toISOString().substring(0,10)
+											})
+											.eq('id',MY_ID)
+											.single()
+										}
+									}else{
+										return supabase.from("Users")
+											.update({'current_streak':1})
+											.eq('id',MY_ID)
+											.single()
+									}
+								})
 							
 						}
 					})
-					.then(()=>{
-						return Promise.all(
-							[
-								RequestAxios.get(`todos/dailyStreak/${msg.author.id}`),
-								RequestAxios.get(`todos/longestStreak/${msg.author.id}`),
-							])
-					})
-					.then(values => {
+					.then(data => {
 						supabase.from('Users')
 							.update({last_done:Time.getDate().toISOString().substring(0,10)})
 							.eq('id',msg.author.id)
 							.then()
-						let dailyStreak = values[0][0].length
-						let longestStreak = values[1][0].length
+						let dailyStreak = data.body.current_streak
+						let longestStreak = data.body.longestStreak
 						
 						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
