@@ -159,12 +159,12 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 
 					if (data.goal_id) {
 						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
+						const thread = await channel.threads.fetch(data.goal_id);
 	
-						// thread.send({
-						// 	content:msg.content,
-						// 	files
-						// })
+						thread.send({
+							content:msg.content,
+							files
+						})
 						
 						
 					}
