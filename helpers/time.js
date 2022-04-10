@@ -56,11 +56,10 @@ class Time {
     
     static isVacationMode(date) {
         const todayDate = Time.getDate()
+        let stringDate = todayDate.toISOString().substring(0,10)
     
         if (todayDate.getDay() === 1) {
-            console.log('masuk sini');
             todayDate.setDate(todayDate.getDate()-1)
-            let stringDate = todayDate.toISOString().substring(0,10)
             if (stringDate === date) {
                 return true
             }
@@ -76,7 +75,6 @@ class Time {
             }
         }else if(todayDate.getDay() === 0){
             todayDate.setDate(todayDate.getDate()-1)
-            stringDate = todayDate.toISOString().substring(0,10)
             if (stringDate === date) {
                 return true
             }
