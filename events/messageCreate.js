@@ -172,7 +172,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				break;
 			case CHANNEL_TOPICS:
 				msg.startThread({
-					name:`💬  ${msg.content.split('\n')[0]} by ${msg.author.username}`
+					name:`💬  ${msg.content.split('\n')[0]}`
 				})	
 				break;
 			default:
