@@ -12,21 +12,21 @@ module.exports = {
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
-			// case CHANNEL_GOALS:
-			// 	if (msg.content.includes("Success Criteria")) {
-			// 		const msgGoal = msg.content.split('\n')[0]
+			case CHANNEL_GOALS:
+				if (msg.content.includes("Success Criteria")) {
+					const msgGoal = `${msg.content.split('\n')[0]} by ${msg.author.username}`
 					
-			// 		const thread = await msg.startThread({
-			// 			name: msgGoal,
-			// 		});
-			// 		supabase.from('Users')
-			// 			.update({
-			// 				goal_id:thread.id
-			// 			})
-			// 			.eq('id',msg.author.id)
-			// 			.then()
-			// 	}
-			// 	break;
+					const thread = await msg.startThread({
+						name: msgGoal,
+					});
+					supabase.from('Users')
+						.update({
+							goal_id:thread.id
+						})
+						.eq('id',msg.author.id)
+						.then()
+				}
+				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
 				const patternEmoji = /^🔆/
@@ -71,7 +71,12 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
-
+					if (msg.attachments.size > 0 || msg.content.includes('http')) {
+						msg.startThread({
+							name:`💬  ${msg.content.split('\n')[0].substring(1)}`,
+							autoArchiveDuration:60
+						})	
+					}
 					const { data, error } = await supabase
 											.from('Users')
 											.select()
@@ -87,18 +92,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						})
 						attachments.push(data.attachment)
 					})
-                    if (data.goal_id) {
-						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
-	
-						thread.send({
-							content:msg.content,
-							files
-						})
-						
-						
-					}
-
+					
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
 						if (data.length > 0) {
@@ -109,28 +103,52 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 							})
 							throw new Error("Tidak perlu kirim daily streak ke channel")
 						} else {
-							return RequestAxios.post('todos', {
+							RequestAxios.post('todos', {
 								attachments,
 								description:msg.content,
 								UserId:msg.author.id
 							})
-							
+								
+							return supabase.from("Users")
+								.select()
+								.eq('id',msg.author.id)
+								.single()
 						}
 					})
-					.then(()=>{
-						return Promise.all(
-							[
-								RequestAxios.get(`todos/dailyStreak/${msg.author.id}`),
-								RequestAxios.get(`todos/longestStreak/${msg.author.id}`),
-							])
+					.then(data=>{
+						let current_streak = data.body.current_streak + 1
+						
+						if (Time.isValidStreak(data.body.last_done,current_streak)) {
+							
+							if (current_streak > data.body.longest_streak) {
+								return supabase.from("Users")
+								.update({
+									current_streak,
+									'longest_streak':current_streak,
+									'end_longest_streak':Time.getDate().toISOString().substring(0,10)
+								})
+								.eq('id',msg.author.id)
+								.single()
+							}else{
+								return supabase.from("Users")
+								.update({current_streak})
+								.eq('id',msg.author.id)
+								.single()
+							}
+						}else{
+							return supabase.from("Users")
+								.update({'current_streak':1})
+								.eq('id',msg.author.id)
+								.single()
+						}
 					})
-					.then(values => {
+					.then(data => {
 						supabase.from('Users')
 							.update({last_done:Time.getDate().toISOString().substring(0,10)})
 							.eq('id',msg.author.id)
 							.then()
-						let dailyStreak = values[0][0].length
-						let longestStreak = values[1][0].length
+						let dailyStreak = data.body.current_streak
+						let longestStreak = data.body.longest_streak
 						
 						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
@@ -138,6 +156,18 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					.catch(err => {
 						console.log(err)
 					})
+
+					if (data.goal_id) {
+						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = channel.threads.cache.find(x => x.id === data.goal_id);
+	
+						// thread.send({
+						// 	content:msg.content,
+						// 	files
+						// })
+						
+						
+					}
 				}
 				break;
 			default:
