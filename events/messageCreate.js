@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -73,8 +73,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
 						msg.startThread({
-							name:`💬  ${msg.content.split('\n')[0].substring(1)}`,
-							autoArchiveDuration:60
+							name:`💬  ${msg.content.split('\n')[0].substring(1)}`
 						})	
 					}
 					const { data, error } = await supabase
@@ -169,6 +168,11 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						
 					}
 				}
+				break;
+			case CHANNEL_REFLECTION:
+				msg.startThread({
+					name:`Reflection by ${msg.author.username}`
+				})	
 				break;
 			case CHANNEL_TOPICS:
 				msg.startThread({
