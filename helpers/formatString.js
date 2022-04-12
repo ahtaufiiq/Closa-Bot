@@ -1,6 +1,6 @@
 class FormatString {
     static truncateString(text,maxLength=90){
-        return text.substring(0,maxLength)
+        return text.substring(0,maxLength) +'...'
     }
 }
 

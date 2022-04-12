@@ -41,7 +41,6 @@ module.exports = {
 			focusRoomUser[userId].selfVideo = newMember.selfVideo
 			focusRoomUser[userId].streaming = newMember.streaming
 			
-			
 			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
 				if (focusRoomUser[userId].status !== 'processed' ) {
 					focusRoomUser[userId].status === 'processed'
@@ -106,6 +105,8 @@ Please do it within 2 minute before you get auto-kick from the call.`)
 						}
 					}, time);
 				}
+			}else{
+				reject('user already open camera or sharescreen')
 			}
 		}, time);
 	})
