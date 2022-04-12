@@ -1,4 +1,4 @@
-const {GUILD_ID,CHANNEL_REMINDER} = require('../helpers/config')
+const {GUILD_ID,CHANNEL_REMINDER, MY_ID} = require('../helpers/config')
 const supabase  = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
@@ -113,5 +113,8 @@ module.exports = {
 			})
 		
 		})
+
+		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
+		user.send("Restart Bot")
 	},
 };
