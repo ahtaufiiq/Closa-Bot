@@ -5,6 +5,7 @@ const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
+const FormatString = require("../helpers/formatString");
 
 module.exports = {
 	name: 'messageCreate',
@@ -14,10 +15,11 @@ module.exports = {
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
 				if (msg.content.includes("Success Criteria")) {
-					const msgGoal = `${msg.content.split('\n')[0]} by ${msg.author.username}`
+					const maxLength = 90 - `by ${msg.author.username}`.length
+					const msgGoal = `${msg.content.split('\n')[0]}`
 					
 					const thread = await msg.startThread({
-						name: msgGoal,
+						name: FormatString.truncateString(msgGoal,maxLength)+ ` by ${msg.author.username}`,
 					});
 					supabase.from('Users')
 						.update({
@@ -73,7 +75,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
 						msg.startThread({
-							name:`💬  ${msg.content.split('\n')[0].substring(1)}`
+							name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0].substring(1)}`)
 						})	
 					}
 					const { data, error } = await supabase
@@ -176,7 +178,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				break;
 			case CHANNEL_TOPICS:
 				msg.startThread({
-					name:`💬  ${msg.content.split('\n')[0]}`
+					name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0]}`)
 				})	
 				break;
 			default:
