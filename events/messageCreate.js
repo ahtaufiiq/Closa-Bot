@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -180,6 +180,13 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				msg.startThread({
 					name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0]}`)
 				})	
+				break;
+			case CHANNEL_CELEBRATE:
+				if (msg.attachments.size > 0 || msg.content.includes('http')) {
+					msg.startThread({
+						name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0]}`)
+					})	
+				}	
 				break;
 			default:
 				break;
