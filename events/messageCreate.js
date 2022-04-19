@@ -1,11 +1,12 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
+const SendEmail = require("../helpers/sendEmail");
 
 module.exports = {
 	name: 'messageCreate',
@@ -187,6 +188,69 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0]}`)
 					})	
 				}	
+				break;
+			case CHANNEL_PAYMENT:
+				if (msg.content[0] === 'v') {
+					const msgReferrence = await msg.client.guilds.cache.get(GUILD_ID).channels.cache.get("953575264208695327").messages.fetch(msg.reference.messageId)
+					const paymentType = msgReferrence.embeds[0].title
+					const UserId = msg.mentions.users.first().id
+					const user = msg.mentions.users.first()
+
+					if (msgReferrence.embeds.length>0 && UserId === MY_ID) {
+						
+						
+						const idPayment = msgReferrence.embeds[0].footer.text
+			
+						const {data} = await supabase.from('Payments')
+						.select()
+						.eq('id',idPayment)
+						.single()
+						
+						const [total,type] = data.membership.split(' ')
+			
+						if (paymentType === "Renewal") {
+							const email = msgReferrence.embeds[0].fields[0].value
+							supabase.from('Users')
+								.select('end_membership')
+								.eq('id',UserId)
+								.single()
+								.then(data =>{
+									supabase.from('Users')
+										.update({'end_membership':Time.getEndMembership(type,total,data.body.end_membership)})
+										.eq('id',UserId)
+										.single()
+										.then(data=>{
+                                        	const date = Time.getDate(data.body.end_membership).toDateString().substring(4)
+											SendEmail.membershipRenewal(user.username,'ataufiq655@gmail.com',date)
+											user.send(`Hi <@${UserId}>, your membership status already extended until ${date}.
+Thank you for your support to closa community!`)
+										})
+								})
+						}else if(paymentType === 'Payment'){
+							const email = msgReferrence.embeds[0].fields[4].value
+							supabase.from('Users')
+								.update({"end_membership":Time.getEndMembership(type,total,data.createdAt),email})
+								.eq('id',UserId)
+								.single()
+								.then(data=>{
+									const date = Time.getDate(data.body.end_membership).toDateString().substring(4)
+									SendEmail.membershipRenewal(user.username,'ataufiq655@gmail.com',date)
+									user.send(`Hi <@${UserId}>, your membership status until ${date}.
+Thank you for your support to closa community!`)
+								})
+							
+						}
+						supabase.from("Payments")
+								.update({UserId})
+								.eq('id',idPayment)
+								.then(data=>{
+									if (data?.body) {
+										 msg.react('✅')	
+									}
+								})
+					}
+						
+				}
 				break;
 			default:
 				break;
