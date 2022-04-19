@@ -6,7 +6,7 @@ const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
-const SendEmail = require("../helpers/sendEmail");
+const SendEmail = require("../helpers/SendEmail");
 
 module.exports = {
 	name: 'messageCreate',
