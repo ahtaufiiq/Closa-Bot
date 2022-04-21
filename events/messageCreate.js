@@ -196,7 +196,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					const UserId = msg.mentions.users.first().id
 					const user = msg.mentions.users.first()
 
-					if (msgReferrence.embeds.length>0 && UserId === MY_ID) {
+					if (msgReferrence.embeds.length>0 ) {
 						
 						
 						const idPayment = msgReferrence.embeds[0].footer.text
