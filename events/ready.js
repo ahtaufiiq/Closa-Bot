@@ -4,11 +4,55 @@ const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const Email = require('../helpers/Email');
 module.exports = {
 	name: 'ready',
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
+
+		let rulePaymentReminder = new schedule.RecurrenceRule();
+		rulePaymentReminder.hour = Time.minus7Hours(8)
+		rulePaymentReminder.minute = 0
+		schedule.scheduleJob(rulePaymentReminder,function(){
+			supabase.from('Users')
+			.select('email,name')
+			.eq('end_membership',Time.getReminderDate(5))
+			.then(async data=>{
+				if (data.body) {
+					const endedMembership = Time.getFormattedDate(Time.getNextDate(5))
+					Email.sendPaymentReminder(data.body,'5 days',endedMembership)
+				}
+			})
+			supabase.from('Users')
+			.select('email,name')
+			.eq('end_membership',Time.getReminderDate(3))
+			.then(async data=>{
+				if (data.body) {
+					const endedMembership = Time.getFormattedDate(Time.getNextDate(3))
+					Email.sendPaymentReminder(data.body,'3 days',endedMembership)
+				}
+			})
+			supabase.from('Users')
+			.select('email,name')
+			.eq('end_membership',Time.getReminderDate(1))
+			.then(async data=>{
+				if (data.body) {
+					const endedMembership = Time.getFormattedDate(Time.getNextDate(1))
+					Email.sendPaymentReminder(data.body,'1 day',endedMembership)
+				}
+			})
+			supabase.from('Users')
+			.select('email,name')
+			.eq('end_membership',Time.getReminderDate())
+			.then(async data=>{
+				if (data.body) {
+					const endedMembership = Time.getFormattedDate(Time.getDate())
+					Email.sendPaymentReminder(data.body,'0',endedMembership)
+				}
+			})
+		
+		})
 		const channelReminder = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
 		supabase.from('Reminders')
 			.select()

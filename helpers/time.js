@@ -35,9 +35,14 @@ class Time {
         return date
     }
 
-    static getReminderDate(day=0){
+    static getNextDate(day){
         const date = Time.getDate()
         date.setDate(date.getDate()+day)
+        return date
+    }
+
+    static getReminderDate(day=0){
+        const date = this.getNextDate(day)
         return this.getDateOnly(date)
     }
 
@@ -61,7 +66,11 @@ class Time {
     }
 
     static getDateOnly(date){
-        return date.toISOString().substring(0,10)
+        return date.toISOString().substring(0,10) //2022-04-26
+    }
+
+    static getFormattedDate(date){
+        return date.toDateString().substring(4) //Apr 26 2022
     }
     
     static isVacationMode(date) {

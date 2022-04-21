@@ -6,7 +6,7 @@ const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
-const SendEmail = require("../helpers/SendEmail");
+const Email = require("../helpers/Email");
 
 module.exports = {
 	name: 'messageCreate',
@@ -207,7 +207,16 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						.single()
 						
 						const [total,type] = data.membership.split(' ')
-			
+
+						supabase.from("Payments")
+						.update({UserId})
+						.eq('id',idPayment)
+						.then(data=>{
+							if (data?.body) {
+								 msg.react('✅')	
+							}
+						})
+
 						if (paymentType === "Renewal") {
 							const email = msgReferrence.embeds[0].fields[0].value
 							supabase.from('Users')
@@ -220,34 +229,38 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 										.eq('id',UserId)
 										.single()
 										.then(data=>{
-                                        	const date = Time.getDate(data.body.end_membership).toDateString().substring(4)
-											SendEmail.membershipRenewal(user.username,'ataufiq655@gmail.com',date)
+                                        	const date = Time.getFormattedDate(Time.getDate(data.body.end_membership))
+											// Send Email Renewal
+											Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,date)
 											user.send(`Hi <@${UserId}>, your membership status already extended until ${date}.
 Thank you for your support to closa community!`)
 										})
 								})
 						}else if(paymentType === 'Payment'){
 							const email = msgReferrence.embeds[0].fields[4].value
+							const name = msgReferrence.embeds[0].fields[3].value
+
+							
 							supabase.from('Users')
-								.update({"end_membership":Time.getEndMembership(type,total,data.createdAt),email})
+								.update({"end_membership":Time.getEndMembership(type,total,data.createdAt),email,name})
 								.eq('id',UserId)
 								.single()
 								.then(data=>{
-									const date = Time.getDate(data.body.end_membership).toDateString().substring(4)
-									SendEmail.membershipRenewal(user.username,'ataufiq655@gmail.com',date)
+									const date = Time.getFormattedDate(Time.getDate(data.body.end_membership))
+									const startDate = Time.getFormattedDate(Time.getDate())
 									user.send(`Hi <@${UserId}>, your membership status until ${date}.
 Thank you for your support to closa community!`)
-								})
 							
-						}
-						supabase.from("Payments")
-								.update({UserId})
-								.eq('id',idPayment)
-								.then(data=>{
-									if (data?.body) {
-										 msg.react('✅')	
-									}
+									Email.createContact(email,name)
+										.then(function() {
+											Email.sendWelcomeToClosa(data.body.name,data.body.email,startDate)
+										}, function(error) {
+												console.error(error);
+										});
+									
 								})
+						}
+						
 					}
 						
 				}
