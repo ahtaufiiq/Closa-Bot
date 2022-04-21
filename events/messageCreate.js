@@ -250,14 +250,12 @@ Thank you for your support to closa community!`)
 									const startDate = Time.getFormattedDate(Time.getDate())
 									user.send(`Hi <@${UserId}>, your membership status until ${date}.
 Thank you for your support to closa community!`)
-							
-									Email.createContact(email,name)
-										.then(function() {
+									Email.createContact('ataufiq655@gmail.com','ahtaufiiq')
+										.catch(err=>{
+										})
+										.finally(()=>{
 											Email.sendWelcomeToClosa(data.body.name,data.body.email,startDate)
-										}, function(error) {
-												console.error(error);
-										});
-									
+										})
 								})
 						}
 						
