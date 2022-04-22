@@ -40,15 +40,33 @@ module.exports = {
 				if (data.body) {
 					const endedMembership = Time.getFormattedDate(Time.getNextDate(1))
 					Email.sendPaymentReminder(data.body,'1 day',endedMembership)
+					for (let i = 0; i < data.body.length; i++) {
+						const {id} = data.body[i];
+						const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(id)
+						user.send(`Hi ${user} :wave:,
+Thank you for being part of Closa Community :sparkles:.
+
+**A friendly reminder that your Closa membership will be ended within the next 1 day  on ${endedMembership}.
+You can extend your membership period via this link**—  https://tally.so/r/wbRa2w`)
+					}
 				}
 			})
 			supabase.from('Users')
-			.select('email,name')
+			.select('id,email,name')
 			.eq('end_membership',Time.getReminderDate())
 			.then(async data=>{
 				if (data.body) {
 					const endedMembership = Time.getFormattedDate(Time.getDate())
 					Email.sendPaymentReminder(data.body,'0',endedMembership)
+					for (let i = 0; i < data.body.length; i++) {
+						const {id} = data.body[i];
+						const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(id)
+						user.send(`Hi ${user} :wave:,
+Thank you for being part of Closa Community :sparkles:.
+
+**A friendly reminder that your Closa membership will be ended today on ${endedMembership}.
+You can extend your membership period via this link**—  https://tally.so/r/wbRa2w`)
+					}
 				}
 			})
 		
