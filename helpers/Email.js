@@ -87,7 +87,6 @@ class Email {
           ],
           "templateId":5,
           "params":{
-            onboarding_date,
             ended_membership
          },
         };
