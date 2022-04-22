@@ -234,6 +234,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 											Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,date)
 											user.send(`Hi <@${UserId}>, your membership status already extended until ${date}.
 Thank you for your support to closa community!`)
+											msg.reply(`${data.body.name} membership status already extended until ${date}`)
 										})
 								})
 						}else if(paymentType === 'Payment'){
@@ -256,6 +257,7 @@ Thank you for your support to closa community!`)
 										.finally(()=>{
 											Email.sendWelcomeToClosa(data.body.name,data.body.email,startDate)
 										})
+									msg.reply(`${data.body.name} membership status until ${date}`)
 								})
 						}
 						
