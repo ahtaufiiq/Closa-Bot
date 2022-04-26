@@ -35,6 +35,17 @@ class Time {
         return date
     }
 
+    static getNextDate(day){
+        const date = Time.getDate()
+        date.setDate(date.getDate()+day)
+        return date
+    }
+
+    static getReminderDate(day=0){
+        const date = this.getNextDate(day)
+        return this.getDateOnly(date)
+    }
+
     static getThisMonth(){
         let months = ["January","February","March","April","May","June","July","August","September",'October',"November","December"]
         let today = this.getDate()
@@ -52,6 +63,14 @@ class Time {
         const stringDate = todayDate.toISOString().substring(0,10)
         
         return stringDate === date
+    }
+
+    static getDateOnly(date){
+        return date.toISOString().substring(0,10) //2022-04-26
+    }
+
+    static getFormattedDate(date){
+        return date.toDateString().substring(4) //Apr 26 2022
     }
     
     static isVacationMode(date) {
@@ -89,6 +108,19 @@ class Time {
 
     static isValidStreak(date,currentStreak) {
         return this.isYesterday(date) || (this.isVacationMode(date) && currentStreak >=3)
+    }
+
+    static getEndMembership(typeMembership,total,dateMembership) {
+        const date = new Date(dateMembership)
+        if (typeMembership.includes('Month')) {
+            const totalMonth = date.getMonth()+ Number(total)
+            date.setMonth(totalMonth)
+        }else if(typeMembership.includes('Year')){
+            const totalYear = date.getFullYear() + Number(total)
+            date.setFullYear(totalYear)
+        }
+        date.setDate(20)
+        return date.toISOString().substring(0,10)
     }
 }
 

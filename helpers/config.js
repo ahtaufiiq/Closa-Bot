@@ -25,5 +25,7 @@ module.exports = {
     SUPABASE_KEY: process.env.SUPABASE_KEY,
     SECRET_TOKEN: process.env.SECRET_TOKEN,
     SENTRY_DSN: process.env.SENTRY_DSN,
+    EMAIL_PASS: process.env.EMAIL_PASS,
+    SENDINBLUE_API_KEY: process.env.SENDINBLUE_API_KEY,
     BASE_URL: process.env.BASE_URL
 }

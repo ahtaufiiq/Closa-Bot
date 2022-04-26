@@ -15,6 +15,7 @@
     "discord-api-types": "^0.27.3",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
-    "node-schedule": "^2.1.0"
+    "node-schedule": "^2.1.0",
+    "sib-api-v3-sdk": "^8.3.0"
   }
 }
