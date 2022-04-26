@@ -113,22 +113,7 @@ You can extend your membership period via this link**—  https://tally.so/r/wbR
 				})
 				
 			})
-		let ruleReminderHighlight = new schedule.RecurrenceRule();
-		ruleReminderHighlight.hour = Time.minus7Hours(7)
-		ruleReminderHighlight.minute = 30
-		schedule.scheduleJob(ruleReminderHighlight,function(){
-			supabase.from('Users')
-			.select()
-			.neq('last_highlight',Time.getDate().toISOString().substring(0,10))
-			.is('reminder_highlight',null)
-			.then(async data=>{
-				for (let i = 0; i < data.body.length; i++) {
-					const userId = data.body[i].id;
-					channelReminder.send(HighlightReminderMessage.highlightReminder(userId))
-				}
-			})
 		
-		})
 		supabase.from('Users')
 		.select()
 		.neq('reminder_progress',null)
@@ -159,22 +144,7 @@ You can extend your membership period via this link**—  https://tally.so/r/wbR
 			})
 			
 		})
-		let ruleReminderDone = new schedule.RecurrenceRule();
-		ruleReminderDone.hour = Time.minus7Hours(21)
-		ruleReminderDone.minute = 0
-		schedule.scheduleJob(ruleReminderDone,function(){
-			supabase.from('Users')
-			.select()
-			.neq('last_done',Time.getDate().toISOString().substring(0,10))
-			.is('reminder_progress',null)
-			.then(async data=>{
-				for (let i = 0; i < data.body.length; i++) {
-					const userId = data.body[i].id;
-					channelReminder.send(TodoReminderMessage.progressReminder(userId))
-				}
-			})
 		
-		})
 
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
