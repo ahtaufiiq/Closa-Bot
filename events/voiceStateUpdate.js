@@ -95,8 +95,7 @@ module.exports = {
 			let data = newMember.channel.members.filter(user=>!user.bot)
 			totalNewMember = data.size
 			if (totalNewMember === 3 && totalNewMember !== totalOldMember && newMember.channelId === CHANNEL_CLOSA_CAFE) {
-				let msg = `@here there are 3 people in <#${CHANNEL_CLOSA_CAFE}> right now, let's join the talk.`
-				
+				let msg = `@here there are 3 people in <#${CHANNEL_CLOSA_CAFE}> right now, let's vibin :beers:`
 				const channelGeneral = oldMember.guild.channels.cache.get(CHANNEL_GENERAL)
 				channelGeneral.send(msg)
 			}
