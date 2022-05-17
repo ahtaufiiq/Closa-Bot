@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -188,6 +188,11 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0]}`)
 					})	
 				}	
+				break;
+			case CHANNEL_INTRO:
+				msg.startThread({
+					name:FormatString.truncateString(`Welcome ${msg.author.username}`)
+				})	
 				break;
 			case CHANNEL_PAYMENT:
 				if (msg.content[0] === 'v') {
