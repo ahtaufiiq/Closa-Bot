@@ -35,7 +35,7 @@ class Time {
         return date
     }
 
-    static getNextDate(day){
+    static getNextDate(day=0){
         const date = Time.getDate()
         date.setDate(date.getDate()+day)
         return date

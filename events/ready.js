@@ -1,4 +1,4 @@
-const {GUILD_ID,CHANNEL_REMINDER, MY_ID} = require('../helpers/config')
+const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS} = require('../helpers/config')
 const supabase  = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
@@ -11,10 +11,10 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 
-		let rulePaymentReminder = new schedule.RecurrenceRule();
-		rulePaymentReminder.hour = Time.minus7Hours(8)
-		rulePaymentReminder.minute = 0
-// 		schedule.scheduleJob(rulePaymentReminder,function(){
+		// let rulePaymentReminder = new schedule.RecurrenceRule();
+		// rulePaymentReminder.hour = Time.minus7Hours(8)
+		// rulePaymentReminder.minute = 0
+		// schedule.scheduleJob(rulePaymentReminder,function(){
 // 			supabase.from('Users')
 // 			.select('email,name')
 // 			.eq('end_membership',Time.getReminderDate(5))
@@ -144,6 +144,39 @@ module.exports = {
 			})
 			
 		})
+
+		let ruleReminderSkipTwoDays = new schedule.RecurrenceRule();
+		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)
+		ruleReminderSkipTwoDays.minute = 0
+
+
+		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
+			const date = Time.getDate()
+
+			if(date.getDay() !== 0 && date.getDay() !== 6) return
+
+			const gapDay = (date.getDay() === 1 || date.getDay() === 2) ? -5 : -3
+
+			let lastDone = Time.getDateOnly(Time.getNextDate(gapDay))
+			supabase.from("Users")
+			.select('id,goal_id,name')
+			.eq('last_done',lastDone)
+			.then(dataUsers =>{
+				dataUsers.body.forEach(async data=>{
+					if (data.goal_id) {
+						const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = await channel.threads.fetch(data.goal_id);
+						
+						thread.send({
+							content:`skip 2 hari <@${data.id}>`
+						})
+					}
+				})
+			})
+			
+		})
+
+
 		
 
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
