@@ -1,20 +1,47 @@
-const {GUILD_ID,CHANNEL_REMINDER, MY_ID} = require('../helpers/config')
+const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS} = require('../helpers/config')
 const supabase  = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const Email = require('../helpers/Email');
+
+let accountabilityPartners = {
+	"449853586508349440":["414072412586377218","698539976064761936"],
+	"414072412586377218":["449853586508349440","698539976064761936"],
+	"698539976064761936":["449853586508349440","414072412586377218"],
+
+	"410304072621752320":["694910683925446668","585824427548213270"],
+	"694910683925446668":["410304072621752320","585824427548213270"],
+	"585824427548213270":["410304072621752320","694910683925446668"],
+
+	"615905564781969409":["696581180752920626","408275385223217154","969138351556919316"],
+	"696581180752920626":["615905564781969409","408275385223217154","969138351556919316"],
+	"408275385223217154":["615905564781969409","696581180752920626","969138351556919316"],
+	"969138351556919316":["615905564781969409","696581180752920626","408275385223217154"],
+
+	"810695169497759814":["765065034606313513","474475352127963137"],
+	"765065034606313513":["810695169497759814","474475352127963137"],
+	"474475352127963137":["810695169497759814","765065034606313513"],
+
+	"302052968818278400":["442010067034963981","667359197373136947"],
+	"442010067034963981":["302052968818278400","667359197373136947"],
+	"667359197373136947":["302052968818278400","442010067034963981"],
+
+	"551025976772132874":["931493980141649970","703533328682451004"],
+	"931493980141649970":["551025976772132874","703533328682451004"],
+	"703533328682451004":["551025976772132874","931493980141649970"],
+}
 module.exports = {
 	name: 'ready',
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 
-		let rulePaymentReminder = new schedule.RecurrenceRule();
-		rulePaymentReminder.hour = Time.minus7Hours(8)
-		rulePaymentReminder.minute = 0
-// 		schedule.scheduleJob(rulePaymentReminder,function(){
+		// let rulePaymentReminder = new schedule.RecurrenceRule();
+		// rulePaymentReminder.hour = Time.minus7Hours(8)
+		// rulePaymentReminder.minute = 0
+		// schedule.scheduleJob(rulePaymentReminder,function(){
 // 			supabase.from('Users')
 // 			.select('email,name')
 // 			.eq('end_membership',Time.getReminderDate(5))
@@ -144,6 +171,42 @@ module.exports = {
 			})
 			
 		})
+
+		let ruleReminderSkipTwoDays = new schedule.RecurrenceRule();
+		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)
+		ruleReminderSkipTwoDays.minute = 0
+
+		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
+			const date = Time.getDate()
+			console.log("masuk");
+			if(date.getDay() == 0 && date.getDay() == 6) return
+			console.log('masuk lagi');
+			const gapDay = (date.getDay() === 1 || date.getDay() === 2) ? -5 : -3
+
+			let lastDone = Time.getDateOnly(Time.getNextDate(gapDay))
+			supabase.from("Users")
+			.select('id,goal_id,name')
+			.eq('last_done',lastDone)
+			.then(dataUsers =>{
+				dataUsers.body.forEach(async data=>{
+					if (data.goal_id) {
+						const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = await channel.threads.fetch(data.goal_id);
+						
+						thread.send({
+							content:`Hi <@${data.id}>, you haven't update your #progress in the last two days.
+how are you doing? is everything okay? 
+
+cc ${accountabilityPartners[data.id].map(idUser=>`<@${idUser}>`)}: please check how <@${data.id}> doing on your multi-chat.
+Let's support each other to make #progress 🙌`
+						})
+					}
+				})
+			})
+			
+		})
+
+
 		
 
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
