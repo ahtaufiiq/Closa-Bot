@@ -29,7 +29,7 @@ class GenerateImage{
         const greenDot = await loadImage('./assets/images/green_dot.png')
         const checklist = await loadImage('./assets/images/checklist.png')
         const empty = await loadImage('./assets/images/empty.png')
-        const emptyGray = await loadImage('./assets/images/emptyGray.png')
+        const emptyGray = await loadImage('./assets/images/emptyGray.jpg')
 
         const today = Time.getDate()
         const day = today.getDay() === 0 ? 7 : today.getDay()
