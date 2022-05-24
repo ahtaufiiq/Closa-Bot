@@ -35,6 +35,10 @@ class Time {
         return date
     }
 
+    static getDay(){
+        return this.getDate().toLocaleDateString("en-US", { weekday: 'long'})
+    }
+
     static getNextDate(day=0){
         const date = Time.getDate()
         date.setDate(date.getDate()+day)
@@ -70,7 +74,7 @@ class Time {
     }
 
     static getFormattedDate(date){
-        return date.toDateString().substring(4) //Apr 26 2022
+        return date.toLocaleDateString("en-US", { dateStyle:'medium'}) //Apr 26 2022
     }
     
     static isVacationMode(date) {

@@ -3,10 +3,10 @@ const fs = require('fs')
 const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,date,photo,data,streak){
+    static async tracker(name,goalName,photo,data,streak){
 
         
-        const canvas = createCanvas(1078,1165)
+        const canvas = createCanvas(1078,1125)
 
         const context = canvas.getContext('2d')
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
@@ -22,7 +22,7 @@ class GenerateImage{
 
         context.fillStyle = "#888888"; 
         context.font = "400 40px Inter";
-        context.fillText(date, 75 , 198 + 30);
+        context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
         
         context.font = "400 36px Inter";

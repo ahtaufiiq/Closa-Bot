@@ -175,7 +175,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 									})
 									
 									const avatarUrl = "https://cdn.discordapp.com/avatars/"+msg.author.id+"/"+msg.author.avatar+".jpeg"
-									const buffer = await GenerateImage.tracker(msg.author.username,goalName,Time.getFormattedDate(Time.getDate()),avatarUrl,progressRecently,dailyStreak)
+									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,dailyStreak)
 									
 
 									const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
