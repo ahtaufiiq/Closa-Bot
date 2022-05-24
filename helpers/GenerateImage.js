@@ -24,7 +24,7 @@ class GenerateImage{
         context.font = "40px Inter";
         context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
-        context.fillText(`${streak} streak`, 122 , 1010 + 34);
+        context.fillText(`${streak} streak`, 122 , 1010 + 37);
           
         const greenDot = await loadImage('./assets/images/green_dot.png')
         const checklist = await loadImage('./assets/images/checklist.png')
