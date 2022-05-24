@@ -1,8 +1,9 @@
 const {createCanvas,loadImage,registerFont} = require('canvas')
 const fs = require('fs')
+const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,date,photo,data){
+    static async tracker(name,goalName,date,photo,data,streak){
 
         
         const canvas = createCanvas(1078,1165)
@@ -11,58 +12,68 @@ class GenerateImage{
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'InterSemiBold'})
 
-        const template = await loadImage('./assets/images/template.png')
+        const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
         context.fillStyle = "#161F26"; 
         context.font = "600 56px InterSemiBold";
         context.fillText(name, 75 , 102 + 50);
+        context.font = "600 48px InterSemiBold";
+        context.fillText(FormatString.truncateString(goalName,25), 75 , 359 + 34);
 
         context.fillStyle = "#888888"; 
         context.font = "400 40px Inter";
         context.fillText(date, 75 , 198 + 30);
+        
+        
+        context.font = "400 36px Inter";
+        context.fillText(`${streak} streak`, 122 , 1010 + 34);
           
+        const greenDot = await loadImage('./assets/images/green_dot.png')
+        const checklist = await loadImage('./assets/images/checklist.png')
+        const empty = await loadImage('./assets/images/empty.png')
 
         const today = Time.getDate()
-        const startDate = Time.getNextDate(-28)
+        const day = today.getDay() === 0 ? 7 : today.getDay()
+        let startDate = Time.getNextDate(-(20+day))
+        const endDate = Time.getNextDate(8-day)
+        const fourWeek = {}
+        let counter = 0
+        let baris = 0
+        let column = 0
+        const gapX = 143
+        const gapY = 107
+        const startY = 541
+        const startX = 75
+        let startDrawEmpty = false
 
-        const greenDot = await loadImage('./assets/images/green_dot.png')
-        const gap = 143
+        while(Time.getDateOnly(startDate) !== Time.getDateOnly(endDate)){
+            if (counter === 7) {
+                column = 0
+                baris++
+                counter = 0
+            }
+            const x = startX+gapX*column
+            const y = startY+gapY*baris
+            fourWeek[Time.getDateOnly(startDate)] = {x,y}
+            startDate.setDate(startDate.getDate()+1)
+            counter ++
+            column++
+
+            if(startDrawEmpty) context.drawImage(empty,x,y)
+
+            if (Time.getDateOnly(Time.getDate()) === Time.getDateOnly(startDate)) startDrawEmpty = true
+        }
 
         for (let i = 0; i < data.length; i++) {
-            if(Time.getNextDate(-27).getDate() === data[i].date)context.drawImage(greenDot,75,469)
-            if(Time.getNextDate(-26).getDate() === data[i].date)context.drawImage(greenDot,75,469 + 143)
-            if(Time.getNextDate(-25).getDate() === data[i].date)context.drawImage(greenDot,75,469 + 143 * 2)
-            if(Time.getNextDate(-24).getDate() === data[i].date)context.drawImage(greenDot,75,469 + 143 * 3)
-    
-            if(Time.getNextDate(-23).getDate() === data[i].date)context.drawImage(greenDot,75 + gap,469)
-            if(Time.getNextDate(-22).getDate() === data[i].date)context.drawImage(greenDot,75 + gap,469 + 143)
-            if(Time.getNextDate(-21).getDate() === data[i].date)context.drawImage(greenDot,75 + gap,469 + 143 * 2)
-            if(Time.getNextDate(-20).getDate() === data[i].date)context.drawImage(greenDot,75 + gap,469 + 143 * 3)
-    
-            if(Time.getNextDate(-19).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 2 ,469)
-            if(Time.getNextDate(-18).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 2 ,469 + 143)
-            if(Time.getNextDate(-17).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 2 ,469 + 143 * 2)
-            if(Time.getNextDate(-16).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 2 ,469 + 143 * 3)
-    
-            if(Time.getNextDate(-15).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 3 ,469)
-            if(Time.getNextDate(-14).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 3 ,469 + 143)
-            if(Time.getNextDate(-13).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 3 ,469 + 143 * 2)
-            if(Time.getNextDate(-12).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 3 ,469 + 143 * 3)
-    
-            if(Time.getNextDate(-11).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 4 ,469)
-            if(Time.getNextDate(-10).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 4 ,469 + 143)
-            if(Time.getNextDate(-9).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 4 ,469 + 143 * 2)
-            if(Time.getNextDate(-8).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 4 ,469 + 143 * 3)
-    
-            if(Time.getNextDate(-7).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 5 ,469)
-            if(Time.getNextDate(-6).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 5 ,469 + 143)
-            if(Time.getNextDate(-5).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 5 ,469 + 143 * 2)
-            if(Time.getNextDate(-4).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 5 ,469 + 143 * 3)
-    
-            if(Time.getNextDate(-3).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 6 ,469)
-            if(Time.getNextDate(-2).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 6 ,469 + 143)
-            if(Time.getNextDate(-1).getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 6 ,469 + 143 * 2)
-            if(Time.getNextDate().getDate() === data[i].date)context.drawImage(greenDot,75 + gap * 6 ,469 + 143 * 3)
+            const dateOnly = Time.getDateOnly(new Date(data[i].createdAt))
+            if (fourWeek[dateOnly]) {
+                let {x,y} = fourWeek[dateOnly]
+                if (Time.getDateOnly(Time.getDate()) === dateOnly) {
+                    context.drawImage(checklist,x,y)
+                }else{
+                    context.drawImage(greenDot,x,y)
+                }
+            }
         }
 
 
