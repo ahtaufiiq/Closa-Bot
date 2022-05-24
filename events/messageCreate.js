@@ -156,29 +156,28 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						
 						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
+						
+						return RequestAxios.get('todos/tracker/'+msg.author.id)
+					})
+					.then(async data=>{
+						data.map(todo=>{
+							todo.date = new Date(todo.createdAt).getDate()
+						})
+						
+						const avatarUrl = "https://cdn.discordapp.com/avatars/"+msg.author.id+"/"+msg.author.avatar+".jpeg"
+						const buffer = await GenerateImage.tracker(msg.author.username,Time.getFormattedDate(Time.getDate()),avatarUrl,data)
+						const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
+						ChannelStreak.send({
+							files:[
+								attachment
+							]
+						})
 					})
 					.catch(err => {
 						console.log(err)
 					})
 
-					RequestAxios.get('todos/tracker/'+msg.author.id)
-						.then(async data=>{
-							data.map(todo=>{
-								todo.date = new Date(todo.createdAt).getDate()
-							})
-							
-							const avatarUrl = "https://cdn.discordapp.com/avatars/"+msg.author.id+"/"+msg.author.avatar+".jpeg"
-							const buffer = await GenerateImage.tracker(msg.author.username,Time.getFormattedDate(Time.getDate()),avatarUrl,data)
-							const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
-							ChannelStreak.send({
-								files:[
-									attachment
-								]
-							})
-						})
-						.catch(err=>{
-							console.log(err);
-						})
+					
 
 					if (data.goal_id) {
 						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
