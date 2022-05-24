@@ -7,7 +7,7 @@ const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
-const GenerateImage = require("../helpers/generateImage");
+const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
 
 module.exports = {
