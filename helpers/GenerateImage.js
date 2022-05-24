@@ -15,17 +15,17 @@ class GenerateImage{
         const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
         context.fillStyle = "#161F26"; 
-        context.font = "600 56px InterSemiBold";
+        context.font = "56px InterSemiBold";
         context.fillText(name, 75 , 102 + 50);
-        context.font = "600 48px InterSemiBold";
+        context.font = "48px InterSemiBold";
         context.fillText(FormatString.truncateString(goalName,25), 75 , 359 + 34);
 
         context.fillStyle = "#888888"; 
-        context.font = "400 40px Inter";
+        context.font = "40px Inter";
         context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
         
-        context.font = "400 36px Inter";
+        context.font = "36px Inter";
         context.fillText(`${streak} streak`, 122 , 1010 + 34);
           
         const greenDot = await loadImage('./assets/images/green_dot.png')
