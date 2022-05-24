@@ -4,13 +4,13 @@ const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
     static async tracker(name,goalName,photo,data,streak){
-
+        registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
+        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'InterSemiBold'})
         
         const canvas = createCanvas(1078,1125)
 
         const context = canvas.getContext('2d')
-        registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
-        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'InterSemiBold'})
+ 
 
         const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
@@ -24,8 +24,6 @@ class GenerateImage{
         context.font = "40px Inter";
         context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
-        
-        context.font = "36px Inter";
         context.fillText(`${streak} streak`, 122 , 1010 + 34);
           
         const greenDot = await loadImage('./assets/images/green_dot.png')
