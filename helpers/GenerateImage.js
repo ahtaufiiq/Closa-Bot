@@ -18,7 +18,7 @@ class GenerateImage{
         context.font = "56px InterSemiBold";
         context.fillText(name, 75 , 102 + 50);
         context.font = "48px InterSemiBold";
-        context.fillText(FormatString.truncateString(goalName,25), 75 , 359 + 34);
+        context.fillText(FormatString.truncateString(goalName,37), 75 , 359 + 34);
 
         context.fillStyle = "#888888"; 
         context.font = "40px Inter";
