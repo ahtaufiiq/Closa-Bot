@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const InfoUser = require("../helpers/InfoUser")
 const Time = require("../helpers/time")
 
 class FocusSessionMessage{
@@ -8,7 +9,7 @@ class FocusSessionMessage{
     static report(user,data){
         
         const {daily,weekly,monthly,all,average,dailyStreak,longestStreak} = data
-        const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
+        const avatarUrl = InfoUser.getAvatar(user)
         return new MessageEmbed()
             .setColor('#FEFEFE')
             .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`
@@ -38,7 +39,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
             dailyStreak: '1',
             longestStreak: '3',
           }
-        const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
+        const avatarUrl = InfoUser.getAvatar(user)
         return new MessageEmbed()
             .setColor('#FEFEFE')
             .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`

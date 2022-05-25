@@ -7,6 +7,9 @@ const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
+const GenerateImage = require("../helpers/GenerateImage");
+const { MessageAttachment } = require("discord.js");
+const InfoUser = require("../helpers/InfoUser");
 
 module.exports = {
 	name: 'messageCreate',
@@ -94,6 +97,18 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						})
 						attachments.push(data.attachment)
 					})
+
+					let goalName = ''
+					if (data.goal_id) {
+						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+						const thread = await channel.threads.fetch(data.goal_id);
+						goalName = thread.name
+						thread.send({
+							content:msg.content,
+							files
+						})
+						
+					}
 					
 					RequestAxios.get(`todos/${msg.author.id}`)
 					.then((data) => {
@@ -153,23 +168,40 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						let longestStreak = data.body.longest_streak
 						
 						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
-						ChannelStreak.send({embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`})
+						if (goalName) {
+							RequestAxios.get('todos/tracker/'+msg.author.id)
+								.then(async progressRecently=>{
+									progressRecently.map(todo=>{
+										todo.date = new Date(todo.createdAt).getDate()
+									})
+									
+									const avatarUrl = InfoUser.getAvatar(msg.author)
+									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,dailyStreak)
+									
+
+									const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
+									ChannelStreak.send({
+										embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`,
+										files:[
+											attachment
+										]
+									})
+								})
+						}else{
+							ChannelStreak.send({
+								embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`
+							})
+						}
+						
 					})
+					
 					.catch(err => {
 						console.log(err)
 					})
 
-					if (data.goal_id) {
-						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-						const thread = await channel.threads.fetch(data.goal_id);
-	
-						thread.send({
-							content:msg.content,
-							files
-						})
-						
-						
-					}
+					
+
+					
 				}
 				break;
 			case CHANNEL_REFLECTION:
