@@ -39,7 +39,7 @@ class GenerateImage{
         let baris = 0
         let column = 0
         const gapX = 143
-        const gapY = 107
+        const gapY = 108
         const startY = 541
         const startX = 75
         let startDrawEmpty = false
@@ -53,12 +53,15 @@ class GenerateImage{
             const x = startX+gapX*column
             const y = startY+gapY*baris
             fourWeek[Time.getDateOnly(startDate)] = {x,y}
+
+            if(startDrawEmpty) context.drawImage(empty,x,y)
+            if (Time.getDateOnly(Time.getDate()) === Time.getDateOnly(startDate)) startDrawEmpty = true
+            
             startDate.setDate(startDate.getDate()+1)
             counter ++
             column++
 
-            if(startDrawEmpty) context.drawImage(empty,x,y)
-            if (Time.getDateOnly(Time.getDate()) === Time.getDateOnly(startDate)) startDrawEmpty = true
+           
         }
         
 
