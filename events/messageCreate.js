@@ -76,7 +76,8 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				break;
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
-				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>')) {
+				if (msg.type !== "DEFAULT") return
+				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>') ) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
 						msg.startThread({
 							name:FormatString.truncateString(`💬  ${msg.content.split('\n')[0].substring(1)}`)
