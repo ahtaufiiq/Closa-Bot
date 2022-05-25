@@ -9,6 +9,7 @@ const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
+const InfoUser = require("../helpers/InfoUser");
 
 module.exports = {
 	name: 'messageCreate',
@@ -174,7 +175,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 										todo.date = new Date(todo.createdAt).getDate()
 									})
 									
-									const avatarUrl = "https://cdn.discordapp.com/avatars/"+msg.author.id+"/"+msg.author.avatar+".jpeg"
+									const avatarUrl = InfoUser.getAvatar(msg.author)
 									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,dailyStreak)
 									
 

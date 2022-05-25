@@ -3,6 +3,7 @@ const { MessageAttachment } = require('discord.js');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
 const GenerateImage = require('../helpers/GenerateImage');
+const InfoUser = require('../helpers/InfoUser');
 const supabase = require('../helpers/supabaseClient');
 
 module.exports = {
@@ -16,6 +17,8 @@ module.exports = {
 		
 		
 		const user = taggedUser? taggedUser : interaction.user
+
+		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		const {data} = await supabase.from("Users")
 			.select('goal_id,current_streak')
 			.eq('id',user.id)
@@ -33,9 +36,8 @@ module.exports = {
 				progressRecently.map(todo=>{
 					todo.date = new Date(todo.createdAt).getDate()
 				})
-                console.log("🚀 ~ file: tracker.js ~ line 37 ~ execute ~ progressRecently", progressRecently)
 				
-				const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
+				const avatarUrl = InfoUser.getAvatar(user)
 				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.current_streak)
 				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
 				await interaction.editReply({

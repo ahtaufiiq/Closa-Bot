@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const InfoUser = require("../helpers/InfoUser")
 
 class DailyStreakMessage{
 
@@ -20,7 +21,7 @@ class DailyStreakMessage{
             color = '#FF3B30'
             url = 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'
         }
-        const avatarUrl = "https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+".jpeg"
+        const avatarUrl = InfoUser.getAvatar(user)
         
         if (longestStreak>=7) {
             
