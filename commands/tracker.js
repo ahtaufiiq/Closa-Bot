@@ -28,7 +28,7 @@ module.exports = {
 		if (data.goal_id) {
 			const channel = interaction.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 			const thread = await channel.threads.fetch(data.goal_id);
-			goalName = thread.name
+			goalName = thread.name.split('by')[0]
 		}
 		if(data){
 			RequestAxios.get('todos/tracker/'+user.id)
