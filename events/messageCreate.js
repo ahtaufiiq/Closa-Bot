@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -32,6 +32,31 @@ module.exports = {
 						.eq('id',msg.author.id)
 						.then()
 				}
+				break;
+			case CHANNEL_SESSION_GOAL:
+				const thread = await msg.startThread({
+					name: FormatString.truncateString(msg.content,90),
+				});
+				supabase.from('FocusSessions')
+				.select()
+				.eq('UserId',"410304072621752320")
+				.is('session',null)
+				.single()
+				.then(({data})=>{
+					if (data) {
+						supabase.from('FocusSessions')
+							.delete()
+							.eq('id',data.id)
+							.then()
+					}
+					supabase.from('FocusSessions')
+						.insert({
+							UserId:msg.author.id,
+							thread_id:thread.id
+						})
+						.then()
+				})
+				
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternTime = /\d+[.:]\d+/
