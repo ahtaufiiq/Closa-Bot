@@ -19,9 +19,9 @@ module.exports = {
 
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
-		// if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
-		// 	channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
-		// }
+		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
+			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
+		}
 		const userId = newMember.member.id || oldMember.member.id
 		
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
