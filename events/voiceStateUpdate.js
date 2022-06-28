@@ -19,11 +19,10 @@ module.exports = {
 
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
-		// if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
-		// 	channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
-		// }
+		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
+			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
+		}
 		const userId = newMember.member.id || oldMember.member.id
-		// const userId = "449853586508349440"
 
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
@@ -40,8 +39,25 @@ module.exports = {
 						status : 'processed',
 						firstTime:true
 					}
+					
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 					const thread = await channel.threads.fetch(data.thread_id);
+					if (newMember.selfVideo || newMember.streaming ){
+						let minute = 0
+						thread.send(messageTimer(minute,thread.name))
+							.then(msgFocus=>{
+								const timerFocus = setInterval(() => {
+									if (!focusRoomUser[userId]) {
+										msgFocus.edit(messageTimer(minute,thread.name,false))
+										clearInterval(timerFocus)
+									}else{
+										minute++
+										msgFocus.edit(messageTimer(minute,thread.name))
+									}
+								}, 1000 * 60);
+							})
+						focusRoomUser[userId].firstTime = false
+					}
 					kickUser(userId,newMember.member.user,thread)
 						.then(()=>{
 							newMember.disconnect()
@@ -58,7 +74,6 @@ module.exports = {
 			const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 			const thread = await channel.threads.fetch(focusRoomUser[userId].threadId);
 			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
-				console.log('proses kick user');
 				if (focusRoomUser[userId].status !== 'processed' ) {
 					focusRoomUser[userId].status === 'processed'
 					kickUser(userId,newMember.member.user,thread)
@@ -70,7 +85,6 @@ module.exports = {
 						})
 				}
 			}else if (focusRoomUser[userId].firstTime){
-				console.log('firstTime');
 				let minute = 0
 				thread.send(messageTimer(minute,thread.name))
 					.then(msgFocus=>{
