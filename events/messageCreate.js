@@ -38,7 +38,7 @@ module.exports = {
 				const thread = await msg.startThread({
 					name: FormatString.truncateString(`focus log - ${msg.content}`,90),
 				});
-				thread.send(`Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.
+				thread.send(`**Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
 if you already inside closa cafe please __disconnect & rejoin.__
 
 \`\`rules:\`\` __turn on video or sharescreen to show accountability.__`)

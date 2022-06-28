@@ -141,11 +141,12 @@ async function kickUser(userId,user,thread) {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
-					thread.send(`Hi ${user}, __**please turn on your video or screenshare to show accountability**__. :computer: or :video_camera: 
-Please do it within 2 minute before you get auto-kick from closa café.
+					thread.send(`**Hi ${user}, please do one of these following:**
+:video_camera:  ``turn on your video`` 
+or
+:computer: ``screenshare to show accountability.``
 
-pro tip:
-:mute: *deafen yourself for laser focus.* `)
+Please do it within __2 minute__ before you get auto-kick from closa café. `)
 					setTimeout(() => {
 						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 						if (!selfVideo && !streaming) {
