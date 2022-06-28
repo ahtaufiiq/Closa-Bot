@@ -156,9 +156,9 @@ async function kickUser(userId,user,thread) {
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
 					thread.send(`**Hi ${user}, please do one of these following:**
-:video_camera:  ``turn on your video`` 
+:video_camera:  \`\`turn on your video\`\` 
 or
-:computer: ``screenshare to show accountability.``
+:computer:  \`\`screenshare to show accountability. \`\`
 
 Please do it within __2 minute__ before you get auto-kick from closa café. `)
 					setTimeout(() => {
