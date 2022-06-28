@@ -23,6 +23,11 @@ module.exports = {
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
 		const userId = newMember.member.id || oldMember.member.id
+
+			
+		if (oldMember.channelId !== newMember.channelId && newMember.serverMute && newMember.channel) {
+			newMember.setMute(false)
+		}
 		
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
@@ -68,6 +73,7 @@ module.exports = {
 						})
 				}
 			}else if (focusRoomUser[userId].firstTime){
+				newMember.setMute(true)
 				let minute = 0
 				thread.send(messageTimer(minute,thread.name))
 					.then(msgFocus=>{
@@ -98,7 +104,7 @@ module.exports = {
 							RequestAxios.get('voice/report/'+userId)
 								.then(async data=>{
 									channelSessionLog.send({
-										content:`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`, 
+										content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalInMinutes)}**\n:arrow_right: ${response.data.task_name}`, 
 										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
 									})
 								})
@@ -160,10 +166,10 @@ pro tip:
 }
 
 function messageTimer(minute,name,isLive=true){
- 
- return `Focus session started
+ if (isLive) {
+	return `Focus session started
 
-:timer:  focus time: **${minute}m** (${isLive?'live':'ended'})
+:timer:  focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
 :arrow_right: ${name}
 
 —
@@ -171,6 +177,13 @@ tips:
 • *try to hit your goal during the focus time.*
 • *post on <#${CHANNEL_TODO}> if you are done.*
 • *disconnect from closa café to stop your focus time*`
+ }else{
+	return `Focus session ended
+
+:timer:  focus time: **${Time.convertTime(minute,'short')}** 
+:arrow_right: ${name}`
+
+ }
 }
 
 function getGapTime(date) {
