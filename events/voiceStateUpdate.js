@@ -19,20 +19,16 @@ module.exports = {
 
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
-		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
-			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
-		}
+		// if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
+		// 	channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
+		// }
 		const userId = newMember.member.id || oldMember.member.id
+		// const userId = "449853586508349440"
 
-			
-		if (oldMember.channelId !== newMember.channelId && newMember.serverMute && newMember.channel) {
-			newMember.setMute(false)
-		}
-		
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
 				.select()
-				.eq('UserId',"410304072621752320")
+				.eq('UserId',userId)
 				.is('session',null)
 				.single()
 				.then(async ({data})=>{
@@ -62,6 +58,7 @@ module.exports = {
 			const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 			const thread = await channel.threads.fetch(focusRoomUser[userId].threadId);
 			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
+				console.log('proses kick user');
 				if (focusRoomUser[userId].status !== 'processed' ) {
 					focusRoomUser[userId].status === 'processed'
 					kickUser(userId,newMember.member.user,thread)
@@ -73,7 +70,7 @@ module.exports = {
 						})
 				}
 			}else if (focusRoomUser[userId].firstTime){
-				newMember.setMute(true)
+				console.log('firstTime');
 				let minute = 0
 				thread.send(messageTimer(minute,thread.name))
 					.then(msgFocus=>{
@@ -97,6 +94,7 @@ module.exports = {
 				.is('session',null)
 				.single()
 				.then(response=>{
+                	console.log("🚀 ~ file: voiceStateUpdate.js ~ line 94 ~ execute ~ response", response)
 					const {totalInMinutes} = getGapTime(response.data.createdAt)
 
 					
@@ -166,11 +164,12 @@ pro tip:
 }
 
 function messageTimer(minute,name,isLive=true){
+const taskName = name.split('focus log - ')[1]
  if (isLive) {
-	return `Focus session started
+	return `**Focus session started**
 
-:timer:  focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
-:arrow_right: ${name}
+:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
+:arrow_right: ${taskName}
 
 —
 tips: 
@@ -178,10 +177,10 @@ tips:
 • *post on <#${CHANNEL_TODO}> if you are done.*
 • *disconnect from closa café to stop your focus time*`
  }else{
-	return `Focus session ended
+	return `**Focus session ended**
 
-:timer:  focus time: **${Time.convertTime(minute,'short')}** 
-:arrow_right: ${name}`
+:timer: focus time: **${Time.convertTime(minute,'short')}** 
+:arrow_right: ${taskName}`
 
  }
 }

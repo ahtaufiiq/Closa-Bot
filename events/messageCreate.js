@@ -38,15 +38,15 @@ module.exports = {
 				const thread = await msg.startThread({
 					name: FormatString.truncateString(`focus log - ${msg.content}`,90),
 				});
-				ChannelReminder.send(`Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.
+				thread.send(`Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.
 if you already inside closa cafe please __disconnect & rejoin.__
 
 \`\`rules:\`\` __turn on video or sharescreen to show accountability.__`)
 				supabase.from('FocusSessions')
 				.select()
-				.eq('UserId',"410304072621752320")
+				.eq('UserId',msg.author.id)
 				.is('session',null)
-				.single()
+				.single() 
 				.then(({data})=>{
 					if (data) {
 						supabase.from('FocusSessions')
