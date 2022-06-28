@@ -64,107 +64,107 @@ if you already inside closa cafe please __disconnect & rejoin.__
 				})
 				
 				break;
-// 			case CHANNEL_HIGHLIGHT:
-// 				const patternEmoji = /^🔆/
-// 				if (patternEmoji.test(msg.content.trimStart())) {
+			case CHANNEL_HIGHLIGHT:
+				const patternEmoji = /^🔆/
+				if (patternEmoji.test(msg.content.trimStart())) {
                     
-// 					if (Time.haveTime(msg.content)) {
-// 						const time = Time.getTimeFromText(msg.content)
-//                         const [hours,minutes] = time.split(/[.:]/)
-// 						const date = new Date()
-// 						date.setHours(Time.minus7Hours(hours))
-// 						date.setMinutes(minutes-10)
-// 						supabase.from('Reminders')
-// 							.insert({
-// 								message:msg.content,
-// 								time:date,
-// 								UserId:msg.author.id,
-// 							})
-// 							.then()
-// 						RequestAxios.post('highlights', {
-// 							description: msg.content,
-// 							UserId: msg.author.id
-// 						})
-// 						.then(()=>{
+					if (Time.haveTime(msg.content)) {
+						const time = Time.getTimeFromText(msg.content)
+                        const [hours,minutes] = time.split(/[.:]/)
+						const date = new Date()
+						date.setHours(Time.minus7Hours(hours))
+						date.setMinutes(minutes-10)
+						supabase.from('Reminders')
+							.insert({
+								message:msg.content,
+								time:date,
+								UserId:msg.author.id,
+							})
+							.then()
+						RequestAxios.post('highlights', {
+							description: msg.content,
+							UserId: msg.author.id
+						})
+						.then(()=>{
 							
-// 							supabase.from('Users')
-// 								.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
-// 								.eq('id',msg.author.id)
-// 								.then()
-// 							const reminderHighlight = schedule.scheduleJob(date,function () {
-// 								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
-// 							})
+							supabase.from('Users')
+								.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
+								.eq('id',msg.author.id)
+								.then()
+							const reminderHighlight = schedule.scheduleJob(date,function () {
+								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
+							})
+						})
+					}else{
+						msg.delete()
+						ChannelReminder.send(`Hi ${msg.author} please __add a specific time__ to your highlight to stay accountable!
+For example: 🔆 read 25 page of book **at 19.00**`)
+					}
+				}
+				
+					
+				break;
+// 			case CHANNEL_HIGHLIGHT:
+// 				const threadHighlight = await msg.startThread({
+// 					name: FormatString.truncateString(msg.content,90),
+// 				});
+				
+				
+
+// 				const haveTime = Time.haveTime(msg.content)
+// 				const hasMention = msg.mentions.users.size > 0
+// 				const hasPlace = msg.content.includes(" in ")
+				
+// 				if(!hasMention) {
+// 					threadHighlight.send(`Hi ${msg.author} blm mentions orang`)
+// 				}
+// 				if(!hasPlace) {
+// 					threadHighlight.send(`Hi ${msg.author} please where your highlight will happening
+// for example send \`\`in my bedrom\`\` in this thread.
+
+// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
+// 				}
+// 				if (!haveTime){
+// 					threadHighlight.send(`Hi ${msg.author} please schedule the time of your highlight
+// for example send \`\`at 19.00\`\` in this thread.
+// we will notify you 10 minutes before the agenda begin.
+
+// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
+// 					RequestAxios.post('highlights', {
+// 						description: msg.content,
+// 						UserId: msg.author.id
+// 					})	
+// 				}else{
+// 					const time = Time.getTimeFromText(msg.content)
+// 					const [hours,minutes] = time.split(/[.:]/)
+// 					const date = new Date()
+// 					date.setHours(Time.minus7Hours(hours))
+// 					date.setMinutes(minutes-10)
+					
+// 					supabase.from('Reminders')
+// 						.insert({
+// 							message:msg.content,
+// 							time:date,
+// 							UserId:msg.author.id,
 // 						})
-// 					}else{
-// 						msg.delete()
-// 						ChannelReminder.send(`Hi ${msg.author} please __add a specific time__ to your highlight to stay accountable!
-// For example: 🔆 read 25 page of book **at 19.00**`)
-// 					}
+// 						.then()
+// 					RequestAxios.post('highlights', {
+// 						description: msg.content,
+// 						UserId: msg.author.id
+// 					})
+// 					.then(()=>{
+						
+// 						supabase.from('Users')
+// 							.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
+// 							.eq('id',msg.author.id)
+// 							.then()
+// 						const reminderHighlight = schedule.scheduleJob(date,function () {
+// 							ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
+// 						})
+// 					})
 // 				}
 				
-					
 // 				break;
-			case CHANNEL_HIGHLIGHT:
-				const threadHighlight = await msg.startThread({
-					name: FormatString.truncateString(msg.content,90),
-				});
-				
-				
-
-				const haveTime = Time.haveTime(msg.content)
-				const hasMention = msg.mentions.users.size > 0
-				const hasPlace = msg.content.includes(" in ")
-				
-				if(!hasMention) {
-					threadHighlight.send(`Hi ${msg.author} blm mentions orang`)
-				}
-				if(!hasPlace) {
-					threadHighlight.send(`Hi ${msg.author} please where your highlight will happening
-for example send \`\`in my bedrom\`\` in this thread.
-
-learn more why this format matters: https://jamesclear.com/implementation-intentions`)
-				}
-				if (!haveTime){
-					threadHighlight.send(`Hi ${msg.author} please schedule the time of your highlight
-for example send \`\`at 19.00\`\` in this thread.
-we will notify you 10 minutes before the agenda begin.
-
-learn more why this format matters: https://jamesclear.com/implementation-intentions`)
-					RequestAxios.post('highlights', {
-						description: msg.content,
-						UserId: msg.author.id
-					})	
-				}else{
-					const time = Time.getTimeFromText(msg.content)
-					const [hours,minutes] = time.split(/[.:]/)
-					const date = new Date()
-					date.setHours(Time.minus7Hours(hours))
-					date.setMinutes(minutes-10)
-					
-					supabase.from('Reminders')
-						.insert({
-							message:msg.content,
-							time:date,
-							UserId:msg.author.id,
-						})
-						.then()
-					RequestAxios.post('highlights', {
-						description: msg.content,
-						UserId: msg.author.id
-					})
-					.then(()=>{
-						
-						supabase.from('Users')
-							.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
-							.eq('id',msg.author.id)
-							.then()
-						const reminderHighlight = schedule.scheduleJob(date,function () {
-							ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
-						})
-					})
-				}
-				
-				break;
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
 				if (msg.type !== "DEFAULT") return
