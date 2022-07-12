@@ -1,8 +1,5 @@
 const {TIMEZONE} = require('../helpers/config')
 class Time {
-
-    
-
     static haveTime(text){
         const patternTime = /\d+[.:]\d+/
         return patternTime.test(text)
@@ -82,11 +79,13 @@ class Time {
         
         return stringDate === date
     }
-
+    
     static getDateOnly(date){
         return date.toISOString().substring(0,10) //2022-04-26
     }
-
+    static getTodayDateOnly(){
+        return this.getDate().toISOString().substring(0,10)
+    }
     static getFormattedDate(date){
         return date.toLocaleDateString("en-US", { dateStyle:'medium'}) //Apr 26 2022
     }
