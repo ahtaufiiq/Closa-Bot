@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO} = require("../helpers/config");
+const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -14,6 +14,7 @@ const InfoUser = require("../helpers/InfoUser");
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
+		if(msg.author.bot) return
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
@@ -33,13 +34,42 @@ module.exports = {
 						.then()
 				}
 				break;
+			case CHANNEL_SESSION_GOAL:
+				const thread = await msg.startThread({
+					name: FormatString.truncateString(`focus log - ${msg.content}`,90),
+				});
+				thread.send(`**Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
+if you already inside closa cafe please __disconnect & rejoin.__
+
+\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`)
+				supabase.from('FocusSessions')
+				.select()
+				.eq('UserId',msg.author.id)
+				.is('session',null)
+				.single() 
+				.then(({data})=>{
+					if (data) {
+						supabase.from('FocusSessions')
+							.delete()
+							.eq('id',data.id)
+							.then()
+					}
+					supabase.from('FocusSessions')
+						.insert({
+							UserId:msg.author.id,
+							thread_id:thread.id,
+							task_name: msg.content
+						})
+						.then()
+				})
+				
+				break;
 			case CHANNEL_HIGHLIGHT:
-				const patternTime = /\d+[.:]\d+/
 				const patternEmoji = /^🔆/
 				if (patternEmoji.test(msg.content.trimStart())) {
                     
-					if (patternTime.test(msg.content)) {
-						const time = msg.content.match(patternTime)[0]
+					if (Time.haveTime(msg.content)) {
+						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
 						date.setHours(Time.minus7Hours(hours))
@@ -74,6 +104,67 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 				
 					
 				break;
+// 			case CHANNEL_HIGHLIGHT:
+// 				const threadHighlight = await msg.startThread({
+// 					name: FormatString.truncateString(msg.content,90),
+// 				});
+				
+				
+
+// 				const haveTime = Time.haveTime(msg.content)
+// 				const hasMention = msg.mentions.users.size > 0
+// 				const hasPlace = msg.content.includes(" in ")
+				
+// 				if(!hasMention) {
+// 					threadHighlight.send(`Hi ${msg.author} blm mentions orang`)
+// 				}
+// 				if(!hasPlace) {
+// 					threadHighlight.send(`Hi ${msg.author} please where your highlight will happening
+// for example send \`\`in my bedrom\`\` in this thread.
+
+// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
+// 				}
+// 				if (!haveTime){
+// 					threadHighlight.send(`Hi ${msg.author} please schedule the time of your highlight
+// for example send \`\`at 19.00\`\` in this thread.
+// we will notify you 10 minutes before the agenda begin.
+
+// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
+// 					RequestAxios.post('highlights', {
+// 						description: msg.content,
+// 						UserId: msg.author.id
+// 					})	
+// 				}else{
+// 					const time = Time.getTimeFromText(msg.content)
+// 					const [hours,minutes] = time.split(/[.:]/)
+// 					const date = new Date()
+// 					date.setHours(Time.minus7Hours(hours))
+// 					date.setMinutes(minutes-10)
+					
+// 					supabase.from('Reminders')
+// 						.insert({
+// 							message:msg.content,
+// 							time:date,
+// 							UserId:msg.author.id,
+// 						})
+// 						.then()
+// 					RequestAxios.post('highlights', {
+// 						description: msg.content,
+// 						UserId: msg.author.id
+// 					})
+// 					.then(()=>{
+						
+// 						supabase.from('Users')
+// 							.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
+// 							.eq('id',msg.author.id)
+// 							.then()
+// 						const reminderHighlight = schedule.scheduleJob(date,function () {
+// 							ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
+// 						})
+// 					})
+// 				}
+				
+// 				break;
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
 				if (msg.type !== "DEFAULT") return
@@ -304,6 +395,9 @@ Thank you for your support to closa community!`)
 				}
 				break;
 			default:
+				if (Time.haveTime(msg.content)) {
+					console.log('set reminder');
+				}
 				break;
 				
 		}

@@ -1,11 +1,12 @@
 const RequestAxios = require('../helpers/axios');
-const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE} = require('../helpers/config');
+const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
 let listFocusRoom = {
 	"737311735308091423":true,
-	"949245624094687283":true
+	"949245624094687283":true,
+	[CHANNEL_CLOSA_CAFE]:true
 }
 let focusRoomUser = {
 
@@ -22,32 +23,60 @@ module.exports = {
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 		}
 		const userId = newMember.member.id || oldMember.member.id
+
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
-				.insert({
-					UserId:userId
-				})
-				.then()
-			focusRoomUser[userId] = {
-				selfVideo : newMember.selfVideo,
-				streaming : newMember.streaming,
-				status : 'processed'
-			}
-			kickUser(userId,channelReminder,newMember.member.user)
-				.then(()=>{
-					newMember.disconnect()
-				})
-				.catch(()=>{
-					focusRoomUser[userId].status = 'done'
-				})
-		}else if (listFocusRoom[newMember.channelId]) {
+				.select()
+				.eq('UserId',userId)
+				.is('session',null)
+				.single()
+				.then(async ({data})=>{
+				if (data) {
+					focusRoomUser[userId] = {
+						selfVideo : newMember.selfVideo,
+						streaming : newMember.streaming,
+						threadId:data.thread_id,
+						status : 'processed',
+						firstTime:true
+					}
+					
+					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
+					const thread = await channel.threads.fetch(data.thread_id);
+					if (newMember.selfVideo || newMember.streaming ){
+						let minute = 0
+						thread.send(messageTimer(minute,thread.name))
+							.then(msgFocus=>{
+								const timerFocus = setInterval(() => {
+									if (!focusRoomUser[userId]) {
+										msgFocus.edit(messageTimer(minute,thread.name,false))
+										clearInterval(timerFocus)
+									}else{
+										minute++
+										msgFocus.edit(messageTimer(minute,thread.name))
+									}
+								}, 1000 * 60);
+							})
+						focusRoomUser[userId].firstTime = false
+					}
+					kickUser(userId,newMember.member.user,thread)
+						.then(()=>{
+							newMember.disconnect()
+						})
+						.catch((err)=>{
+							focusRoomUser[userId].status = 'done'
+						})
+				}
+			})
+			
+		}else if (listFocusRoom[newMember.channelId] && focusRoomUser[userId]) {
 			focusRoomUser[userId].selfVideo = newMember.selfVideo
 			focusRoomUser[userId].streaming = newMember.streaming
-			
+			const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
+			const thread = await channel.threads.fetch(focusRoomUser[userId].threadId);
 			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
 				if (focusRoomUser[userId].status !== 'processed' ) {
 					focusRoomUser[userId].status === 'processed'
-					kickUser(userId,channelReminder,newMember.member.user)
+					kickUser(userId,newMember.member.user,thread)
 						.then(()=>{		
 							newMember.disconnect()	
 						})
@@ -55,16 +84,31 @@ module.exports = {
 							focusRoomUser[userId].status = 'done'
 						})
 				}
+			}else if (focusRoomUser[userId].firstTime){
+				let minute = 0
+				thread.send(messageTimer(minute,thread.name))
+					.then(msgFocus=>{
+						const timerFocus = setInterval(() => {
+							if (!focusRoomUser[userId]) {
+								msgFocus.edit(messageTimer(minute,thread.name,false))
+								clearInterval(timerFocus)
+							}else{
+								minute++
+								msgFocus.edit(messageTimer(minute,thread.name))
+							}
+						}, 1000 * 60);
+					})
+				focusRoomUser[userId].firstTime = false
 			}
-		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
+		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] && focusRoomUser[userId] ){
 			delete focusRoomUser[userId]
-
 			supabase.from('FocusSessions')
 				.select()
 				.eq('UserId',userId)
 				.is('session',null)
 				.single()
 				.then(response=>{
+                	console.log("🚀 ~ file: voiceStateUpdate.js ~ line 94 ~ execute ~ response", response)
 					const {totalInMinutes} = getGapTime(response.data.createdAt)
 
 					
@@ -72,7 +116,7 @@ module.exports = {
 							RequestAxios.get('voice/report/'+userId)
 								.then(async data=>{
 									channelSessionLog.send({
-										content:`${newMember.member.user} has stayed in ${oldMember.channel.name} for ${Time.convertTime(totalInMinutes)}`, 
+										content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalInMinutes)}**\n:arrow_right: ${response.data.task_name}`, 
 										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
 									})
 								})
@@ -104,15 +148,19 @@ module.exports = {
 };
 
 
-function kickUser(userId,channelReminder,user) {
+async function kickUser(userId,user,thread) {					
 	const time = 1000 * 120
 	return new Promise((resolve,reject)=>{
 		setTimeout(() => {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
-					channelReminder.send(`Hi ${user}, **__please turn on your camera or screenshare__** to keep accountable. 
-Please do it within 2 minute before you get auto-kick from the call.`)
+					thread.send(`**Hi ${user}, please do one of these following:**
+:video_camera:  \`\`turn on your video\`\` 
+or
+:computer:  \`\`screenshare to show accountability. \`\`
+
+Please do it within __2 minute__ before you get auto-kick from closa café. `)
 					setTimeout(() => {
 						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 						if (!selfVideo && !streaming) {
@@ -128,6 +176,28 @@ Please do it within 2 minute before you get auto-kick from the call.`)
 		}, time);
 	})
 	
+}
+
+function messageTimer(minute,name,isLive=true){
+const taskName = name.split('focus log - ')[1]
+ if (isLive) {
+	return `**Focus session started**
+
+:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
+:arrow_right: ${taskName}
+
+—
+tips: 
+• *try to hit your goal during the focus time.*
+• *post on <#${CHANNEL_TODO}> if you are done.*
+• *disconnect from closa café to stop your focus time*`
+ }else{
+	return `**Focus session ended**
+
+:timer: focus time: **${Time.convertTime(minute,'short')}** 
+:arrow_right: ${taskName}`
+
+ }
 }
 
 function getGapTime(date) {

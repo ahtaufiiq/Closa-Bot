@@ -1,6 +1,18 @@
 const {TIMEZONE} = require('../helpers/config')
 class Time {
-    static convertTime(time){
+
+    
+
+    static haveTime(text){
+        const patternTime = /\d+[.:]\d+/
+        return patternTime.test(text)
+    }
+
+    static getTimeFromText(text){
+        const patternTime = /\d+[.:]\d+/
+        return text.match(patternTime)[0]
+    }
+    static convertTime(time,type='long'){
         let hour = Math.floor(time/60)
         let minute = time%60
         if (time<60) {
@@ -14,6 +26,7 @@ class Time {
         }
         
         function formatMinute(minute) {
+            if(type === 'short') return `${minute} m`   
             if (minute==1) {
                 return `${minute} minute`   
             }else{
@@ -22,6 +35,7 @@ class Time {
           }
         
         function formatHour(hour) {
+            if(type === 'short') return `${hour} h`   
             if (hour==1) {
                 return `${hour} hour`   
             }else{
