@@ -1,5 +1,7 @@
 const MemberController = require("../controllers/MemberController");
 const getIdTopics = require("../helpers/getIdTopic");
+const supabase = require("../helpers/supabaseClient");
+const Time = require("../helpers/time");
 
 module.exports = {
 	name: 'messageReactionAdd',
@@ -15,7 +17,13 @@ module.exports = {
 				return;
 			}
 		}
-	
+		
+		supabase.from("Users")
+		.update({
+			last_active:Time.getTodayDateOnly()
+		})
+		.eq('id',user.id)
+		.then()
 		const idTopic = getIdTopics(`${reaction.emoji}`)
 		if (idTopic) {
 			MemberController.addRole(reaction.client,user.id,idTopic)

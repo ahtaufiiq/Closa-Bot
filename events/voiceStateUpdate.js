@@ -19,10 +19,17 @@ module.exports = {
 
 		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
+		const userId = newMember.member.id || oldMember.member.id
+
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
+			supabase.from("Users")
+			.update({
+				last_active:Time.getTodayDateOnly()
+			})
+			.eq('id',userId)
+			.then()
 		}
-		const userId = newMember.member.id || oldMember.member.id
 
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')

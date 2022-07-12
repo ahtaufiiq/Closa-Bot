@@ -15,6 +15,13 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) return
+		supabase.from("Users")
+			.update({
+				last_active:Time.getTodayDateOnly()
+			})
+			.eq('id',msg.author.id)
+			.then()
+
 		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
@@ -88,7 +95,7 @@ if you already inside closa cafe please __disconnect & rejoin.__
 						.then(()=>{
 							
 							supabase.from('Users')
-								.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
+								.update({last_highlight:Time.getTodayDateOnly()})
 								.eq('id',msg.author.id)
 								.then()
 							const reminderHighlight = schedule.scheduleJob(date,function () {
@@ -234,7 +241,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 								.update({
 									current_streak,
 									'longest_streak':current_streak,
-									'end_longest_streak':Time.getDate().toISOString().substring(0,10)
+									'end_longest_streak':Time.getTodayDateOnly()
 								})
 								.eq('id',msg.author.id)
 								.single()
@@ -253,7 +260,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					})
 					.then(data => {
 						supabase.from('Users')
-							.update({last_done:Time.getDate().toISOString().substring(0,10)})
+							.update({last_done:Time.getTodayDateOnly()})
 							.eq('id',msg.author.id)
 							.then()
 						let dailyStreak = data.body.current_streak
