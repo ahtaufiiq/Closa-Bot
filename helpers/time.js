@@ -9,7 +9,8 @@ class Time {
     }
 
     static getTimeFromText(text){
-        return text.match(patternTime2)[0]
+        const patternTime = /\d+[.:]\d+/
+        return text.match(patternTime)[0]
     }
     static convertTime(time,type='long'){
         let hour = Math.floor(time/60)
