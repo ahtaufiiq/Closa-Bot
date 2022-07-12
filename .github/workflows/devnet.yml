@@ -29,5 +29,5 @@ jobs:
             git pull origin devnet
             git status
             npm install
-            pm2 restart bot-dev --update-env
+            sudo pm2 restart bot-dev --update-env
             node registerSlashCommand.js
