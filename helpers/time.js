@@ -46,6 +46,12 @@ class Time {
         return date
     }
 
+    static getBeginningOfTheMonth(month=0){
+        const todayDate = this.getDate()
+        const beginningMonthDate =  this.getDate(`${todayDate.getFullYear()}-${todayDate.getMonth()+1 + month}-01`)
+        return beginningMonthDate
+    }
+
     static getDay(){
         return this.getDate().toLocaleDateString("en-US", { weekday: 'long'})
     }
@@ -61,10 +67,10 @@ class Time {
         return this.getDateOnly(date)
     }
 
-    static getThisMonth(){
+    static getThisMonth(month){
         let months = ["January","February","March","April","May","June","July","August","September",'October',"November","December"]
-        let today = this.getDate()
-        return months[today.getMonth()]
+        month = month === undefined ? this.getDate().getMonth() : month < 0 ? month + 12 : month
+        return months[month]
     }
     static minus7Hours(hour){
     	hour = hour - Number(TIMEZONE)		
