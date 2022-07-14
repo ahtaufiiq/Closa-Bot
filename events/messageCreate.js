@@ -120,9 +120,9 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 so, you can learn or sharing from each others.`)
 					return
 				}
-				let titleProgress = `${string.trimStart().split('\n')[0]}`
+				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
-				
+
 				const threadProgress = await msg.startThread({
 					name: FormatString.truncateString(titleProgress,90),
 				});
