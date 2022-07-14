@@ -1,10 +1,12 @@
-const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS} = require('../helpers/config')
+const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS, CHANNEL_STATUS} = require('../helpers/config')
 const supabase  = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const Email = require('../helpers/Email');
+const WeeklyReport = require('../controllers/WeeklyReport');
+const StatusReportMessage = require('../views/StatusReportMessage');
 
 let accountabilityPartners = {
 	"449853586508349440":["410304072621752320","699128646270582784"],
@@ -24,6 +26,8 @@ module.exports = {
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
+		const channelStatus = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_STATUS)
+		const channelReminder = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
 
 		// let rulePaymentReminder = new schedule.RecurrenceRule();
 		// rulePaymentReminder.hour = Time.minus7Hours(8)
@@ -85,7 +89,6 @@ module.exports = {
 // 			})
 		
 // 		})
-		const channelReminder = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
 		supabase.from('Reminders')
 			.select()
 			.gte('time',new Date().toUTCString())
@@ -158,6 +161,67 @@ module.exports = {
 			})
 			
 		})
+
+		schedule.scheduleJob(`1 0 ${Time.minus7Hours(8)} * * 1`,async function() {
+			
+			Promise.all([
+				WeeklyReport.getAllMember(),
+				WeeklyReport.getInactiveMember()
+			]).then(([allMembers,inactiveMembers])=>{
+				const todayDate = Time.getDate()
+				const date = Time.getDateOnly(todayDate)
+				const totalMember = allMembers.length
+				const totalActiveMember = totalMember - inactiveMembers.length
+				const retention_rate = Number((totalActiveMember/totalMember*100).toFixed(0))
+				const inactiveMembersName = inactiveMembers.map(member=>member.name)
+				return supabase.from("WeeklyStats")
+							.insert({
+								retention_rate,
+								date,
+								total_member:totalMember,
+								inactive_members:`${inactiveMembersName}`
+							})
+			}).then(()=>{
+				return Promise.all(
+						[		
+							WeeklyReport.getAllMemberPreviousMonth(),
+							WeeklyReport.getAllMember(),
+							WeeklyReport.getNewMember(),
+							WeeklyReport.getInactiveMember(),
+							WeeklyReport.getPreviousMRR(),
+							WeeklyReport.getMRR(),
+							WeeklyReport.getTotalRevenue(),
+							WeeklyReport.getPreviousWeeklyStat(),
+							WeeklyReport.getPreviousMonthlyRetentionRate(),
+							WeeklyReport.getMonthlyRetentionRate()
+						]
+						).then(([previousMembers,allMembers,NewMembers,inactiveMembers,previousMRR,MRR,totalRevenue,previousWeeklyStat,previousMonthlyRetentionRate,monthlyRetentionRate]) =>{
+							const [
+								totalPreviousMembers,
+								totalMember,
+								totalNewMember,
+								totalInactiveMember]=[previousMembers.length,allMembers.length,NewMembers.length,inactiveMembers.length]
+								
+							channelStatus.send(
+								StatusReportMessage.weeklyReport(
+									totalPreviousMembers,
+									totalMember,
+									totalNewMember,
+									totalInactiveMember,
+									previousMRR,
+									MRR,
+									totalRevenue,
+									previousWeeklyStat,
+									previousMonthlyRetentionRate,
+									monthlyRetentionRate
+								)
+							)
+					
+								
+						})
+			})
+		})
+
 
 		let ruleReminderSkipTwoDays = new schedule.RecurrenceRule();
 		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)

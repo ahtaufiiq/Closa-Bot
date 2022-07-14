@@ -1,6 +1,6 @@
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO} = require("../helpers/config");
-const DailyStreakMessage = require("../views/DailyStreakMessage");
+const supabase = require("../helpers/supabaseClient");
+const Time = require("../helpers/time");
 
 module.exports = {
 	name: 'guildMemberAdd',
@@ -8,11 +8,15 @@ module.exports = {
 		RequestAxios.get('users/'+member.user.id)
 			.then(data=>{
 				if (!data) {
-					return RequestAxios.post('users',{
-						id:member.user.id,
-						username:member.user.username,
-						name:member.user.username
-					})
+					supabase.from("Users")
+						.insert([{
+							id:member.user.id,
+							username:member.user.username,
+							name:member.user.username,
+							last_active:Time.getTodayDateOnly()
+						}])
+						.then()
+					
 				}
 			})
 			
