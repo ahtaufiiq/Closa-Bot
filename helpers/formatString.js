@@ -6,6 +6,10 @@ class FormatString {
             return text
         }
     }
+
+    static notCharacter(text){
+        return text > "~"
+    }
 }
 
 module.exports = FormatString
