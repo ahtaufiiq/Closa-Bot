@@ -27,7 +27,7 @@ class GenerateImage{
         context.fillText(`${streak} streak`, 122 , 1010 + 37);
           
         const greenDot = await loadImage('./assets/images/green_dot.png')
-        const safetyDot = await loadImage('./assets/images/safety_dot.png')
+        const safetyDot = await loadImage('./assets/images/safety_dot.jpg')
         const checklist = await loadImage('./assets/images/checklist.png')
         const empty = await loadImage('./assets/images/empty.png')
 
