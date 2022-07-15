@@ -130,7 +130,11 @@ class Time {
     }
 
     static isValidStreak(date,currentStreak) {
-        return this.isYesterday(date) || (this.isVacationMode(date) && currentStreak >=3)
+        return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak >=3)
+    }
+
+    static onlyMissOneDay(date){
+        return date === this.getDateOnly(this.getNextDate(-2))
     }
 
     static getEndMembership(typeMembership,total,dateMembership) {

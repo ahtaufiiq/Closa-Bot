@@ -1,4 +1,4 @@
-const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS, CHANNEL_STATUS} = require('../helpers/config')
+const {GUILD_ID,CHANNEL_REMINDER, MY_ID, CHANNEL_GOALS, CHANNEL_STATUS, CHANNEL_TODO} = require('../helpers/config')
 const supabase  = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
@@ -7,6 +7,7 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const Email = require('../helpers/Email');
 const WeeklyReport = require('../controllers/WeeklyReport');
 const StatusReportMessage = require('../views/StatusReportMessage');
+const MemberController = require('../controllers/MemberController');
 
 let accountabilityPartners = {
 	"449853586508349440":["410304072621752320","699128646270582784"],
@@ -28,6 +29,22 @@ module.exports = {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const channelStatus = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_STATUS)
 		const channelReminder = await client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
+
+
+		let ruleReminderMissOneDay = new schedule.RecurrenceRule();
+		ruleReminderMissOneDay.hour = Time.minus7Hours(6)
+		ruleReminderMissOneDay.minute = 0
+		schedule.scheduleJob(ruleReminderMissOneDay,function(){
+			supabase.from("Users")
+				.select('id,name')
+				.gte('current_streak',5)
+				.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
+				.then(data=>{
+					data.body.forEach(member=>{
+						channelReminder.send(TodoReminderMessage.missYesterdayProgress(member.id))
+					})
+			})
+		})
 
 		// let rulePaymentReminder = new schedule.RecurrenceRule();
 		// rulePaymentReminder.hour = Time.minus7Hours(8)
@@ -161,7 +178,7 @@ module.exports = {
 			})
 			
 		})
-
+		
 		schedule.scheduleJob(`1 0 ${Time.minus7Hours(8)} * * 1`,async function() {
 			
 			Promise.all([
