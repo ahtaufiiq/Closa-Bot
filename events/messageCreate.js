@@ -237,7 +237,7 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						if (Time.isValidStreak(data.body.last_done,current_streak)) {
 							if (Time.onlyMissOneDay(data.body.last_done)) {
 								const missedDate = Time.getNextDate(-1)
-								missedDate.setHours(10)
+								missedDate.setHours(8)
 								await supabase.from("Todos")
 										.insert({
 											createdAt:missedDate,
