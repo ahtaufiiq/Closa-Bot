@@ -236,10 +236,12 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 						
 						if (Time.isValidStreak(data.body.last_done,current_streak)) {
 							if (Time.onlyMissOneDay(data.body.last_done)) {
+								const missedDate = Time.getNextDate(-1)
+								missedDate.setHours(10)
 								await supabase.from("Todos")
 										.insert({
-											createdAt:Time.getNextDate(-1),
-											updatedAt:Time.getNextDate(-1),
+											createdAt:missedDate,
+											updatedAt:missedDate,
 											UserId:msg.author.id,
 											type:'safety'
 										})
