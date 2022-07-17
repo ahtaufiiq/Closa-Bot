@@ -130,7 +130,7 @@ class Time {
     }
 
     static isValidStreak(date,currentStreak) {
-        return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak >=3)
+        return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak > 3)
     }
 
     static onlyMissOneDay(date){
