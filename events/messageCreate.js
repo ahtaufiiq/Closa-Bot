@@ -10,6 +10,9 @@ const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
+const ChannelController = require("../controllers/ChannelController");
+const FocusSessionMessage = require("../views/FocusSessionMessage");
+const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -27,12 +30,13 @@ module.exports = {
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
 				if (msg.content.includes("Success Criteria")) {
-					const maxLength = 90 - `by ${msg.author.username}`.length
-					const msgGoal = `${msg.content.split('\n')[0]}`
+					const threadName = `${msg.content.split('\n')[0]}`
 					
-					const thread = await msg.startThread({
-						name: FormatString.truncateString(msgGoal,maxLength)+ ` by ${msg.author.username}`,
-					});
+					const thread = ChannelController.createThread(
+						msg,
+						threadName,
+						msg.author.username
+					)
 					supabase.from('Users')
 						.update({
 							goal_id:thread.id
@@ -42,13 +46,10 @@ module.exports = {
 				}
 				break;
 			case CHANNEL_SESSION_GOAL:
-				const thread = await msg.startThread({
-					name: FormatString.truncateString(`focus log - ${msg.content}`,90),
-				});
-				thread.send(`**Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
-if you already inside closa cafe please __disconnect & rejoin.__
+				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 
-\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`)
+				thread.send(FocusSessionMessage.startFocusSession(msg.author))
+
 				supabase.from('FocusSessions')
 				.select()
 				.eq('UserId',msg.author.id)
@@ -99,87 +100,23 @@ if you already inside closa cafe please __disconnect & rejoin.__
 								.eq('id',msg.author.id)
 								.then()
 							const reminderHighlight = schedule.scheduleJob(date,function () {
-								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
+								ChannelReminder.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
 							})
 						})
 					}else{
 						msg.delete()
-						ChannelReminder.send(`Hi ${msg.author} please __add a specific time__ to your highlight to stay accountable!
-For example: 🔆 read 25 page of book **at 19.00**`)
+						ChannelReminder.send(HighlightReminderMessage.wrongFormat(msg.author))
 					}
 				}
 				
 					
 				break;
-// 			case CHANNEL_HIGHLIGHT:
-// 				const threadHighlight = await msg.startThread({
-// 					name: FormatString.truncateString(msg.content,90),
-// 				});
-				
-				
-
-// 				const haveTime = Time.haveTime(msg.content)
-// 				const hasMention = msg.mentions.users.size > 0
-// 				const hasPlace = msg.content.includes(" in ")
-				
-// 				if(!hasMention) {
-// 					threadHighlight.send(`Hi ${msg.author} blm mentions orang`)
-// 				}
-// 				if(!hasPlace) {
-// 					threadHighlight.send(`Hi ${msg.author} please where your highlight will happening
-// for example send \`\`in my bedrom\`\` in this thread.
-
-// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
-// 				}
-// 				if (!haveTime){
-// 					threadHighlight.send(`Hi ${msg.author} please schedule the time of your highlight
-// for example send \`\`at 19.00\`\` in this thread.
-// we will notify you 10 minutes before the agenda begin.
-
-// learn more why this format matters: https://jamesclear.com/implementation-intentions`)
-// 					RequestAxios.post('highlights', {
-// 						description: msg.content,
-// 						UserId: msg.author.id
-// 					})	
-// 				}else{
-// 					const time = Time.getTimeFromText(msg.content)
-// 					const [hours,minutes] = time.split(/[.:]/)
-// 					const date = new Date()
-// 					date.setHours(Time.minus7Hours(hours))
-// 					date.setMinutes(minutes-10)
-					
-// 					supabase.from('Reminders')
-// 						.insert({
-// 							message:msg.content,
-// 							time:date,
-// 							UserId:msg.author.id,
-// 						})
-// 						.then()
-// 					RequestAxios.post('highlights', {
-// 						description: msg.content,
-// 						UserId: msg.author.id
-// 					})
-// 					.then(()=>{
-						
-// 						supabase.from('Users')
-// 							.update({last_highlight:Time.getDate().toISOString().substring(0,10)})
-// 							.eq('id',msg.author.id)
-// 							.then()
-// 						const reminderHighlight = schedule.scheduleJob(date,function () {
-// 							ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
-// 						})
-// 					})
-// 				}
-				
-// 				break;
 			case CHANNEL_TODO:
 				const patternEmojiDone = /^[✅]/
 				if (msg.type !== "DEFAULT") return
 				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>') ) {
 					if (msg.attachments.size > 0 || msg.content.includes('http')) {
-						msg.startThread({
-							name:FormatString.truncateString(`${msg.content.split('\n')[0].substring(1)}`)
-						})	
+						ChannelController.createThread(msg,`${msg.content.split('\n')[0].substring(1)}`)
 					}
 					const { data, error } = await supabase
 											.from('Users')
@@ -199,8 +136,8 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 
 					let goalName = ''
 					if (data.goal_id) {
-						const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-						const thread = await channel.threads.fetch(data.goal_id);
+						const channel = ChannelController.getChannel(client,CHANNEL_GOALS)
+						const thread = await ChannelController.getThread(channel,data.goal_id)
 						goalName = thread.name.split('by')[0]
 						thread.send({
 							content:msg.content,
@@ -307,33 +244,21 @@ For example: 🔆 read 25 page of book **at 19.00**`)
 					.catch(err => {
 						console.log(err)
 					})
-
-					
-
-					
 				}
 				break;
 			case CHANNEL_REFLECTION:
-				msg.startThread({
-					name:`Reflection by ${msg.author.username}`
-				})	
+				ChannelController.createThread(msg,`Reflection by ${msg.author.username}`)
 				break;
 			case CHANNEL_TOPICS:
-				msg.startThread({
-					name:FormatString.truncateString(`${msg.content.split('\n')[0]}`)
-				})	
+				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)	
 				break;
 			case CHANNEL_CELEBRATE:
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
-					msg.startThread({
-						name:FormatString.truncateString(`${msg.content.split('\n')[0]}`)
-					})	
+					ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)
 				}	
 				break;
 			case CHANNEL_INTRO:
-				msg.startThread({
-					name:FormatString.truncateString(`Welcome ${msg.author.username}`)
-				})	
+				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
 				break;
 			case CHANNEL_PAYMENT:
 				if (msg.content[0] === 'v') {

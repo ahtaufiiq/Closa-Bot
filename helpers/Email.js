@@ -54,7 +54,7 @@ class Email {
     static sendPaymentReminder(users,day,ended_membership){
         var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
         var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); 
-        const reminder = day === '0' ? `today ${ended_membership}`:`within the next ${day} on  ${ended_membership}`
+        const reminder = day === '0 day' ? `today ${ended_membership}`:`within the next ${day} on  ${ended_membership}`
         sendSmtpEmail = {
           sender: { name:"Closa",email: "closa.app@gmail.com" },
           to: users,
