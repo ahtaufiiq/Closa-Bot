@@ -18,6 +18,7 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) return
+		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")
 			.update({
 				last_active:Time.getTodayDateOnly()
@@ -112,139 +113,145 @@ module.exports = {
 					
 				break;
 			case CHANNEL_TODO:
-				const patternEmojiDone = /^[✅]/
-				if (msg.type !== "DEFAULT") return
-				if (patternEmojiDone.test(msg.content.trimStart()) || msg.content.includes('<:Neutral:821044410375471135>') ) {
-					if (msg.attachments.size > 0 || msg.content.includes('http')) {
-						ChannelController.createThread(msg,`${msg.content.split('\n')[0].substring(1)}`)
-					}
-					const { data, error } = await supabase
+				if(msg.content.length < 50){
+					msg.delete()
+					ChannelReminder.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
+
+so, you can learn or sharing from each others.`)
+					return
+				}
+				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
+				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
+
+				ChannelController.createThread(msg,titleProgress)
+				
+				const { data, error } = await supabase
 											.from('Users')
 											.select()
 											.eq('id',msg.author.id)
 											.single()
+				
+				const attachments = []
+				let files = []
 
-					const attachments = []
-					let files = []
-
-					msg.attachments.each(data=>{
-						files.push({
-							attachment:data.attachment
-						})
-						attachments.push(data.attachment)
+				msg.attachments.each(data=>{
+					files.push({
+						attachment:data.attachment
 					})
+					attachments.push(data.attachment)
+				})
 
-					let goalName = ''
-					if (data.goal_id) {
-						const channel = ChannelController.getChannel(msg.client,CHANNEL_GOALS)
-						const thread = await ChannelController.getThread(channel,data.goal_id)
-						goalName = thread.name.split('by')[0]
-						thread.send({
-							content:msg.content,
-							files
+				let goalName = ''
+				if (data.goal_id) {
+					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+					const thread = await channel.threads.fetch(data.goal_id);
+					goalName = thread.name.split('by')[0]
+					thread.send({
+						content:msg.content,
+						files
+					})
+					
+				}
+				
+				RequestAxios.get(`todos/${msg.author.id}`)
+				.then((data) => {
+					if (data.length > 0) {
+						RequestAxios.post('todos', {
+							attachments,
+							description:msg.content,
+							UserId:msg.author.id
 						})
-						
+						throw new Error("Tidak perlu kirim daily streak ke channel")
+					} else {
+						RequestAxios.post('todos', {
+							attachments,
+							description:msg.content,
+							UserId:msg.author.id
+						})
+							
+						return supabase.from("Users")
+							.select()
+							.eq('id',msg.author.id)
+							.single()
+					}
+				})
+				.then(data=>{
+					let current_streak = data.body.current_streak + 1
+					
+					if (Time.isValidStreak(data.body.last_done,current_streak)) {
+						if (Time.onlyMissOneDay(data.body.last_done)) {
+							const missedDate = Time.getNextDate(-1)
+							missedDate.setHours(8)
+							await supabase.from("Todos")
+									.insert({
+										createdAt:missedDate,
+										updatedAt:missedDate,
+										UserId:msg.author.id,
+										type:'safety'
+									})
+						}
+						if (current_streak > data.body.longest_streak) {
+							return supabase.from("Users")
+							.update({
+								current_streak,
+								'longest_streak':current_streak,
+								'end_longest_streak':Time.getTodayDateOnly()
+							})
+							.eq('id',msg.author.id)
+							.single()
+						}else{
+							return supabase.from("Users")
+							.update({current_streak})
+							.eq('id',msg.author.id)
+							.single()
+						}
+					}else{
+						return supabase.from("Users")
+							.update({'current_streak':1})
+							.eq('id',msg.author.id)
+							.single()
+					}
+				})
+				.then(data => {
+					supabase.from('Users')
+						.update({last_done:Time.getTodayDateOnly()})
+						.eq('id',msg.author.id)
+						.then()
+					let dailyStreak = data.body.current_streak
+					let longestStreak = data.body.longest_streak
+					
+					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
+					if (goalName) {
+						RequestAxios.get('todos/tracker/'+msg.author.id)
+							.then(async progressRecently=>{
+								progressRecently.map(todo=>{
+									todo.date = new Date(todo.createdAt).getDate()
+								})
+								
+								const avatarUrl = InfoUser.getAvatar(msg.author)
+								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak)
+								
+
+								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
+								ChannelStreak.send({
+									embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`,
+									files:[
+										attachment
+									]
+								})
+							})
+					}else{
+						ChannelStreak.send({
+							embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`
+						})
 					}
 					
-					RequestAxios.get(`todos/${msg.author.id}`)
-					.then((data) => {
-						if (data.length > 0) {
-							RequestAxios.post('todos', {
-								attachments,
-								description:msg.content,
-								UserId:msg.author.id
-							})
-							throw new Error("Tidak perlu kirim daily streak ke channel")
-						} else {
-							RequestAxios.post('todos', {
-								attachments,
-								description:msg.content,
-								UserId:msg.author.id
-							})
-								
-							return supabase.from("Users")
-								.select()
-								.eq('id',msg.author.id)
-								.single()
-						}
-					})
-					.then(async data=>{
-						let current_streak = data.body.current_streak + 1
+				})
+				
+				.catch(err => {
+					console.log(err)
+				})
 						
-						if (Time.isValidStreak(data.body.last_done,current_streak)) {
-							if (Time.onlyMissOneDay(data.body.last_done)) {
-								const missedDate = Time.getNextDate(-1)
-								missedDate.setHours(8)
-								await supabase.from("Todos")
-										.insert({
-											createdAt:missedDate,
-											updatedAt:missedDate,
-											UserId:msg.author.id,
-											type:'safety'
-										})
-							}
-							if (current_streak > data.body.longest_streak) {
-								return supabase.from("Users")
-								.update({
-									current_streak,
-									'longest_streak':current_streak,
-									'end_longest_streak':Time.getTodayDateOnly()
-								})
-								.eq('id',msg.author.id)
-								.single()
-							}else{
-								return supabase.from("Users")
-								.update({current_streak})
-								.eq('id',msg.author.id)
-								.single()
-							}
-						}else{
-							return supabase.from("Users")
-								.update({'current_streak':1})
-								.eq('id',msg.author.id)
-								.single()
-						}
-					})
-					.then(data => {
-						supabase.from('Users')
-							.update({last_done:Time.getTodayDateOnly()})
-							.eq('id',msg.author.id)
-							.then()
-						let dailyStreak = data.body.current_streak
-						let longestStreak = data.body.longest_streak
-						
-						DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
-						if (goalName) {
-							RequestAxios.get('todos/tracker/'+msg.author.id)
-								.then(async progressRecently=>{
-									progressRecently.map(todo=>{
-										todo.date = new Date(todo.createdAt).getDate()
-									})
-									
-									const avatarUrl = InfoUser.getAvatar(msg.author)
-									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak)
-									
-
-									const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
-									ChannelStreak.send({
-										embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`,
-										files:[
-											attachment
-										]
-									})
-								})
-						}else{
-							ChannelStreak.send({
-								embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`
-							})
-						}
-						
-					})
-					
-					.catch(err => {
-						console.log(err)
-					})
-				}
 				break;
 			case CHANNEL_REFLECTION:
 				ChannelController.createThread(msg,`Reflection by ${msg.author.username}`)
