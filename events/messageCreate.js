@@ -136,7 +136,7 @@ module.exports = {
 
 					let goalName = ''
 					if (data.goal_id) {
-						const channel = ChannelController.getChannel(client,CHANNEL_GOALS)
+						const channel = ChannelController.getChannel(msg.client,CHANNEL_GOALS)
 						const thread = await ChannelController.getThread(channel,data.goal_id)
 						goalName = thread.name.split('by')[0]
 						thread.send({
