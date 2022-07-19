@@ -1,4 +1,4 @@
-function formatToRupiah(price) {
+function formatNumber(price) {
     const priceStr = price.toString()
     let result = ''
     let counter = 1
@@ -11,7 +11,7 @@ function formatToRupiah(price) {
         counter ++
     }
 
-    return `IDR ${result}`
+    return result
 }
 
-module.exports = formatToRupiah
+module.exports = formatNumber

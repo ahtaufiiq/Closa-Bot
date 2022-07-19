@@ -51,15 +51,15 @@ module.exports = {
 					const thread = await channel.threads.fetch(data.thread_id);
 					if (newMember.selfVideo || newMember.streaming ){
 						let minute = 0
-						thread.send(messageTimer(minute,thread.name))
+						thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
 							.then(msgFocus=>{
 								const timerFocus = setInterval(() => {
 									if (!focusRoomUser[userId]) {
-										msgFocus.edit(messageTimer(minute,thread.name,false))
+										msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name,false))
 										clearInterval(timerFocus)
 									}else{
 										minute++
-										msgFocus.edit(messageTimer(minute,thread.name))
+										msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name))
 									}
 								}, 1000 * 60);
 							})
@@ -93,15 +93,15 @@ module.exports = {
 				}
 			}else if (focusRoomUser[userId].firstTime){
 				let minute = 0
-				thread.send(messageTimer(minute,thread.name))
+				thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
 					.then(msgFocus=>{
 						const timerFocus = setInterval(() => {
 							if (!focusRoomUser[userId]) {
-								msgFocus.edit(messageTimer(minute,thread.name,false))
+								msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name,false))
 								clearInterval(timerFocus)
 							}else{
 								minute++
-								msgFocus.edit(messageTimer(minute,thread.name))
+								msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name))
 							}
 						}, 1000 * 60);
 					})
@@ -185,27 +185,6 @@ Please do it within __2 minute__ before you get auto-kick from closa café. `)
 	
 }
 
-function messageTimer(minute,name,isLive=true){
-const taskName = name.split('focus log - ')[1]
- if (isLive) {
-	return `**Focus session started**
-
-:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
-:arrow_right: ${taskName}
-
-—
-tips: 
-• *try to hit your goal during the focus time.*
-• *post on <#${CHANNEL_TODO}> if you are done.*
-• *disconnect from closa café to stop your focus time*`
- }else{
-	return `**Focus session ended**
-
-:timer: focus time: **${Time.convertTime(minute,'short')}** 
-:arrow_right: ${taskName}`
-
- }
-}
 
 function getGapTime(date) {
 	const todayDateInMinutes = new Date().getTime() / 1000 / 60
