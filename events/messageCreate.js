@@ -222,7 +222,7 @@ module.exports = {
 									})
 									
 									const avatarUrl = InfoUser.getAvatar(msg.author)
-									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,dailyStreak)
+									const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak)
 									
 
 									const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
