@@ -175,7 +175,7 @@ so, you can learn or sharing from each others.`)
 							.single()
 					}
 				})
-				.then(data=>{
+				.then(async data=>{
 					let current_streak = data.body.current_streak + 1
 					
 					if (Time.isValidStreak(data.body.last_done,current_streak)) {
