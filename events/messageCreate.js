@@ -10,6 +10,9 @@ const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
+const ChannelController = require("../controllers/ChannelController");
+const FocusSessionMessage = require("../views/FocusSessionMessage");
+const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -28,12 +31,13 @@ module.exports = {
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
 				if (msg.content.includes("Success Criteria")) {
-					const maxLength = 90 - `by ${msg.author.username}`.length
-					const msgGoal = `${msg.content.split('\n')[0]}`
+					const threadName = `${msg.content.split('\n')[0]}`
 					
-					const thread = await msg.startThread({
-						name: FormatString.truncateString(msgGoal,maxLength)+ ` by ${msg.author.username}`,
-					});
+					const thread = ChannelController.createThread(
+						msg,
+						threadName,
+						msg.author.username
+					)
 					supabase.from('Users')
 						.update({
 							goal_id:thread.id
@@ -43,13 +47,10 @@ module.exports = {
 				}
 				break;
 			case CHANNEL_SESSION_GOAL:
-				const thread = await msg.startThread({
-					name: FormatString.truncateString(`focus log - ${msg.content}`,90),
-				});
-				thread.send(`**Hi ${msg.author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
-if you already inside closa cafe please __disconnect & rejoin.__
+				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 
-\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`)
+				thread.send(FocusSessionMessage.startFocusSession(msg.author))
+
 				supabase.from('FocusSessions')
 				.select()
 				.eq('UserId',msg.author.id)
@@ -100,13 +101,12 @@ if you already inside closa cafe please __disconnect & rejoin.__
 								.eq('id',msg.author.id)
 								.then()
 							const reminderHighlight = schedule.scheduleJob(date,function () {
-								ChannelReminder.send(`Hi ${msg.author} reminder: ${msg.content} `)
+								ChannelReminder.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
 							})
 						})
 					}else{
 						msg.delete()
-						ChannelReminder.send(`Hi ${msg.author} please __add a specific time__ to your highlight to stay accountable!
-For example: 🔆 read 25 page of book **at 19.00**`)
+						ChannelReminder.send(HighlightReminderMessage.wrongFormat(msg.author))
 					}
 				}
 				
@@ -123,9 +123,7 @@ so, you can learn or sharing from each others.`)
 				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
-				const threadProgress = await msg.startThread({
-					name: FormatString.truncateString(titleProgress,90),
-				});
+				ChannelController.createThread(msg,titleProgress)
 				
 				const { data, error } = await supabase
 											.from('Users')
@@ -181,7 +179,17 @@ so, you can learn or sharing from each others.`)
 					let current_streak = data.body.current_streak + 1
 					
 					if (Time.isValidStreak(data.body.last_done,current_streak)) {
-						
+						if (Time.onlyMissOneDay(data.body.last_done)) {
+							const missedDate = Time.getNextDate(-1)
+							missedDate.setHours(8)
+							await supabase.from("Todos")
+									.insert({
+										createdAt:missedDate,
+										updatedAt:missedDate,
+										UserId:msg.author.id,
+										type:'safety'
+									})
+						}
 						if (current_streak > data.body.longest_streak) {
 							return supabase.from("Users")
 							.update({
@@ -221,7 +229,7 @@ so, you can learn or sharing from each others.`)
 								})
 								
 								const avatarUrl = InfoUser.getAvatar(msg.author)
-								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,dailyStreak)
+								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak)
 								
 
 								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
@@ -246,26 +254,18 @@ so, you can learn or sharing from each others.`)
 						
 				break;
 			case CHANNEL_REFLECTION:
-				msg.startThread({
-					name:`Reflection by ${msg.author.username}`
-				})	
+				ChannelController.createThread(msg,`Reflection by ${msg.author.username}`)
 				break;
 			case CHANNEL_TOPICS:
-				msg.startThread({
-					name:FormatString.truncateString(`${msg.content.split('\n')[0]}`)
-				})	
+				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)	
 				break;
 			case CHANNEL_CELEBRATE:
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
-					msg.startThread({
-						name:FormatString.truncateString(`${msg.content.split('\n')[0]}`)
-					})	
+					ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)
 				}	
 				break;
 			case CHANNEL_INTRO:
-				msg.startThread({
-					name:FormatString.truncateString(`Welcome ${msg.author.username}`)
-				})	
+				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
 				break;
 			case CHANNEL_PAYMENT:
 				if (msg.content[0] === 'v') {

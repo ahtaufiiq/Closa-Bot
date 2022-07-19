@@ -20,7 +20,7 @@ module.exports = {
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		const {data} = await supabase.from("Users")
-			.select('goal_id,current_streak')
+			.select('goal_id,longest_streak')
 			.eq('id',user.id)
 			.single()
 		let goalName = ''
@@ -38,7 +38,7 @@ module.exports = {
 				})
 				
 				const avatarUrl = InfoUser.getAvatar(user)
-				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.current_streak)
+				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.longest_streak)
 				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
 				await interaction.editReply({
 					files:[

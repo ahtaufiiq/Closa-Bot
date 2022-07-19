@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_CLOSA_CAFE } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const Time = require("../helpers/time")
 
@@ -55,6 +56,14 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
         return new MessageEmbed()
         .setColor('#fefefe')
         .setDescription(text)
+    }
+
+    static startFocusSession(author){
+        
+        return `**Hi ${author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
+if you already inside closa cafe please __disconnect & rejoin.__
+
+\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`
     }
 }
 

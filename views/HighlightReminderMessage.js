@@ -10,6 +10,15 @@ class HighlightReminderMessage{
         .setColor('#fefefe')
         .setDescription(text)
     }
+
+    static wrongFormat(author){
+        return `Hi ${author} please __add a specific time__ to your highlight to stay accountable!
+For example: 🔆 read 25 page of book **at 19.00**`
+    }
+
+    static remindHighlightUser(author,task){
+        return `Hi ${author} reminder: ${task} `
+    }
 }
 
 module.exports = HighlightReminderMessage
