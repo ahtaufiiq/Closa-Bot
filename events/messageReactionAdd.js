@@ -1,13 +1,15 @@
 const MemberController = require("../controllers/MemberController");
+const PointController = require("../controllers/PointController");
 const getIdTopics = require("../helpers/getIdTopic");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 
 module.exports = {
 	name: 'messageReactionAdd',
-	async execute(reaction, user) {
+	async execute(reaction, user) {	
 		// handle only message with this id
-			
+		if(user.bot) return
+		PointController.addPoint(user.id,'reaction')
 		if(reaction.message.id !== "960790258256064542") return
 		if (reaction.partial) {
 			try {

@@ -13,11 +13,15 @@ const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
+const PointController = require("../controllers/PointController");
 
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) return
+
+		PointController.addPoint(msg.author.id,'chat')
+
 		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")
 			.update({
