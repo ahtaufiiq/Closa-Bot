@@ -199,8 +199,8 @@ Please do it within __2 minute__ before you get auto-kick from closa café. `)
 
 
 function getGapTime(date) {
-	const todayDateInMinutes = new Date().getTime() / 1000 / 60
-	const joinedDateInMinutes = new Date(date).getTime() / 1000 / 60
+	const todayDateInMinutes = Time.getDate().getTime() / 1000 / 60
+	const joinedDateInMinutes = Time.getDate(date).getTime() / 1000 / 60
 	const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
 	return {totalInMinutes:diff}
 }
