@@ -10,6 +10,7 @@ class PointController{
             .single()
             .then(data => {
                 const total_points = this.calculatePoint(type,minute)
+                let isAddNewPoint = true
                 if(data?.body === null){
                     if (type === 'chat') {
                         supabase.from("Points")
@@ -65,6 +66,8 @@ class PointController{
                                 .eq('date',Time.getDateOnly(Time.getDate()))
                                 .eq("UserId",UserId)
                                 .then()
+                        }else{
+                            isAddNewPoint = false
                         }
                     }else if(type === 'reaction'){
                         if (Time.isMoreThanOneMinute(data.body.last_reaction)) {
@@ -76,10 +79,12 @@ class PointController{
                                 .eq('date',Time.getDateOnly(Time.getDate()))
                                 .eq("UserId",UserId)
                                 .then()
+                        }else{
+                            isAddNewPoint = false
                         }
                     }
                 }
-                this.incrementTotalPoints(total_points,UserId)
+                if(isAddNewPoint) this.incrementTotalPoints(total_points,UserId)
             })
     }
 
