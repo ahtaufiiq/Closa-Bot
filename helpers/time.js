@@ -152,7 +152,7 @@ class Time {
 
     static isMoreThanOneMinute(date) {
         if(date === null) return true
-        const diff = Time.getDate().getTime() - Time.getDate(date).getTime()
+        const diff = Time.getDate().getTime() - new Date(date).getTime()
         const diffInMinute = Math.ceil(diff / 1000/60)
         return diffInMinute > 1
     }
