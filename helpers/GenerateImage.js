@@ -1,20 +1,21 @@
 const {createCanvas,loadImage,registerFont} = require('canvas')
 const fs = require('fs')
+const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,photo,data,longestStreak){
+    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'InterSemiBold'})
         
-        const canvas = createCanvas(1078,1125)
+        const canvas = createCanvas(1078,1167)
 
         const context = canvas.getContext('2d')
  
 
         const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
-        context.fillStyle = "#161F26"; 
+        context.fillStyle = "#2B2B2B"; 
         context.font = "56px InterSemiBold";
         context.fillText(name, 75 , 102 + 50);
         context.font = "48px InterSemiBold";
@@ -24,8 +25,13 @@ class GenerateImage{
         context.font = "40px Inter";
         context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
-        const textStreak = longestStreak > 1 ? "streaks" : "streak"
-        context.fillText(`${longestStreak} ${textStreak}`, 122 , 1010 + 37);
+        context.fillText(`${totalDays}`, 130 , 1051 + 38);
+        context.fillText(`${longestStreak}`, 290 , 1051 + 38);
+        
+        context.font = "36px Inter";
+        context.textAlign = 'end'
+        context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
+        
           
         const greenDot = await loadImage('./assets/images/green_dot.png')
         const safetyDot = await loadImage('./assets/images/safety_dot.jpg')
