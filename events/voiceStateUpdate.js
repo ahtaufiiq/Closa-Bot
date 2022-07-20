@@ -39,7 +39,7 @@ module.exports = {
 		if(oldMember.channel === null){
 			closaCafe[userId] = Time.getDate()
 		}else if (newMember.channel === null) {
-			const {totalInMinutes}= getGapTime(closaCafe[userId])
+			const {totalInMinutes}= getGapTime(closaCafe[userId],true)
 			PointController.addPoint(userId,'cafe',totalInMinutes)
 			delete closaCafe[userId]
 		}
@@ -198,9 +198,10 @@ Please do it within __2 minute__ before you get auto-kick from closa café. `)
 }
 
 
-function getGapTime(date) {
-	const todayDateInMinutes = Time.getDate().getTime() / 1000 / 60
-	const joinedDateInMinutes = Time.getDate(date).getTime() / 1000 / 60
+function getGapTime(date,isFormatDate = false) {
+	const todayDateInMinutes = Math.floor(Time.getDate().getTime() / 1000 / 60)
+	const joinedDate = isFormatDate ? date : Time.getDate(date)
+	const joinedDateInMinutes = Math.floor(joinedDate.getTime() / 1000 / 60)
 	const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
 	return {totalInMinutes:diff}
 }
