@@ -17,7 +17,7 @@ class PointController{
                             .insert({
                                 UserId,
                                 total_points,
-                                last_chat:Time.getDate(),
+                                last_chat:new Date(),
                                 date:Time.getDateOnly(Time.getDate())
                             })
                             .then()
@@ -26,7 +26,7 @@ class PointController{
                             .insert({
                                 UserId,
                                 total_points,
-                                last_reaction:Time.getDate(),
+                                last_reaction:new Date(),
                                 date:Time.getDateOnly(Time.getDate())
                             })
                             .then()
@@ -60,7 +60,7 @@ class PointController{
                         if (Time.isMoreThanOneMinute(data.body.last_chat)) {
                             supabase.from("Points")
                                 .update({
-                                    last_chat:Time.getDate(),
+                                    last_chat:new Date(),
                                     total_points: data.body.total_points + total_points
                                 })
                                 .eq('date',Time.getDateOnly(Time.getDate()))
@@ -73,7 +73,7 @@ class PointController{
                         if (Time.isMoreThanOneMinute(data.body.last_reaction)) {
                             supabase.from("Points")
                                 .update({
-                                    last_reaction:Time.getDate(),
+                                    last_reaction:new Date(),
                                     total_points: data.body.total_points + total_points
                                 })
                                 .eq('date',Time.getDateOnly(Time.getDate()))
