@@ -2,7 +2,9 @@ const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 
 class PointController{
-    static addPoint(UserId,type,minute){
+    static addPoint(UserId,type,minute,channelId){
+        if (channelId === '954303982812151818' || channelId === '953578577847271455' || channelId === '990886446468575282' || channelId === '948593850690191470') return
+        
         supabase.from("Points")
             .select()
             .eq('date',Time.getDateOnly(Time.getDate()))

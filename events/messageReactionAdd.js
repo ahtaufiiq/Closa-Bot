@@ -9,7 +9,7 @@ module.exports = {
 	async execute(reaction, user) {	
 		// handle only message with this id
 		if(user.bot) return
-		PointController.addPoint(user.id,'reaction')
+		PointController.addPoint(user.id,'reaction',reaction.message.channelId)
 		if(reaction.message.id !== "960790258256064542") return
 		if (reaction.partial) {
 			try {
