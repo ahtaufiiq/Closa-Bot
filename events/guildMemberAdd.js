@@ -13,6 +13,8 @@ module.exports = {
 							id:member.user.id,
 							username:member.user.username,
 							name:member.user.username,
+							total_days:0,
+							total_points:0,
 							last_active:Time.getTodayDateOnly()
 						}])
 						.then()

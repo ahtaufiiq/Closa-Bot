@@ -20,7 +20,7 @@ module.exports = {
 	async execute(msg) {
 		if(msg.author.bot) return
 
-		PointController.addPoint(msg.author.id,'chat',msg.channelId)
+		PointController.addPoint(msg.author.id,'chat',0,msg.channelId)
 
 		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")
