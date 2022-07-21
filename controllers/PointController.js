@@ -101,7 +101,7 @@ class PointController{
                 finalPoint = this.randomNumber(1,4)
                 break;
             case 'focus':
-                finalPoint = minute * this.randomNumber(1,4)
+                finalPoint = minute * this.randomNumber(1,2)
                 break;
             case 'cafe':
                 finalPoint = minute
