@@ -181,7 +181,7 @@ so, you can learn or sharing from each others.`)
 				})
 				.then(async data=>{
 					let current_streak = data.body.current_streak + 1
-					
+					let total_days =  (data.body.total_days || 0) + 1
 					if (Time.isValidStreak(data.body.last_done,current_streak)) {
 						if (Time.onlyMissOneDay(data.body.last_done)) {
 							const missedDate = Time.getNextDate(-1)
@@ -198,7 +198,7 @@ so, you can learn or sharing from each others.`)
 							return supabase.from("Users")
 							.update({
 								current_streak,
-								total_days:data.body.total_days + 1,
+								total_days,
 								'longest_streak':current_streak,
 								'end_longest_streak':Time.getTodayDateOnly()
 							})
@@ -208,7 +208,7 @@ so, you can learn or sharing from each others.`)
 							return supabase.from("Users")
 							.update({
 								current_streak,
-								total_days:data.body.total_days + 1
+								total_days
 							})
 							.eq('id',msg.author.id)
 							.single()
@@ -217,7 +217,7 @@ so, you can learn or sharing from each others.`)
 						return supabase.from("Users")
 							.update({
 								'current_streak':1,
-								total_days:data.body.total_days + 1,
+								total_days,
 							})
 							.eq('id',msg.author.id)
 							.single()
