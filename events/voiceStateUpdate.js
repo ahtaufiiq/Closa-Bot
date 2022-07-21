@@ -1,3 +1,4 @@
+const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
@@ -9,6 +10,10 @@ let listFocusRoom = {
 	[CHANNEL_CLOSA_CAFE]:true
 }
 let focusRoomUser = {
+
+}
+
+let closaCafe = {
 
 }
 module.exports = {
@@ -29,6 +34,14 @@ module.exports = {
 			})
 			.eq('id',userId)
 			.then()
+		}
+
+		if(oldMember.channel === null){
+			closaCafe[userId] = Time.getDate()
+		}else if (newMember.channel === null) {
+			const {totalInMinutes}= getGapTime(closaCafe[userId],true)
+			PointController.addPoint(userId,'cafe',totalInMinutes)
+			delete closaCafe[userId]
 		}
 
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
@@ -115,9 +128,8 @@ module.exports = {
 				.is('session',null)
 				.single()
 				.then(response=>{
-                	console.log("🚀 ~ file: voiceStateUpdate.js ~ line 94 ~ execute ~ response", response)
 					const {totalInMinutes} = getGapTime(response.data.createdAt)
-
+					PointController.addPoint(userId,'focus',totalInMinutes)
 					
 						if (totalInMinutes >= 5) {
 							RequestAxios.get('voice/report/'+userId)
@@ -186,9 +198,10 @@ Please do it within __2 minute__ before you get auto-kick from closa café. `)
 }
 
 
-function getGapTime(date) {
-	const todayDateInMinutes = new Date().getTime() / 1000 / 60
-	const joinedDateInMinutes = new Date(date).getTime() / 1000 / 60
+function getGapTime(date,isFormatDate = false) {
+	const todayDateInMinutes = Math.floor(Time.getDate().getTime() / 1000 / 60)
+	const joinedDate = isFormatDate ? date : Time.getDate(date)
+	const joinedDateInMinutes = Math.floor(joinedDate.getTime() / 1000 / 60)
 	const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
 	return {totalInMinutes:diff}
 }

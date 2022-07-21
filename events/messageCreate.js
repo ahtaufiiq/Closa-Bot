@@ -13,11 +13,15 @@ const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
+const PointController = require("../controllers/PointController");
 
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) return
+
+		PointController.addPoint(msg.author.id,'chat',msg.channelId)
+
 		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")
 			.update({
@@ -177,7 +181,7 @@ so, you can learn or sharing from each others.`)
 				})
 				.then(async data=>{
 					let current_streak = data.body.current_streak + 1
-					
+					let total_days =  (data.body.total_days || 0) + 1
 					if (Time.isValidStreak(data.body.last_done,current_streak)) {
 						if (Time.onlyMissOneDay(data.body.last_done)) {
 							const missedDate = Time.getNextDate(-1)
@@ -194,6 +198,7 @@ so, you can learn or sharing from each others.`)
 							return supabase.from("Users")
 							.update({
 								current_streak,
+								total_days,
 								'longest_streak':current_streak,
 								'end_longest_streak':Time.getTodayDateOnly()
 							})
@@ -201,13 +206,19 @@ so, you can learn or sharing from each others.`)
 							.single()
 						}else{
 							return supabase.from("Users")
-							.update({current_streak})
+							.update({
+								current_streak,
+								total_days
+							})
 							.eq('id',msg.author.id)
 							.single()
 						}
 					}else{
 						return supabase.from("Users")
-							.update({'current_streak':1})
+							.update({
+								'current_streak':1,
+								total_days,
+							})
 							.eq('id',msg.author.id)
 							.single()
 					}
@@ -219,6 +230,8 @@ so, you can learn or sharing from each others.`)
 						.then()
 					let dailyStreak = data.body.current_streak
 					let longestStreak = data.body.longest_streak
+					let totalDays = data.body.total_days
+					let totalPoints = data.body.total_points
 					
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 					if (goalName) {
@@ -229,7 +242,7 @@ so, you can learn or sharing from each others.`)
 								})
 								
 								const avatarUrl = InfoUser.getAvatar(msg.author)
-								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak)
+								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak,totalDays,totalPoints)
 								
 
 								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
