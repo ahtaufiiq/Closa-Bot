@@ -1,5 +1,9 @@
+const schedule = require('node-schedule');
+const { CHANNEL_STATUS } = require('../helpers/config');
 const supabase = require("../helpers/supabaseClient")
-const Time = require("../helpers/time")
+const Time = require("../helpers/time");
+const StatusReportMessage = require('../views/StatusReportMessage');
+const ChannelController = require('./ChannelController');
 
 class WeeklyReport{
     static async getTotalRevenue(){
@@ -112,6 +116,70 @@ class WeeklyReport{
         })
         retentionRate /= data.body.length
         return Number(retentionRate.toFixed(0))
+    }
+
+    static sendWeeklyStatus(client){
+        const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
+        
+        schedule.scheduleJob(`1 0 ${Time.minus7Hours(8)} * * 1`,async function() {
+			
+			Promise.all([
+				WeeklyReport.getAllMember(),
+				WeeklyReport.getInactiveMember()
+			]).then(([allMembers,inactiveMembers])=>{
+				const todayDate = Time.getDate()
+				const date = Time.getDateOnly(todayDate)
+				const totalMember = allMembers.length
+				const totalActiveMember = totalMember - inactiveMembers.length
+				const retention_rate = Number((totalActiveMember/totalMember*100).toFixed(0))
+				const inactiveMembersName = inactiveMembers.map(member=>member.name)
+				return supabase.from("WeeklyStats")
+							.insert({
+								retention_rate,
+								date,
+								total_member:totalMember,
+								inactive_members:`${inactiveMembersName}`
+							})
+			}).then(()=>{
+				return Promise.all(
+						[		
+							WeeklyReport.getAllMemberPreviousMonth(),
+							WeeklyReport.getAllMember(),
+							WeeklyReport.getNewMember(),
+							WeeklyReport.getInactiveMember(),
+							WeeklyReport.getPreviousMRR(),
+							WeeklyReport.getMRR(),
+							WeeklyReport.getTotalRevenue(),
+							WeeklyReport.getPreviousWeeklyStat(),
+							WeeklyReport.getPreviousMonthlyRetentionRate(),
+							WeeklyReport.getMonthlyRetentionRate()
+						]
+						).then(([previousMembers,allMembers,NewMembers,inactiveMembers,previousMRR,MRR,totalRevenue,previousWeeklyStat,previousMonthlyRetentionRate,monthlyRetentionRate]) =>{
+							const [
+								totalPreviousMembers,
+								totalMember,
+								totalNewMember,
+								totalInactiveMember]=[previousMembers.length,allMembers.length,NewMembers.length,inactiveMembers.length]
+								
+							channelStatus.send(
+								StatusReportMessage.weeklyReport(
+									totalPreviousMembers,
+									totalMember,
+									totalNewMember,
+									totalInactiveMember,
+									previousMRR,
+									MRR,
+									totalRevenue,
+									previousWeeklyStat,
+									previousMonthlyRetentionRate,
+									monthlyRetentionRate
+								)
+							)
+					
+								
+						})
+			})
+		})
     }
 }
 
