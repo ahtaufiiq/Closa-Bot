@@ -6,8 +6,8 @@ const Time = require('./time')
 class GenerateImage{
     static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
-        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'InterMedium'})
-        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'InterSemiBold'})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
         
         const canvas = createCanvas(1078,1167)
 
@@ -17,20 +17,20 @@ class GenerateImage{
         const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
         context.fillStyle = "#2B2B2B"; 
-        context.font = "56px InterSemiBold";
+        context.font = "600 56px Inter";
         context.fillText(name, 75 , 102 + 50);
-        context.font = "48px InterSemiBold";
+        context.font = "600 48px Inter";
         context.fillText(FormatString.truncateString(goalName,37), 75 , 359 + 34);
 
         context.fillStyle = "#888888"; 
         context.font = "40px Inter";
         context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
         
-        context.font = "40px InterMedium";
+        context.font = "500 40px Inter";
         context.fillText(`${totalDays}`, 130 , 1051 + 38);
         context.fillText(`${longestStreak}`, 290 , 1051 + 38);
         
-        context.font = "36px InterMedium";
+        context.font = "500 36px Inter";
         context.textAlign = 'end'
         context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
         
