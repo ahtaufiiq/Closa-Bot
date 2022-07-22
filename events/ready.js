@@ -45,13 +45,15 @@ module.exports = {
 		ruleReminderMissOneDay.minute = 0
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			supabase.from("Users")
-				.select('id,name')
-				.gte('current_streak',5)
+				.select('id,name,goal_id')
+				.gte('current_streak',3)
 				.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
 				.then(data=>{
-					data.body.forEach(member=>{
-						
-						channelReminder.send(TodoReminderMessage.missYesterdayProgress(member.id))
+					data.body.forEach(async member=>{
+						if (member.goal_id) {
+							const thread = await ChannelController.getThread(channelGoals,member.goal_id)
+							thread.send(TodoReminderMessage.missYesterdayProgress(member.id))
+						}
 					})
 			})
 		})
