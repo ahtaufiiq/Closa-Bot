@@ -46,7 +46,7 @@ __**MEMBERS**__ 👥
 • Churn: **${churn}**
 • Active: **${totalActiveMember}** 
 • Inactive : **${totalInactiveMember}**
-• Total : **${totalMember} **(${progressMembers})
+• Total (${thisMonth}): **${totalMember} **(${progressMembers})
 
 **__REVENUE__** 💰  
 • MRR (${thisMonth}): **IDR ${formatNumber(MRR)}** (${progressMRR}📈)
