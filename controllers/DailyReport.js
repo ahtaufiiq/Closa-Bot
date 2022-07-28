@@ -34,7 +34,7 @@ class DailyReport {
 				MemberController.changeRole(client,userId,ROLE_INACTIVE_MEMBER,ROLE_ACTIVE_MEMBER)
 				supabase.from("Points")
 					.select("*,Users(id,email,goal_id)")
-					.eq('UserId',MY_ID)
+					.eq('UserId',userId)
 					.lt('date',Time.getDateOnly(Time.getDate()))
 					.order('date',{ascending:false})
 					.limit(1)
