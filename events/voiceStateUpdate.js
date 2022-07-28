@@ -1,3 +1,4 @@
+const DailyReport = require('../controllers/DailyReport');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
@@ -19,6 +20,8 @@ let closaCafe = {
 module.exports = {
 	name: 'voiceStateUpdate',
 	async execute(oldMember,newMember,tes) {
+		if(oldMember.member.user.bot) return
+		
 		let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
 		let totalNewMember = newMember.channel? newMember.channel.members.size : 0
 
@@ -26,6 +29,7 @@ module.exports = {
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 		const userId = newMember.member.id || oldMember.member.id
 
+		
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 			supabase.from("Users")
@@ -41,6 +45,8 @@ module.exports = {
 		}else if (newMember.channel === null) {
 			const {totalInMinutes}= getGapTime(closaCafe[userId],true)
 			PointController.addPoint(userId,'cafe',totalInMinutes)
+			DailyReport.activeMember(oldMember.client,userId)
+
 			delete closaCafe[userId]
 		}
 

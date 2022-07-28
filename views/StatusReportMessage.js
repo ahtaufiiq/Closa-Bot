@@ -10,11 +10,14 @@ class StatusReportMessage{
 • Email: ${email}
 • Last goal: https://discord.com/channels/${GUILD_ID}/${goalId}`
     }
-    static activeMemberReport(userId,email,goalId){
-        return `:green_circle: **User comeback after X days of inactivity **
+    static activeMemberReport(userId,email,goalId,lastDate){
+        const date = Time.getDate(lastDate)
+        const diffDay = Time.getDiffDay(date,Time.getDate())
+
+        return `:green_circle: **User comeback after ${diffDay} days of inactivity **
 
 • User : <@${userId}>
-• Last active: *${Time.getFormattedDate(Time.getDate())}*
+• Last active: *${Time.getFormattedDate(date)}*
 • Email: ${email}
 • Last goal: https://discord.com/channels/${GUILD_ID}/${goalId}`
     }

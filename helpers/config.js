@@ -25,6 +25,8 @@ module.exports = {
     ROLE_30STREAK: process.env.ROLE_30STREAK,
     ROLE_100STREAK: process.env.ROLE_100STREAK,
     ROLE_365STREAK: process.env.ROLE_365STREAK,
+    ROLE_INACTIVE_MEMBER: process.env.ROLE_INACTIVE_MEMBER,
+    ROLE_ACTIVE_MEMBER: process.env.ROLE_ACTIVE_MEMBER,
     TIMEZONE: process.env.TIMEZONE,
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_KEY: process.env.SUPABASE_KEY,
