@@ -1,3 +1,4 @@
+const DailyReport = require("../controllers/DailyReport");
 const MemberController = require("../controllers/MemberController");
 const PointController = require("../controllers/PointController");
 const getIdTopics = require("../helpers/getIdTopic");
@@ -9,6 +10,7 @@ module.exports = {
 	async execute(reaction, user) {	
 		// handle only message with this id
 		if(user.bot) return
+		DailyReport.activeMember(reaction.client,user.id)
 		PointController.addPoint(user.id,'reaction',0,reaction.message.channelId)
 		if(reaction.message.id !== "960790258256064542") return
 		if (reaction.partial) {
