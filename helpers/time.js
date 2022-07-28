@@ -10,7 +10,7 @@ class Time {
         return text.match(patternTime)[0]
     }
     static getDiffDay(fromDate,toDate){
-        const diff = fromDate.getTime() - toDate.getTime()
+        const diff = toDate.getTime() - fromDate.getTime()
         return Math.floor(diff/ 1000 / 60 /60/24)
     }
     static convertTime(time,type='long'){
