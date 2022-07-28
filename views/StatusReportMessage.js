@@ -12,7 +12,9 @@ class StatusReportMessage{
     }
     static activeMemberReport(userId,email,goalId,lastDate){
         const date = Time.getDate(lastDate)
-        return `:green_circle: **User comeback after X days of inactivity **
+        const diffDay = Time.getDiffDay(date,Time.getDate())
+
+        return `:green_circle: **User comeback after ${diffDay} days of inactivity **
 
 • User : <@${userId}>
 • Last active: *${Time.getFormattedDate(date)}*
