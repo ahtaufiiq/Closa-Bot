@@ -10,7 +10,7 @@ class ChannelController{
     static async getNotificationThread(client,userId,notificationId){
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
         if (notificationId) {
-            const thread = await ChannelController.getThread(channelNotifications,data.body.notification_id)
+            const thread = await ChannelController.getThread(channelNotifications,notification_id)
 			return thread
         }else{
             const data = await supabase.from("Users")
@@ -18,7 +18,7 @@ class ChannelController{
             .eq('id',userId)
             .single()
             
-            const thread = await ChannelController.getThread(channelNotifications,data.body.notification_id)
+            const thread = await ChannelController.getThread(channelNotifications,notification_id)
             return thread
         }
         
