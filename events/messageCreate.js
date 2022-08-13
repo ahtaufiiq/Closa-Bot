@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_REMINDER , CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -31,7 +31,6 @@ module.exports = {
 			.eq('id',msg.author.id)
 			.then()
 
-		const ChannelReminder = msg.guild.channels.cache.get(CHANNEL_REMINDER)
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
@@ -104,14 +103,19 @@ module.exports = {
 							supabase.from('Users')
 								.update({last_highlight:Time.getTodayDateOnly()})
 								.eq('id',msg.author.id)
-								.then()
-							const reminderHighlight = schedule.scheduleJob(date,function () {
-								ChannelReminder.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
-							})
+								.single()
+								.then(data=>{
+									const reminderHighlight = schedule.scheduleJob(date,async function () {
+										const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notification_id)
+										notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
+									})
+								})
+							
 						})
 					}else{
 						msg.delete()
-						ChannelReminder.send(HighlightReminderMessage.wrongFormat(msg.author))
+						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
+						notificationThread.send(HighlightReminderMessage.wrongFormat(msg.author))
 					}
 				}
 				
@@ -120,7 +124,8 @@ module.exports = {
 			case CHANNEL_TODO:
 				if(msg.content.length < 50){
 					msg.delete()
-					ChannelReminder.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
+					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
+					notificationThread.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
 
 so, you can learn or sharing from each others.`)
 					return

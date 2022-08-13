@@ -1,7 +1,7 @@
 const DailyReport = require('../controllers/DailyReport');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
-const {CHANNEL_REMINDER, CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
+const {CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
@@ -25,13 +25,11 @@ module.exports = {
 		let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
 		let totalNewMember = newMember.channel? newMember.channel.members.size : 0
 
-		const channelReminder = oldMember.guild.channels.cache.get(CHANNEL_REMINDER)
 		const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 		const userId = newMember.member.id || oldMember.member.id
 
 		
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
-			channelReminder.send(`${newMember.member.user} joined ${newMember.channel.name}`)
 			supabase.from("Users")
 			.update({
 				last_active:Time.getTodayDateOnly()
