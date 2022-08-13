@@ -30,7 +30,7 @@ class DailyStreakController {
         let ruleReminderMissOneDay = new schedule.RecurrenceRule();
 		ruleReminderMissOneDay.hour = Time.minus7Hours(6)
 		ruleReminderMissOneDay.minute = 0
-		schedule.scheduleJob(ruleReminderMissOneDay,function(){
+		// schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			supabase.from("Users")
 				.select('id,name,notification_id')
 				.gte('current_streak',3)
@@ -41,7 +41,7 @@ class DailyStreakController {
 							notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
 					})
 			})
-		})
+		// })
     }
 
     static remindMissTwoDays(client){
@@ -51,7 +51,7 @@ class DailyStreakController {
 		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)
 		ruleReminderSkipTwoDays.minute = 0
 
-		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
+		// schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
 			const date = Time.getDate()
 			if(date.getDay() == 0 && date.getDay() == 6) return
 			
@@ -66,7 +66,7 @@ class DailyStreakController {
 				})
 			})
 			
-		})
+		// })
     }
 }
 

@@ -7,6 +7,7 @@ const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const ChannelController = require('../controllers/ChannelController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -69,7 +70,7 @@ module.exports = {
 											scheduleReminderHighlight.cancel()
 										}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
 											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
 											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
 										}
 									}
@@ -104,7 +105,7 @@ module.exports = {
 											scheduleReminderProgress.cancel()
 										}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
 											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
 											notificationThread.send(TodoReminderMessage.progressReminder(userId))
 										}
 									}
