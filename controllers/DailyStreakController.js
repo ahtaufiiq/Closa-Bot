@@ -32,15 +32,13 @@ class DailyStreakController {
 		ruleReminderMissOneDay.minute = 0
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			supabase.from("Users")
-				.select('id,name,goal_id')
+				.select('id,name,notification_id')
 				.gte('current_streak',3)
 				.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
 				.then(data=>{
 					data.body.forEach(async member=>{
-						if (member.goal_id) {
-							const thread = await ChannelController.getThread(channelGoals,member.goal_id)
-							thread.send(TodoReminderMessage.missYesterdayProgress(member.id))
-						}
+							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+							notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
 					})
 			})
 		})
@@ -59,14 +57,12 @@ class DailyStreakController {
 			
 			let lastDone = Time.getDateOnly(Time.getNextDate(-3))
 			supabase.from("Users")
-			.select('id,goal_id,name')
+			.select('id,notification_id,name')
 			.eq('last_done',lastDone)
 			.then(dataUsers =>{
 				dataUsers.body.forEach(async data=>{
-					if (data.goal_id) {
-						const thread = await ChannelController.getThread(channelGoals,data.goal_id);
-						thread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
-					}
+					const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+					notificationThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
 				})
 			})
 			

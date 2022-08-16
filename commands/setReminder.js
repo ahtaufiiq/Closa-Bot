@@ -1,12 +1,13 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const RequestAxios = require('../helpers/axios');
-const { GUILD_ID, CHANNEL_TODO, CHANNEL_HIGHLIGHT, CHANNEL_REMINDER } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const ChannelController = require('../controllers/ChannelController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -41,7 +42,6 @@ module.exports = {
 			}
 			return 		
 		}
-		const channelReminder = await interaction.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_REMINDER)
 		const {data} = await supabase.from("Users")
 			.select()
 			.eq('id',userId)
@@ -70,7 +70,8 @@ module.exports = {
 											scheduleReminderHighlight.cancel()
 										}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
 											const userId = data.id;
-											channelReminder.send(HighlightReminderMessage.highlightReminder(userId))
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
 										}
 									}
 								})
@@ -102,9 +103,10 @@ module.exports = {
 									if (data) {
 										if (user.reminder_progress !== data.reminder_progress) {
 											scheduleReminderProgress.cancel()
-										}else if(data.last_done !== Time.getDate().toISOString().substring(0,10)){
+										}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
 											const userId = data.id;
-											channelReminder.send(TodoReminderMessage.progressReminder(userId))
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+											notificationThread.send(TodoReminderMessage.progressReminder(userId))
 										}
 									}
 								})

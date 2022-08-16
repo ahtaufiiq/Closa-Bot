@@ -1,9 +1,27 @@
-const { GUILD_ID } = require("../helpers/config");
+const { GUILD_ID, CHANNEL_NOTIFICATION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
+const supabase = require("../helpers/supabaseClient");
 
 class ChannelController{
     static getChannel(client,ChannelId){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(ChannelId)
+    }
+
+    static async getNotificationThread(client,userId,notificationId){
+        const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
+        if (notificationId) {
+            const thread = await ChannelController.getThread(channelNotifications,notificationId)
+			return thread
+        }else{
+            const data = await supabase.from("Users")
+            .select("notification_id")
+            .eq('id',userId)
+            .single()
+            
+            const thread = await ChannelController.getThread(channelNotifications,notificationId)
+            return thread
+        }
+        
     }
 
     static async getThread(channel,threadId){

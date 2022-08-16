@@ -3,12 +3,10 @@ const schedule = require('node-schedule');
 const Time = require("../helpers/time");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
-const { CHANNEL_REMINDER } = require("../helpers/config");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 
 class ReminderController{
     static remindPostProgress(client){
-        const channelReminder = ChannelController.getChannel(client,CHANNEL_REMINDER)
         supabase.from('Users')
 		.select()
 		.neq('reminder_progress',null)
@@ -29,7 +27,8 @@ class ReminderController{
 								scheduleReminderProgress.cancel()
 							}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
 								const userId = data.id;
-								channelReminder.send(TodoReminderMessage.progressReminder(userId))
+								const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+								notificationThread.send(TodoReminderMessage.progressReminder(userId))
 							}
 						}
 					})
@@ -42,7 +41,6 @@ class ReminderController{
     }
 
     static remindSetHighlight(client){
-        const channelReminder = ChannelController.getChannel(client,CHANNEL_REMINDER)
         supabase.from('Users')
 			.select()
 			.neq('reminder_highlight',null)
@@ -64,7 +62,8 @@ class ReminderController{
 									scheduleReminderHighlight.cancel()
 								}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
 									const userId = data.id;
-									channelReminder.send(HighlightReminderMessage.highlightReminder(userId))
+									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+									notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
 								}
 							}
 						})
@@ -76,18 +75,19 @@ class ReminderController{
     }
 
     static remindHighlightUser(client){
-        const channelReminder = ChannelController.getChannel(client,CHANNEL_REMINDER)
         supabase.from('Reminders')
-			.select()
+			.select('*,Users(notification_id)')
 			.gte('time',new Date().toUTCString())
 			.then(data=>{
 				data.body.forEach(reminder=>{
-					schedule.scheduleJob(reminder.time,function() {
-						channelReminder.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
+					schedule.scheduleJob(reminder.time,async function() {
+						const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notification_id)
+						notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
 					})
 				})
 			})
     }
+	
 }
 
 module.exports = ReminderController
