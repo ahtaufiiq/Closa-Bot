@@ -19,6 +19,8 @@ module.exports = {
 								username:member.user.username,
 								name:member.user.username,
 								notification_id:msg.id,
+								current_streak:0,
+								longest_streak:0,
 								total_days:0,
 								total_points:0,
 								last_active:Time.getTodayDateOnly()
