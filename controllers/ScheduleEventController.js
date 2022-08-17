@@ -79,14 +79,12 @@ class ScheduleEventController {
 
     static getStartTimeMorningSession(){
         const date = Time.getDate()
-        date.setDate(date.getDate()+1)
         date.setHours(Time.minus7Hours(7))
         date.setMinutes(0)
         return date
     }
     static getEndTimeMorningSession(){
         const date = Time.getDate()
-        date.setDate(date.getDate()+1)
         date.setHours(Time.minus7Hours(11))
         date.setMinutes(30)
         return date
