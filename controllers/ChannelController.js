@@ -18,7 +18,7 @@ class ChannelController{
             .eq('id',userId)
             .single()
             
-            const thread = await ChannelController.getThread(channelNotifications,notificationId)
+            const thread = await ChannelController.getThread(channelNotifications,data.body.notification_id)
             return thread
         }
         
@@ -26,6 +26,9 @@ class ChannelController{
 
     static async getThread(channel,threadId){
         return await channel.threads.fetch(threadId);
+    }
+    static async getMessage(channel,messageId){
+        return await channel.messages.fetch(messageId)
     }
 
     static async createThread(msg,threadName,byAuthor){

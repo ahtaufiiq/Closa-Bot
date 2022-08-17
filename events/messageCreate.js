@@ -36,7 +36,9 @@ module.exports = {
 			case CHANNEL_GOALS:
 				if (msg.content.includes("Success Criteria")) {
 					const threadName = `${msg.content.split('\n')[0]}`
-					
+					if (threadName.includes("**")) {
+						threadName = threadName.split("**")[1]
+					}
 					const thread = ChannelController.createThread(
 						msg,
 						threadName,
