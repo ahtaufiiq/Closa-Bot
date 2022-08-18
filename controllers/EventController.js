@@ -104,7 +104,7 @@ class EventController {
     }
 
     static getStartTimeMorningSession(isStartNow){
-        const date = Time.getDate()
+        const date = new Date()
         if (isStartNow) {
             date.setMinutes(date.getMinutes() + 5)
         }else{
@@ -115,13 +115,13 @@ class EventController {
         return date
     }
     static getEndTimeMorningSession(){
-        const date = Time.getDate()
+        const date = new Date()
         date.setHours(Time.minus7Hours(11))
         date.setMinutes(30)
         return date
     }
     static getStartTimeNightSession(isStartNow){
-        const date = Time.getDate()
+        const date = new Date()
         if (isStartNow) {
             date.setMinutes(date.getMinutes() + 5)
         }else{
@@ -131,7 +131,7 @@ class EventController {
         return date
     }
     static getEndTimeNightSession(){
-        const date = Time.getDate()
+        const date = new Date()
         date.setHours(Time.minus7Hours(22))
         date.setMinutes(0)
         return date
@@ -180,11 +180,11 @@ class EventController {
     }
 
     static isRangeMorningSession(){
-        const time = Time.getDate().getTime()
+        const time = new Date().getTime()
         return time > EventController.getStartTimeMorningSession().getTime() && time < EventController.getEndTimeMorningSession().getTime()
     }
     static isRangeNightSession(){
-        const time = Time.getDate().getTime()
+        const time = new Date().getTime()
         return time > EventController.getStartTimeNightSession().getTime() && time < EventController.getEndTimeNightSession().getTime()
     }
 
