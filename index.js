@@ -5,7 +5,7 @@ const Sentry = require('@sentry/node')
 const Tracing = require('@sentry/tracing')
 
 const client = new Client({ 
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.GUILD_SCHEDULED_EVENTS],
 	partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
 });
 client.commands = new Collection();
