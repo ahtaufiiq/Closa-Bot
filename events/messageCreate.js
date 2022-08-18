@@ -15,6 +15,7 @@ const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
+const EventController = require("../controllers/EventController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -53,6 +54,7 @@ module.exports = {
 				}
 				break;
 			case CHANNEL_SESSION_GOAL:
+				EventController.handleStartCoworkingSession(msg.client)
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 
 				thread.send(FocusSessionMessage.startFocusSession(msg.author))

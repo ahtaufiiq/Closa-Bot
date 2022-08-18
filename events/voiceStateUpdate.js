@@ -1,4 +1,5 @@
 const DailyReport = require('../controllers/DailyReport');
+const EventController = require('../controllers/EventController');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const {CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
@@ -44,7 +45,9 @@ module.exports = {
 			const {totalInMinutes}= getGapTime(closaCafe[userId],true)
 			PointController.addPoint(userId,'cafe',totalInMinutes)
 			DailyReport.activeMember(oldMember.client,userId)
-
+			if (totalOldMember === 0) {
+				EventController.handleLastUserLeaveEvent(oldMember.client)
+			}
 			delete closaCafe[userId]
 		}
 

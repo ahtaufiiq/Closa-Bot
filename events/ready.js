@@ -14,6 +14,7 @@ const PaymentController = require('../controllers/PaymentController');
 const DailyStreakController = require('../controllers/DailyStreakController');
 const DailyReport = require('../controllers/DailyReport');
 const ReminderController = require('../controllers/ReminderController');
+const EventController = require('../controllers/EventController');
 
 
 module.exports = {
@@ -32,6 +33,8 @@ module.exports = {
 		
 		DailyStreakController.remindMissOneDay(client)
 		DailyStreakController.remindMissTwoDays(client)
+
+		EventController.recurringCoworkingSession(client)
 
 		if(CLIENT_ID === "949993300113371196") return
 
