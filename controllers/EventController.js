@@ -7,7 +7,7 @@ class EventController {
     static recurringCoworkingSession(client){
         let ruleCoworkingSession = new schedule.RecurrenceRule();
         
-        ruleCoworkingSession.hour = Time.minus7Hours(5)
+        ruleCoworkingSession.hour = 22
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
             Promise.all([
