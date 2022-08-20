@@ -14,16 +14,16 @@ class EventController {
                 EventController.scheduleEvent(client,{
                     name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
                     description:`Feel free to join at anytime!\n07.00 — Start \n11.30 — Ended`,
-                    scheduledStartTime:EventController.getStartTimeMorningSession(),
-                    scheduledEndTime:EventController.getEndTimeMorningSession(),
+                    scheduledStartTime:EventController.addOneDay(EventController.getStartTimeMorningSession()),
+                    scheduledEndTime:EventController.addOneDay(EventController.getEndTimeMorningSession()),
                     entityType:"VOICE",
                     channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
                 }),
                 EventController.scheduleEvent(client,{
                     name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
                     description:`Feel free to join at anytime!\n20.00 — Start \n22.00 — Ended`,
-                    scheduledStartTime:EventController.getStartTimeNightSession(),
-                    scheduledEndTime:EventController.getEndTimeNightSession(),
+                    scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
+                    scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
                     entityType:"VOICE",
                     channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
                 })
@@ -101,6 +101,11 @@ class EventController {
        if (!event.isCompleted()) {
             event.setStatus("COMPLETED")
        }
+    }
+
+    static addOneDay(date){
+        date.setDate(date.getDate()+1)
+        return date
     }
 
     static getStartTimeMorningSession(isStartNow){
