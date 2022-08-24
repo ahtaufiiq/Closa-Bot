@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
-const { GUILD_ID, CHANNEL_CLOSA_CAFE } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB } = require('../helpers/config');
 const LocalData = require('../helpers/getData');
+const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const ChannelController = require('./ChannelController');
 class EventController {
@@ -111,7 +112,10 @@ class EventController {
     static getStartTimeMorningSession(isStartNow){
         const date = new Date()
         if (isStartNow) {
-            date.setMinutes(date.getMinutes() + 5)
+            date.setMinutes(date.getMinutes() + 15)
+            if (date.getTime() > this.getEndTimeMorningSession().getTime()) {
+                date.setMinutes(this.getEndTimeMorningSession().getMinutes()-1)
+            }
         }else{
             date.setHours(Time.minus7Hours(7))
             date.setMinutes(0)
@@ -128,7 +132,10 @@ class EventController {
     static getStartTimeNightSession(isStartNow){
         const date = new Date()
         if (isStartNow) {
-            date.setMinutes(date.getMinutes() + 5)
+            date.setMinutes(date.getMinutes() + 15)
+            if (date.getTime() > this.getEndTimeNightSession().getTime()) {
+                date.setMinutes(this.getEndTimeNightSession().getMinutes()-1)
+            }
         }else{
             date.setHours(Time.minus7Hours(20))
             date.setMinutes(0)
@@ -161,7 +168,10 @@ class EventController {
                 data.morning = event.id
                 LocalData.writeData(data)
             }
-            if(isScheduled) EventController.startEvent(client,data.morning)
+            if(isScheduled) {
+                EventController.startEvent(client,data.morning)
+                EventController.sendNotificationStartEvent(client,"Morning",data.morning)
+            }
         }else if(EventController.isRangeNightSession()){
             const event = await EventController.getDetailEvent(client,data.night)
             const isCompleted = event.status === "COMPLETED"
@@ -180,7 +190,10 @@ class EventController {
                 data.night = event.id
                 LocalData.writeData(data)
             }
-            if(isScheduled) EventController.startEvent(client,data.night)
+            if(isScheduled) {
+                EventController.startEvent(client,data.night)
+                EventController.sendNotificationStartEvent(client,"Night",data.night)
+            }
         }
     }
 
@@ -194,19 +207,77 @@ class EventController {
     }
 
     static async getAllEvent(client){
-        return await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch()
+        try {
+            return await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch()
+        } catch (error) {
+            return error
+        }
     }
     static async getDetailEvent(client,eventId){
-        return await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)
+        try {
+            return await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)
+        } catch (error) {
+            return error
+        }
     }
 
     static handleLastUserLeaveEvent(client){
         const data = LocalData.getData()
         if (this.isRangeMorningSession()) {
             this.stopEvent(client,data.morning)
+            EventController.scheduleEvent(client,{
+                name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
+                description:`Feel free to join at anytime!\n07.00 — Start \n11.30 — Ended`,
+                scheduledStartTime:EventController.getStartTimeMorningSession(true),
+                scheduledEndTime:EventController.getEndTimeMorningSession(),
+                entityType:"VOICE",
+                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+            }).then((morning) => {
+                console.log("🚀 ~ file: EventController.js ~ line 225 ~ EventController ~ handleLastUserLeaveEvent ~ morning", morning)
+                const data = LocalData.getData()
+                data.morning = morning.id
+                LocalData.writeData(data)
+            })
         }else if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
+            EventController.scheduleEvent(client,{
+                name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
+                description:`Feel free to join at anytime!\n20.00 — Start \n22.00 — Ended`,
+                scheduledStartTime:EventController.getStartTimeNightSession(true),
+                scheduledEndTime:EventController.getEndTimeNightSession(),
+                entityType:"VOICE",
+                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+            }).then((night)=>{
+                const data = LocalData.getData()
+                data.night = night.id
+                LocalData.writeData(data)
+            })
         }
+    }
+    static async sendNotificationStartEvent(client, type,eventId){
+        const roleId = type === "Morning" ? ROLE_MORNING_CLUB : ROLE_NIGHT_CLUB
+        const members = await client.guilds.cache.get(GUILD_ID).members.fetch()
+        members.forEach(member=>{
+            if (!member.user.bot) {
+                member.roles.cache.forEach(role=>{
+                    if (role.id === roleId) {
+                        supabase.from("Users")
+                            .select('notification_id')
+                            .eq('id',member.id)
+                            .single()
+                            .then(async data => {
+                                const notificationId = data.body.notification_id
+                                const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
+                                notificationThread.send(` ${role} co-working hour just started at ☕️ Closa café.
+Let’s join the session.
+
+https://discord.com/events/${GUILD_ID}/${eventId}`)
+                                // console.log(role.name,member.user.username,notificationId);
+                            })
+                    }
+                })
+            }
+        })
     }
 }
 
