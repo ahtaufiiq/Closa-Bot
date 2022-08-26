@@ -50,13 +50,11 @@ class BoostMessage{
     }
 
     static successSendBoost(user){
-        return { 
-            embeds: [this.embedMessage(
+        return this.embedMessage(
                 "Boost sent 🚀",
                 `You just sent boost to ${user}`,
                 user
-            )], 
-        }
+            ) 
     }
 
     static notMakingProgress3Days(user){
