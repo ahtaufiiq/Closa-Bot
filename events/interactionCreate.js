@@ -7,21 +7,20 @@ module.exports = {
 	async execute(interaction) {
 		if (!interaction.isCommand() && !interaction.isButton()) return;
 		if (interaction.isButton()) {
-			interaction.deferReply({ephemeral:true});
 			const [commandButton,targetUserId] = interaction.component.customId.split("_")
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "boostInactiveMember":
 					notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user))
-					interaction.editReply({ephemeral:true,embeds:[BoostMessage.successSendBoost(targetUser.user)]})
+					interaction.reply({ephemeral:true,embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 					break;
 				case "activeAgain":
 					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user))
-					interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					interaction.reply({ephemeral:true,content:`message sent to ${targetUser.user}`})
 					break;
 				default:
-					interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					interaction.reply({ephemeral:true,content:`message sent to ${targetUser.user}`})
 					break;
 			}
 		}else{
