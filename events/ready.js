@@ -15,6 +15,7 @@ const DailyStreakController = require('../controllers/DailyStreakController');
 const DailyReport = require('../controllers/DailyReport');
 const ReminderController = require('../controllers/ReminderController');
 const EventController = require('../controllers/EventController');
+const BoostController = require('../controllers/BoostController');
 
 
 module.exports = {
@@ -23,8 +24,8 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		// PaymentController.remindMember(client)
-		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		user.send("Restart Bot")
+		// const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
+		// user.send("Restart Bot")
 
 		
 		ReminderController.remindSetHighlight(client)
@@ -35,6 +36,9 @@ module.exports = {
 		DailyStreakController.remindMissTwoDays(client)
 
 		EventController.recurringCoworkingSession(client)
+
+		BoostController.remindBoostInativeMember(client)
+		BoostController.remindBoostNotMakingProgress3Days(client)
 
 		if(CLIENT_ID === "949993300113371196") return
 

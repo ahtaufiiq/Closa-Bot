@@ -21,6 +21,7 @@ module.exports = {
     CHANNEL_PAYMENT: process.env.CHANNEL_PAYMENT,
     CHANNEL_CELEBRATE: process.env.CHANNEL_CELEBRATE,
     CHANNEL_STATUS: process.env.CHANNEL_STATUS,
+    CHANNEL_BOOST: process.env.CHANNEL_BOOST,
     CHANNEL_INTRO: process.env.CHANNEL_INTRO,
     ROLE_7STREAK: process.env.ROLE_7STREAK,
     ROLE_30STREAK: process.env.ROLE_30STREAK,

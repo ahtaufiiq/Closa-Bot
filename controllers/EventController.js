@@ -233,7 +233,6 @@ class EventController {
                 entityType:"VOICE",
                 channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
             }).then((morning) => {
-                console.log("🚀 ~ file: EventController.js ~ line 225 ~ EventController ~ handleLastUserLeaveEvent ~ morning", morning)
                 const data = LocalData.getData()
                 data.morning = morning.id
                 LocalData.writeData(data)
@@ -272,7 +271,6 @@ class EventController {
 Let’s join the session.
 
 https://discord.com/events/${GUILD_ID}/${eventId}`)
-                                // console.log(role.name,member.user.username,notificationId);
                             })
                     }
                 })

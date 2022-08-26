@@ -14,7 +14,7 @@ class DailyReport {
 		schedule.scheduleJob(ruleStatusReport,function(){
 			supabase.from("Users")
 				.select()
-				.eq('last_active',Time.getDateOnly(Time.getNextDate(-5)))
+				.eq('last_active',Time.getDateOnly(Time.getNextDate(-6)))
 				.gte('end_membership',Time.getDateOnly(Time.getDate()))
 				.then(data=>{
 					if (data.body.length > 0) {
