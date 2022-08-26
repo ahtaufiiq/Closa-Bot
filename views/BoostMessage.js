@@ -5,7 +5,7 @@ class BoostMessage{
 
     static boostBack(user){
         return { 
-            content:`Hi ${user} someone just boosted you back 🚀` , 
+            content:`**Hi ${user} someone just boosted you back 🚀**` , 
             embeds: [this.embedMessage(
                 "Boosted you (1x) 🚀",
                 "",
@@ -19,16 +19,16 @@ class BoostMessage{
         }
     }
 
-    static receiveBoost(user,message){
+    static sendBoost(user,sender,message){
         return { 
-            content:`Hi ${user} someone just boosted you 🚀` , 
+            content:`**Hi ${user} someone just boosted you 🚀**` , 
             embeds: [this.embedMessage(
                 "Boosted you (1x) 🚀",
                 message,
                 user
             )], 
             components: [this.createButton(
-                `boostBack_${user.id}`,
+                `boostBack_${sender.id}`,
                 '🚀  Boost'
             )] 
         }
@@ -36,7 +36,7 @@ class BoostMessage{
 
     static sendBoostToInactiveMember(inactiveUser,sender){
         return { 
-            content:`Hi ${inactiveUser} someone sent you a boost. :success:` , 
+            content:`**Hi ${inactiveUser} someone sent you a boost. :success:**` , 
             embeds: [this.embedMessage(
                 "Boosted you (1x) 🚀",
                 `let's get back on track!`,
@@ -59,7 +59,7 @@ class BoostMessage{
 
     static notMakingProgress3Days(user){
         return { 
-            content:"Hi everyone, It looks like one of our members is not making progress in the past 3 days." , 
+            content:"**Hi everyone, It looks like one of our members is not making progress in the past 3 days.**" , 
             embeds: [this.embedMessage(
                 "Send Boost 🚀",
                 `Show your support by sending ${user} a boost.`,
@@ -71,7 +71,7 @@ class BoostMessage{
 
     static notActive5Days(user){
         return { 
-            content:"Hi everyone, It looks like one of our members is not active in the past 5 days." , 
+            content:"**Hi everyone, It looks like one of our members is not active in the past 5 days.**" , 
             embeds: [this.embedMessage(
                 "Send Boost 🚀",
                 `Show your support by sending ${user} a boost.`,
@@ -79,6 +79,12 @@ class BoostMessage{
             )], 
             components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost')] 
         }
+    }
+
+    static remindToBoost(userId){
+        return `Hi <@${userId}>, let's start the week by sending someone boost!
+type the command below here:
+\`\`\`/boost @User [your message]\`\`\``
     }
 
     static createButton(id,text,style="SUCCESS"){

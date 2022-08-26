@@ -39,6 +39,7 @@ module.exports = {
 
 		BoostController.remindBoostInativeMember(client)
 		BoostController.remindBoostNotMakingProgress3Days(client)
+		BoostController.remindEveryMonday(client)
 
 		if(CLIENT_ID === "949993300113371196") return
 

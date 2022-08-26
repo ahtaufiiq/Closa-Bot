@@ -46,6 +46,22 @@ class BoostController{
 				})
 		})
     }
+
+	static remindEveryMonday(client){
+		schedule.scheduleJob(`1 0 ${Time.minus7Hours(7)} * * 1`,async function() {
+			supabase.from("Users")
+				.select('id,notification_id')
+				.gte('end_membership',Time.getDateOnly(Time.getDate()))
+				.then(data=>{
+					if (data.body.length > 0) {
+						data.body.forEach(async member=>{
+							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+							notificationThread.send(BoostMessage.remindToBoost(member.id))
+						})
+					}
+				})
+		})
+	}
 }
 
 module.exports = BoostController
