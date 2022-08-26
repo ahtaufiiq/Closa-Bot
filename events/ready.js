@@ -24,8 +24,8 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		// PaymentController.remindMember(client)
-		// const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		// user.send("Restart Bot")
+		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
+		user.send("Restart Bot")
 
 		
 		ReminderController.remindSetHighlight(client)
