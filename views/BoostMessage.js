@@ -25,7 +25,7 @@ class BoostMessage{
             embeds: [this.embedMessage(
                 "Boosted you (1x) 🚀",
                 message,
-                user
+                sender
             )], 
             components: [this.createButton(
                 `boostBack_${sender.id}`,
