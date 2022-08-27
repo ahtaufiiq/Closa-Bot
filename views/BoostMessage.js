@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js")
+const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
 const InfoUser = require("../helpers/InfoUser")
 
 class BoostMessage{
@@ -13,9 +13,9 @@ class BoostMessage{
             )]
         }
     }
-    static IamBack(user,sender){
+    static IamBack(user,sender,message){
         return { 
-            content:`I'm back! thanks ${user} 🙌` , 
+            content:message , 
             embeds:[
                 this.embedMessage("","",sender)
             ]
@@ -32,7 +32,7 @@ class BoostMessage{
             )], 
             components: [this.createButton(
                 `boostBack_${sender.id}`,
-                '🚀  Boost'
+                '🚀  Boost!'
             )] 
         }
     }
@@ -45,12 +45,29 @@ class BoostMessage{
                 `let's get back on track!`,
                 sender
             )], 
-            components: [this.createButton(
-                `activeAgain_${sender.id}`,
-                "🙌 I'm back, thanks!"
-            )] 
+            components: [
+                this.createMenu(
+                    `inactiveReply_${sender.id}`,
+                    "Reply",
+                    [
+                        {
+                            label:'I am back thanks!',
+                            value:'I am back thanks!'
+                        },
+                        {
+                            label:"I'll be back tomorrow, thanks!",
+                            value:"I'll be back tomorrow, thanks!"
+                        },
+                        {
+                            label:'I still need to take a break, but thanks!',
+                            value:'I still need to take a break, but thanks!'
+                        }
+                    ]
+                )
+            ] 
         }
     }
+
 
     static successSendBoost(user){
         return this.embedMessage(
@@ -68,7 +85,7 @@ class BoostMessage{
                 `Show your support by sending ${user} a boost.`,
                 user
             )], 
-            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost')] 
+            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
         }
     }
 
@@ -80,7 +97,7 @@ class BoostMessage{
                 `Show your support by sending ${user} a boost.`,
                 user
             )], 
-            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost')] 
+            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
         }
     }
 
@@ -89,14 +106,24 @@ class BoostMessage{
 type the command below here:
 \`\`\`/boost @User [your message]\`\`\``
     }
-
+    
     static createButton(id,text,style="SUCCESS"){
+        
         return new MessageActionRow()
             .addComponents(
                 new MessageButton()
                     .setCustomId(id)
                     .setLabel(text)
                     .setStyle(style)
+            )
+    }
+    static createMenu(id,placeholder,options){
+        return new MessageActionRow()
+            .addComponents(
+                new MessageSelectMenu()
+                    .setCustomId(id)
+                    .setPlaceholder(placeholder)
+                    .addOptions(options)
             )
     }
 

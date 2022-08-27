@@ -6,10 +6,10 @@ const BoostMessage = require("../views/BoostMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
-		if (!interaction.isCommand() && !interaction.isButton()) return;
+		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
 		if (interaction.isButton()) {
 			await interaction.deferReply({ephemeral:true});
-			const [commandButton,targetUserId] = interaction.component.customId.split("_")
+			const [commandButton,targetUserId] = interaction.customId.split("_")
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			let totalBoost 
@@ -20,14 +20,24 @@ module.exports = {
 					notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
 					await interaction.editReply({ephemeral:true,embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 					break;
-				case "activeAgain":
-					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user))
-					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
-					break;
 				case "boostBack":
 					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 					notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
 					await interaction.editReply({ephemeral:true,content:`boost sent to ${targetUser.user}`})
+					break;
+				default:
+					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					break;
+			}
+		}else if(interaction.isSelectMenu()){
+			await interaction.deferReply({ephemeral:true});
+			const [commandMenu,targetUserId] = interaction.customId.split("_")
+			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
+			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
+			switch (commandMenu) {
+				case "inactiveReply":
+					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user,interaction.values[0]))
+					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
 					break;
 				default:
 					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
