@@ -12,7 +12,7 @@ module.exports = {
 			await interaction.deferReply({ephemeral:true});
 			const [commandButton,targetUserId] = interaction.customId.split("_")
 			if (interaction.user.id === targetUserId) {
-				await interaction.editReply({ephemeral:true,content:"⚠️ Can't boost yourself. Boost other instead "})
+				await interaction.editReply(BoostMessage.warningBoostYourself())
 				return	
 			}
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
@@ -29,17 +29,17 @@ module.exports = {
 					PointController.incrementTotalPoints(5,interaction.user.id)
 					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 					notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
-					await interaction.editReply({ephemeral:true,content:`boost sent to ${targetUser.user}`})
+					await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
 					break;
 				default:
-					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 			}
 		}else if(interaction.isSelectMenu()){
 			await interaction.deferReply({ephemeral:true});
 			const [commandMenu,targetUserId] = interaction.customId.split("_")
 			if (interaction.user.id === targetUserId) {
-				await interaction.editReply({ephemeral:true,content:"⚠️ Can't reply to yourself. Boost other instead."})
+				await interaction.editReply(BoostMessage.warningReplyYourself())
 				return	
 			}
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
@@ -47,10 +47,10 @@ module.exports = {
 			switch (commandMenu) {
 				case "inactiveReply":
 					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user,interaction.values[0]))
-					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 				default:
-					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 			}
 		}else{

@@ -26,7 +26,7 @@ module.exports = {
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		if (user.id === interaction.user.id) {
-			await interaction.editReply({ephemeral:true,content:"⚠️ Can't boost yourself. Boost other instead "})
+			await interaction.editReply(BoostMessage.warningBoostYourself())
 			return	
 		}
 		PointController.incrementTotalPoints(5,interaction.user.id)
@@ -34,6 +34,6 @@ module.exports = {
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
 		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,totalBoost,message))
 
-		await interaction.editReply({ephemeral:true,content:`message sent to ${user}`})
+		await interaction.editReply(BoostMessage.successSendMessage(user))
 	},
 };

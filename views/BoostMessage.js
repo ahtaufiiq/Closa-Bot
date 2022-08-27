@@ -68,15 +68,6 @@ class BoostMessage{
         }
     }
 
-
-    static successSendBoost(user){
-        return this.embedMessage(
-                "Boost sent 🚀",
-                `You just sent boost to ${user}`,
-                user
-            ) 
-    }
-
     static notMakingProgress3Days(user){
         return { 
             content:"**Hi everyone, It looks like one of our members is not making progress in the past 3 days.**" , 
@@ -105,6 +96,26 @@ class BoostMessage{
         return `Hi <@${userId}>, let's start the week by sending someone boost!
 type the command below here:
 \`\`\`/boost @User [your message]\`\`\``
+    }
+    static successSendBoost(user){
+        return this.embedMessage(
+                "Boost sent 🚀",
+                `You just sent boost to ${user}`,
+                user
+            ) 
+    }
+
+    static successBoostBack(user){
+        return `boost sent to ${user}`
+    }
+    static successSendMessage(user){
+        return `message sent to ${user}`
+    }
+    static warningBoostYourself(){
+        return "⚠️ Can't boost yourself. Boost other instead"
+    }
+    static warningReplyYourself(){
+        return "⚠️ Can't reply to yourself. Boost other instead."
     }
     
     static createButton(id,text,style="SUCCESS"){
