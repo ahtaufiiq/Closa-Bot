@@ -42,7 +42,7 @@ class BoostMessage{
             content:`**Hi ${inactiveUser} someone sent you a boost. :success: **` , 
             embeds: [this.embedMessage(
                 `Boosted you ${totalBoost}x 🚀`,
-                `let's get back on track!`,
+                `Let's start tiny & get back on track!`,
                 sender
             )], 
             components: [
