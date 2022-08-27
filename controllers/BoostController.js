@@ -34,13 +34,13 @@ class BoostController{
 		schedule.scheduleJob(ruleRemindBoost,function(){
 			supabase.from("Users")
 				.select()
-				.eq('last_done',Time.getDateOnly(Time.getNextDate(-4)))
+				.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
 				.gte('end_membership',Time.getDateOnly(Time.getDate()))
 				.then(data=>{
 					if (data.body.length > 0) {
 						data.body.forEach(async member=>{
                             const {user} = await MemberController.getMember(client,member.id)
-							channelBoost.send(BoostMessage.notMakingProgress3Days(user))
+							channelBoost.send(BoostMessage.notMakingProgress2Days(user))
 						})
 					}
 				})

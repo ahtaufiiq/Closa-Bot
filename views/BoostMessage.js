@@ -68,9 +68,9 @@ class BoostMessage{
         }
     }
 
-    static notMakingProgress3Days(user){
+    static notMakingProgress2Days(user){
         return { 
-            content:"**Hi everyone, It looks like one of our members is not making progress in the past 3 days.**" , 
+            content:"**Hi everyone, It looks like one of our members is not making progress in the past 2 days.**" , 
             embeds: [this.embedMessage(
                 "Send Boost 🚀",
                 `Show your support by sending ${user} a boost.`,
