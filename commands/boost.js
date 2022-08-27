@@ -26,7 +26,7 @@ module.exports = {
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		if (user.id === interaction.user.id) {
-			await interaction.editReply({ephemeral:true,content:"Can't boost yourself. Boost other instead "})
+			await interaction.editReply({ephemeral:true,content:"⚠️ Can't boost yourself. Boost other instead "})
 			return	
 		}
 		PointController.incrementTotalPoints(5,interaction.user.id)

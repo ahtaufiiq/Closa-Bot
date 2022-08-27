@@ -12,7 +12,7 @@ module.exports = {
 			await interaction.deferReply({ephemeral:true});
 			const [commandButton,targetUserId] = interaction.customId.split("_")
 			if (interaction.user.id === targetUserId) {
-				await interaction.editReply({ephemeral:true,content:"Can't boost yourself. Boost other instead "})
+				await interaction.editReply({ephemeral:true,content:"⚠️ Can't boost yourself. Boost other instead "})
 				return	
 			}
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
@@ -39,7 +39,7 @@ module.exports = {
 			await interaction.deferReply({ephemeral:true});
 			const [commandMenu,targetUserId] = interaction.customId.split("_")
 			if (interaction.user.id === targetUserId) {
-				await interaction.editReply({ephemeral:true,content:"Can't reply to yourself. Boost other instead."})
+				await interaction.editReply({ephemeral:true,content:"⚠️ Can't reply to yourself. Boost other instead."})
 				return	
 			}
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
