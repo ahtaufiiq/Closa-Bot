@@ -13,9 +13,12 @@ class BoostMessage{
             )]
         }
     }
-    static IamBack(user){
+    static IamBack(user,sender){
         return { 
             content:`I'm back! thanks ${user} 🙌` , 
+            embeds:[
+                this.embedMessage("","",sender)
+            ]
         }
     }
 
