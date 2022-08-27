@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageAttachment } = require('discord.js');
+const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
