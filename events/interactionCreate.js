@@ -1,6 +1,7 @@
 const BoostController = require("../controllers/BoostController");
 const ChannelController = require("../controllers/ChannelController");
 const MemberController = require("../controllers/MemberController");
+const PointController = require("../controllers/PointController");
 const BoostMessage = require("../views/BoostMessage");
 
 module.exports = {
@@ -16,11 +17,13 @@ module.exports = {
 
 			switch (commandButton) {
 				case "boostInactiveMember":
+					PointController.incrementTotalPoints(5,interaction.user.id)
 					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 					notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
 					await interaction.editReply({ephemeral:true,embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 					break;
 				case "boostBack":
+					PointController.incrementTotalPoints(5,interaction.user.id)
 					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 					notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
 					await interaction.editReply({ephemeral:true,content:`boost sent to ${targetUser.user}`})

@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageAttachment } = require('discord.js');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
+const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
 const GenerateImage = require('../helpers/GenerateImage');
@@ -24,7 +25,7 @@ module.exports = {
 		const user = taggedUser? taggedUser : interaction.user
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
-
+		PointController.incrementTotalPoints(5,interaction.user.id)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
 		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,totalBoost,message))
