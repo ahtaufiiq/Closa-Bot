@@ -14,7 +14,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('boost')
 		.setDescription('send good vibes & show support 🚀')
-		.addUserOption(option => option.setName('user').setDescription('The user'))
+		.addUserOption(option => option.setName('user').setDescription('The user').setRequired(true))
 		.addStringOption(option => option.setName('message').setDescription("Your message to user")),
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true});
@@ -25,6 +25,10 @@ module.exports = {
 		const user = taggedUser? taggedUser : interaction.user
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
+		if (user.id === interaction.user.id) {
+			await interaction.editReply({ephemeral:true,content:"Can't boost yourself. Boost other instead "})
+			return	
+		}
 		PointController.incrementTotalPoints(5,interaction.user.id)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
