@@ -54,7 +54,6 @@ module.exports = {
 				}
 				break;
 			case CHANNEL_SESSION_GOAL:
-				EventController.handleStartCoworkingSession(msg.client)
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 
 				thread.send(FocusSessionMessage.startFocusSession(msg.author))

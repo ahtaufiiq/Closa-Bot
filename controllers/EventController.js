@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID } = require('../helpers/config');
 const LocalData = require('../helpers/getData');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -92,16 +92,26 @@ class EventController {
     }
 
     static async startEvent(client,eventId){
-       const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
-       if (!event.isActive()) {
-            event.setStatus("ACTIVE")
-       }
+        try {
+            const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
+            if (!event.isActive()) {
+                 event.setStatus("ACTIVE")
+            }
+        } catch (error) {
+            
+        }
+      
     }
     static async stopEvent(client,eventId){
-       const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
-       if (!event.isCompleted()) {
-            event.setStatus("COMPLETED")
-       }
+        try {
+            const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
+            if (!event.isCompleted() && event.isActive()) {
+                 event.setStatus("COMPLETED")
+            }
+        } catch (error) {
+            
+        }
+     
     }
 
     static addOneDay(date){
