@@ -18,18 +18,30 @@ module.exports = {
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			let totalBoost 
+			let isMoreThanOneMinute 
 			switch (commandButton) {
 				case "boostInactiveMember":
-					PointController.incrementTotalPoints(5,interaction.user.id)
-					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
-					notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
-					await interaction.editReply({ephemeral:true,embeds:[BoostMessage.successSendBoost(targetUser.user)]})
+					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+					if (isMoreThanOneMinute) {
+						PointController.incrementTotalPoints(5,interaction.user.id)
+						totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+						notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
+						await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
+					}else {
+						await interaction.editReply(BoostMessage.warningSpamBoost())
+					}
 					break;
 				case "boostBack":
-					PointController.incrementTotalPoints(5,interaction.user.id)
-					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
-					notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
-					await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
+					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+					if (isMoreThanOneMinute) {
+						PointController.incrementTotalPoints(5,interaction.user.id)
+						totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+						notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
+						await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
+					}else{
+						await interaction.editReply(BoostMessage.warningSpamBoost())
+					}
+
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

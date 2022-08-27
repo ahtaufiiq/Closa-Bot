@@ -71,10 +71,12 @@ class BoostController{
 			.single()
 
 		let totalBoost = data.body ? data.body.total + 1 : 1
-
 		if (data.body) {
 			supabase.from("Boosts")	
-				.update({total:totalBoost})
+				.update({
+					total:totalBoost,
+					last_boost:Time.getDate()
+				})
 				.eq('id',id)
 				.then()
 		}else{
@@ -83,13 +85,32 @@ class BoostController{
 					id,
 					senderId,
 					targetUserId,
-					total:1
+					total:1,
+					last_boost:Time.getDate(),
 				})
 				.then()
 		}
 
 		return totalBoost
 			
+	}
+
+	static async isPreviousBoostMoreThanOneMinute(senderId,targetUserId){
+		const id = `${senderId}_${targetUserId}`
+		let data = await supabase.from("Boosts")
+			.select()
+			.eq("id",id)
+			.single()
+		let isMoreThanOneMinute = false
+
+		if(data?.body){
+			if (Time.isMoreThanOneMinute(data.body.last_boost)) {
+				isMoreThanOneMinute = true
+			}
+		}else{
+			isMoreThanOneMinute = true
+		}
+		return isMoreThanOneMinute
 	}
 }
 

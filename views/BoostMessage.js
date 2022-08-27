@@ -111,6 +111,12 @@ type the command below here:
     static successSendMessage(user){
         return `message sent to ${user}`
     }
+    static warningSpamBoost(){
+        return "⚠️ Can't sent multiple boost at a time to the same person."
+    }
+    static warningSpamMessage(){
+        return "⚠️ Can't sent multiple message at a time to the same person."
+    }
     static warningBoostYourself(){
         return "⚠️ Can't boost yourself. Boost other instead"
     }
