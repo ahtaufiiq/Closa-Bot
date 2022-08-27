@@ -3,11 +3,11 @@ const InfoUser = require("../helpers/InfoUser")
 
 class BoostMessage{
 
-    static boostBack(user,sender){
+    static boostBack(user,sender,totalBoost){
         return { 
             content:`**Hi ${user} someone just boosted you back **` , 
             embeds: [this.embedMessage(
-                "Boosted you 1x 🚀",
+                `Boosted you ${totalBoost}x 🚀`,
                 "",
                 sender
             )]
@@ -19,11 +19,11 @@ class BoostMessage{
         }
     }
 
-    static sendBoost(user,sender,message){
+    static sendBoost(user,sender,totalBoost,message){
         return { 
             content:`**Hi ${user} someone just boosted you **` , 
             embeds: [this.embedMessage(
-                "Boosted you 1x 🚀",
+                `Boosted you ${totalBoost}x 🚀`,
                 message,
                 sender
             )], 
@@ -34,11 +34,11 @@ class BoostMessage{
         }
     }
 
-    static sendBoostToInactiveMember(inactiveUser,sender){
+    static sendBoostToInactiveMember(inactiveUser,sender,totalBoost){
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost. :success: **` , 
             embeds: [this.embedMessage(
-                "Boosted you 1x 🚀",
+                `Boosted you ${totalBoost}x 🚀`,
                 `let's get back on track!`,
                 sender
             )], 

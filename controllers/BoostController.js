@@ -62,6 +62,35 @@ class BoostController{
 				})
 		})
 	}
+
+	static async incrementTotalBoost(senderId,targetUserId){
+		const id = `${senderId}_${targetUserId}`
+		let data = await supabase.from("Boosts")
+			.select('total')
+			.eq('id',id)
+			.single()
+
+		let totalBoost = data.body ? data.body.total : 1
+
+		if (data.body) {
+			supabase.from("Boosts")	
+				.update({total:totalBoost})
+				.eq('id',id)
+				.then()
+		}else{
+			supabase.from("Boosts")
+				.insert({
+					id,
+					senderId,
+					targetUserId,
+					total:1
+				})
+				.then()
+		}
+
+		return totalBoost
+			
+	}
 }
 
 module.exports = BoostController

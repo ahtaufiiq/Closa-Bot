@@ -25,8 +25,8 @@ module.exports = {
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
-	
-		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,message))
+		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,totalBoost,message))
 
 		await interaction.editReply({ephemeral:true,content:`message sent to ${user}`})
 	},
