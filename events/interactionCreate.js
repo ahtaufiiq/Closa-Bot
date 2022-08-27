@@ -21,8 +21,8 @@ module.exports = {
 					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
 					break;
 				case "boostBack":
-					notificationThreadTargetUser.send(BoostMessage.boostBack(interaction.user))
-					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
+					notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user))
+					await interaction.editReply({ephemeral:true,content:`boost sent to ${targetUser.user}`})
 					break;
 				default:
 					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
