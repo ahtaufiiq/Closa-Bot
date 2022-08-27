@@ -38,6 +38,10 @@ module.exports = {
 		}else if(interaction.isSelectMenu()){
 			await interaction.deferReply({ephemeral:true});
 			const [commandMenu,targetUserId] = interaction.customId.split("_")
+			if (interaction.user.id === targetUserId) {
+				await interaction.editReply({ephemeral:true,content:"Can't reply to yourself. Boost other instead."})
+				return	
+			}
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandMenu) {
