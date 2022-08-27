@@ -22,7 +22,7 @@ module.exports = {
 					break;
 				case "activeAgain":
 					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user))
-					await interaction.editReply({ephemeral:true,content:`boost sent to ${targetUser.user}`})
+					await interaction.editReply({ephemeral:true,content:`message sent to ${targetUser.user}`})
 					break;
 				case "boostBack":
 					totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)

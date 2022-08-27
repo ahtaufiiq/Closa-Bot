@@ -70,7 +70,7 @@ class BoostController{
 			.eq('id',id)
 			.single()
 
-		let totalBoost = data.body ? data.body.total : 1
+		let totalBoost = data.body ? data.body.total + 1 : 1
 
 		if (data.body) {
 			supabase.from("Boosts")	
