@@ -4,6 +4,8 @@ const LocalData = require('../helpers/getData');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const ChannelController = require('./ChannelController');
+const MemberController = require('./MemberController');
+
 class EventController {
     static recurringCoworkingSession(client){
         let ruleCoworkingSession = new schedule.RecurrenceRule();
@@ -14,7 +16,7 @@ class EventController {
             Promise.all([
                 EventController.scheduleEvent(client,{
                     name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                    description:`Feel free to join at anytime!\n07.00 — Start \n11.30 — Ended`,
+                    description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
                     scheduledStartTime:EventController.addOneDay(EventController.getStartTimeMorningSession()),
                     scheduledEndTime:EventController.addOneDay(EventController.getEndTimeMorningSession()),
                     entityType:"VOICE",
@@ -22,7 +24,7 @@ class EventController {
                 }),
                 EventController.scheduleEvent(client,{
                     name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                    description:`Feel free to join at anytime!\n20.00 — Start \n22.00 — Ended`,
+                    description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                     scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
                     scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
                     entityType:"VOICE",
@@ -42,6 +44,10 @@ class EventController {
         ruleStopMorningSession.hour = Time.minus7Hours(11)
         ruleStopMorningSession.minute = 30
         schedule.scheduleJob(ruleStopMorningSession,function(){
+            MemberController.getMember(MY_ID)
+                .then(user=>{
+                    user.send("Dismiss event morning session")
+                })
             const data = LocalData.getData()
             EventController.stopEvent(client ,data.morning)
         })
@@ -50,6 +56,10 @@ class EventController {
         ruleStopNightSession.hour = Time.minus7Hours(22)
         ruleStopNightSession.minute = 0
         schedule.scheduleJob(ruleStopNightSession,function(){
+            MemberController.getMember(MY_ID)
+            .then(user=>{
+                user.send("Dismiss event night session")
+            })
             const data = LocalData.getData()
             EventController.stopEvent(client, data.night)
         })
@@ -168,7 +178,7 @@ class EventController {
             if (isCompleted) {
                 const event = await EventController.scheduleEvent(client,{
                         name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                        description:`Feel free to join at anytime!\n07.00 — Start \n11.30 — Ended`,
+                        description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
                         scheduledStartTime:EventController.getStartTimeMorningSession(true),
                         scheduledEndTime:EventController.getEndTimeMorningSession(),
                         entityType:"VOICE",
@@ -189,7 +199,7 @@ class EventController {
             if (isCompleted) {
                 const event = await EventController.scheduleEvent(client,{
                         name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                        description:`Feel free to join at anytime!\n20.00 — Start \n22.00 — Ended`,
+                        description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                         scheduledStartTime:EventController.getStartTimeNightSession(true),
                         scheduledEndTime:EventController.getEndTimeNightSession(),
                         entityType:"VOICE",
@@ -237,7 +247,7 @@ class EventController {
             this.stopEvent(client,data.morning)
             EventController.scheduleEvent(client,{
                 name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                description:`Feel free to join at anytime!\n07.00 — Start \n11.30 — Ended`,
+                description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
                 scheduledStartTime:EventController.getStartTimeMorningSession(true),
                 scheduledEndTime:EventController.getEndTimeMorningSession(),
                 entityType:"VOICE",
@@ -251,7 +261,7 @@ class EventController {
             this.stopEvent(client,data.night)
             EventController.scheduleEvent(client,{
                 name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                description:`Feel free to join at anytime!\n20.00 — Start \n22.00 — Ended`,
+                description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                 scheduledStartTime:EventController.getStartTimeNightSession(true),
                 scheduledEndTime:EventController.getEndTimeNightSession(),
                 entityType:"VOICE",
