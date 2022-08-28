@@ -22,6 +22,18 @@ function getIdTopics(emoji) {
 		case "💸":
 			idTopic = '960813690536464394'
 			break;
+		case "🌥️":
+			idTopic = '1008630629195321344'
+			break;
+		case "🌜":
+			idTopic = '1008630764889444373'
+			break;
+		case "🏀":
+			idTopic = '1009361644528349284'
+			break;
+		case "💻":
+			idTopic = '1009362691757985842'
+			break;
 	}
 	return idTopic
 }

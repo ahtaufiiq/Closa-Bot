@@ -15,6 +15,8 @@ module.exports = {
 			.then(async data=>{
 				const message = await ChannelController.getMessage(channelNotifications,data.body.notification_id)
 				message.delete()
+				const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notification_id)
+				thread.delete()
 			})
 	},
 };

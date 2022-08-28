@@ -42,7 +42,7 @@ class StatusReportMessage{
 					
 **__RETENTION__** 🔁  
 • This Week: **${retentionRate}% ** (${progressRetentionRate}) 
-• ${thisMonth}: **${monthlyRetentionRate}%** (${progressMonthlyRetentionRate} higher than __${previousMonth}__)
+• ${thisMonth}: **${monthlyRetentionRate}%** (${progressMonthlyRetentionRate} than __${previousMonth}__)
 
 __**MEMBERS**__ 👥 
 • New: **+${totalNewMember}**

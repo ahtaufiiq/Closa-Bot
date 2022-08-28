@@ -5,7 +5,8 @@ module.exports = {
 	name: 'messageReactionRemove',
 	async execute(reaction,user) {
 		// handle only message with this id
-		if(reaction.message.id !== "960790258256064542") return
+
+		if(reaction.message.id !== "960790258256064542"  && reaction.message.id !== "1013254534262423553") return
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();

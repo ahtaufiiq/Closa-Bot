@@ -1,4 +1,5 @@
 const DailyReport = require('../controllers/DailyReport');
+const EventController = require('../controllers/EventController');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const {CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO} = require('../helpers/config');
@@ -67,6 +68,7 @@ module.exports = {
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 					const thread = await channel.threads.fetch(data.thread_id);
 					if (newMember.selfVideo || newMember.streaming ){
+						EventController.handleStartCoworkingSession(oldMember.client)
 						let minute = 0
 						thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
 							.then(msgFocus=>{
@@ -110,6 +112,7 @@ module.exports = {
 				}
 			}else if (focusRoomUser[userId].firstTime){
 				let minute = 0
+				EventController.handleStartCoworkingSession(oldMember.client)
 				thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
 					.then(msgFocus=>{
 						const timerFocus = setInterval(() => {
@@ -125,6 +128,11 @@ module.exports = {
 				focusRoomUser[userId].firstTime = false
 			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] && focusRoomUser[userId] ){
+			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
+				setTimeout(() => {
+					EventController.handleLastUserLeaveEvent(oldMember.client)
+				}, 1000 * 5);
+			}
 			delete focusRoomUser[userId]
 			supabase.from('FocusSessions')
 				.select()

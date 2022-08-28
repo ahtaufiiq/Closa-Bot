@@ -94,13 +94,11 @@ class GenerateImage{
 
         const photoUser = await loadImage(photo)
 
-        var rectWidth = 111.48;
-        var rectHeight = 111.48;
-        //   const midSize = rectHeight/2
-        const midSize = rectHeight
-        var rectX = 885.26;
-        var rectY = 110.26;
-        var cornerRadius = 42;
+        const rectWidth = 111.48;
+        const rectHeight = 111.48;
+        const rectX = 885.26;
+        const rectY = 110.26;
+        const cornerRadius = 42;
         
         this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
         context.clip()
@@ -109,7 +107,7 @@ class GenerateImage{
         return buffer
     }
 
-    static roundRect(ctx, x, y, width, height, radius,) {
+    static roundRect(ctx, x, y, width, height, radius = 5) {
 
         if (typeof radius === 'undefined') {
         radius = 5;
@@ -123,9 +121,9 @@ class GenerateImage{
         }
         }
         ctx.beginPath();
-        ctx.moveTo(x + radius.tl, y);
-        ctx.lineTo(x + width - radius.tr, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+        ctx.moveTo(x + radius.tl, y); // top left
+        ctx.lineTo(x + width - radius.tr, y); // top right - radiusnya
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr); // panjangnya,y -> panjangnya sampai y
         ctx.lineTo(x + width, y + height - radius.br);
         ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
         ctx.lineTo(x + radius.bl, y + height);
