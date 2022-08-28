@@ -131,7 +131,7 @@ module.exports = {
 			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
 				setTimeout(() => {
 					EventController.handleLastUserLeaveEvent(oldMember.client)
-				}, 1000 * 10);
+				}, 1000 * 5);
 			}
 			delete focusRoomUser[userId]
 			supabase.from('FocusSessions')
