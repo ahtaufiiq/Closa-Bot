@@ -155,7 +155,7 @@ so, you can learn or sharing from each others.`)
 				})
 
 				let goalName = ''
-				if (data.goal_id) {
+				if (data?.goal_id) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 					const thread = await channel.threads.fetch(data.goal_id);
 					goalName = thread.name.split('by')[0]

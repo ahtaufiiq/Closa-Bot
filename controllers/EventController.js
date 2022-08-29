@@ -24,7 +24,7 @@ class EventController {
                 }),
                 EventController.scheduleEvent(client,{
                     name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                    description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                    description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                     scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
                     scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
                     entityType:"VOICE",
@@ -157,8 +157,8 @@ class EventController {
                 date.setMinutes(this.getEndTimeNightSession().getMinutes()-1)
             }
         }else{
-            date.setHours(Time.minus7Hours(20))
-            date.setMinutes(0)
+            date.setHours(Time.minus7Hours(19))
+            date.setMinutes(30)
         }
         return date
     }
@@ -199,7 +199,7 @@ class EventController {
             if (isCompleted) {
                 const event = await EventController.scheduleEvent(client,{
                         name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                        description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                        description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                         scheduledStartTime:EventController.getStartTimeNightSession(true),
                         scheduledEndTime:EventController.getEndTimeNightSession(),
                         entityType:"VOICE",
@@ -261,7 +261,7 @@ class EventController {
             this.stopEvent(client,data.night)
             EventController.scheduleEvent(client,{
                 name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                description:`20.00 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
                 scheduledStartTime:EventController.getStartTimeNightSession(true),
                 scheduledEndTime:EventController.getEndTimeNightSession(),
                 entityType:"VOICE",
