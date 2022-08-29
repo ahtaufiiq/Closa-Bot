@@ -1,5 +1,6 @@
 const BoostController = require("../controllers/BoostController");
 const ChannelController = require("../controllers/ChannelController");
+const DailyReport = require("../controllers/DailyReport");
 const MemberController = require("../controllers/MemberController");
 const PointController = require("../controllers/PointController");
 const BoostMessage = require("../views/BoostMessage");
@@ -21,6 +22,7 @@ module.exports = {
 			let isMoreThanOneMinute 
 			switch (commandButton) {
 				case "boostInactiveMember":
+					DailyReport.activeMember(reaction.client,user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
 						PointController.incrementTotalPoints(5,interaction.user.id)
@@ -32,6 +34,7 @@ module.exports = {
 					}
 					break;
 				case "boostBack":
+					DailyReport.activeMember(reaction.client,user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
 						PointController.incrementTotalPoints(5,interaction.user.id)

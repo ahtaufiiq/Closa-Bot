@@ -3,7 +3,7 @@ const {GUILD_ID} = require("../helpers/config")
 class MemberController{
 
     static async addRole(client,userId,roleId) {
-        const role = await client.guilds.cache.get(GUILD_ID).roles.fetch(roleId)
+        const role = MemberController.getRole(client,roleId)
         client.guilds.cache.get(GUILD_ID).members.fetch(userId)
             .then(user=>{
                 user.roles.add(role)
@@ -11,12 +11,18 @@ class MemberController{
         
     }
 
+
     static async removeRole(client,userId,roleId) {
-        let role = await client.guilds.cache.get(GUILD_ID).roles.fetch(roleId)
+        let role = MemberController.getRole(client,roleId)
         client.guilds.cache.get(GUILD_ID).members.fetch(userId)
             .then(user=>{
                 user.roles.remove(role)
             })
+    }
+
+    static async getRole(client,roleId){
+        let role = await client.guilds.cache.get(GUILD_ID).roles.fetch(roleId)
+        return role
     }
 
     static async hasRole(client,userId,roleId){

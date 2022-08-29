@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageAttachment } = require('discord.js');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
+const DailyReport = require('../controllers/DailyReport');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
@@ -29,6 +30,7 @@ module.exports = {
 			await interaction.editReply(BoostMessage.warningBoostYourself())
 			return	
 		}
+		DailyReport.activeMember(reaction.client,user.id)
 		PointController.incrementTotalPoints(5,interaction.user.id)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)

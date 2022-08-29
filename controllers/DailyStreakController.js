@@ -52,17 +52,13 @@ class DailyStreakController {
 		ruleReminderSkipTwoDays.minute = 0
 
 		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
-			const date = Time.getDate()
-			if(date.getDay() == 0 && date.getDay() == 6) return
-			
-			let lastDone = Time.getDateOnly(Time.getNextDate(-3))
 			supabase.from("Users")
-			.select('id,notification_id,name')
-			.eq('last_done',lastDone)
+			.select('id,goal_id,name')
+			.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
 			.then(dataUsers =>{
 				dataUsers.body.forEach(async data=>{
-					const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
-					notificationThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
+					const goalThread = await ChannelController.getThread(channelGoals,data.goal_id)
+					goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
 				})
 			})
 			
