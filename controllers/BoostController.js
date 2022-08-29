@@ -91,8 +91,12 @@ class BoostController{
 				.then()
 		}
 
+		supabase.from("Users")
+			.update({last_active:Time.getTodayDateOnly()})
+			.eq('id',senderId)
+			.then()
+
 		return totalBoost
-			
 	}
 
 	static async isPreviousBoostMoreThanOneMinute(senderId,targetUserId){
