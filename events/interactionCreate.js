@@ -22,7 +22,7 @@ module.exports = {
 			let isMoreThanOneMinute 
 			switch (commandButton) {
 				case "boostInactiveMember":
-					DailyReport.activeMember(reaction.client,user.id)
+					DailyReport.activeMember(interaction.client,interaction.user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
 						PointController.incrementTotalPoints(5,interaction.user.id)
@@ -34,7 +34,7 @@ module.exports = {
 					}
 					break;
 				case "boostBack":
-					DailyReport.activeMember(reaction.client,user.id)
+					DailyReport.activeMember(interaction.client,interaction.user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
 						PointController.incrementTotalPoints(5,interaction.user.id)
