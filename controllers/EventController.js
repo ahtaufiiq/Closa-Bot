@@ -287,7 +287,7 @@ class EventController {
                             .then(async data => {
                                 const notificationId = data.body.notification_id
                                 const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
-                                notificationThread.send(` ${role} co-working hour just started at ☕️ Closa café.
+                                notificationThread.send(` ${type === "Morning" ? "🌤 Morning Club":"🌙 Night Club"} co-working hour just started at ☕️ Closa café.
 Let’s join the session.
 
 https://discord.com/events/${GUILD_ID}/${eventId}`)
