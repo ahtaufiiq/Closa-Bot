@@ -10,10 +10,8 @@ module.exports = {
 		const channelNotifications = ChannelController.getChannel(member.client,CHANNEL_NOTIFICATION)
 		channelNotifications.send(`${member.user}`)
 		.then(msg=>{
-			
 			ChannelController.createThread(msg,member.user.username)
-		})
-		RequestAxios.get('users/'+member.user.id)
+			RequestAxios.get('users/'+member.user.id)
 			.then(data=>{
 				if (!data) {
 					supabase.from("Users")
@@ -31,6 +29,8 @@ module.exports = {
 							.then()
 				}
 			})
+		})
+
 			
 
 	},
