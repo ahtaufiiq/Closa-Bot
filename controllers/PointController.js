@@ -123,7 +123,7 @@ class PointController{
             .then(data=>{
                 supabase.from("Users")
                     .update({
-                        total_points:(data.body.total_points||0) + increment
+                        total_points:(data.body?.total_points||0) + increment
                     })
                     .eq('id',UserId)
                     .then()
