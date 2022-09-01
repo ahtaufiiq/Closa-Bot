@@ -281,14 +281,14 @@ class EventController {
                 member.roles.cache.forEach(role=>{
                     if (role.id === roleId) {
                         supabase.from("Users")
-                            .select('notification_id')
+                            .select('id,notification_id')
                             .eq('id',member.id)
                             .single()
                             .then(async data => {
                                 const notificationId = data.body.notification_id
                                 const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
                                 notificationThread.send(` ${type === "Morning" ? "🌤 Morning Club":"🌙 Night Club"} co-working hour just started at ☕️ Closa café.
-Let’s join the session.
+Let’s join the session. <@${data.body.id}>
 
 https://discord.com/events/${GUILD_ID}/${eventId}`)
                             })
