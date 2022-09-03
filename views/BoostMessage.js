@@ -72,7 +72,8 @@ class BoostMessage{
 
     static notMakingProgress2Days(user){
         return { 
-            content:"**Hi everyone, It looks like one of our members is not making progress in the past 2 days.**" , 
+            content:`**IT'S TIME TO BOOST! 
+it's almost a week our friend ${user} not making progress**` , 
             embeds: [this.embedMessage(
                 "Send Boost 🚀",
                 `Show your support by sending ${user} a boost.`,
@@ -84,7 +85,8 @@ class BoostMessage{
 
     static notActive5Days(user){
         return { 
-            content:"**Hi everyone, It looks like one of our members is not active in the past 5 days.**" , 
+            content:`IT'S TIME TO BOOST! 
+it's almost a week our friend ${user} not making progress` , 
             embeds: [this.embedMessage(
                 "Send Boost 🚀",
                 `Show your support by sending ${user} a boost.`,
