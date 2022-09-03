@@ -16,7 +16,7 @@ class BoostMessage{
     }
     static IamBack(user,sender,message){
         return { 
-            content:message , 
+            content:`${message}${user}` , 
             embeds:[
                 this.embedMessage("","",sender)
             ]
