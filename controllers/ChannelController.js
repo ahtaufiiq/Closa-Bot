@@ -6,6 +6,9 @@ class ChannelController{
     static getChannel(client,ChannelId){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(ChannelId)
     }
+    static changeName(client,ChannelId,name){
+        return client.guilds.cache.get(GUILD_ID).channels.cache.get(ChannelId).setName(name)
+    }
 
     static async getNotificationThread(client,userId,notificationId){
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
