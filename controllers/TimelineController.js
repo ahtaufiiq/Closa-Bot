@@ -3,6 +3,8 @@ const LocalData = require("../helpers/getData")
 const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
 const schedule = require('node-schedule');
+const supabase = require("../helpers/supabaseClient");
+const TimelineStatusMessage = require("../views/TimelineStatusMessage");
 class TimelineController{
     static getDayLeft(toDate){
         const diff = Time.getDate(toDate).getTime() - Time.getDate().getTime()
@@ -66,6 +68,86 @@ class TimelineController{
         const date = Time.getDate(dateOnly)
         date.setDate(date.getDate() + (totalweek * 7))
         return Time.getDateOnly(date)
+    }
+
+    static sendNotif2DaysBeforeKickoffDay(client){
+        const {kickoffDate} = LocalData.getData()
+        const date = Time.getDate(kickoffDate)
+        date.setDate(date.getDate()-2)
+        date.setHours(Time.minus7Hours(20))
+        date.setMinutes(0)
+        schedule.scheduleJob(date,function() {
+            supabase.from("Users")
+            .select('id,notification_id')
+            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .then(data=>{
+                if (data.body.length > 0) {
+                    data.body.forEach(async member=>{
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        notificationThread.send(TimelineStatusMessage.notificationKickoffDay(member.id))
+                    })
+                }
+            })
+        })
+    }
+    static sendNotifShareStoryCelebrationDay(client){
+        const {celebrationDate} = LocalData.getData()
+        const date = Time.getDate(celebrationDate)
+        date.setHours(Time.minus7Hours(20))
+        date.setMinutes(45)
+        schedule.scheduleJob(date,function() {
+            supabase.from("Users")
+            .select('id,notification_id')
+            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .then(data=>{
+                if (data.body.length > 0) {
+                    data.body.forEach(async member=>{
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        notificationThread.send(TimelineStatusMessage.notificationShareStory(member.id))
+                    })
+                }
+            })
+        })
+    }
+    static sendNotif2DaysBeforeCelebration(client){
+        const {celebrationDate} = LocalData.getData()
+        const date = Time.getDate(celebrationDate)
+        date.setDate(date.getDate()-2)
+        date.setHours(Time.minus7Hours(8))
+        date.setMinutes(0)
+        schedule.scheduleJob(date,function() {
+            supabase.from("Users")
+            .select('id,notification_id')
+            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .then(data=>{
+                if (data.body.length > 0) {
+                    data.body.forEach(async member=>{
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id))
+                    })
+                }
+            })
+        })
+    }
+    static sendNotif5DaysBeforeCelebration(client){
+        const {celebrationDate} = LocalData.getData()
+        const date = Time.getDate(celebrationDate)
+        date.setDate(date.getDate()-5)
+        date.setHours(Time.minus7Hours(8))
+        date.setMinutes(0)
+        schedule.scheduleJob(date,function() {
+            supabase.from("Users")
+            .select('id,notification_id')
+            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .then(data=>{
+                if (data.body.length > 0) {
+                    data.body.forEach(async member=>{
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id,5))
+                    })
+                }
+            })
+        })
     }
 }
 
