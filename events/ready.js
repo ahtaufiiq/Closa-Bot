@@ -16,6 +16,7 @@ const DailyReport = require('../controllers/DailyReport');
 const ReminderController = require('../controllers/ReminderController');
 const EventController = require('../controllers/EventController');
 const BoostController = require('../controllers/BoostController');
+const TimelineController = require('../controllers/TimelineController');
 
 
 module.exports = {
@@ -27,7 +28,10 @@ module.exports = {
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
-		
+		TimelineController.updateTimeline(client)
+		TimelineController.sendNotif2DaysBeforeCelebration(client)
+		TimelineController.sendNotif5DaysBeforeCelebration(client)
+
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindHighlightUser(client)
 		ReminderController.remindPostProgress(client)
