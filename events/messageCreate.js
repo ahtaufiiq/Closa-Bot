@@ -35,23 +35,21 @@ module.exports = {
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
-				if (msg.content.includes("Success Criteria")) {
-					const threadName = `${msg.content.split('\n')[0]}`
-					if (threadName.includes("**")) {
-						threadName = threadName.split("**")[1]
-					}
-					const thread = ChannelController.createThread(
-						msg,
-						threadName,
-						msg.author.username
-					)
-					supabase.from('Users')
-						.update({
-							goal_id:thread.id
-						})
-						.eq('id',msg.author.id)
-						.then()
+				const threadName = `${msg.content.split('\n')[0]}`
+				if (threadName.includes("**")) {
+					threadName = threadName.split("**")[1]
 				}
+				const threadGoal = ChannelController.createThread(
+					msg,
+					threadName,
+					msg.author.username
+				)
+				supabase.from('Users')
+					.update({
+						goal_id:threadGoal.id
+					})
+					.eq('id',msg.author.id)
+					.then()
 				break;
 			case CHANNEL_SESSION_GOAL:
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)

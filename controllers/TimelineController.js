@@ -41,7 +41,7 @@ class TimelineController{
                     data.kickoffDate = TimelineController.addDate(data.kickoffDate,5)
                     LocalData.writeData(data)
                 }
-                const dayLeft = this.getDayLeft(data.celebrationDate)
+                const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Celebration day 🎉")
                 if (todayDate === data.celebrationDate) {
@@ -52,7 +52,7 @@ class TimelineController{
                     ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} `)
                 }
             }else{
-                const dayLeft = this.getDayLeft(data.celebrationDate)
+                const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Cooldown 🏖")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} before kick-off`)
