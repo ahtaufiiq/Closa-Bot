@@ -36,7 +36,7 @@ class TimelineController{
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Tomorrow at 20.00 WIB")
-            }else if (todayDate < data.celebrationDate) {
+            }else if (todayDate <= data.celebrationDate) {
                 if (data.kickoffDate < data.celebrationDate) {
                     data.kickoffDate = TimelineController.addDate(data.kickoffDate,5)
                     LocalData.writeData(data)
@@ -44,7 +44,13 @@ class TimelineController{
                 const dayLeft = this.getDayLeft(data.celebrationDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Celebration day 🎉")
-                ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} `)
+                if (todayDate === data.celebrationDate) {
+                    ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Today at 20.00 WIB")
+                }else if(tomorrowDate === data.celebrationDate){
+                    ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Tomorrow at 20.00 WIB")
+                }else{
+                    ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} `)
+                }
             }else{
                 const dayLeft = this.getDayLeft(data.celebrationDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
