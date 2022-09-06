@@ -41,12 +41,15 @@ class ReferralCodeController{
             .gte("expired",Time.getTodayDateOnly())
 
         if (data.body?.length > 0) {
+            let allReferralAlreadyBeenRedeemed = true
             const referral = data.body.map(code=>{
+                if(!code.isRedeemed) allReferralAlreadyBeenRedeemed = false
                 return `${code.referralCode} ${code.isRedeemed ? "(redeemed ✅)" :''}`
             })
             const expired = Time.getFormattedDate(Time.getDate(data.body[0].expired))
             return {
                 expired,
+                allReferralAlreadyBeenRedeemed,
                 referralCode:referral.join('\n'),
             }
         }else{
@@ -103,6 +106,23 @@ class ReferralCodeController{
         })
         
         return referralCodes
+    }
+
+    static async isFirstTimeRedeemReferral(userId){
+        const data = await supabase.from("Referrals")
+            .select("id")
+            .eq('redeemedBy',userId)
+        
+        return data.body?.length === 0
+    }
+
+    static async isEligibleToRedeemRederral(userId){
+        const data = await supabase.from("Users")
+            .select('end_membership')
+            .eq("id",userId)
+            .single()
+            
+        return data.body?.end_membership === null
     }
 }
 
