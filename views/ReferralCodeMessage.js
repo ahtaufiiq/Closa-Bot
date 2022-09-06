@@ -38,6 +38,50 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
 We'll send you once a month based on your active participation at closa.`
     }
 
+    static successRedeemYourReferral(referralCode,endMembership,user){
+        return { 
+            content:`Your referral code has been redeemed!
+\`\`Your membership status has been extended until ${endMembership}.\`\`
+
+Let's welcome your friend!` , 
+            embeds: [this.embedMessage(
+                "1 month free membership from referral 🎁",
+                `Your friend has onboarded to closa using this referral code from you:
+${referralCode}`,
+                user
+            )], 
+        }
+
+    }
+
+    static successRedeemReferral(endMembership){
+        return `Your closa membership status active until ${endMembership}`
+    }
+
+    static replySuccessRedeem(){
+        return "Your code has successfully redeemed ✅"
+    }
+    static replyInvalidReferralCode(){
+        return "Invalid referral code ⚠️"
+    }
+    static replyAlreadyRedeemedCode(){
+        return " ⚠️ This code already redeemed before. Use other code."
+    }
+    
+    static replyExpiredCode(){
+        return {
+            content:"Your referral code has expired. Find another one on twitter.",
+            components: [
+                new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setLabel('Find on twitter')
+                            .setURL("https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                            .setStyle('LINK')
+                    )
+            ] 
+        }
+    }
     static createButton(id,text,style="SUCCESS"){
         
         return new MessageActionRow()

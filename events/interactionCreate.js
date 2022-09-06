@@ -89,8 +89,12 @@ module.exports = {
 					}
 					const referrals = interaction.message.content.split("```\n")[1].split('\n')
 					const expire = interaction.message.content.split('```\n')[2].split("*")[1].toUpperCase()
-					const referralCodes = referrals.map(referral=>referral.split(' ')[0])
-					referralCodes.pop()
+					const referralCodes = []
+					referrals.forEach(referral=>{
+						if (!referral.includes("(redeemed ✅)") && referral !== '') {
+							referralCodes.push(referral.split(' ')[0])
+						}
+					})
 					const files = []
 					
 					for (let i = 0; i < referralCodes.length; i++) {

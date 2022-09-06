@@ -56,14 +56,17 @@ class ReferralCodeController{
 
     static async validateReferral(referralCode){
         const data = await supabase.from("Referrals")
-                        .select()
-                        .eq('referralCode',referralCode)
+            .select()
+            .eq('referralCode',referralCode)
+            .single()
         const response = {
             valid:true,
-            description:""
+            description:"",
+            ownedBy:null
         }
-        if (data.body?.length > 0) {
-            const referral = data.body[0]
+        if (data.body) {
+            const referral = data.body
+            response.ownedBy = data.body.UserId
             if (Time.getTodayDateOnly() > referral.expired ) {
                 response.valid = false
                 response.description = "expired"  
@@ -82,9 +85,7 @@ class ReferralCodeController{
         supabase.from("Referrals")
                 .update({isClaimed:true})
                 .eq('UserId',userId)
-                .then(data=>{
-                    console.log(data);
-                })
+                .then()
                             
     }
 }
