@@ -3,7 +3,7 @@ const ChannelController = require("../controllers/ChannelController")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
-    
+
     static infoRedeemReferral(){
         return {
             content:"**Redeem your referral code here:**",
@@ -11,7 +11,7 @@ class ReferralCodeMessage{
                 new MessageActionRow()
                     .addComponents(
                         new MessageButton()
-                        .setCustomId("modalReferral")
+                        .setCustomId("redeem")
                         .setLabel("Redeem")
                         .setStyle("PRIMARY")
                         .setEmoji("🎁"),
