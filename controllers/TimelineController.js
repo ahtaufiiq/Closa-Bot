@@ -8,7 +8,7 @@ const TimelineStatusMessage = require("../views/TimelineStatusMessage");
 class TimelineController{
     static getDayLeft(toDate){
         const diff = Time.getDate(toDate).getTime() - Time.getDate().getTime()
-        return Math.ceil(diff/ 1000 / 60 /60/24)
+        return Math.floor(diff/ 1000 / 60 /60/24)
     }
 
     static updateTimeline(client){

@@ -1,21 +1,43 @@
+const { MessageAttachment } = require("discord.js");
 const BoostController = require("../controllers/BoostController");
 const ChannelController = require("../controllers/ChannelController");
 const DailyReport = require("../controllers/DailyReport");
 const MemberController = require("../controllers/MemberController");
 const PointController = require("../controllers/PointController");
+const ReferralCodeController = require("../controllers/ReferralCodeController");
+const GenerateImage = require("../helpers/GenerateImage");
 const BoostMessage = require("../views/BoostMessage");
-
+const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
 		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
-		if (interaction.isButton()) {
+		if(interaction.isButton() && interaction.customId === 'redeem'){
+			const modal = new Modal()
+			.setCustomId("modalReferral")
+			.setTitle("Referral Code")
+			.addComponents(
+				new TextInputComponent()
+					.setCustomId('referral')
+					.setLabel("Enter your referral code")
+					.setStyle("SHORT")
+					.setRequired(true)
+			)
+			showModal(modal, {
+				client: interaction.client, // Client to show the Modal through the Discord API.
+				interaction: interaction, // Show the modal with interaction data.
+			});
+			return
+		}else if (interaction.isButton()) {
+			
 			await interaction.deferReply({ephemeral:true});
 			const [commandButton,targetUserId] = interaction.customId.split("_")
-			if (interaction.user.id === targetUserId) {
+			if (commandButton.includes('boost') && interaction.user.id === targetUserId) {
 				await interaction.editReply(BoostMessage.warningBoostYourself())
 				return	
 			}
+			
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			let totalBoost 
@@ -45,6 +67,45 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningSpamBoost())
 					}
 
+					break;
+				case "claimReferral":
+					if (interaction.user.id !== targetUserId) {
+						await interaction.editReply("⚠️ Can't claim other people's referrals")
+						return
+					}
+					const dataReferral = await ReferralCodeController.getReferrals(targetUserId)
+					if (dataReferral) {
+						await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired))
+						ReferralCodeController.updateIsClaimed(targetUserId)
+					}else{
+						await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
+					}
+
+					break;
+				case "generateReferral":
+					if (interaction.user.id !== targetUserId) {
+						await interaction.editReply("⚠️ Can't claim other people's referrals")
+						return
+					}
+					const referrals = interaction.message.content.split("```\n")[1].split('\n')
+					const expire = interaction.message.content.split('```\n')[2].split("*")[1].toUpperCase()
+					const referralCodes = []
+					referrals.forEach(referral=>{
+						if (!referral.includes("(redeemed ✅)") && referral !== '') {
+							referralCodes.push(referral.split(' ')[0])
+						}
+					})
+					const files = []
+					
+					for (let i = 0; i < referralCodes.length; i++) {
+						const referralCode = referralCodes[i];
+						const buffer = await GenerateImage.referralTicket(referralCode,expire)
+						const attachment = new MessageAttachment(buffer,`referral_ticket_${interaction.user.username}.png`)
+						files.push(attachment)
+					}
+					interaction.editReply({
+						files
+					})
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

@@ -33,6 +33,7 @@ module.exports = {
     ROLE_INACTIVE_MEMBER: process.env.ROLE_INACTIVE_MEMBER,
     ROLE_ACTIVE_MEMBER: process.env.ROLE_ACTIVE_MEMBER,
     ROLE_MORNING_CLUB: process.env.ROLE_MORNING_CLUB,
+    ROLE_NEW_MEMBER: process.env.ROLE_NEW_MEMBER,
     ROLE_NIGHT_CLUB: process.env.ROLE_NIGHT_CLUB,
     TIMEZONE: process.env.TIMEZONE,
     SUPABASE_URL: process.env.SUPABASE_URL,

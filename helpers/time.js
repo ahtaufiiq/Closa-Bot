@@ -141,16 +141,9 @@ class Time {
         return date === this.getDateOnly(this.getNextDate(-2))
     }
 
-    static getEndMembership(typeMembership,total,dateMembership) {
+    static getEndMembership(totalMonth,dateMembership) {
         const date = new Date(dateMembership)
-        if (typeMembership.includes('Month')) {
-            const totalMonth = date.getMonth()+ Number(total)
-            date.setMonth(totalMonth)
-        }else if(typeMembership.includes('Year')){
-            const totalYear = date.getFullYear() + Number(total)
-            date.setFullYear(totalYear)
-        }
-        date.setDate(20)
+        date.setMonth(date.getMonth() + totalMonth)
         return date.toISOString().substring(0,10)
     }
 

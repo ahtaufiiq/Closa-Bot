@@ -22,13 +22,13 @@ class DailyStreakMessage{
             url = 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'
         }
         const avatarUrl = InfoUser.getAvatar(user)
-        const textStreak = streak > 1 ? 'streaks' : 'streak'
+        const textStreak = 'streak'
         
         if (longestStreak>=7) {
             
             return new MessageEmbed()
             .setColor(color)
-            .setAuthor({name:`${streak}x day ${textStreak}!`.toUpperCase(),iconURL:url})
+            .setAuthor({name:`${streak}x day streak!`.toUpperCase(),iconURL:url})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }else{
             return new MessageEmbed()

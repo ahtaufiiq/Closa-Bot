@@ -16,6 +16,7 @@ const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
 const EventController = require("../controllers/EventController");
+const MembershipController = require("../controllers/MembershipController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -317,24 +318,12 @@ so, you can learn or sharing from each others.`)
 
 						if (paymentType === "Renewal") {
 							const email = msgReferrence.embeds[0].fields[0].value
-							supabase.from('Users')
-								.select('end_membership')
-								.eq('id',UserId)
-								.single()
-								.then(data =>{
-									supabase.from('Users')
-										.update({'end_membership':Time.getEndMembership(type,total,data.body.end_membership)})
-										.eq('id',UserId)
-										.single()
-										.then(data=>{
-                                        	const date = Time.getFormattedDate(Time.getDate(data.body.end_membership))
-											// Send Email Renewal
-											Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,date)
-											user.send(`Hi <@${UserId}>, your membership status already extended until ${date}.
+							const totalMonth = type.toLowerCase() === 'year' ? total * 12 : total
+							const endMembership = await MembershipController.updateMembership(totalMonth,UserId)
+							Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,endMembership)
+							user.send(`Hi <@${UserId}>, your membership status already extended until ${endMembership}.
 Thank you for your support to closa community!`)
-											msg.reply(`${data.body.name} membership status already extended until ${date}`)
-										})
-								})
+							msg.reply(`${data.body.name} membership status already extended until ${endMembership}`)
 						}else if(paymentType === 'Payment'){
 							const email = msgReferrence.embeds[0].fields[4].value
 							const name = msgReferrence.embeds[0].fields[3].value
