@@ -76,6 +76,7 @@ module.exports = {
 					const dataReferral = await ReferralCodeController.getReferrals(targetUserId)
 					if (dataReferral) {
 						await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired))
+						ReferralCodeController.updateIsClaimed(targetUserId)
 					}else{
 						await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
 					}
