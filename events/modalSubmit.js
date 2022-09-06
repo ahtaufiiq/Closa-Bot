@@ -30,8 +30,7 @@ module.exports = {
 				MembershipController.updateMembership(1,response.ownedBy)
 					.then(async date=>{
 						const notificationThread = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
-						const {user} = await MemberController.getMember(modal.client,response.ownedBy)
-						notificationThread.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,date,user))
+						notificationThread.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,date,modal.user))
 					})
 				
 			}else{
