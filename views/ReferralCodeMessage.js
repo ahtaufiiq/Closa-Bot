@@ -3,6 +3,26 @@ const ChannelController = require("../controllers/ChannelController")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
+    
+    static infoRedeemReferral(){
+        return {
+            content:"**Redeem your referral code here:**",
+            components: [
+                new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                        .setCustomId("modalReferral")
+                        .setLabel("Redeem")
+                        .setStyle("PRIMARY")
+                        .setEmoji("🎁"),
+                        new MessageButton()
+                            .setLabel('Find on twitter')
+                            .setURL("https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                            .setStyle('LINK')
+                    )
+            ] 
+        }
+    }
 
     static sendReferralCode(userId,total){
         return { 
@@ -68,6 +88,7 @@ ${referralCode}`,
         return " ⚠️ This code already redeemed before. Use other code."
     }
     
+
     static replyExpiredCode(){
         return {
             content:"Your referral code has expired. Find another one on twitter.",
