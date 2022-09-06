@@ -44,6 +44,8 @@ If you find the community is valuable, help us spread it to your friends. :smile
 \`\`\`
 ${referralCodes}
 \`\`\`
+you can use /referral to check your referral status.
+
 *Valid until ${dates}*
 
 Share the code to your friends & you friends can redeem it via https://closa.me/referral` , 

@@ -87,14 +87,8 @@ module.exports = {
 						await interaction.editReply("⚠️ Can't claim other people's referrals")
 						return
 					}
-					const referrals = interaction.message.content.split("```\n")[1].split('\n')
-					const expire = interaction.message.content.split('```\n')[2].split("*")[1].toUpperCase()
-					const referralCodes = []
-					referrals.forEach(referral=>{
-						if (!referral.includes("(redeemed ✅)") && referral !== '') {
-							referralCodes.push(referral.split(' ')[0])
-						}
-					})
+					const referralCodes = ReferralCodeController.getActiveReferralCodeFromMessage(interaction.message.content)
+					const expire = ReferralCodeController.getExpiredDateFromMessage(interaction.message.content)
 					const files = []
 					
 					for (let i = 0; i < referralCodes.length; i++) {

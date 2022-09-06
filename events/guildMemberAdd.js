@@ -1,6 +1,7 @@
 const ChannelController = require("../controllers/ChannelController");
+const MemberController = require("../controllers/MemberController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_NOTIFICATION } = require("../helpers/config");
+const { CHANNEL_NOTIFICATION, ROLE_ACTIVE_MEMBER } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 
@@ -11,6 +12,7 @@ module.exports = {
 		channelNotifications.send(`${member.user}`)
 		.then(msg=>{
 			ChannelController.createThread(msg,member.user.username)
+			MemberController.addRole(member.client,member.user.id,ROLE_ACTIVE_MEMBER)
 			RequestAxios.get('users/'+member.user.id)
 			.then(data=>{
 				if (!data) {

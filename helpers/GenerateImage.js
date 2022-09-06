@@ -145,10 +145,10 @@ class GenerateImage{
  
         const template = await loadImage('./assets/images/referral_code.png')
         context.drawImage(template,0,0)
-        context.fillStyle = "#161F26"; 
+        context.fillStyle = "#FAFAFB"; 
         context.font = "400 48px IBMPlexMono";
         context.textAlign = 'center'
-        context.fillText(referralCode, 607 , 470);
+        context.fillText(referralCode, 607 , 478);
         
         context.fillStyle = "#888888"; 
         context.font = "500 28px DMMono";
