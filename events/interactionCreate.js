@@ -93,17 +93,23 @@ module.exports = {
 					}
 					const referralCodes = ReferralCodeController.getActiveReferralCodeFromMessage(interaction.message.content)
 					const expire = ReferralCodeController.getExpiredDateFromMessage(interaction.message.content)
-					const files = []
 					
-					for (let i = 0; i < referralCodes.length; i++) {
-						const referralCode = referralCodes[i];
-						const buffer = await GenerateImage.referralTicket(referralCode,expire)
-						const attachment = new MessageAttachment(buffer,`referral_ticket_${interaction.user.username}.png`)
-						files.push(attachment)
+					if (referralCodes.length > 0) {
+						const files = []
+
+						for (let i = 0; i < referralCodes.length; i++) {
+							const referralCode = referralCodes[i];
+							const buffer = await GenerateImage.referralTicket(referralCode,expire)
+							const attachment = new MessageAttachment(buffer,`referral_ticket_${interaction.user.username}.png`)
+							files.push(attachment)
+						}
+						interaction.editReply({
+							files
+						})
+					}else{
+						interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
 					}
-					interaction.editReply({
-						files
-					})
+					
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
