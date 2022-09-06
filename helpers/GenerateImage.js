@@ -134,6 +134,31 @@ class GenerateImage{
 
     
     }
+
+    static async referralTicket(referralCode,expired){
+        registerFont('./assets/fonts/IBMPlexMono-Regular.ttf',{family:'IBMPlexMono',weight:400})
+        registerFont('./assets/fonts/DMMono-Medium.ttf',{family:'DMMono',weight:500})
+        
+        const canvas = createCanvas(1220,920)
+
+        const context = canvas.getContext('2d')
+ 
+        const template = await loadImage('./assets/images/referral_code.png')
+        context.drawImage(template,0,0)
+        context.fillStyle = "#161F26"; 
+        context.font = "400 48px IBMPlexMono";
+        context.textAlign = 'center'
+        context.fillText(referralCode, 607 , 470);
+        
+        context.fillStyle = "#888888"; 
+        context.font = "500 28px DMMono";
+        context.textAlign = 'end'
+        context.fillText(expired, 1155 , 108);
+
+          
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
 }
 
 module.exports = GenerateImage
