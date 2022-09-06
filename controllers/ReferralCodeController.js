@@ -20,16 +20,14 @@ class ReferralCodeController{
             }
         })
         
-        const data = await supabase.from("Referrals")
+        await supabase.from("Referrals")
             .insert(values)
-        console.log('masuk');
-        
+
         supabase.from("Users")
         .select('id,notification_id')
         .eq("id",userId)
         .single()
         .then(async data=>{
-            console.log(data);
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notification_id)
             notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,total))
         })
@@ -40,7 +38,6 @@ class ReferralCodeController{
         const data = await supabase.from("Referrals")
             .select()
             .eq('UserId',userId)
-            .eq("isRedeemed",false)
             .gte("expired",Time.getTodayDateOnly())
 
         if (data.body?.length > 0) {
@@ -79,6 +76,16 @@ class ReferralCodeController{
             response.description = "invalid"
         }
         return response
+    }
+
+    static updateIsClaimed(userId){
+        supabase.from("Referrals")
+                .update({isClaimed:true})
+                .eq('UserId',userId)
+                .then(data=>{
+                    console.log(data);
+                })
+                            
     }
 }
 
