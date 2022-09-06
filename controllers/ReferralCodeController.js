@@ -88,6 +88,22 @@ class ReferralCodeController{
                 .then()
                             
     }
+
+    static getExpiredDateFromMessage(msg){
+        return msg.split('```\n')[2].split("*")[1].toUpperCase()
+    }
+
+    static getActiveReferralCodeFromMessage(msg){
+        const referrals = msg.split("```\n")[1].split('\n')
+        const referralCodes = []
+        referrals.forEach(referral=>{
+            if (!referral.includes("(redeemed ✅)") && referral !== '') {
+                referralCodes.push(referral.split(' ')[0])
+            }
+        })
+        
+        return referralCodes
+    }
 }
 
 module.exports = ReferralCodeController
