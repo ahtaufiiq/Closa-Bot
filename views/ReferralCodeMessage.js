@@ -4,11 +4,11 @@ const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
 
-    static sendReferralCode(userId){
+    static sendReferralCode(userId,total){
         return { 
-            content:`**3 referral code for you!** :gift: 
+            content:`**${total} referral code for you!** :gift: 
 
-Hi <@${userId}> thank you for being active & progressive on our community!.
+Hi <@${userId}> thank you for being active & progressive on our community!
 If you find the community is valuable, help us spread it to your friends. :smile: 
 
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. :stonks:` , 
@@ -32,6 +32,10 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
                 'Generate Ticket'
             )] 
         }
+    }
+    static dontHaveReferralCode(){
+        return `You don't have any referral code right now.
+We'll send you once a month based on your active participation at closa.`
     }
 
     static createButton(id,text,style="SUCCESS"){

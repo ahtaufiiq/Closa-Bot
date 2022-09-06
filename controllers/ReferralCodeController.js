@@ -2,7 +2,7 @@ const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
 const referralCodes = require('referral-codes');
 const ChannelController = require("./ChannelController");
-const ReferralCodeMessage = require("../views/ReferralMessage");
+const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 class ReferralCodeController{
     static async generateReferral(client,userId,total=3){
         const codes = referralCodes.generate({
@@ -31,7 +31,7 @@ class ReferralCodeController{
         .then(async data=>{
             console.log(data);
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notification_id)
-            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id))
+            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,total))
         })
         
     }
@@ -45,7 +45,7 @@ class ReferralCodeController{
 
         if (data.body?.length > 0) {
             const referral = data.body.map(code=>{
-                return code.referralCode
+                return `${code.referralCode} ${code.isRedeemed ? "(redeemed ✅)" :''}`
             })
             const expired = Time.getFormattedDate(Time.getDate(data.body[0].expired))
             return {

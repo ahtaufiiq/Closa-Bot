@@ -7,7 +7,7 @@ const PointController = require("../controllers/PointController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const GenerateImage = require("../helpers/GenerateImage");
 const BoostMessage = require("../views/BoostMessage");
-const ReferralCodeMessage = require("../views/ReferralMessage");
+const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 module.exports = {
 	name: 'interactionCreate',
@@ -77,7 +77,7 @@ module.exports = {
 					if (dataReferral) {
 						await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired))
 					}else{
-						await interaction.editReply("⚠️ You don't have any referral code")
+						await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
 					}
 
 					break;
@@ -86,9 +86,9 @@ module.exports = {
 						await interaction.editReply("⚠️ Can't claim other people's referrals")
 						return
 					}
-					const referrals = interaction.message.content.split("```\n")[1]
+					const referrals = interaction.message.content.split("```\n")[1].split('\n')
 					const expire = interaction.message.content.split('```\n')[2].split("*")[1].toUpperCase()
-					const referralCodes = referrals.split('\n')
+					const referralCodes = referrals.map(referral=>referral.split(' ')[0])
 					referralCodes.pop()
 					const files = []
 					
