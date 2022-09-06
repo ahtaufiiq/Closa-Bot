@@ -55,6 +55,11 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
             )] 
         }
     }
+
+    static allReferralAlreadyBeenRedeemed(){
+        return `All of your code has been redeemed by your friends.
+We'll send the next referral code once a month based on your active participation.`
+    }
     static dontHaveReferralCode(){
         return `You don't have any referral code right now.
 We'll send you once a month based on your active participation at closa.`
@@ -82,6 +87,12 @@ ${referralCode}`,
 
     static replySuccessRedeem(){
         return "Your code has successfully redeemed ✅"
+    }
+    static onlyCanBeUseOnce(){
+        return "Referral code only can be use once for each user."
+    }
+    static cannotRedeemOwnCode(){
+        return "Can't redeem your own code. Share it to your friends to get 1 month free membership."
     }
     static replyInvalidReferralCode(){
         return "Invalid referral code ⚠️"
