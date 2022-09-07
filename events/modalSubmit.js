@@ -14,7 +14,22 @@ module.exports = {
 
 		if (modal.customId === 'modalReferral') {
 			const referralCode = modal.getTextInputValue('referral');
-			const response = await ReferralCodeController.validateReferral(referralCode)
+			const [isEligibleToRedeemRederral,isFirstTimeRedeemReferral,response] = await Promise.all([
+				ReferralCodeController.isEligibleToRedeemRederral(modal.user.id),
+				ReferralCodeController.isFirstTimeRedeemReferral(modal.user.id),
+				ReferralCodeController.validateReferral(referralCode)
+			])
+
+			if (response.ownedBy === modal.user.id) {
+				await modal.editReply(ReferralCodeMessage.cannotRedeemOwnCode());
+				return
+			}else if(!isEligibleToRedeemRederral){
+				await modal.editReply(ReferralCodeMessage.cannotRedeemByExistingMember());
+				return
+			}else if(!isFirstTimeRedeemReferral){
+				await modal.editReply(ReferralCodeMessage.cannotRedeemMoreThanOne());
+				return
+			}
 			if (response.valid) {
 				supabase.from("Referrals")
 						.update({isRedeemed:true,redeemedBy:modal.user.id})

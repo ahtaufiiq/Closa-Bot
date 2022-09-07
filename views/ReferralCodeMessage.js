@@ -89,8 +89,12 @@ ${referralCode}`,
     static replySuccessRedeem(){
         return "Your code has successfully redeemed ✅"
     }
-    static onlyCanBeUseOnce(){
+    static cannotRedeemMoreThanOne(){
         return "Referral code only can be use once for each user."
+    }
+    static cannotRedeemByExistingMember(){
+        return `Existing member can't redeem referral code. 
+We'll send you referral code once a month based on your activities.`
     }
     static cannotRedeemOwnCode(){
         return "Can't redeem your own code. Share it to your friends to get 1 month free membership."
