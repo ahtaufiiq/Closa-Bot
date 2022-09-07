@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
+const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const InfoUser = require("../helpers/InfoUser")
 
@@ -7,6 +7,7 @@ class ReferralCodeMessage{
     static infoRedeemReferral(){
         return {
             content:"**Redeem your referral code here:**",
+            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 new MessageActionRow()
                     .addComponents(
