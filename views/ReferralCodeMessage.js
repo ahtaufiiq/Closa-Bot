@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
+const ReferralCodeController = require("../controllers/ReferralCodeController")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
@@ -27,11 +28,7 @@ class ReferralCodeMessage{
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 this.createComponent(
-                    this.addEmojiButton(`claimNow_${userId}`,"Claim","🎁"),
-                    this.addLinkButton(
-                        'Find on twitter',
-                        "https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode"
-                    )
+                    this.addEmojiButton(`claimNow_${userId}`,"Claim","🎁","PRIMARY")
                 )
             ] 
         }
@@ -64,7 +61,7 @@ You can type \`\`/referral\`\` to check your referral status.
 Share the code to your friends & you friends can redeem it via https://closa.me/referral` 
         if(isClaimNow){
             buttons.push(
-                this.addLinkButton("Tweet",`https://twitter.com/intent/tweet?text=${ encodeURI(content)}`)
+                this.addLinkButton("Tweet",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(ReferralCodeController.getActiveReferralCodeFromMessage(content)))}`)
             )
         }
     
@@ -72,6 +69,14 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
             content, 
             components:[this.createComponent(...buttons)]
         }
+    }
+
+    static templateShareTwitterReferralCode(referralCodes){
+        return `I have referral code for Closa membership (@beclosa):
+
+${referralCodes.join("\n")}
+
+You can redeem it via closa.me/referral`
     }
 
     static allReferralAlreadyBeenRedeemed(){
