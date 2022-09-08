@@ -60,8 +60,8 @@ class Time {
         return this.getDate().toLocaleDateString("en-US", { weekday: 'long'})
     }
 
-    static getNextDate(day=0){
-        const date = Time.getDate()
+    static getNextDate(day=0,dateOnly){
+        const date = dateOnly? Time.getDate(dateOnly):Time.getDate()
         date.setDate(date.getDate()+day)
         return date
     }
