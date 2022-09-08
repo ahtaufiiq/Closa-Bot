@@ -1,6 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
-const ReferralCodeController = require("../controllers/ReferralCodeController")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
@@ -59,9 +58,16 @@ You can type \`\`/referral\`\` to check your referral status.
 *Valid until ${dates}*
 
 Share the code to your friends & you friends can redeem it via https://closa.me/referral` 
+        const dataReferral = []
+        const referrals = referralCodes.split('\n')
+        referrals.forEach(referral=>{
+            if (!referral.includes("(redeemed ✅)") && referral !== '') {
+                dataReferral.push(referral)
+            }
+        })
         if(isClaimNow){
             buttons.push(
-                this.addLinkButton("Tweet",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(ReferralCodeController.getActiveReferralCodeFromMessage(content)))}`)
+                this.addLinkButton("Tweet",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral))}`)
             )
         }
     
