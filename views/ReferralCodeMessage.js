@@ -82,7 +82,7 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
 
 ${referralCodes.join("\n")}
 
-You can redeem it via closa.me/referral`
+You can redeem it via closa.me/referral🎁`
     }
 
     static allReferralAlreadyBeenRedeemed(){
