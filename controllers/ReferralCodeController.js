@@ -1,5 +1,6 @@
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
+const schedule = require('node-schedule');
 const referralCodes = require('referral-codes');
 const ChannelController = require("./ChannelController");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
@@ -7,7 +8,7 @@ const LocalData = require("../helpers/getData");
 const RequestAxios = require("../helpers/axios");
 class ReferralCodeController{
     static async generateReferral(client,userId){
-        const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral()
+        const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
         if (!isGenerateNewReferral) return
 
         const totalReferral = await ReferralCodeController.getTotalReferral(userId)
@@ -42,7 +43,7 @@ class ReferralCodeController{
         .single()
         .then(async data=>{
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notification_id)
-            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,total))
+            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalReferral))
         })
     }
 
@@ -131,7 +132,7 @@ class ReferralCodeController{
             .single()
         
 
-        return dataUser.body.longest_streak >= 7
+        return dataUser.body?.longest_streak >= 7
     }
 
     static async getReferrals(userId){

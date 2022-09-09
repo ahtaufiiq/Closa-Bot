@@ -42,7 +42,7 @@ If you find the community is valuable, help us spread it to your friends. :smile
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. :stonks:` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
-                this.createComponent(this.addButton(`claimReferral_${userId}`,'Claim',"🎁"))
+                this.createComponent(this.addEmojiButton(`claimReferral_${userId}`,'Claim',"🎁"))
             ] 
         }
     }
