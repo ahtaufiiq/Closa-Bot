@@ -2,7 +2,7 @@ const ChannelController = require("../controllers/ChannelController");
 const MemberController = require("../controllers/MemberController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
-const { ROLE_NEW_MEMBER } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
@@ -37,6 +37,7 @@ module.exports = {
 						.then()
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
+					
 				MembershipController.updateMembership(1,modal.user.id)
 					.then(async date=>{
 						const notificationThread = await ChannelController.getNotificationThread(modal.client,modal.user.id)
@@ -47,6 +48,8 @@ module.exports = {
 						const notificationThread = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
 						notificationThread.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,date,modal.user))
 					})
+				const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
+				channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user.id,response.ownedBy))
 				
 			}else{
 				switch (response.description) {

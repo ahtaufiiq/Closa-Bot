@@ -110,6 +110,9 @@ ${referralCode}`,
 
     }
 
+    static notifSuccessRedeem(userId,referrerId){
+        return `<@${userId}> just redeemed a referral code from <@${referrerId}>`
+    }
     static successRedeemReferral(endMembership){
         return `Your closa membership status active until ${endMembership}`
     }
