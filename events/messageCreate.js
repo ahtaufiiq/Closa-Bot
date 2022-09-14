@@ -133,9 +133,9 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
-				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author.id)
-				}
+				// if(ReferralCodeController.isTimeToGenerateReferral()){
+				// 	ReferralCodeController.generateReferral(msg.client,msg.author.id)
+				// }
 				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
