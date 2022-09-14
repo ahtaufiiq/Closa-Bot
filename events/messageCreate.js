@@ -17,6 +17,7 @@ const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
 const EventController = require("../controllers/EventController");
 const MembershipController = require("../controllers/MembershipController");
+const ReferralCodeController = require("../controllers/ReferralCodeController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -132,6 +133,9 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
+				// if(ReferralCodeController.isTimeToGenerateReferral()){
+				// 	ReferralCodeController.generateReferral(msg.client,msg.author.id)
+				// }
 				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
@@ -204,22 +208,22 @@ so, you can learn or sharing from each others.`)
 						}
 						if (current_streak > data.body.longest_streak) {
 							return supabase.from("Users")
-							.update({
-								current_streak,
-								total_days,
-								'longest_streak':current_streak,
-								'end_longest_streak':Time.getTodayDateOnly()
-							})
-							.eq('id',msg.author.id)
-							.single()
+								.update({
+									current_streak,
+									total_days,
+									'longest_streak':current_streak,
+									'end_longest_streak':Time.getTodayDateOnly()
+								})
+								.eq('id',msg.author.id)
+								.single()
 						}else{
 							return supabase.from("Users")
-							.update({
-								current_streak,
-								total_days
-							})
-							.eq('id',msg.author.id)
-							.single()
+								.update({
+									current_streak,
+									total_days
+								})
+								.eq('id',msg.author.id)
+								.single()
 						}
 					}else{
 						return supabase.from("Users")

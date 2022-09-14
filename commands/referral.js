@@ -14,8 +14,12 @@ module.exports = {
 		await interaction.deferReply({ephemeral:true});
 		const dataReferral = await ReferralCodeController.getReferrals(userId)
 		if (dataReferral) {
-			await interaction.editReply(ReferralCodeMessage.showReferralCode(userId,dataReferral.referralCode,dataReferral.expired))
-			ReferralCodeController.updateIsClaimed(userId)
+			if (dataReferral.allReferralAlreadyBeenRedeemed) {
+				await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
+			}else{
+				await interaction.editReply(ReferralCodeMessage.showReferralCode(userId,dataReferral.referralCode,dataReferral.expired))
+				ReferralCodeController.updateIsClaimed(userId)
+			}
 		}else{
 			await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
 		}

@@ -52,7 +52,7 @@ class TimelineController{
                     ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} `)
                 }
             }else{
-                const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
+                const dayLeft = TimelineController.getDayLeft(data.kickoffDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Cooldown 🏖")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} before kick-off`)

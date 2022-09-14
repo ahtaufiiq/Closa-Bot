@@ -60,8 +60,8 @@ class Time {
         return this.getDate().toLocaleDateString("en-US", { weekday: 'long'})
     }
 
-    static getNextDate(day=0){
-        const date = Time.getDate()
+    static getNextDate(day=0,dateOnly){
+        const date = dateOnly? Time.getDate(dateOnly):Time.getDate()
         date.setDate(date.getDate()+day)
         return date
     }
@@ -141,8 +141,8 @@ class Time {
         return date === this.getDateOnly(this.getNextDate(-2))
     }
 
-    static getEndMembership(totalMonth,dateMembership) {
-        const date = new Date(dateMembership)
+    static getEndMembership(totalMonth,dateMembership ) {
+        const date = Time.getDate(dateMembership)
         date.setMonth(date.getMonth() + totalMonth)
         return date.toISOString().substring(0,10)
     }

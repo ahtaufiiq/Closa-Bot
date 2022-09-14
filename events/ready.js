@@ -17,6 +17,7 @@ const ReminderController = require('../controllers/ReminderController');
 const EventController = require('../controllers/EventController');
 const BoostController = require('../controllers/BoostController');
 const TimelineController = require('../controllers/TimelineController');
+const ReferralCodeController = require('../controllers/ReferralCodeController');
 
 
 module.exports = {
@@ -31,6 +32,10 @@ module.exports = {
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotif2DaysBeforeCelebration(client)
 		TimelineController.sendNotif5DaysBeforeCelebration(client)
+		TimelineController.sendNotifShareStoryCelebrationDay(client)
+		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
+
+		ReferralCodeController.remindToClaimReferral(client)
 
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindHighlightUser(client)
