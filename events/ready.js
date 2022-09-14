@@ -32,6 +32,8 @@ module.exports = {
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotif2DaysBeforeCelebration(client)
 		TimelineController.sendNotif5DaysBeforeCelebration(client)
+		TimelineController.sendNotifShareStoryCelebrationDay(client)
+		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 
