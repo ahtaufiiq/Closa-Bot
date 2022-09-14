@@ -86,24 +86,6 @@ module.exports = {
 					}
 
 					break;
-				case "claimNow":
-					if (interaction.user.id !== targetUserId) {
-						await interaction.editReply("⚠️ Can't claim other people's referrals")
-						return
-					}
-					const dataReferralCode = await ReferralCodeController.getReferrals(targetUserId)
-					if (dataReferralCode) {
-						if (dataReferralCode.allReferralAlreadyBeenRedeemed) {
-							await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
-						}else{
-							await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferralCode.referralCode,dataReferralCode.expired,true))
-							ReferralCodeController.updateIsClaimed(targetUserId)
-						}
-					}else{
-						await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
-					}
-
-					break;
 				case "generateReferral":
 					if (interaction.user.id !== targetUserId) {
 						await interaction.editReply("⚠️ Can't claim other people's referrals")

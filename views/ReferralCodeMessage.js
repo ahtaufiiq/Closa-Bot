@@ -47,8 +47,7 @@ If you find the community is valuable, help us spread it to your friends. :smile
         }
     }
 
-    static showReferralCode(userId,referralCodes,dates,isClaimNow){
-        const buttons = [ this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY")] 
+    static showReferralCode(userId,referralCodes,dates,totalDay){
         const content = `**Your referral code:**
 \`\`\`
 ${referralCodes}
@@ -65,24 +64,25 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
                 dataReferral.push(referral)
             }
         })
-        if(isClaimNow){
-            buttons.push(
-                this.addLinkButton("Tweet",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral))}`)
-            )
-        }
-    
+
         return { 
             content, 
-            components:[this.createComponent(...buttons)]
+            components:[this.createComponent(
+                this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
+                this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
+            )]
         }
     }
 
-    static templateShareTwitterReferralCode(referralCodes){
-        return `I have referral code for Closa membership (@beclosa):
+    static templateShareTwitterReferralCode(referralCodes,totalDay){
+        return `I'm on day ${totalDay} of my passion projects so far.
+Closa has helped me to stay consistent on it 😄
+
+I want to share my @beclosa referral code: 
 
 ${referralCodes.join("\n")}
 
-You can redeem it via closa.me/referral🎁`
+Get free 1-month membership & redeem it via closa.me/referral🎁`
     }
 
     static allReferralAlreadyBeenRedeemed(){
@@ -99,6 +99,8 @@ We'll send you once a month based on your active participation at closa.`
             content:`Your referral code has been redeemed!
 \`\`Your membership status has been extended until ${endMembership}.\`\`
 
+You can type ``/referral`` to check your referral status.
+
 Let's welcome your friend!` , 
             embeds: [this.embedMessage(
                 "1 month free membership from referral 🎁",
@@ -111,7 +113,7 @@ ${referralCode}`,
     }
 
     static notifSuccessRedeem(userId,referrerId){
-        return `<@${userId}> just redeemed a referral code from <@${referrerId}>`
+        return `<@${userId}> joined via referral code from <@${referrerId}>`
     }
     static successRedeemReferral(endMembership){
         return `Your closa membership status active until ${endMembership}`
