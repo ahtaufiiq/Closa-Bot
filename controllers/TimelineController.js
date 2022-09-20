@@ -22,7 +22,7 @@ class TimelineController{
             const data = LocalData.getData()
     
             if(todayDate === data.kickoffDate){
-                data.celebrationDate = TimelineController.addDate(data.celebrationDate,4)
+                data.celebrationDate = TimelineController.addDate(data.celebrationDate,5)
                 LocalData.writeData(data)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
