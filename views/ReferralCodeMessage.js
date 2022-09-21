@@ -64,7 +64,7 @@ Your friends can redeem it via https://closa.me/referral`
         return { 
             content, 
             components:[this.createComponent(
-                this.addButton(`generateReferral_${userId}`,' ',"PRIMARY"),
+                this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
                 this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
