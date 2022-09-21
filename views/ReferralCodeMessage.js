@@ -42,21 +42,17 @@ If you find the community is valuable, help us spread it to your friends. :smile
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. :stonks:` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
-                this.createComponent(this.addEmojiButton(`claimReferral_${userId}`,'Claim',"🎁"))
+                this.createComponent(this.addEmojiButton(`claimReferral_${userId}`,'Claim',"🎁","PRIMARY"))
             ] 
         }
     }
 
     static showReferralCode(userId,referralCodes,dates,totalDay){
-        const content = `**Your referral code:**
+        const content = `**Share your referral code** *valid until ${dates}*:
 \`\`\`
 ${referralCodes}
 \`\`\`
-You can type \`\`/referral\`\` to check your referral status.
-
-*Valid until ${dates}*
-
-Share the code to your friends & you friends can redeem it via https://closa.me/referral` 
+Your friends can redeem it via https://closa.me/referral` 
         const dataReferral = []
         const referrals = referralCodes.split('\n')
         referrals.forEach(referral=>{
@@ -68,7 +64,7 @@ Share the code to your friends & you friends can redeem it via https://closa.me/
         return { 
             content, 
             components:[this.createComponent(
-                this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
+                this.addButton(`generateReferral_${userId}`,' ',"PRIMARY"),
                 this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
@@ -112,8 +108,20 @@ ${referralCode}`,
 
     }
 
-    static notifSuccessRedeem(userId,referrerId){
-        return `<@${userId}> joined via referral code from <@${referrerId}>`
+    static notifSuccessRedeem(user,referrer,totalMember,totalInvitedByReferrer){
+        return { 
+            content:`${user} joined via referral code from ${referrer}` , 
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#00B264')
+                    .setTitle(`Welcome to closa ${user.username}!`)
+                    .setThumbnail(InfoUser.getAvatar(user))
+                    .setDescription(`Members number #${totalMember}`)
+                    .setFooter({
+                        iconURL:InfoUser.getAvatar(referrer),
+                        text:`${totalInvitedByReferrer} ${totalInvitedByReferrer > 1 ? "Friends" : "Friend"} invited by ${referrer.username}`
+                    })], 
+        }
     }
     static successRedeemReferral(endMembership){
         return `Your closa membership status active until ${endMembership}`
