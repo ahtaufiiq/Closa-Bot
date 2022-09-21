@@ -204,11 +204,11 @@ class ReferralCodeController{
     
 
     static getExpiredDateFromMessage(msg){
-        return msg.split('```\n')[2].split("*")[1].toUpperCase()
+        return msg.split('```')[0].split('*')[5].toUpperCase()
     }
 
     static getActiveReferralCodeFromMessage(msg){
-        const referrals = msg.split("```\n")[1].split('\n')
+        const referrals = msg.split('```')[1].split('\n')
         const referralCodes = []
         referrals.forEach(referral=>{
             if (!referral.includes("(redeemed ✅)") && referral !== '') {
