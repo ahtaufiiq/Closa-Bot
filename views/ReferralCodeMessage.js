@@ -27,7 +27,7 @@ class ReferralCodeMessage{
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 this.createComponent(
-                    this.addEmojiButton(`claimNow_${userId}`,"Claim","🎁","PRIMARY")
+                    this.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY")
                 )
             ] 
         }
