@@ -166,7 +166,6 @@ so, you can learn or sharing from each others.`)
 						content:msg.content,
 						files
 					})
-					
 				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
@@ -179,6 +178,7 @@ so, you can learn or sharing from each others.`)
 						})
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
+						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
 						RequestAxios.post('todos', {
 							attachments,
 							description:msg.content,
