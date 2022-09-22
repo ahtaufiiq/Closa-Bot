@@ -44,10 +44,6 @@ class EventController {
         ruleStopMorningSession.hour = Time.minus7Hours(11)
         ruleStopMorningSession.minute = 30
         schedule.scheduleJob(ruleStopMorningSession,function(){
-            MemberController.getMember(client,MY_ID)
-                .then(user=>{
-                    user.send("Dismiss event morning session")
-                })
             const data = LocalData.getData()
             EventController.stopEvent(client ,data.morning)
         })
@@ -56,10 +52,6 @@ class EventController {
         ruleStopNightSession.hour = Time.minus7Hours(22)
         ruleStopNightSession.minute = 0
         schedule.scheduleJob(ruleStopNightSession,function(){
-            MemberController.getMember(client,MY_ID)
-            .then(user=>{
-                user.send("Dismiss event night session")
-            })
             const data = LocalData.getData()
             EventController.stopEvent(client, data.night)
         })
