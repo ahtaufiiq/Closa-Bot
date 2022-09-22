@@ -1,4 +1,5 @@
 const {GUILD_ID} = require("../helpers/config")
+const supabase = require("../helpers/supabaseClient")
 
 class MemberController{
 
@@ -9,6 +10,15 @@ class MemberController{
                 user.roles.add(role)
             })
         
+    }
+
+    static async getTotalMember(){
+        const {count} = await supabase
+        .from('Users')
+        .select('id', { count: 'exact' })
+        .not('end_membership','is',null)
+
+        return count
     }
 
 

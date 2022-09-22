@@ -37,19 +37,36 @@ module.exports = {
 						.then()
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
-					
-				MembershipController.updateMembership(1,modal.user.id)
+				Promise.all([
+					MembershipController.updateMembership(1,modal.user.id)
 					.then(async date=>{
 						const notificationThread = await ChannelController.getNotificationThread(modal.client,modal.user.id)
 						notificationThread.send(ReferralCodeMessage.successRedeemReferral(date))
-					})
+					}),
 				MembershipController.updateMembership(1,response.ownedBy)
 					.then(async date=>{
 						const notificationThread = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
 						notificationThread.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,date,modal.user))
 					})
-				const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
-				channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user.id,response.ownedBy))
+				])
+				.then(async ([endMembershipNewUser,endMembershipReferrer])=>{
+					const notificationThreadNewUser = await ChannelController.getNotificationThread(modal.client,modal.user.id)
+					notificationThreadNewUser.send(ReferralCodeMessage.successRedeemReferral(endMembershipNewUser))
+
+					const notificationThreadReferrer = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
+					notificationThreadReferrer.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,endMembershipReferrer,modal.user))
+
+					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
+					const referrer = await MemberController.getMember(modal.client,response.ownedBy)
+
+					const [totalMember,totalInvited] = await Promise.all([
+						MemberController.getTotalMember(),
+						ReferralCodeController.getTotalInvited(response.ownedBy)
+					])
+					channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer,totalMember,totalInvited))
+				})
+				
+
 				
 			}else{
 				switch (response.description) {

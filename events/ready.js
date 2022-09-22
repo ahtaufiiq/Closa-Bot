@@ -36,6 +36,7 @@ module.exports = {
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
+		ReferralCodeController.resetTotalDaysThisCohort()
 
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindHighlightUser(client)

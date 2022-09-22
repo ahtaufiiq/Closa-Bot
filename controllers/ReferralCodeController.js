@@ -193,6 +193,40 @@ class ReferralCodeController{
                             
     }
 
+    static async getTotalInvited(userId){
+        const {data,count} = await supabase.from("Referrals")   
+            .select('id', { count: 'exact' })
+            .eq('isRedeemed',true)
+            .eq('UserId',userId)
+        return count
+
+    }
+
+    static async updateTotalDaysThisCohort(userId){
+        const data = await supabase.from("Users")
+            .select('totalDaysThisCohort')
+            .eq("id",userId)
+            .single()
+
+        supabase.from("Users")
+            .update({totalDaysThisCohort:data.body.totalDaysThisCohort+1})
+            .eq('id',userId)
+            .then()
+    }
+
+    static async resetTotalDaysThisCohort(){
+        const {kickoffDate} = LocalData.getData()
+
+        const date =  Time.getDate(kickoffDate)
+        schedule.scheduleJob(date,function(){
+            supabase.from("Users")
+                .update({totalDaysThisCohort:0})
+                .gt('totalDaysThisCohort',0)
+                .then()
+        })
+        
+    }
+
     static isTimeToGenerateReferral(){
         const {celebrationDate} = LocalData.getData()
         const oneWeekBeforeCelebration = Time.getDateOnly(Time.getNextDate(-7,celebrationDate))
