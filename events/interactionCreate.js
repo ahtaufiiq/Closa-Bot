@@ -105,7 +105,7 @@ module.exports = {
 							files.push(attachment)
 						}
 						interaction.editReply({
-							content:'Share this referral ticket to your friends.',
+							content:'**Share this referral ticket to your friends.**',
 							files
 						})
 					}else{
