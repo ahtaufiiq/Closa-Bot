@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
+const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
@@ -91,13 +92,14 @@ We'll send you once a month based on your active participation at closa.`
     }
 
     static successRedeemYourReferral(referralCode,endMembership,user){
+        
         return { 
             content:`Your referral code has been redeemed!
 \`\`Your membership status has been extended until ${endMembership}.\`\`
 
 You can type \`\`/referral\`\` to check your referral status.
 
-Let's welcome your friend!` , 
+Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
             embeds: [this.embedMessage(
                 "1 month free membership from referral 🎁",
                 `Your friend has onboarded to closa using this referral code from you:
