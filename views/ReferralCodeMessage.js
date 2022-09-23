@@ -95,7 +95,7 @@ We'll send you once a month based on your active participation at closa.`
             content:`Your referral code has been redeemed!
 \`\`Your membership status has been extended until ${endMembership}.\`\`
 
-You can type ``/referral`` to check your referral status.
+You can type \`\`/referral\`\` to check your referral status.
 
 Let's welcome your friend!` , 
             embeds: [this.embedMessage(

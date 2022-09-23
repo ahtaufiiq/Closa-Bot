@@ -38,16 +38,8 @@ module.exports = {
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
 				Promise.all([
-					MembershipController.updateMembership(1,modal.user.id)
-					.then(async date=>{
-						const notificationThread = await ChannelController.getNotificationThread(modal.client,modal.user.id)
-						notificationThread.send(ReferralCodeMessage.successRedeemReferral(date))
-					}),
-				MembershipController.updateMembership(1,response.ownedBy)
-					.then(async date=>{
-						const notificationThread = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
-						notificationThread.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,date,modal.user))
-					})
+					MembershipController.updateMembership(1,modal.user.id),
+					MembershipController.updateMembership(1,response.ownedBy)
 				])
 				.then(async ([endMembershipNewUser,endMembershipReferrer])=>{
 					const notificationThreadNewUser = await ChannelController.getNotificationThread(modal.client,modal.user.id)
@@ -63,7 +55,7 @@ module.exports = {
 						MemberController.getTotalMember(),
 						ReferralCodeController.getTotalInvited(response.ownedBy)
 					])
-					channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer,totalMember,totalInvited))
+					channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 				})
 				
 
