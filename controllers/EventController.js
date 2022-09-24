@@ -13,40 +13,21 @@ class EventController {
         ruleCoworkingSession.hour = 22
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
-            Promise.all([
-                EventController.scheduleEvent(client,{
-                    name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                    description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
-                    scheduledStartTime:EventController.addOneDay(EventController.getStartTimeMorningSession()),
-                    scheduledEndTime:EventController.addOneDay(EventController.getEndTimeMorningSession()),
-                    entityType:"VOICE",
-                    channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-                }),
-                EventController.scheduleEvent(client,{
-                    name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                    description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
-                    scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
-                    scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
-                    entityType:"VOICE",
-                    channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-                })
-            ])
-            .then(([morning,night])=>{
+            EventController.scheduleEvent(client,{
+                name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
+                description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
+                scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
+                entityType:"VOICE",
+                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+            })
+            .then(night=>{
                 const data = LocalData.getData()
-                data.morning = morning.id
                 data.night = night.id
                 LocalData.writeData(data)
             })
         })
 
-        let ruleStopMorningSession = new schedule.RecurrenceRule();
-        
-        ruleStopMorningSession.hour = Time.minus7Hours(11)
-        ruleStopMorningSession.minute = 30
-        schedule.scheduleJob(ruleStopMorningSession,function(){
-            const data = LocalData.getData()
-            EventController.stopEvent(client ,data.morning)
-        })
         let ruleStopNightSession = new schedule.RecurrenceRule();
         
         ruleStopNightSession.hour = Time.minus7Hours(22)
@@ -163,28 +144,7 @@ class EventController {
 
     static async handleStartCoworkingSession(client){
         const data = LocalData.getData()
-        if (EventController.isRangeMorningSession()) {
-            const event = await EventController.getDetailEvent(client,data.morning)
-            const isCompleted = event.status === "COMPLETED"
-            let isScheduled = event.status === "SCHEDULED"
-            if (isCompleted) {
-                const event = await EventController.scheduleEvent(client,{
-                        name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                        description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
-                        scheduledStartTime:EventController.getStartTimeMorningSession(true),
-                        scheduledEndTime:EventController.getEndTimeMorningSession(),
-                        entityType:"VOICE",
-                        channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-                    })
-                isScheduled = event.status === "SCHEDULED"
-                data.morning = event.id
-                LocalData.writeData(data)
-            }
-            if(isScheduled) {
-                EventController.startEvent(client,data.morning)
-                EventController.sendNotificationStartEvent(client,"Morning",data.morning)
-            }
-        }else if(EventController.isRangeNightSession()){
+        if(EventController.isRangeNightSession()){
             const event = await EventController.getDetailEvent(client,data.night)
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
@@ -235,21 +195,7 @@ class EventController {
 
     static handleLastUserLeaveEvent(client){
         const data = LocalData.getData()
-        if (this.isRangeMorningSession()) {
-            this.stopEvent(client,data.morning)
-            EventController.scheduleEvent(client,{
-                name:"Closa: Co-working Morning 🧑‍💻👩‍💻☕️🔆 ",
-                description:`07.00 — Start \n11.30 — Ended\n\nFeel free to join at anytime!`,
-                scheduledStartTime:EventController.getStartTimeMorningSession(true),
-                scheduledEndTime:EventController.getEndTimeMorningSession(),
-                entityType:"VOICE",
-                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-            }).then((morning) => {
-                const data = LocalData.getData()
-                data.morning = morning.id
-                LocalData.writeData(data)
-            })
-        }else if(this.isRangeNightSession()){
+        if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
             EventController.scheduleEvent(client,{
                 name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
