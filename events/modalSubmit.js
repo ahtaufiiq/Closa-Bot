@@ -56,6 +56,7 @@ module.exports = {
 						ReferralCodeController.getTotalInvited(response.ownedBy)
 					])
 					channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
+					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				})
 				
 
