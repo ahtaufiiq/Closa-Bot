@@ -33,7 +33,7 @@ class DailyStreakController {
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			supabase.from("Users")
 				.select('id,name,notification_id')
-				.gte('current_streak',3)
+				.gte('current_streak',2)
 				.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
 				.then(data=>{
 					data.body.forEach(async member=>{
