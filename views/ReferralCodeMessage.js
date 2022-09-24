@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
+const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 
 class ReferralCodeMessage{
@@ -27,7 +28,7 @@ class ReferralCodeMessage{
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 this.createComponent(
-                    this.addEmojiButton(`claimNow_${userId}`,"Claim","🎁","PRIMARY")
+                    this.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY")
                 )
             ] 
         }
@@ -65,7 +66,7 @@ Your friends can redeem it via https://closa.me/referral`
             content, 
             components:[this.createComponent(
                 this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
-                this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURI(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
+                this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
     }
@@ -91,13 +92,14 @@ We'll send you once a month based on your active participation at closa.`
     }
 
     static successRedeemYourReferral(referralCode,endMembership,user){
+        
         return { 
             content:`Your referral code has been redeemed!
 \`\`Your membership status has been extended until ${endMembership}.\`\`
 
-You can type ``/referral`` to check your referral status.
+You can type \`\`/referral\`\` to check your referral status.
 
-Let's welcome your friend!` , 
+Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
             embeds: [this.embedMessage(
                 "1 month free membership from referral 🎁",
                 `Your friend has onboarded to closa using this referral code from you:

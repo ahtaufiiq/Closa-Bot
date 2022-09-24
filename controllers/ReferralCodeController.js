@@ -107,12 +107,16 @@ class ReferralCodeController{
     }
 
     static async getTotalReferral(userId){
-        const data = await RequestAxios.get(`todos/tracker/${userId}`)
-        const totalDone = data.length
-        if (totalDone >= 12) {
-            return 1
-        }else if(totalDone >= 18){
+        const data = await supabase.from("Users")
+                .select('totalDaysThisCohort')
+                .eq('id',userId)
+                .single()
+                
+        const totalDaysThisCohort = data.body.totalDaysThisCohort
+        if (totalDaysThisCohort >= 18) {
             return 2
+        }else if(totalDaysThisCohort >= 12){
+            return 1
         }else{
             return 0
         }
@@ -202,16 +206,22 @@ class ReferralCodeController{
 
     }
 
-    static async updateTotalDaysThisCohort(userId){
+    static async getTotalDaysThisCohort(userId) {
         const data = await supabase.from("Users")
-            .select('totalDaysThisCohort')
-            .eq("id",userId)
-            .single()
+        .select('totalDaysThisCohort')
+        .eq("id",userId)
+        .single()
 
-        supabase.from("Users")
-            .update({totalDaysThisCohort:data.body.totalDaysThisCohort+1})
+        return data.body.totalDaysThisCohort
+    }
+
+    static async updateTotalDaysThisCohort(userId){
+        const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(userId)
+
+        const data = await supabase.from("Users")
+            .update({totalDaysThisCohort:totalDaysThisCohort+1})
             .eq('id',userId)
-            .then()
+        return data
     }
 
     static async resetTotalDaysThisCohort(){

@@ -78,7 +78,8 @@ module.exports = {
 						if (dataReferral.allReferralAlreadyBeenRedeemed) {
 							await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
 						}else{
-							await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired))
+							const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(targetUserId)
+							await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired,totalDaysThisCohort))
 							ReferralCodeController.updateIsClaimed(targetUserId)
 						}
 					}else{
@@ -104,7 +105,7 @@ module.exports = {
 							files.push(attachment)
 						}
 						interaction.editReply({
-							content:'Share this referral ticket to your friends.',
+							content:'**Share this referral ticket to your friends.**',
 							files
 						})
 					}else{
