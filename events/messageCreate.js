@@ -125,7 +125,7 @@ module.exports = {
 					
 				break;
 			case CHANNEL_TODO:
-				if(msg.content.length < 50){
+				if(msg.content.length < 50 && msg.attachments.size === 0){
 					msg.delete()
 					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
 					notificationThread.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
