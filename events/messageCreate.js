@@ -288,6 +288,28 @@ so, you can learn or sharing from each others.`)
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
 					ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)
 				}	
+				const dataUser = await supabase
+									.from('Users')
+									.select()
+									.eq('id',msg.author.id)
+									.single()
+				
+				let filesCelebration = []
+
+				msg.attachments.each(data=>{
+					filesCelebration.push({
+						attachment:data.attachment
+					})
+				})
+
+				if (dataUser.body?.goal_id) {
+					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+					const thread = await channel.threads.fetch(data.goal_id);
+					thread.send({
+						content:msg.content,
+						files:filesCelebration
+					})
+				}
 				break;
 			case CHANNEL_INTRO:
 				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
