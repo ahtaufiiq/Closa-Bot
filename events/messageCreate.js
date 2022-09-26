@@ -40,8 +40,10 @@ module.exports = {
 				const threadName = `${msg.content.split('\n')[0]}`
 				if (threadName.includes("**")) {
 					threadName = threadName.split("**")[1]
+				}else if (threadName.includes("*")) {
+					threadName = threadName.split("*")[1]
 				}
-				const threadGoal = ChannelController.createThread(
+				const threadGoal = await ChannelController.createThread(
 					msg,
 					threadName,
 					msg.author.username
