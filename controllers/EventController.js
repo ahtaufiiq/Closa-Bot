@@ -3,6 +3,7 @@ const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID 
 const LocalData = require('../helpers/getData');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
+const EventMessage = require('../views/EventMessage');
 const ChannelController = require('./ChannelController');
 const MemberController = require('./MemberController');
 
@@ -14,8 +15,8 @@ class EventController {
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
             EventController.scheduleEvent(client,{
-                name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                name:EventMessage.titleCoworkingNight(),
+                description:EventMessage.descriptionCoworkingNight(),
                 scheduledStartTime:EventController.addOneDay(EventController.getStartTimeNightSession()),
                 scheduledEndTime:EventController.addOneDay(EventController.getEndTimeNightSession()),
                 entityType:"VOICE",
@@ -150,8 +151,8 @@ class EventController {
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
                 const event = await EventController.scheduleEvent(client,{
-                        name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                        description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                        name:EventMessage.titleCoworkingNight(),
+                        description:EventMessage.descriptionCoworkingNight(),
                         scheduledStartTime:EventController.getStartTimeNightSession(true),
                         scheduledEndTime:EventController.getEndTimeNightSession(),
                         entityType:"VOICE",
@@ -198,8 +199,8 @@ class EventController {
         if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
             EventController.scheduleEvent(client,{
-                name:"Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 ",
-                description:`19.30 — Start \n22.00 — Ended\n\nFeel free to join at anytime!`,
+                name:EventMessage.titleCoworkingNight(),
+                description:EventMessage.descriptionCoworkingNight(),
                 scheduledStartTime:EventController.getStartTimeNightSession(true),
                 scheduledEndTime:EventController.getEndTimeNightSession(),
                 entityType:"VOICE",
