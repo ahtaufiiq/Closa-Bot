@@ -94,9 +94,7 @@ We'll send you once a month based on your active participation at closa.`
     static successRedeemYourReferral(referralCode,endMembership,user){
         
         return { 
-            content:`Your referral code has been redeemed!
-\`\`Your membership status has been extended until ${endMembership}.\`\`
-
+            content:`**Your membership status has been extended until ${endMembership}.**
 You can type \`\`/referral\`\` to check your referral status.
 
 Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
@@ -167,7 +165,7 @@ Share it to your friends to get 1 month free membership.`
 
     static replyExpiredCode(){
         return {
-            content:"Your referral code has expired.",
+            content:"This referral code has expired.",
             components: [
                 this.createComponent(
                     this.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
