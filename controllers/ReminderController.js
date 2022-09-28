@@ -78,6 +78,7 @@ class ReminderController{
         supabase.from('Reminders')
 			.select('*,Users(notification_id)')
 			.gte('time',new Date().toUTCString())
+			.eq('type',"highlight")
 			.then(data=>{
 				data.body.forEach(reminder=>{
 					schedule.scheduleJob(reminder.time,async function() {

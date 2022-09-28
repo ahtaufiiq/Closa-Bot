@@ -25,9 +25,13 @@ module.exports = {
 	once: true,
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
-		// PaymentController.remindMember(client)
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
+
+		PaymentController.remindMember(client)
+		PaymentController.remindBeforeKickoffCohort(client)
+
+		if(CLIENT_ID === "948546574550695936") return
 
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotif2DaysBeforeCelebration(client)
@@ -50,8 +54,6 @@ module.exports = {
 		BoostController.remindBoostInativeMember(client)
 		BoostController.remindBoostNotMakingProgress3Days(client)
 		BoostController.remindEveryMonday(client)
-
-		if(CLIENT_ID === "949993300113371196") return
 
 		DailyReport.inactiveMember(client)
 

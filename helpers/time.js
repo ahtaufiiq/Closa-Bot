@@ -141,6 +141,12 @@ class Time {
         return date === this.getDateOnly(this.getNextDate(-2))
     }
 
+    static addDateByWeek(dateOnly,totalweek){
+        const date = Time.getDate(dateOnly)
+        date.setDate(date.getDate() + (totalweek * 7))
+        return Time.getDateOnly(date)
+    }
+
     static getEndMembership(totalMonth,dateMembership ) {
         const date = Time.getDate(dateMembership)
         date.setMonth(date.getMonth() + totalMonth)
