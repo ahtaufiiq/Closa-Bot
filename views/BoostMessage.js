@@ -82,6 +82,18 @@ it looks like ${user} is not making progress for 2 days.**` ,
             components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
         }
     }
+    static aboutToLoseStreak(user,currentStreak){
+        return { 
+            content:`**${user} is about to lose ${currentStreak} streak!** 
+**IT'S TIME TO BOOST!**` , 
+            embeds: [this.embedMessage(
+                "Send Boost 🚀",
+                `Show your support by sending ${user} a boost.`,
+                user
+            )], 
+            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
+        }
+    }
 
     static notActive5Days(user){
         return { 

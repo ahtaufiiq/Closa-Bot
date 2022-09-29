@@ -99,6 +99,28 @@ class BoostController{
 		return totalBoost
 	}
 
+	static remindUserAboutToLoseStreak(client){
+		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
+		let ruleRemindBoost = new schedule.RecurrenceRule();
+		ruleRemindBoost.hour = Time.minus7Hours(20)
+		ruleRemindBoost.minute = 0
+		schedule.scheduleJob(ruleRemindBoost,function(){
+			supabase.from("Users")
+			.select("id,current_streak")
+			.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
+			.gte('current_streak',5)
+			.then(data =>{
+				if (data.body.length > 0) {
+					data.body.forEach(async member=>{
+						const {user} = await MemberController.getMember(client,member.id)
+						channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.current_streak))
+					})
+				}
+			})
+		})
+		
+	}
+
 	static async isPreviousBoostMoreThanOneMinute(senderId,targetUserId){
 		const id = `${senderId}_${targetUserId}`
 		let data = await supabase.from("Boosts")
