@@ -15,7 +15,7 @@ const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
-const EventController = require("../controllers/EventController");
+const CoworkingController = require("../controllers/CoworkingController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 

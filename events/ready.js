@@ -14,7 +14,7 @@ const PaymentController = require('../controllers/PaymentController');
 const DailyStreakController = require('../controllers/DailyStreakController');
 const DailyReport = require('../controllers/DailyReport');
 const ReminderController = require('../controllers/ReminderController');
-const EventController = require('../controllers/EventController');
+const CoworkingController = require('../controllers/CoworkingController');
 const BoostController = require('../controllers/BoostController');
 const TimelineController = require('../controllers/TimelineController');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
@@ -31,7 +31,7 @@ module.exports = {
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 
-		if(CLIENT_ID === "948546574550695936") return
+		// if(CLIENT_ID === "948546574550695936") return
 
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotif2DaysBeforeCelebration(client)
@@ -49,11 +49,12 @@ module.exports = {
 		DailyStreakController.remindMissOneDay(client)
 		DailyStreakController.remindMissTwoDays(client)
 
-		EventController.recurringCoworkingSession(client)
+		CoworkingController.recurringCoworkingSession(client)
 
 		BoostController.remindBoostInativeMember(client)
 		BoostController.remindBoostNotMakingProgress3Days(client)
 		BoostController.remindEveryMonday(client)
+		BoostController.remindUserAboutToLoseStreak(client)
 
 		DailyReport.inactiveMember(client)
 
