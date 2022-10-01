@@ -15,7 +15,7 @@ const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
-const EventController = require("../controllers/EventController");
+const CoworkingController = require("../controllers/CoworkingController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 
@@ -40,8 +40,10 @@ module.exports = {
 				const threadName = `${msg.content.split('\n')[0]}`
 				if (threadName.includes("**")) {
 					threadName = threadName.split("**")[1]
+				}else if (threadName.includes("*")) {
+					threadName = threadName.split("*")[1]
 				}
-				const threadGoal = ChannelController.createThread(
+				const threadGoal = await ChannelController.createThread(
 					msg,
 					threadName,
 					msg.author.username
@@ -125,7 +127,7 @@ module.exports = {
 					
 				break;
 			case CHANNEL_TODO:
-				if(msg.content.length < 50){
+				if(msg.content.length < 50 && msg.attachments.size === 0){
 					msg.delete()
 					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
 					notificationThread.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
@@ -288,6 +290,28 @@ so, you can learn or sharing from each others.`)
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
 					ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)
 				}	
+				const dataUser = await supabase
+									.from('Users')
+									.select()
+									.eq('id',msg.author.id)
+									.single()
+				
+				let filesCelebration = []
+
+				msg.attachments.each(data=>{
+					filesCelebration.push({
+						attachment:data.attachment
+					})
+				})
+
+				if (dataUser.body?.goal_id) {
+					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
+					const thread = await channel.threads.fetch(data.goal_id);
+					thread.send({
+						content:msg.content,
+						files:filesCelebration
+					})
+				}
 				break;
 			case CHANNEL_INTRO:
 				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)

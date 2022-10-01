@@ -9,6 +9,8 @@ const GenerateImage = require("../helpers/GenerateImage");
 const BoostMessage = require("../views/BoostMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const PaymentMessage = require("../views/PaymentMessage");
+const PaymentController = require("../controllers/PaymentController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -44,6 +46,7 @@ module.exports = {
 			let isMoreThanOneMinute 
 			switch (commandButton) {
 				case "boostInactiveMember":
+					PointController.addPoint(interaction.user.id,'boost')
 					DailyReport.activeMember(interaction.client,interaction.user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
@@ -56,6 +59,7 @@ module.exports = {
 					}
 					break;
 				case "boostBack":
+					PointController.addPoint(interaction.user.id,'boost')
 					DailyReport.activeMember(interaction.client,interaction.user.id)
 					isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 					if (isMoreThanOneMinute) {
@@ -112,6 +116,10 @@ module.exports = {
 						interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
 					}
 					
+					break;
+				case "remindJoinNextCohort":
+					PaymentController.setReminderJoinNextCohort(interaction.client,targetUserId)
+					await interaction.editReply(PaymentMessage.replySetReminderJoinNextCohort())
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

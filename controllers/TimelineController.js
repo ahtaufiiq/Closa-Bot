@@ -22,7 +22,7 @@ class TimelineController{
             const data = LocalData.getData()
     
             if(todayDate === data.kickoffDate){
-                data.celebrationDate = TimelineController.addDate(data.celebrationDate,5)
+                data.celebrationDate = Time.addDateByWeek(data.celebrationDate,5)
                 LocalData.writeData(data)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
@@ -38,7 +38,7 @@ class TimelineController{
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Tomorrow at 20.00 WIB")
             }else if (todayDate <= data.celebrationDate) {
                 if (data.kickoffDate < data.celebrationDate) {
-                    data.kickoffDate = TimelineController.addDate(data.kickoffDate,5)
+                    data.kickoffDate = Time.addDateByWeek(data.kickoffDate,5)
                     LocalData.writeData(data)
                 }
                 const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
@@ -68,12 +68,6 @@ class TimelineController{
             ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
             LocalData.writeData(data)
         })
-    }
-
-    static addDate(dateOnly,totalweek){
-        const date = Time.getDate(dateOnly)
-        date.setDate(date.getDate() + (totalweek * 7))
-        return Time.getDateOnly(date)
     }
 
     static sendNotif2DaysBeforeKickoffDay(client){

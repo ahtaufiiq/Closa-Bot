@@ -30,6 +30,7 @@ module.exports = {
 			await interaction.editReply(BoostMessage.warningBoostYourself())
 			return	
 		}
+		PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
 		PointController.incrementTotalPoints(5,interaction.user.id)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
