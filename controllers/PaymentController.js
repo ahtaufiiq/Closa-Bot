@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { CHANNEL_WELCOME } = require('../helpers/config');
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const LocalData = require('../helpers/getData');
 const supabase = require('../helpers/supabaseClient');
@@ -89,6 +89,8 @@ class PaymentController{
                             const {id,end_membership,notification_id} = dataUser
                             const user = await MemberController.getMember(client,id)
                             user.send(PaymentMessage.remindJoinNextCohort(id))
+                            MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
+                            MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
                         })
                     }
                 })
@@ -143,7 +145,7 @@ class PaymentController{
                 }
             ])
             .then()
-            
+
             schedule.scheduleJob(reminder5daysBeforeCohort,async function () {
                 const user = await MemberController.getMember(client,userId)
                 user.send(PaymentMessage.remind5DaysBeforeKickoff(userId,formattedDateKickoffCohort))

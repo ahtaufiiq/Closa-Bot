@@ -1,3 +1,4 @@
+const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, CHANNEL_TOPICS, CHANNEL_GOALS, CHANNEL_INTRO, CHANNEL_CELEBRATE, CHANNEL_SESSION_GOAL, CHANNEL_MEMES } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 
@@ -11,7 +12,7 @@ class PointController{
             .eq("UserId",UserId)
             .single()
             .then(data => {
-                const total_points = this.calculatePoint(type,minute)
+                const total_points = this.calculatePoint(type,minute,channelId)
                 let isAddNewPoint = true
                 if(data?.body === null){
                     if (type === 'chat') {
@@ -91,20 +92,47 @@ class PointController{
     }
 
 
-    static calculatePoint(type,minute){
+    static calculatePoint(type,minute,channelId){
         let finalPoint = 1
         switch (type) {
             case 'chat':
-                finalPoint = this.randomNumber(4,12)
+                switch (channelId) {
+                    case CHANNEL_TODO:
+                        finalPoint = 25
+                        break;
+                    case CHANNEL_HIGHLIGHT:
+                        finalPoint = 10
+                        break;
+                    case CHANNEL_TOPICS:
+                        finalPoint = this.randomNumber(20,50)
+                        break;
+                    case CHANNEL_MEMES:
+                        finalPoint = 10
+                        break;
+                    case CHANNEL_GOALS:
+                        finalPoint = 100
+                        break;
+                    case CHANNEL_CELEBRATE:
+                        finalPoint = 200
+                        break;
+                    case CHANNEL_INTRO:
+                        finalPoint = 50
+                        break;
+                    case CHANNEL_SESSION_GOAL:
+                        finalPoint = 10
+                        break;
+                    default:
+                        finalPoint = 2
+                        break;
+                }
                 break;
             case 'reaction':
-                finalPoint = this.randomNumber(1,4)
-                break;
-            case 'focus':
-                finalPoint = minute * this.randomNumber(1,2)
+                finalPoint = 1
                 break;
             case 'cafe':
-                finalPoint = minute
+                finalPoint = Math.floor(minute / 25)
+            case 'boost':
+                finalPoint = 5
                 break;
         }
         return finalPoint
