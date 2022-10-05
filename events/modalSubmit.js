@@ -5,14 +5,15 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
+const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal) {
-		await modal.deferReply({ephemeral:true});
-
-		if (modal.customId === 'modalReferral') {
+		const [commandButton,targetUserId=modal.user.id] = modal.customId.split("_")
+		if (commandButton === 'modalReferral') {
+			await modal.deferReply({ephemeral:true});
 			const referralCode = modal.getTextInputValue('referral');
 			const [isEligibleToRedeemRederral,isFirstTimeRedeemReferral,response] = await Promise.all([
 				ReferralCodeController.isEligibleToRedeemRederral(modal.user.id),
@@ -77,6 +78,19 @@ module.exports = {
 				
 			}
 			
+		}else if(commandButton === "writeGoalParty"){
+			await modal.deferReply()
+			modal.editReply(`**You've already joined a party!**
+
+Here is the link to your party & please say "hi" to the party
+Join → https://discord.com/channels/blablabla/blablabla`)
+			const notificationThreadTargetUser = await ChannelController.getNotificationThread(modal.client,targetUserId)
+			setTimeout(() => {
+				notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
+			}, 2000);
+			setTimeout(() => {
+				notificationThreadTargetUser.send(PartyMessage.settingReminderHighlight(targetUserId))
+			}, 5000);
 		}
 	},
 };
