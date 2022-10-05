@@ -196,8 +196,8 @@ so, you can learn or sharing from each others.`)
 				.then(async data=>{
 					let current_streak = data.body.current_streak + 1
 					let total_days =  (data.body.total_days || 0) + 1
-					if (Time.isValidStreak(data.body.last_done,current_streak)) {
-						if (Time.onlyMissOneDay(data.body.last_done)) {
+					if (Time.isValidStreak(data.body.last_done,current_streak) || Time.isCooldownPeriod()) {
+						if (Time.onlyMissOneDay(data.body.last_done) && !Time.isCooldownPeriod()) {
 							const missedDate = Time.getNextDate(-1)
 							missedDate.setHours(8)
 							await supabase.from("Todos")

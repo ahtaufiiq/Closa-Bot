@@ -13,7 +13,6 @@ class GenerateImage{
 
         const context = canvas.getContext('2d')
  
-
         const template = await loadImage('./assets/images/template.jpg')
         context.drawImage(template,0,0)
         context.fillStyle = "#2B2B2B"; 
@@ -78,9 +77,10 @@ class GenerateImage{
 
         for (let i = 0; i < data.length; i++) {
             const dateOnly = Time.getDateOnly(new Date(data[i].createdAt))
-            if (fourWeek[dateOnly]) {
+
+            if (fourWeek[dateOnly] && dateOnly <= Time.getTodayDateOnly()) {
                 let {x,y} = fourWeek[dateOnly]
-                if (Time.getDateOnly(Time.getDate()) === dateOnly) {
+                if (Time.getDateOnly(Time.getDate()) === dateOnly && data[i].type !== 'safety') {
                     context.drawImage(checklist,x,y)
                 }else if(data[i].type === 'safety'){
                     context.drawImage(safetyDot,x,y)
