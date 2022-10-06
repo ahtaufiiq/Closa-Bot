@@ -103,7 +103,7 @@ class BoostController{
 		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
 		let ruleRemindBoost = new schedule.RecurrenceRule();
 		ruleRemindBoost.hour = Time.minus7Hours(20)
-		ruleRemindBoost.minute = 0
+		ruleRemindBoost.minute = 15
 		schedule.scheduleJob(ruleRemindBoost,function(){
 			supabase.from("Users")
 			.select("id,current_streak")
