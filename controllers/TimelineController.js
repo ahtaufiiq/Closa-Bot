@@ -5,6 +5,7 @@ const ChannelController = require("./ChannelController")
 const schedule = require('node-schedule');
 const supabase = require("../helpers/supabaseClient");
 const TimelineStatusMessage = require("../views/TimelineStatusMessage");
+const DailyStreakController = require("./DailyStreakController");
 class TimelineController{
     static getDayLeft(toDate){
         const diff = Time.getDate(toDate).getTime() - Time.getDate().getTime()
@@ -53,6 +54,9 @@ class TimelineController{
                 }
             }else{
                 const dayLeft = TimelineController.getDayLeft(data.kickoffDate)
+                if(dayLeft === 6) {
+                    DailyStreakController.addSafetyCooldown()
+                }
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Cooldown 🏖")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,`In ${dayLeft} ${dayLeft > 1 ? "days" : "day"} before kick-off`)

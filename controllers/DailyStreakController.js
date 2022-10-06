@@ -44,6 +44,30 @@ class DailyStreakController {
 		})
     }
 
+	static addSafetyCooldown(){
+		supabase.from("Users")
+			.select('id')
+			.gte('end_membership',Time.getDateOnly(Time.getDate()))
+			.then(data=>{
+				if (data.body.length > 0) {
+					data.body.forEach(async member=>{
+						const safetyCooldown = []
+						for (let i = 0; i < 7; i++) {
+							safetyCooldown.push({
+								createdAt:Time.getNextDate(i),
+								updatedAt:Time.getNextDate(i),
+								type:'safety',
+								UserId:member.id
+							})
+							
+						}
+						supabase.from("Todos")
+						.insert(safetyCooldown).then()
+					})
+				}
+			})
+	}
+
     static remindMissTwoDays(client){
         const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
 

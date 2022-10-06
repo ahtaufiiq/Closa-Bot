@@ -174,7 +174,6 @@ class CoworkingController {
             }
             if(isScheduled) {
                 CoworkingController.startEvent(client,data.night)
-                CoworkingController.sendNotificationStartEvent(client,"Night",data.night)
             }
         }
     }

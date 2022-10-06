@@ -11,6 +11,7 @@ const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const PaymentMessage = require("../views/PaymentMessage");
 const PaymentController = require("../controllers/PaymentController");
+const PartyMessage = require("../views/PartyMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -31,10 +32,50 @@ module.exports = {
 				interaction: interaction, // Show the modal with interaction data.
 			});
 			return
+		}else if(interaction.isButton() && interaction.customId.includes('writeGoal')){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set your Goal")
+			.addComponents(
+				new TextInputComponent()
+					.setCustomId('projectName')
+					.setLabel("Project Name")
+					.setPlaceholder("short project name")
+					.setStyle("SHORT")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('goal')
+					.setLabel("My goal is")
+					.setPlaceholder("write specific & measurable goal e.g: read 2 books")
+					.setStyle("SHORT")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('about')
+					.setLabel("About Project (text input style: paragraph)")
+					.setPlaceholder("tell a bit about this project")
+					.setStyle("LONG")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('shareProgress')
+					.setLabel("Every day i'll share my progress at")
+					.setPlaceholder("e.g 21.00")
+					.setStyle("SHORT")
+					.setRequired(true),
+			)
+			showModal(modal, {
+				client: interaction.client, // Client to show the Modal through the Discord API.
+				interaction: interaction, // Show the modal with interaction data.
+			});
+			return
 		}else if (interaction.isButton()) {
 			
-			await interaction.deferReply({ephemeral:true});
-			const [commandButton,targetUserId] = interaction.customId.split("_")
+			const [commandButton,targetUserId=interaction.user.id] = interaction.customId.split("_")
+			if (commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory') {
+				await interaction.deferReply();
+			}else{
+				await interaction.deferReply({ephemeral:true});
+			}
+
 			if (commandButton.includes('boost') && interaction.user.id === targetUserId) {
 				await interaction.editReply(BoostMessage.warningBoostYourself())
 				return	
@@ -45,6 +86,31 @@ module.exports = {
 			let totalBoost 
 			let isMoreThanOneMinute 
 			switch (commandButton) {
+				case "joinParty":
+					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
+					await interaction.editReply(PartyMessage.replySuccessJoinParty())
+					break;
+				case "roleDeveloper":
+					await interaction.editReply(PartyMessage.pickYourGoalCategory("developer",targetUserId))
+					break;
+				case "defaultReminder":
+					await interaction.editReply(PartyMessage.replyDefaultReminder())
+					break;
+				case "customReminder":
+					await interaction.editReply(PartyMessage.replyCustomReminder())
+					break;
+				case "roleDesigner":
+					await interaction.editReply(PartyMessage.pickYourGoalCategory("designer",targetUserId))
+					break;
+				case "roleCreator":
+					await interaction.editReply(PartyMessage.pickYourGoalCategory("creator",targetUserId))
+					break;
+				case "morningTime":
+					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId))
+					break;
+				case "nightTime":
+					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId))
+					break;
 				case "boostInactiveMember":
 					PointController.addPoint(interaction.user.id,'boost')
 					DailyReport.activeMember(interaction.client,interaction.user.id)
@@ -126,18 +192,27 @@ module.exports = {
 					break;
 			}
 		}else if(interaction.isSelectMenu()){
-			await interaction.deferReply({ephemeral:true});
+			
 			const [commandMenu,targetUserId] = interaction.customId.split("_")
-			if (interaction.user.id === targetUserId) {
-				await interaction.editReply(BoostMessage.warningReplyYourself())
-				return	
+			if (commandMenu.includes('boost')) {
+				await interaction.deferReply({ephemeral:true});
+				if (interaction.user.id === targetUserId ) {
+					await interaction.editReply(BoostMessage.warningReplyYourself())
+					return	
+				}
+			}else{
+				await interaction.deferReply();
 			}
+			
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandMenu) {
 				case "inactiveReply":
 					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user,interaction.values[0]))
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
+					break;
+				case "goalCategory":
+					await interaction.editReply(PartyMessage.pickCoworkingTime(targetUserId))
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

@@ -1,4 +1,5 @@
 const {TIMEZONE} = require('../helpers/config')
+const LocalData = require('./getData')
 class Time {
     static haveTime(text){
         const patternTime = /\d+[.:]\d+/
@@ -131,6 +132,11 @@ class Time {
             }
         }
         return false
+    }
+
+    static isCooldownPeriod(){
+        const {celebrationDate,kickoffDate} = LocalData.getData()
+        return Time.getTodayDateOnly() > celebrationDate && Time.getTodayDateOnly() <= kickoffDate
     }
 
     static isValidStreak(date,currentStreak) {
