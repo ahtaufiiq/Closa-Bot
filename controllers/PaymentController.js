@@ -60,6 +60,7 @@ class PaymentController{
                             const user = await MemberController.getMember(client,id)
                             const notificationThread = await ChannelController.getNotificationThread(client,id,notification_id)
                             user.send(PaymentMessage.remindMembershipLateOneDay(id))
+                                .catch(err=>console.log("Cannot send message to user"))
                             notificationThread.send(PaymentMessage.remindMembershipLateOneDay(id))
                         })
                     }
@@ -72,6 +73,7 @@ class PaymentController{
                             const user = await MemberController.getMember(client,id)
                             const notificationThread = await ChannelController.getNotificationThread(client,id,notification_id)
                             user.send(PaymentMessage.remindMembershipLateThreeDay(id))
+                                .catch(err=>console.log("Cannot send message to user"))
                             notificationThread.send(PaymentMessage.remindMembershipLateThreeDay(id))
                         })
                     }
@@ -89,6 +91,7 @@ class PaymentController{
                             const {id,end_membership,notification_id} = dataUser
                             const user = await MemberController.getMember(client,id)
                             user.send(PaymentMessage.remindJoinNextCohort(id))
+                                .catch(err=>console.log("Cannot send message to user"))
                             MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
                             MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
                         })
@@ -102,6 +105,7 @@ class PaymentController{
         const notificationThread = await ChannelController.getNotificationThread(client,id,notification_id)
         const endMembershipDate = Time.getFormattedDate(Time.getDate(end_membership))
         user.send(PaymentMessage.remindEndedMembership(id,endMembershipDate,dayLeft))
+            .catch(err=>console.log("Cannot send message to user"))
         notificationThread.send(PaymentMessage.remindEndedMembership(id,endMembershipDate,dayLeft))
     }
     static sendEmailReminder(members,dayLeft=0){
@@ -149,10 +153,12 @@ class PaymentController{
             schedule.scheduleJob(reminder5daysBeforeCohort,async function () {
                 const user = await MemberController.getMember(client,userId)
                 user.send(PaymentMessage.remind5DaysBeforeKickoff(userId,formattedDateKickoffCohort))
+                    .catch(err=>console.log("Cannot send message to user"))
             })
             schedule.scheduleJob(reminder1dayBeforeCohort,async function () {
                 const user = await MemberController.getMember(client,userId)
                 user.send(PaymentMessage.remind1DayBeforeKickoff(userId))
+                    .catch(err=>console.log("Cannot send message to user"))
             })
         }
 
@@ -171,8 +177,10 @@ class PaymentController{
                         if (reminder.message === "5") {
                             const {kickoffDate} = LocalData.getData()
                             user.send(PaymentMessage.remind5DaysBeforeKickoff(reminder.UserId,Time.getFormattedDate(Time.getDate(kickoffDate))))
+                                .catch(err=>console.log("Cannot send message to user"))
                         }else if(reminder.message === '1'){
                             user.send(PaymentMessage.remind1DayBeforeKickoff(reminder.UserId))
+                                .catch(err=>console.log("Cannot send message to user"))
                         }
 					})
 				})
@@ -206,6 +214,7 @@ class PaymentController{
             const {id} = members[i];
             const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(id)
             user.send(PaymentMessage.remindEndedMembership(user,endedMembership))
+                .catch(err=>console.log("Cannot send message to user"))
         }
     }
 }

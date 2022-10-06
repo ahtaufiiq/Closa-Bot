@@ -351,6 +351,7 @@ so, you can learn or sharing from each others.`)
 							Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,endMembership)
 							user.send(`Hi <@${UserId}>, your membership status already extended until ${endMembership}.
 Thank you for your support to closa community!`)
+								.catch(err=>console.log("Cannot send message to user"))
 							msg.reply(`${data.body.name} membership status already extended until ${endMembership}`)
 						}else if(paymentType === 'Payment'){
 							const email = msgReferrence.embeds[0].fields[4].value
@@ -366,6 +367,7 @@ Thank you for your support to closa community!`)
 									const startDate = Time.getFormattedDate(Time.getDate())
 									user.send(`Hi <@${UserId}>, your membership status until ${date}.
 Thank you for your support to closa community!`)
+										.catch(err=>console.log("Cannot send message to user"))
 									Email.createContact('ataufiq655@gmail.com','ahtaufiiq')
 										.catch(err=>{
 										})
