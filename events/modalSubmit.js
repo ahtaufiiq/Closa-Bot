@@ -80,17 +80,30 @@ module.exports = {
 			
 		}else if(commandButton === "writeGoalParty"){
 			await modal.deferReply()
-			modal.editReply(`**You've already joined a party!**
-
-Here is the link to your party & please say "hi" to the party
-Join → https://discord.com/channels/blablabla/blablabla`)
-			const notificationThreadTargetUser = await ChannelController.getNotificationThread(modal.client,targetUserId)
-			setTimeout(() => {
-				notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
-			}, 2000);
-			setTimeout(() => {
-				notificationThreadTargetUser.send(PartyMessage.settingReminderHighlight(targetUserId))
-			}, 5000);
+			modal.editReply(PartyMessage.reviewYourGoal({
+				user:modal.user,
+				project:"Learn Marketing",
+				goal:"Summarized 2 books & Create a marketing plan",
+				about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
+				shareProgress:"21.00",
+				coworkingTime:"Night between 19.30 – 22.00 WIB",
+				role:"Designer",
+				dayLeft:19
+			}))
+		}else if(commandButton === "editGoal"){
+			
+			await modal.deferReply()
+			await modal.editReply(PartyMessage.reviewYourGoal({
+				user:modal.user,
+				project:"Learn Marketing",
+				goal:"Summarized 2 books & Create a marketing plan",
+				about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
+				shareProgress:"21.00",
+				coworkingTime:"Night between 19.30 – 22.00 WIB",
+				role:"Designer",
+				dayLeft:19
+			}))
+			modal.message.delete()
 		}
 	},
 };
