@@ -13,6 +13,7 @@ const PaymentMessage = require("../views/PaymentMessage");
 const PaymentController = require("../controllers/PaymentController");
 const PartyMessage = require("../views/PartyMessage");
 const { CHANNEL_GOALS } = require("../helpers/config");
+const supabase = require("../helpers/supabaseClient");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -159,6 +160,16 @@ Join → https://discord.com/channels/blablabla/blablabla`)
 						role:"Designer",
 						dayLeft:19
 					}))
+					.then(msg=>{
+						ChannelController.createThread(msg,"Learn Marketing",interaction.user.username)
+						supabase.from('Users')
+							.update({
+								goal_id:msg.id
+							})
+							.eq('id',interaction.user.id)
+							.then()
+					})
+					
 					setTimeout(() => {
 						notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
 					}, 2000);
