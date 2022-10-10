@@ -242,7 +242,7 @@ class ReferralCodeController{
         const oneWeekBeforeCelebration = Time.getDateOnly(Time.getNextDate(-8,celebrationDate))
         const todayDate = Time.getTodayDateOnly()
 
-        return todayDate > oneWeekBeforeCelebration && todayDate <= celebrationDate
+        return todayDate >= oneWeekBeforeCelebration && todayDate <= celebrationDate
     }
 
     
