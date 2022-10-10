@@ -239,7 +239,7 @@ class ReferralCodeController{
 
     static isTimeToGenerateReferral(){
         const {celebrationDate} = LocalData.getData()
-        const oneWeekBeforeCelebration = Time.getDateOnly(Time.getNextDate(-7,celebrationDate))
+        const oneWeekBeforeCelebration = Time.getDateOnly(Time.getNextDate(-8,celebrationDate))
         const todayDate = Time.getTodayDateOnly()
 
         return todayDate > oneWeekBeforeCelebration && todayDate <= celebrationDate

@@ -12,6 +12,8 @@ const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Defin
 const PaymentMessage = require("../views/PaymentMessage");
 const PaymentController = require("../controllers/PaymentController");
 const PartyMessage = require("../views/PartyMessage");
+const { CHANNEL_GOALS } = require("../helpers/config");
+const supabase = require("../helpers/supabaseClient");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -35,24 +37,24 @@ module.exports = {
 		}else if(interaction.isButton() && interaction.customId.includes('writeGoal')){
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
-			.setTitle("Set your Goal")
+			.setTitle("Set your goal 🎯")
 			.addComponents(
 				new TextInputComponent()
 					.setCustomId('projectName')
 					.setLabel("Project Name")
-					.setPlaceholder("short project name")
+					.setPlaceholder("Short project's name e.g: Design Exploration")
 					.setStyle("SHORT")
 					.setRequired(true),
 				new TextInputComponent()
 					.setCustomId('goal')
 					.setLabel("My goal is")
-					.setPlaceholder("write specific & measurable goal e.g: read 2 books")
+					.setPlaceholder("Write specific & measurable goal e.g: read 2 books")
 					.setStyle("SHORT")
 					.setRequired(true),
 				new TextInputComponent()
 					.setCustomId('about')
-					.setLabel("About Project (text input style: paragraph)")
-					.setPlaceholder("tell a bit about this project")
+					.setLabel("About Project")
+					.setPlaceholder("Tell a bit about this project")
 					.setStyle("LONG")
 					.setRequired(true),
 				new TextInputComponent()
@@ -67,10 +69,49 @@ module.exports = {
 				interaction: interaction, // Show the modal with interaction data.
 			});
 			return
+		}else if(interaction.isButton() && interaction.customId.includes('editGoal')){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set your goal 🎯")
+			.addComponents(
+				new TextInputComponent()
+					.setCustomId('projectName')
+					.setLabel("Project Name")
+					.setDefaultValue("Learn Marketing")
+					.setPlaceholder("Short project's name e.g: Design Exploration")
+					.setStyle("SHORT")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('goal')
+					.setLabel("My goal is")
+					.setDefaultValue("Summarized 2 books & Create a marketing plan")
+					.setPlaceholder("Write specific & measurable goal e.g: read 2 books")
+					.setStyle("SHORT")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('about')
+					.setLabel("About Project")
+					.setDefaultValue("I want to learn about marketing & apply it to my side-project on how i can market my product")
+					.setPlaceholder("Tell a bit about this project")
+					.setStyle("LONG")
+					.setRequired(true),
+				new TextInputComponent()
+					.setCustomId('shareProgress')
+					.setLabel("Every day i'll share my progress at")
+					.setDefaultValue("21.00")
+					.setPlaceholder("e.g 21.00")
+					.setStyle("SHORT")
+					.setRequired(true),
+			)
+			showModal(modal, {
+				client: interaction.client, // Client to show the Modal through the Discord API.
+				interaction: interaction, // Show the modal with interaction data.
+			});
+			return
 		}else if (interaction.isButton()) {
 			
 			const [commandButton,targetUserId=interaction.user.id] = interaction.customId.split("_")
-			if (commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory') {
+			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory') {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -88,7 +129,53 @@ module.exports = {
 			switch (commandButton) {
 				case "joinParty":
 					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
-					await interaction.editReply(PartyMessage.replySuccessJoinParty())
+					await interaction.editReply(PartyMessage.replySuccessJoinParty(notificationThreadTargetUser.id))
+					break;
+				case "postGoal":
+					await interaction.editReply(PartyMessage.postGoal({
+						user:interaction.user,
+						project:"Learn Marketing",
+						goal:"Summarized 2 books & Create a marketing plan",
+						about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
+						shareProgress:"21.00",
+						coworkingTime:"Night between 19.30 – 22.00 WIB",
+						role:"Designer",
+						dayLeft:19
+					}))
+					interaction.message.delete()
+
+					notificationThreadTargetUser.send(`**You've already joined a party!**
+
+Here is the link to your party & please say "hi" to the party
+Join → https://discord.com/channels/blablabla/blablabla`)
+					
+					const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
+					channelGoals.send(PartyMessage.postGoal({
+						user:interaction.user,
+						project:"Learn Marketing",
+						goal:"Summarized 2 books & Create a marketing plan",
+						about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
+						shareProgress:"21.00",
+						coworkingTime:"Night between 19.30 – 22.00 WIB",
+						role:"Designer",
+						dayLeft:19
+					}))
+					.then(msg=>{
+						ChannelController.createThread(msg,"Learn Marketing",interaction.user.username)
+						supabase.from('Users')
+							.update({
+								goal_id:msg.id
+							})
+							.eq('id',interaction.user.id)
+							.then()
+					})
+					
+					setTimeout(() => {
+						notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
+					}, 2000);
+					setTimeout(() => {
+						notificationThreadTargetUser.send(PartyMessage.settingReminderHighlight(targetUserId))
+					}, 5000);
 					break;
 				case "roleDeveloper":
 					await interaction.editReply(PartyMessage.pickYourGoalCategory("developer",targetUserId))
