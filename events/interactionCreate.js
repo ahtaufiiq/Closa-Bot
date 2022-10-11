@@ -14,6 +14,7 @@ const PaymentController = require("../controllers/PaymentController");
 const PartyMessage = require("../views/PartyMessage");
 const { CHANNEL_GOALS } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
+const SoloModeMessage = require("../views/SoloModeMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -40,7 +41,7 @@ module.exports = {
 			.setTitle("Set your goal 🎯")
 			.addComponents(
 				new TextInputComponent()
-					.setCustomId('projectName')
+					.setCustomId('project')
 					.setLabel("Project Name")
 					.setPlaceholder("Short project's name e.g: Design Exploration")
 					.setStyle("SHORT")
@@ -58,7 +59,7 @@ module.exports = {
 					.setStyle("LONG")
 					.setRequired(true),
 				new TextInputComponent()
-					.setCustomId('shareProgress')
+					.setCustomId('shareProgressAt')
 					.setLabel("Every day i'll share my progress at")
 					.setPlaceholder("e.g 21.00")
 					.setStyle("SHORT")
@@ -70,34 +71,40 @@ module.exports = {
 			});
 			return
 		}else if(interaction.isButton() && interaction.customId.includes('editGoal')){
+			const project = interaction.message.embeds[0].title
+			const [
+				{value:goal},
+				{value:about},
+				{value:shareProgressAt},
+			] = interaction.message.embeds[0].fields
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
 			.addComponents(
 				new TextInputComponent()
-					.setCustomId('projectName')
+					.setCustomId('project')
 					.setLabel("Project Name")
-					.setDefaultValue("Learn Marketing")
+					.setDefaultValue(project)
 					.setPlaceholder("Short project's name e.g: Design Exploration")
 					.setStyle("SHORT")
 					.setRequired(true),
 				new TextInputComponent()
 					.setCustomId('goal')
 					.setLabel("My goal is")
-					.setDefaultValue("Summarized 2 books & Create a marketing plan")
+					.setDefaultValue(goal)
 					.setPlaceholder("Write specific & measurable goal e.g: read 2 books")
 					.setStyle("SHORT")
 					.setRequired(true),
 				new TextInputComponent()
 					.setCustomId('about')
 					.setLabel("About Project")
-					.setDefaultValue("I want to learn about marketing & apply it to my side-project on how i can market my product")
+					.setDefaultValue(about)
 					.setPlaceholder("Tell a bit about this project")
 					.setStyle("LONG")
 					.setRequired(true),
 				new TextInputComponent()
-					.setCustomId('shareProgress')
-					.setLabel("Every day i'll share my progress at")
+					.setCustomId('shareProgressAt')
+					.setLabel(shareProgressAt)
 					.setDefaultValue("21.00")
 					.setPlaceholder("e.g 21.00")
 					.setStyle("SHORT")
@@ -131,14 +138,24 @@ module.exports = {
 					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
 					await interaction.editReply(PartyMessage.replySuccessJoinParty(notificationThreadTargetUser.id))
 					break;
+				case "startSoloMode":
+					notificationThreadTargetUser.send(SoloModeMessage.pickYourRole(targetUserId))
+					await interaction.editReply(SoloModeMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
+					break;
 				case "postGoal":
+					const project = interaction.message.embeds[0].title
+					const [
+						{value:goal},
+						{value:about},
+						{value:shareProgressAt},
+					] = interaction.message.embeds[0].fields
 					await interaction.editReply(PartyMessage.postGoal({
+						project,
+						goal,
+						about,
+						shareProgressAt,
 						user:interaction.user,
-						project:"Learn Marketing",
-						goal:"Summarized 2 books & Create a marketing plan",
-						about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
-						shareProgress:"21.00",
-						coworkingTime:"Night between 19.30 – 22.00 WIB",
+						coworkingTime:"Night",
 						role:"Designer",
 						dayLeft:19
 					}))
@@ -151,12 +168,12 @@ Join → https://discord.com/channels/blablabla/blablabla`)
 					
 					const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
 					channelGoals.send(PartyMessage.postGoal({
+						project,
+						goal,
+						about,
+						shareProgressAt,
 						user:interaction.user,
-						project:"Learn Marketing",
-						goal:"Summarized 2 books & Create a marketing plan",
-						about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
-						shareProgress:"21.00",
-						coworkingTime:"Night between 19.30 – 22.00 WIB",
+						coworkingTime:"Night",
 						role:"Designer",
 						dayLeft:19
 					}))
@@ -172,13 +189,12 @@ Join → https://discord.com/channels/blablabla/blablabla`)
 					
 					setTimeout(() => {
 						notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
-					}, 2000);
-					setTimeout(() => {
-						notificationThreadTargetUser.send(PartyMessage.settingReminderHighlight(targetUserId))
-					}, 5000);
+					}, 1000 * 60 * 15);
+					// notificationThreadTargetUser.send(PartyMessage.settingReminderHighlight(targetUserId))
 					break;
 				case "roleDeveloper":
 					await interaction.editReply(PartyMessage.pickYourGoalCategory("developer",targetUserId))
+					interaction.message.delete()
 					break;
 				case "defaultReminder":
 					await interaction.editReply(PartyMessage.replyDefaultReminder())
@@ -188,15 +204,11 @@ Join → https://discord.com/channels/blablabla/blablabla`)
 					break;
 				case "roleDesigner":
 					await interaction.editReply(PartyMessage.pickYourGoalCategory("designer",targetUserId))
+					interaction.message.delete()
 					break;
 				case "roleCreator":
 					await interaction.editReply(PartyMessage.pickYourGoalCategory("creator",targetUserId))
-					break;
-				case "morningTime":
-					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId))
-					break;
-				case "nightTime":
-					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId))
+					interaction.message.delete()
 					break;
 				case "boostInactiveMember":
 					PointController.addPoint(interaction.user.id,'boost')
@@ -299,7 +311,8 @@ Join → https://discord.com/channels/blablabla/blablabla`)
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 				case "goalCategory":
-					await interaction.editReply(PartyMessage.pickCoworkingTime(targetUserId))
+					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId))
+					interaction.message.delete()
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

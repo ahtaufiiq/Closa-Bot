@@ -1,36 +1,18 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
-class PartyMessage {
+class SoloModeMessage {
     static initSoloMode(){
         return { 
             content:`:love_you_gesture: *Solo mode* — you'll accountable for yourself & closa community.` , 
-            components: [this.createComponent(this.addButton("writeGoalSolo","Start"))] 
+            components: [this.createComponent(this.addButton("startSoloMode","Start"))] 
         }
     }
-    static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
-        return `**🛋 Waiting Room**
-Waiting for **${totalPeopleWaitingFor}** people to set goal
-${listPeople}`
-    }
-    static embedMessageWaitingRoom(time,msgId){
-        return {
-            embeds:[this.embedMessage("🎊 PARTY MODE",`**${time}** before kick-off day & group match-making.
-You will be grouped with members up to 4 people`)],
-            components:[this.createComponent(
-                this.addButton(`joinParty_${msgId}`,'Join Party'),
-                this.addButton(`leaveWaitingRoom_${msgId}`, "Leave waiting room","SECONDARY")
-            )]
-        }
-    }
+
 
     static replySuccessStartSoloMode(notificationId){
         return `**You've selected solo mode.** 
 For the next step check your 🔔 **notification** → https://discord.com/channels/${GUILD_ID}/${notificationId}`
-    }
-    static replySuccessJoinParty(notificationId){
-        return `**You've joined party mode.** 
-        For the next step follow the step on your 🔔 **notification** → https://discord.com/channels/${GUILD_ID}/${notificationId}`
     }
 
     static pickYourRole(userId){
@@ -38,9 +20,9 @@ For the next step check your 🔔 **notification** → https://discord.com/chann
             content:`**Pick your role**
 p.s: *you can always change it in the next cohort*`,
             components:[this.createComponent(
-                this.addButton(`roleDeveloper_${userId}`,"💻 Developers"),
-                this.addButton(`roleDesigner_${userId}`,"🏀 Designer"),
-                this.addButton(`roleCreator_${userId}`,"🎨 Creators"),
+                this.addButton(`roleDeveloperSolo_${userId}`,"💻 Developers"),
+                this.addButton(`roleDesignerSolo_${userId}`,"🏀 Designer"),
+                this.addButton(`roleCreatorSolo_${userId}`,"🎨 Creators"),
             )]
         }
     }
@@ -85,26 +67,10 @@ p.s: *you can always change it in the next cohort*`,
             components:[
                 this.createComponent(
                     this.addMenu(
-                        `goalCategory_${userId}`,
+                        `goalCategorySolo_${userId}`,
                         "[–Select–]",
                         options
                     )
-                )
-            ]
-        }
-    }
-    
-    static pickCoworkingTime(userId){
-        return {
-            content:`**Pick your favorite working time:**
-🌤️ *Morning Club* — co-working hour from 07.00 – 11.30 WIB 
-🌙 *Night Club* — co-working hour from 19.30 – 22.00  WIB
-
-p.s: *you can always join the other club*`,
-            components:[
-                this.createComponent(
-                    this.addButton(`morningTime_${userId}`,"🌤️ Morning"),
-                    this.addButton(`nightTime_${userId}`,"🌙 Night"),
                 )
             ]
         }
@@ -267,4 +233,4 @@ Please use 24h for time format.`
     }
 }
 
-module.exports = PartyMessage
+module.exports = SoloModeMessage

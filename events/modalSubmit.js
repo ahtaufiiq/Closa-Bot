@@ -79,27 +79,36 @@ module.exports = {
 			}
 			
 		}else if(commandButton === "writeGoalParty"){
+			const project = modal.getTextInputValue('project');
+			const goal = modal.getTextInputValue('goal');
+			const about = modal.getTextInputValue('about');
+			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
+
 			await modal.deferReply()
-			modal.editReply(PartyMessage.reviewYourGoal({
+			await modal.editReply(PartyMessage.reviewYourGoal({
+				project,
+				goal,
+				about,
+				shareProgressAt,
 				user:modal.user,
-				project:"Learn Marketing",
-				goal:"Summarized 2 books & Create a marketing plan",
-				about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
-				shareProgress:"21.00",
-				coworkingTime:"Night between 19.30 – 22.00 WIB",
+				coworkingTime:"Night",
 				role:"Designer",
 				dayLeft:19
 			}))
+			modal.message.delete()
 		}else if(commandButton === "editGoal"){
-			
+			const project = modal.getTextInputValue('project');
+			const goal = modal.getTextInputValue('goal');
+			const about = modal.getTextInputValue('about');
+			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
 			await modal.deferReply()
 			await modal.editReply(PartyMessage.reviewYourGoal({
+				project,
+				goal,
+				about,
+				shareProgressAt,
 				user:modal.user,
-				project:"Learn Marketing",
-				goal:"Summarized 2 books & Create a marketing plan",
-				about:"I want to learn about marketing & apply it to my side-project on how i can market my product",
-				shareProgress:"21.00",
-				coworkingTime:"Night between 19.30 – 22.00 WIB",
+				coworkingTime:"Night",
 				role:"Designer",
 				dayLeft:19
 			}))
