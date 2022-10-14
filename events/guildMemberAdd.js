@@ -13,10 +13,13 @@ module.exports = {
 		.then(msg=>{
 			ChannelController.createThread(msg,member.user.username)
 			MemberController.addRole(member.client,member.user.id,ROLE_ACTIVE_MEMBER)
-			RequestAxios.get('users/'+member.user.id)
-			.then(data=>{
-				if (!data) {
-					supabase.from("Users")
+			supabase.from("Users")
+				.select('notification_id')
+				.eq('id',member.user.id)
+				.single()
+				.then(data => {
+					if (!data.body) {
+						supabase.from("Users")
 							.insert([{
 								id:member.user.id,
 								username:member.user.username,
@@ -29,8 +32,13 @@ module.exports = {
 								last_active:Time.getTodayDateOnly()
 							}])
 							.then()
-				}
-			})
+					}else if(!data.body?.notification_id){
+						supabase.from("Users")
+							.update({notification_id:msg.id})
+							.eq('id',member.user.id)
+							.then()
+					}	
+				})
 		})
 
 			
