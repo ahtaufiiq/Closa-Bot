@@ -17,8 +17,8 @@ module.exports = {
 			if (dataReferral.allReferralAlreadyBeenRedeemed) {
 				await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
 			}else{
-				const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(userId)
-				await interaction.editReply(ReferralCodeMessage.showReferralCode(userId,dataReferral.referralCode,dataReferral.expired,totalDaysThisCohort))
+				const totalDays = await ReferralCodeController.getTotalDays(userId)
+				await interaction.editReply(ReferralCodeMessage.showReferralCode(userId,dataReferral.referralCode,dataReferral.expired,totalDays))
 				ReferralCodeController.updateIsClaimed(userId)
 			}
 		}else{

@@ -41,8 +41,8 @@ class ReferralCodeController{
             if (dataReferral.allReferralAlreadyBeenRedeemed) {
                 await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
             }else{
-                const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(targetUserId)
-                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired,totalDaysThisCohort))
+                const totalDays = await ReferralCodeController.getTotalDays(targetUserId)
+                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired,totalDays))
                 ReferralCodeController.updateIsClaimed(targetUserId)
             }
         }else{
@@ -275,17 +275,17 @@ class ReferralCodeController{
 
     }
 
-    static async getTotalDaysThisCohort(userId) {
+    static async getTotalDays(userId) {
         const data = await supabase.from("Users")
-        .select('totalDaysThisCohort')
+        .select('total_days')
         .eq("id",userId)
         .single()
 
-        return data.body.totalDaysThisCohort
+        return data.body.total_days
     }
 
     static async updateTotalDaysThisCohort(userId){
-        const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(userId)
+        const totalDaysThisCohort = await ReferralCodeController.getTotalDays(userId)
 
         const data = await supabase.from("Users")
             .update({totalDaysThisCohort:totalDaysThisCohort+1})
