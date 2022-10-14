@@ -13,6 +13,10 @@ module.exports = {
 			.eq("id",member.user.id)
 			.single()
 			.then(async data=>{
+				supabase.from("Users")
+					.update({notification_id:null})
+					.eq('id',member.user.id)
+					.then()
 				const message = await ChannelController.getMessage(channelNotifications,data.body.notification_id)
 				message.delete()
 				const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notification_id)

@@ -184,7 +184,7 @@ class CoworkingController {
     }
     static isRangeNightSession(){
         const time = new Date().getTime()
-        return time > CoworkingController.getStartTimeNightSession().getTime() && time < CoworkingController.getEndTimeNightSession().getTime()
+        return time >= CoworkingController.getStartTimeNightSession().getTime() && time < CoworkingController.getEndTimeNightSession().getTime()
     }
 
     static async getAllEvent(client){
