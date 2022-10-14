@@ -5,8 +5,77 @@ const referralCodes = require('referral-codes');
 const ChannelController = require("./ChannelController");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const LocalData = require("../helpers/getData");
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const RequestAxios = require("../helpers/axios");
+const GenerateImage = require("../helpers/GenerateImage");
+const { MessageAttachment } = require("discord.js");
 class ReferralCodeController{
+    static showModalRedeem(interaction){
+        if(interaction.customId === 'redeem'){
+			const modal = new Modal()
+			.setCustomId("modalReferral")
+			.setTitle("Referral Code")
+			.addComponents(
+				new TextInputComponent()
+					.setCustomId('referral')
+					.setLabel("Enter your referral code")
+					.setStyle("SHORT")
+					.setRequired(true)
+			)
+			showModal(modal, {
+				client: interaction.client, // Client to show the Modal through the Discord API.
+				interaction: interaction, // Show the modal with interaction data.
+			});
+			return true
+		}
+        return false
+    }
+
+    static async interactionClaimReferral(interaction,targetUserId){
+        if (interaction.user.id !== targetUserId) {
+            await interaction.editReply("⚠️ Can't claim other people's referrals")
+            return
+        }
+        const dataReferral = await ReferralCodeController.getReferrals(targetUserId)
+        if (dataReferral) {
+            if (dataReferral.allReferralAlreadyBeenRedeemed) {
+                await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
+            }else{
+                const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(targetUserId)
+                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired,totalDaysThisCohort))
+                ReferralCodeController.updateIsClaimed(targetUserId)
+            }
+        }else{
+            await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
+        }
+    }
+
+    static async interactionGenerateReferral(interaction,targetUserId){
+        if (interaction.user.id !== targetUserId) {
+            await interaction.editReply("⚠️ Can't claim other people's referrals")
+            return
+        }
+
+        const referralCodes = ReferralCodeController.getActiveReferralCodeFromMessage(interaction.message.content)
+        const expire = ReferralCodeController.getExpiredDateFromMessage(interaction.message.content)
+        
+        if (referralCodes.length > 0) {
+            const files = []
+
+            for (let i = 0; i < referralCodes.length; i++) {
+                const referralCode = referralCodes[i];
+                const buffer = await GenerateImage.referralTicket(referralCode,expire)
+                const attachment = new MessageAttachment(buffer,`referral_ticket_${interaction.user.username}.png`)
+                files.push(attachment)
+            }
+            interaction.editReply({
+                content:'**Share this referral ticket to your friends.**',
+                files
+            })
+        }else{
+            interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
+        }
+    }
     static async generateReferral(client,userId){
         const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
         if (!isGenerateNewReferral) return

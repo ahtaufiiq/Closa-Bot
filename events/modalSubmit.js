@@ -11,7 +11,7 @@ const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal) {
-		const [commandButton,targetUserId=modal.user.id] = modal.customId.split("_")
+		const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
 		if (commandButton === 'modalReferral') {
 			await modal.deferReply({ephemeral:true});
 			const referralCode = modal.getTextInputValue('referral');
@@ -79,6 +79,7 @@ module.exports = {
 			}
 			
 		}else if(commandButton === "writeGoalParty"){
+			const [type,role,goalCategory] = value.split('-')
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
@@ -90,13 +91,14 @@ module.exports = {
 				goal,
 				about,
 				shareProgressAt,
+				role,
 				user:modal.user,
-				coworkingTime:"Night",
-				role:"Designer",
-				dayLeft:19
+				dayLeft:19,
+				value
 			}))
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
+			const role = value.split('-')[1]
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
@@ -107,10 +109,10 @@ module.exports = {
 				goal,
 				about,
 				shareProgressAt,
+				role,
 				user:modal.user,
-				coworkingTime:"Night",
-				role:"Designer",
-				dayLeft:19
+				dayLeft:19,
+				value
 			}))
 			modal.message.delete()
 		}

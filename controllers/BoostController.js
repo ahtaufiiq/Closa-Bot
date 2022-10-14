@@ -5,6 +5,8 @@ const Time = require("../helpers/time");
 const supabase = require("../helpers/supabaseClient");
 const BoostMessage = require("../views/BoostMessage");
 const MemberController = require("./MemberController");
+const PointController = require("./PointController");
+const DailyReport = require("./DailyReport");
 class BoostController{
     static remindBoostInativeMember(client){
         const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
@@ -63,6 +65,35 @@ class BoostController{
 		})
 	}
 
+	static async interactionBoostBack(interaction,targetUser){
+		
+		PointController.addPoint(interaction.user.id,'boost')
+		DailyReport.activeMember(interaction.client,interaction.user.id)
+		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		if (isMoreThanOneMinute) {
+			PointController.incrementTotalPoints(5,interaction.user.id)
+			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
+			await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
+		}else{
+			await interaction.editReply(BoostMessage.warningSpamBoost())
+		}
+
+	}
+
+	static async interactionBoostInactiveMember(interaction,targetUser){
+		PointController.addPoint(interaction.user.id,'boost')
+		DailyReport.activeMember(interaction.client,interaction.user.id)
+		isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		if (isMoreThanOneMinute) {
+			PointController.incrementTotalPoints(5,interaction.user.id)
+			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
+			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
+		}else {
+			await interaction.editReply(BoostMessage.warningSpamBoost())
+		}
+	}
 	static async incrementTotalBoost(senderId,targetUserId){
 		const id = `${senderId}_${targetUserId}`
 		let data = await supabase.from("Boosts")
