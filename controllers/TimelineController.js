@@ -88,7 +88,7 @@ class TimelineController{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
                         const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
-                        notificationThread.send(TimelineStatusMessage.notificationKickoffDay(member.id))
+                        notificationThread.send(TimelineStatusMessage.notificationBeforeKickoffDay(member.id))
                     })
                 }
             })
@@ -113,10 +113,10 @@ class TimelineController{
             })
         })
     }
-    static sendNotif2DaysBeforeCelebration(client){
+    static sendNotifBeforeCelebration(client){
         const {celebrationDate} = LocalData.getData()
         const date = Time.getDate(celebrationDate)
-        date.setDate(date.getDate()-2)
+        date.setDate(date.getDate()-1)
         date.setHours(Time.minus7Hours(8))
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
