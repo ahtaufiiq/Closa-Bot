@@ -34,7 +34,7 @@ module.exports = {
 		// if(CLIENT_ID === "948546574550695936") return
 
 		TimelineController.updateTimeline(client)
-		TimelineController.sendNotif2DaysBeforeCelebration(client)
+		TimelineController.sendNotifBeforeCelebration(client)
 		TimelineController.sendNotif5DaysBeforeCelebration(client)
 		TimelineController.sendNotifShareStoryCelebrationDay(client)
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)

@@ -3,8 +3,8 @@ const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_CELEBRATE } = require("../helpers/config")
 
 class TimelineStatusMessage{
-    static notificationBeforeCelebrationDay(userId,dayLeft = 2){
-        const message = dayLeft === 2 ? "tomorrow is our celebration day! 🎉" : `it's ${dayLeft} days before celebration day! 🎉`
+    static notificationBeforeCelebrationDay(userId,dayLeft = 1){
+        const message = dayLeft === 1 ? "tomorrow is our celebration day! 🎉" : `it's ${dayLeft} days before celebration day! 🎉`
         return {
             content:`Hi <@${userId}>, ${message}
 Let's prepare your 10 slides story format before our celebration day.`,
@@ -43,7 +43,7 @@ Thank you for reading, have a great day!
 \`\`\`
 2. Submit to ${ChannelController.getStringChannel(CHANNEL_CELEBRATE)}`
     }
-    static notificationKickoffDay(userId){
+    static notificationBeforeKickoffDay(userId){
         
         return {
             content:`Hi <@${userId}>, Closa **next kick-off day will start in 2 days.** :arrow_upper_right:
