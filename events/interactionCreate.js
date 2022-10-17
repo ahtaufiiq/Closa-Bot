@@ -84,10 +84,15 @@ module.exports = {
 					PartyController.interactionPickRole(interaction,'Creator',value)
 					break;
 				case "defaultReminder":
-					await interaction.editReply(PartyMessage.replyDefaultReminder())
+					PartyController.interactionSetDefaultReminder(interaction,value)
 					break;
 				case "customReminder":
 					await interaction.editReply(PartyMessage.replyCustomReminder())
+					interaction.message.delete()
+					break;
+				case "noReminder":
+					await interaction.editReply(PartyMessage.replyNoHighlightReminder())
+					interaction.message.delete()
 					break;
 				case "claimReferral":
 					ReferralCodeController.interactionClaimReferral(interaction,targetUserId)
@@ -126,7 +131,7 @@ module.exports = {
 					break;
 				case "goalCategory":
 					const deadlineGoal = PartyController.getDeadlineGoal()
-					await interaction.editReply(PartyMessage.askUserWriteGoal(deadlineGoal.dayLeft,targetUserId,valueMenu))
+					await interaction.editReply(PartyMessage.askUserWriteGoal(deadlineGoal.dayLeft,deadlineGoal.description,targetUserId,valueMenu))
 					interaction.message.delete()
 					break;
 				default:

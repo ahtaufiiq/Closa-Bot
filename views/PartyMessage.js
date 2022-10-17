@@ -107,10 +107,10 @@ p.s: *you can always join the other club*`,
         }
     }
 
-    static askUserWriteGoal(dayLeft,userId,valueMenu){
+    static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
         return {
             content:`**Post your goal & let the community know**
-You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (celebration day).
+You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
 Make sure to set your goal based on the deadline to match with community timeline.`,
             components:[
                 this.createComponent(
@@ -195,16 +195,31 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
 > p.s: *91% of people who set highlight are would like to get things done.*`,
             components:[
                 this.createComponent(
-                    this.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
+                    this.addButton(`defaultReminder_${userId}_07.30`,"Yes, set at 07.30 WIB","PRIMARY"),
                     this.addButton(`customReminder_${userId}`,"Let me custom my own reminder","PRIMARY"),
                     this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]
         }
     }
+    static settingReminderHighlightExistingUser(userId,prevDefaultTime){
+        return {
+            content:`**Your highlight successfully scheduled!** :white_check_mark:
+
+Continue to set highlight reminder at \`\`${prevDefaultTime} WIB\`\` every day?
+> p.s: *91% of people who set highlight are would like to get things done.*`,
+            components:[
+                this.createComponent(
+                    this.addButton(`defaultReminder_${userId}_${prevDefaultTime}`,`Yes, set at ${prevDefaultTime} WIB`,"PRIMARY"),
+                    this.addButton(`customReminder_${userId}`,"Edit Default Time","PRIMARY"),
+                    this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
+                )
+            ]
+        }
+    }
     
-    static replyDefaultReminder(){
-        return `**Your daily highlight reminder at 07.30 WIB is set!** 🔔`
+    static replyDefaultReminder(time='07.30'){
+        return `**Your daily highlight reminder at ${time} WIB is set!** 🔔`
     }
 
     static replyCustomReminder(){

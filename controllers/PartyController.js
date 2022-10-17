@@ -209,6 +209,11 @@ class PartyController{
 			})
 	}
 
+	static async interactionSetDefaultReminder(interaction,value){
+		await interaction.editReply(PartyMessage.replyDefaultReminder(value))
+		interaction.message.delete()
+	}
+
 	static setProgressReminder(interaction,shareProgressAt){
 		supabase.from("Users")
 		.select('reminder_progress')
@@ -250,21 +255,38 @@ class PartyController{
 
 	}
 
+	static isRangeCooldownPeriod(){
+		const {kickoffDate} = LocalData.getData()
+		const cooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const todayDate = Time.getTodayDateOnly()
+		return todayDate >= cooldownPeriod && todayDate <= kickoffDate
+	}
+
+	static isLastWeekCohort(){
+		const {kickoffDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const lastWeekCohort = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
+		return todayDate <= lastWeekCohort
+	}
+
 	static getDeadlineGoal(){
 		const {celebrationDate,kickoffDate} = LocalData.getData()
 		const todayDate = Time.getTodayDateOnly()
-		const lastWeekDate = Time.getDateOnly(Time.getNextDate(-7,celebrationDate))
 		const result = {
 			dayLeft:null,
+			description:'',
 			deadlineDate:null
 		}
-		if (todayDate <= lastWeekDate ) {
+		
+		if (this.isLastWeekCohort() || this.isRangeCooldownPeriod() ) {
 			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
 			result.deadlineDate = celebrationDate
+			result.description = 'celebration'
 		}else {
 			const deadlineDate = Time.getNextDate(-1,kickoffDate)
-			result.dayLeft = Time.getDiffDay(Time.getDate(),deadlineDate)
+			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),deadlineDate)
 			result.deadlineDate = Time.getDateOnly(deadlineDate)
+			result.description = 'kick-off'
 		}
 		return result
 	}
