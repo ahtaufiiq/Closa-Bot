@@ -113,7 +113,6 @@ module.exports = {
 							
 							})
 						})
-
 				}
 					await interaction.reply(`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`)			
 				break;

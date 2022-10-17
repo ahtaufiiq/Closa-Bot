@@ -39,83 +39,55 @@ module.exports = {
 			
 			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
-			let totalBoost 
-			let isMoreThanOneMinute 
 			switch (commandButton) {
-				case "joinParty":
-					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
-					await interaction.editReply(PartyMessage.replySuccessJoinParty(notificationThreadTargetUser.id))
+				case "boostInactiveMember":
+					BoostController.interactionBoostInactiveMember(interaction,targetUser)
+					break;
+				case "boostBack":
+					BoostController.interactionBoostBack(interaction,targetUser)
+					break;
+				case "joinParty":{
+					const alreadyHaveGoal = await PartyController.alreadyHaveGoal(interaction.user.id)
+					if (alreadyHaveGoal) {
+						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
+					}else{
+						notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
+						await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id))
+					}}
+					break;
+				case "continueReplaceGoal":
+					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,value))
+					await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id,value))
+					break;
+				case "cancelReplaceGoal":
+					await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
 					break;
 				case "startSoloMode":
-					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,'solo'))
-					await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
+					const alreadyHaveGoal = await PartyController.alreadyHaveGoal(interaction.user.id)
+					if (alreadyHaveGoal) {
+						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
+					}else{
+						notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,'solo'))
+						await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id))
+					}
 					break;
 				case "postGoal":
-					const project = interaction.message.embeds[0].title
-					const [
-						{value:goal},
-						{value:about},
-						{value:descriptionShareProgress},
-					] = interaction.message.embeds[0].fields
-					const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
-					const role = value.split('-')[1]
-					await interaction.editReply(PartyMessage.postGoal({
-						project,
-						goal,
-						about,
-						role,
-						shareProgressAt,
-						user:interaction.user,
-						dayLeft:19,
-						value
-					}))
-					interaction.message.delete()
-
-					
-					
-					const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-					channelGoals.send(PartyMessage.postGoal({
-						project,
-						goal,
-						about,
-						shareProgressAt,
-						role,
-						user:interaction.user,
-						dayLeft:19,
-						value
-					}))
-					.then(msg=>{
-						ChannelController.createThread(msg,"Learn Marketing",interaction.user.username)
-						supabase.from('Users')
-							.update({
-								goal_id:msg.id
-							})
-							.eq('id',interaction.user.id)
-							.then()
-					})
-					
-					notificationThreadTargetUser.send(PartyMessage.askUserWriteHighlight(targetUserId))
+					PartyController.interactionPostGoal(interaction,value)
 					break;
 				case "roleDeveloper":
-					PartyController.interactionPickRole(interaction,'developer',targetUserId,value)
+					PartyController.interactionPickRole(interaction,'Developer',value)
 					break;
 				case "roleDesigner":
-					PartyController.interactionPickRole(interaction,'designer',targetUserId,value)
+					PartyController.interactionPickRole(interaction,'Designer',value)
 					break;
 				case "roleCreator":
-					PartyController.interactionPickRole(interaction,'creator',targetUserId,value)
+					PartyController.interactionPickRole(interaction,'Creator',value)
 					break;
 				case "defaultReminder":
 					await interaction.editReply(PartyMessage.replyDefaultReminder())
 					break;
 				case "customReminder":
 					await interaction.editReply(PartyMessage.replyCustomReminder())
-					break;
-				case "boostInactiveMember":
-					BoostController.interactionBoostInactiveMember(interaction,targetUser)
-					break;
-				case "boostBack":
-					BoostController.interactionBoostBack(interaction,targetUser)
 					break;
 				case "claimReferral":
 					ReferralCodeController.interactionClaimReferral(interaction,targetUserId)
@@ -153,7 +125,8 @@ module.exports = {
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 				case "goalCategory":
-					await interaction.editReply(PartyMessage.askUserWriteGoal(19,targetUserId,valueMenu))
+					const deadlineGoal = PartyController.getDeadlineGoal()
+					await interaction.editReply(PartyMessage.askUserWriteGoal(deadlineGoal.dayLeft,targetUserId,valueMenu))
 					interaction.message.delete()
 					break;
 				default:

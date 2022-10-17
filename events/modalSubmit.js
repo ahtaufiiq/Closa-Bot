@@ -1,6 +1,7 @@
 const ChannelController = require("../controllers/ChannelController");
 const MemberController = require("../controllers/MemberController");
 const MembershipController = require("../controllers/MembershipController");
+const PartyController = require("../controllers/PartyController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
@@ -78,7 +79,8 @@ module.exports = {
 				
 			}
 			
-		}else if(commandButton === "writeGoalParty"){
+		}else if(commandButton === "writeGoal"){
+			const deadlineGoal = PartyController.getDeadlineGoal()
 			const [type,role,goalCategory] = value.split('-')
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
@@ -92,12 +94,13 @@ module.exports = {
 				about,
 				shareProgressAt,
 				role,
+				value,
 				user:modal.user,
-				dayLeft:19,
-				value
+				deadlineDate:deadlineGoal.deadlineDate,
 			}))
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
+			const deadlineGoal = PartyController.getDeadlineGoal()
 			const role = value.split('-')[1]
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
@@ -110,9 +113,9 @@ module.exports = {
 				about,
 				shareProgressAt,
 				role,
+				value,
 				user:modal.user,
-				dayLeft:19,
-				value
+				deadlineDate:deadlineGoal.deadlineDate,
 			}))
 			modal.message.delete()
 		}

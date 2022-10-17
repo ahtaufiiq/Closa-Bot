@@ -18,6 +18,7 @@ const DailyReport = require("../controllers/DailyReport");
 const CoworkingController = require("../controllers/CoworkingController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
+const PartyController = require("../controllers/PartyController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -117,6 +118,8 @@ module.exports = {
 								})
 							
 						})
+
+						PartyController.sendNotifToSetHighlight(msg.client,msg.author.id)
 					}else{
 						msg.delete()
 						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)

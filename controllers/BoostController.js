@@ -72,7 +72,7 @@ class BoostController{
 		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 		if (isMoreThanOneMinute) {
 			PointController.incrementTotalPoints(5,interaction.user.id)
-			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
 		}else{
@@ -84,10 +84,10 @@ class BoostController{
 	static async interactionBoostInactiveMember(interaction,targetUser){
 		PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
-		isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 		if (isMoreThanOneMinute) {
 			PointController.incrementTotalPoints(5,interaction.user.id)
-			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 		}else {
