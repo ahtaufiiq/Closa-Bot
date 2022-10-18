@@ -119,16 +119,7 @@ class PartyController{
 		] = interaction.message.embeds[0].fields
 		const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
 		const [accountabilityMode,role,goalCategory] = value.split('-')
-		await interaction.editReply(PartyMessage.postGoal({
-			project,
-			goal,
-			about,
-			role,
-			shareProgressAt,
-			value,
-			user:interaction.user,
-			deadlineDate:deadlineGoal.deadlineDate,
-		}))
+		await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
 		interaction.message.delete()
 
 		supabase.from("Goals")
@@ -176,8 +167,6 @@ class PartyController{
 				.eq('id',interaction.user.id)
 				.then()
 		})
-		const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
-		notificationThread.send(PartyMessage.askUserWriteHighlight(interaction.user.id))
 	}
 
 	static async alreadyHaveGoal(userId){
@@ -192,7 +181,7 @@ class PartyController{
 
 	static async sendNotifToSetHighlight(client,userId) {
 		supabase.from("Goals")
-			.select('id,alreadySetHighlight,Users(notification_id)')
+			.select('id,alreadySetHighlight,Users(notification_id,reminder_highlight)')
 			.eq("UserId",userId)
 			.gt('deadlineGoal',Time.getTodayDateOnly())
 			.eq('alreadySetHighlight',false)
@@ -203,13 +192,25 @@ class PartyController{
 							.update({alreadySetHighlight:true})
 							.eq('id',data.body.id)
 							.then()
-						const notificationThread = await ChannelController.getNotificationThread(client,userId,data.body.Users.notification_id)
-						notificationThread.send(PartyMessage.settingReminderHighlight(userId))						
+						const {reminder_highlight,notification_id}= data.body.Users
+						const notificationThread = await ChannelController.getNotificationThread(client,userId,notification_id)
+						if(reminder_highlight){
+							notificationThread.send(PartyMessage.settingReminderHighlightExistingUser(userId,reminder_highlight))
+						}else{
+							notificationThread.send(PartyMessage.settingReminderHighlight(userId))
+						}
+												
 				}
 			})
 	}
 
 	static async interactionSetDefaultReminder(interaction,value){
+		if (!value) {
+			supabase.from("Users")
+				.update({reminder_highlight:'07.30'})
+				.eq('id',interaction.user.id)
+				.then()
+		}
 		await interaction.editReply(PartyMessage.replyDefaultReminder(value))
 		interaction.message.delete()
 	}

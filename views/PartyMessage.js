@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const Time = require("../helpers/time")
 class PartyMessage {
@@ -177,7 +177,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
 
     static askUserWriteHighlight(userId){
         return {
-            content:`**Your goal has been submitted ✅**
+            content:`✅ <@${userId}> your goal has been submitted to <#${CHANNEL_GOALS}>
 
 Next, write your highlight of the day → on <#${CHANNEL_HIGHLIGHT}> `,
             components:[
@@ -189,13 +189,13 @@ Next, write your highlight of the day → on <#${CHANNEL_HIGHLIGHT}> `,
 
     static settingReminderHighlight(userId){
         return {
-            content:`**Your highlight successfully scheduled!** :white_check_mark:
+            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
 
 Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
             components:[
                 this.createComponent(
-                    this.addButton(`defaultReminder_${userId}_07.30`,"Yes, set at 07.30 WIB","PRIMARY"),
+                    this.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
                     this.addButton(`customReminder_${userId}`,"Let me custom my own reminder","PRIMARY"),
                     this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
@@ -204,7 +204,7 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
     }
     static settingReminderHighlightExistingUser(userId,prevDefaultTime){
         return {
-            content:`**Your highlight successfully scheduled!** :white_check_mark:
+            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
 
 Continue to set highlight reminder at \`\`${prevDefaultTime} WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
