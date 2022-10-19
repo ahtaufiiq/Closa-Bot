@@ -40,7 +40,7 @@ For the next step check your 🔔 **notification** → https://discord.com/chann
 
     static pickYourRole(userId,type="party"){
         return {
-            content:`**Pick your role**
+            content:`**Pick your role ${MessageFormatting.tagUser(userId)}**
 p.s: *you can always change it in the next cohort*`,
             components:[this.createComponent(
                 this.addButton(`roleDeveloper_${userId}_${type}`,"💻 Developers"),

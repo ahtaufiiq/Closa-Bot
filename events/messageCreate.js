@@ -144,6 +144,7 @@ so, you can learn or sharing from each others.`)
 					.select()
 					.eq('id',msg.author.id)
 					.single()
+
 				const attachments = []
 				let files = []
 
