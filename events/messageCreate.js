@@ -139,20 +139,11 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
-				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author.id)
-				}
-				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
-				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
-
-				ChannelController.createThread(msg,titleProgress)
-				
 				const { data, error } = await supabase
-											.from('Users')
-											.select()
-											.eq('id',msg.author.id)
-											.single()
-				
+					.from('Users')
+					.select()
+					.eq('id',msg.author.id)
+					.single()
 				const attachments = []
 				let files = []
 
@@ -175,7 +166,21 @@ so, you can learn or sharing from each others.`)
 				}else{
 					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notification_id)
 					notificationThread.send(TodoReminderMessage.warningNeverSetGoal(msg.author.id))
+					msg.delete()
+					return
 				}
+
+				if(ReferralCodeController.isTimeToGenerateReferral()){
+					ReferralCodeController.generateReferral(msg.client,msg.author.id)
+				}
+				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
+				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
+
+				ChannelController.createThread(msg,titleProgress)
+				
+
+				
+
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then((data) => {
