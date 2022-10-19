@@ -19,6 +19,7 @@ const CoworkingController = require("../controllers/CoworkingController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
+const TodoReminderMessage = require("../views/TodoReminderMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -171,6 +172,9 @@ so, you can learn or sharing from each others.`)
 						content:msg.content,
 						files
 					})
+				}else{
+					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notification_id)
+					notificationThread.send(TodoReminderMessage.warningNeverSetGoal(msg.author.id))
 				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
