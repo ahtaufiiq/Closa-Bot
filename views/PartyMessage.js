@@ -1,11 +1,19 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 class PartyMessage {
     static initSoloMode(){
         return { 
-            content:`:love_you_gesture: *Solo mode* — you'll accountable for yourself & closa community.` , 
+            content:`${MessageFormatting.customEmoji().thumbsupkid} **Solo mode**
+It's a mode where you work on yourself as solo for your \`\`passion projects\`\` but keep accountable
+
+\`\`\`diff
+- Difficulty: Hard
+• Accountability: You'll accountable for yourself & closa community.
++ Avg. timeline: 4 Weeks
+\`\`\`` , 
             components: [this.createComponent(this.addButton("startSoloMode","Start"))] 
         }
     }
@@ -47,9 +55,10 @@ p.s: *you can always change it in the next cohort*`,
         switch (role) {
             case `Developer`:
                 options = [
-                    { label:`Build a website `, value:`${type}-Developer-Build a website `},
-                    { label:`Build an app`, value:`${type}-Developer-Build an app`},
                     { label:`Coding interview preparation`, value:`${type}-Developer-Coding interview preparation`},
+                    { label:`Build personal website`, value:`${type}-Developer-Build personal website`},
+                    { label:`Build a web app`, value:`${type}-Developer-Build a web app`},
+                    { label:`Build a mobile app`, value:`${type}-Developer-Build a mobile app`},
                     { label:`Learn new front-end stacks`, value:`${type}-Developer-Learn new front-end stacks`},
                     { label:`Learn new back-end stacks`, value:`${type}-Developer-Learn new back-end stacks`},
                     { label:`Learn new mobile stacks`, value:`${type}-Developer-Learn new mobile stacks`},
@@ -61,8 +70,9 @@ p.s: *you can always change it in the next cohort*`,
                 options = [
                     { label:`Writing case study`,value:`${type}-Designer-Writing case study`},
                     { label:`Design exploration`,value:`${type}-Designer-Design exploration`},
+                    { label:`Build design portfolio`,value:`${type}-Designer-Build design portfolio`},
                     { label:`Building personal website`,value:`${type}-Designer-Building personal website`},
-                    { label:`Learn design things`,value:`${type}-Designer-Learn design things`},
+                    { label:`Learn design skills`,value:`${type}-Designer-Learn design skills`},
                     { label:`Other`, value:`${type}-Designer-Other`}
                 ]
                 break;
@@ -83,7 +93,7 @@ p.s: *you can always change it in the next cohort*`,
                 this.createComponent(
                     this.addMenu(
                         `goalCategory_${userId}`,
-                        "[–Select–]",
+                        "– Select –",
                         options
                     )
                 )
@@ -109,12 +119,14 @@ p.s: *you can always join the other club*`,
 
     static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
         return {
-            content:`**Post your goal & let the community know**
+            content:`**Set your goal for a passion project**
+
 You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
-Make sure to set your goal based on the deadline to match with community timeline.`,
+
+*Make sure to estimate your goal according community timeline.*`,
             components:[
                 this.createComponent(
-                    this.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Write goal")
+                    this.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Set your goal")
                 )
             ]
         }
@@ -179,13 +191,19 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
         return {
             content:`✅ <@${userId}> your goal has been submitted to <#${CHANNEL_GOALS}>
 
-Next, write your highlight of the day → on <#${CHANNEL_HIGHLIGHT}> `,
+**Next, write your highlight of the day** → on <#${CHANNEL_HIGHLIGHT}> `,
             components:[
                 this.createComponent(this.addLinkButton("Learn more about 🔆highlight","https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386"))
             ]
         }
     }
 
+    static endOfOnboarding(){
+        return `**That's all you are set! **:tada: 
+looking forward for your <#${CHANNEL_TODO}> !
+
+https://tenor.com/view/usagyuuun-confetti-sorpresa-gif-13354314`
+    }
 
     static settingReminderHighlight(userId){
         return {
