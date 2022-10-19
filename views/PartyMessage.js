@@ -161,7 +161,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
     static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         const typeAccountability = value.split('-')[0]
         return {
-            content:`from ${user}`,
+            content:`${user} just started a new project 🔥`,
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
         }
     }
