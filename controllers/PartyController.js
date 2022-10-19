@@ -154,7 +154,7 @@ class PartyController{
 			shareProgressAt,
 			role,
 			user:interaction.user,
-			deadlineDate:deadlineGoal.deadlineDate,
+			deadlineGoal:deadlineGoal,
 			value
 		}))
 		.then(msg=>{

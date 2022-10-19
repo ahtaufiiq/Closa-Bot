@@ -96,7 +96,7 @@ module.exports = {
 				role,
 				value,
 				user:modal.user,
-				deadlineDate:deadlineGoal.deadlineDate,
+				deadlineGoal:deadlineGoal
 			}))
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
@@ -115,7 +115,7 @@ module.exports = {
 				role,
 				value,
 				user:modal.user,
-				deadlineDate:deadlineGoal.deadlineDate,
+				deadlineGoal:deadlineGoal,
 			}))
 			modal.message.delete()
 		}

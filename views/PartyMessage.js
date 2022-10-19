@@ -145,11 +145,11 @@ See you on our kick-off day! (in ${textDayLeft})
 You will be matched with other members on the kick-off day at 20.30 WIB`
     }
 
-    static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineDate,user,value}){
+    static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         const typeAccountability = value.split('-')[0]
         return {
             content:"**REVIEW YOUR GOAL 📝**\n↓",
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineDate,user}) ],
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
             components:[
                 this.createComponent(
                     this.addButton(`postGoal_${user.id}_${value}`,"Post & commit","PRIMARY"),
@@ -158,12 +158,11 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             ]
         }
     }
-    static postGoal({project,goal,about,shareProgressAt,role,deadlineDate,user,value}){
+    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         const typeAccountability = value.split('-')[0]
         return {
             content:`from ${user}`,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineDate,user}) ],
-            
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
         }
     }
 
@@ -271,8 +270,10 @@ Your future progress will be updated to your new project.`,
         return `New ${accountabilityMode} mode has been canceled.`
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineDate,user}){
-        
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
+        const {dayLeft,deadlineDate} = deadlineGoal
+        const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
+        let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new MessageEmbed()
         .setColor("#ffffff")
         .setTitle(project)
@@ -283,7 +284,7 @@ Your future progress will be updated to your new project.`,
             { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
             { name: "Accountability", value: typeAccountability === 'party' ? "Party Mode" : "Solo Mode" },
             { name: "Role", value: role },
-            { name: "Timeline", value:  Time.getFormattedDate(Time.getDate(deadlineDate))},
+            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :''}` },
         )
     }
 
