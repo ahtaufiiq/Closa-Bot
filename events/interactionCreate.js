@@ -84,15 +84,18 @@ module.exports = {
 					PartyController.interactionPickRole(interaction,'Creator',value)
 					break;
 				case "defaultReminder":
-					PartyController.interactionSetDefaultReminder(interaction,value)
+					await PartyController.interactionSetDefaultReminder(interaction,value)
+					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
 					break;
 				case "customReminder":
 					await interaction.editReply(PartyMessage.replyCustomReminder())
 					interaction.message.delete()
+					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
 					break;
 				case "noReminder":
 					await interaction.editReply(PartyMessage.replyNoHighlightReminder())
 					interaction.message.delete()
+					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
 					break;
 				case "claimReferral":
 					ReferralCodeController.interactionClaimReferral(interaction,targetUserId)

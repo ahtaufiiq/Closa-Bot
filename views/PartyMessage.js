@@ -123,7 +123,7 @@ p.s: *you can always join the other club*`,
 
 You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
 
-*Make sure to estimate your goal according community timeline.*`,
+*Make sure to estimate your goal according community timeline above.*`,
             components:[
                 this.createComponent(
                     this.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Set your goal")
@@ -271,7 +271,7 @@ Your future progress will be updated to your new project.`,
     }
 
     static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
-        const {dayLeft,deadlineDate} = deadlineGoal
+        let {dayLeft,deadlineDate} = deadlineGoal
         const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new MessageEmbed()
@@ -284,7 +284,7 @@ Your future progress will be updated to your new project.`,
             { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
             { name: "Accountability", value: typeAccountability === 'party' ? "Party Mode" : "Solo Mode" },
             { name: "Role", value: role },
-            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :''}` },
+            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
         )
     }
 
