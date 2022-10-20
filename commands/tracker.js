@@ -20,14 +20,14 @@ module.exports = {
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		const {data} = await supabase.from("Users")
-			.select('goal_id,longest_streak,total_days,total_points')
+			.select('goalId,longestStreak,totalDay,totalPoint')
 			.eq('id',user.id)
 			.single()
 		let goalName = ''
 	
-		if (data?.goal_id) {
+		if (data?.goalId) {
 			const channel = interaction.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-			const thread = await channel.threads.fetch(data.goal_id);
+			const thread = await channel.threads.fetch(data.goalId);
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
@@ -38,7 +38,7 @@ module.exports = {
 				})
 				
 				const avatarUrl = InfoUser.getAvatar(user)
-				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.longest_streak,data.total_days,data.total_points)
+				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
 				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
 				await interaction.editReply({
 					files:[

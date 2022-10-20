@@ -14,13 +14,13 @@ class DailyReport {
 		schedule.scheduleJob(ruleStatusReport,function(){
 			supabase.from("Users")
 				.select()
-				.eq('last_active',Time.getDateOnly(Time.getNextDate(-6)))
-				.gte('end_membership',Time.getDateOnly(Time.getDate()))
+				.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
+				.gte('endMembership',Time.getDateOnly(Time.getDate()))
 				.then(data=>{
 					if (data.body.length > 0) {
 						data.body.forEach(member=>{
 							MemberController.changeRole(client,member.id,ROLE_ACTIVE_MEMBER,ROLE_INACTIVE_MEMBER)
-							channelStatus.send(StatusReportMessage.inactiveMemberReport(member.id,member.email,member.goal_id))
+							channelStatus.send(StatusReportMessage.inactiveMemberReport(member.id,member.email,member.goalId))
 						})
 					}
 				})
@@ -33,14 +33,14 @@ class DailyReport {
 				const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
 				MemberController.changeRole(client,userId,ROLE_INACTIVE_MEMBER,ROLE_ACTIVE_MEMBER)
 				supabase.from("Points")
-					.select("*,Users(id,email,goal_id)")
+					.select("*,Users(id,email,goalId)")
 					.eq('UserId',userId)
 					.lt('date',Time.getDateOnly(Time.getDate()))
 					.order('date',{ascending:false})
 					.limit(1)
 					.single()
 					.then(data => {
-						channelStatus.send(StatusReportMessage.activeMemberReport(data.body.Users.id,data.body.Users.email,data.body.Users.goal_id,data.body.date))
+						channelStatus.send(StatusReportMessage.activeMemberReport(data.body.Users.id,data.body.Users.email,data.body.Users.goalId,data.body.date))
 					})
 			}
 		})

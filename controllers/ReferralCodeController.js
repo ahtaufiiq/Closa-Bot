@@ -107,11 +107,11 @@ class ReferralCodeController{
             .insert(values)
 
         supabase.from("Users")
-        .select('id,notification_id')
+        .select('id,notificationId')
         .eq("id",userId)
         .single()
         .then(async data=>{
-            const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notification_id)
+            const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
             notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalReferral))
         })
     }
@@ -119,7 +119,7 @@ class ReferralCodeController{
     static remindToClaimReferral(client,userId){
         if (userId) {
             supabase.from('Reminders')
-                .select('*,Users(notification_id)')
+                .select('*,Users(notificationId)')
                 .eq('type',"claimReferral")
                 .eq('UserId',userId)
                 .gte('time',new Date().toUTCString())
@@ -127,21 +127,21 @@ class ReferralCodeController{
                     data.body.forEach(async reminder=>{
                         schedule.scheduleJob(reminder.time,async function() {
                             const type = reminder.message === '5 days' ? 5 : 2
-                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notification_id)
+                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
                             notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
                         })
                     })
                 })
         }else{
             supabase.from('Reminders')
-                .select('*,Users(notification_id)')
+                .select('*,Users(notificationId)')
                 .eq('type',"claimReferral")
                 .gte('time',new Date().toUTCString())
                 .then(data=>{
                     data.body.forEach(async reminder=>{
                         schedule.scheduleJob(reminder.time,async function() {
                             const type = reminder.message === '5 days' ? 5 : 2
-                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notification_id)
+                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
                             notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
                         })
                     })
@@ -200,12 +200,12 @@ class ReferralCodeController{
         if (data.body?.length > 0) return false
 
         const dataUser = await supabase.from("Users")
-            .select("longest_streak")
+            .select("longestStreak")
             .eq('id',userId)
             .single()
         
 
-        return dataUser.body?.longest_streak >= 7
+        return dataUser.body?.longestStreak >= 7
     }
 
     static async getReferrals(userId){
@@ -277,11 +277,11 @@ class ReferralCodeController{
 
     static async getTotalDays(userId) {
         const data = await supabase.from("Users")
-        .select('total_days')
+        .select('totalDay')
         .eq("id",userId)
         .single()
 
-        return data.body.total_days
+        return data.body.totalDay
     }
 
     static async updateTotalDaysThisCohort(userId){
@@ -342,11 +342,11 @@ class ReferralCodeController{
 
     static async isEligibleToRedeemRederral(userId){
         const data = await supabase.from("Users")
-            .select('end_membership')
+            .select('endMembership')
             .eq("id",userId)
             .single()
             
-        return data.body?.end_membership === null
+        return data.body?.endMembership === null
     }
 }
 

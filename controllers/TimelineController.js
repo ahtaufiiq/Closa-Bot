@@ -82,12 +82,12 @@ class TimelineController{
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
             supabase.from("Users")
-            .select('id,notification_id')
-            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .select('id,notificationId')
+            .gte('endMembership',Time.getDateOnly(Time.getDate()))
             .then(data=>{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
                         notificationThread.send(TimelineStatusMessage.notificationBeforeKickoffDay(member.id))
                     })
                 }
@@ -101,12 +101,12 @@ class TimelineController{
         date.setMinutes(45)
         schedule.scheduleJob(date,function() {
             supabase.from("Users")
-            .select('id,notification_id')
-            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .select('id,notificationId')
+            .gte('endMembership',Time.getDateOnly(Time.getDate()))
             .then(data=>{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
                         notificationThread.send(TimelineStatusMessage.notificationShareStory(member.id))
                     })
                 }
@@ -121,12 +121,12 @@ class TimelineController{
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
             supabase.from("Users")
-            .select('id,notification_id')
-            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .select('id,notificationId')
+            .gte('endMembership',Time.getDateOnly(Time.getDate()))
             .then(data=>{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
                         notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id))
                     })
                 }
@@ -141,12 +141,12 @@ class TimelineController{
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
             supabase.from("Users")
-            .select('id,notification_id')
-            .gte('end_membership',Time.getDateOnly(Time.getDate()))
+            .select('id,notificationId')
+            .gte('endMembership',Time.getDateOnly(Time.getDate()))
             .then(data=>{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
                         notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id,5))
                     })
                 }

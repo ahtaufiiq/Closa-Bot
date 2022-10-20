@@ -30,7 +30,7 @@ class StatusReportMessage{
         const thisMonth = Time.getThisMonth()
         const previousMonth = Time.getThisMonth(todayDate.getMonth()-1)
         const retentionRate = Number((totalActiveMember/totalMember*100).toFixed(0)) 
-        const prevRetentionRate =  previousWeeklyStat?.retention_rate || 0
+        const prevRetentionRate =  previousWeeklyStat?.retentionRate || 0
         
         const progressRetentionRate = retentionRate >= prevRetentionRate ? `+${retentionRate-prevRetentionRate}% 📈`:`${retentionRate-prevRetentionRate}% 📉`
         const progressMonthlyRetentionRate = monthlyRetentionRate >= previousMonthlyRetentionRate ? `+${monthlyRetentionRate-previousMonthlyRetentionRate}%`:`${monthlyRetentionRate-previousMonthlyRetentionRate}%`

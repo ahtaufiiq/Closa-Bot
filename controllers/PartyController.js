@@ -122,29 +122,6 @@ class PartyController{
 		await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
 		interaction.message.delete()
 
-		supabase.from("Goals")
-		.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
-		.eq("UserId",interaction.user.id)
-		.gt('deadlineGoal',Time.getTodayDateOnly())
-		.single()
-		.then(()=>{
-			supabase.from('Goals')
-			.insert([{
-				role,
-				goalCategory,
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				deadlineGoal:deadlineGoal.deadlineDate,
-				isPartyMode:accountabilityMode === 'party' ? true : false,
-				alreadySetHighlight:false,
-				UserId:interaction.user.id,
-			}])
-			.then()
-		})
-		
-
 		PartyController.setProgressReminder(interaction,shareProgressAt)
 		const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
 		channelGoals.send(PartyMessage.postGoal({
@@ -158,11 +135,56 @@ class PartyController{
 			value
 		}))
 		.then(msg=>{
+			supabase.from("Goals")
+			.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
+			.eq("UserId",interaction.user.id)
+			.gt('deadlineGoal',Time.getTodayDateOnly())
+			.single()
+			.then(async updatedData =>{
+				supabase.from('Goals')
+				.insert([{
+					role,
+					goalCategory,
+					project,
+					goal,
+					about,
+					shareProgressAt,
+					id:msg.id,
+					deadlineGoal:deadlineGoal.deadlineDate,
+					isPartyMode:accountabilityMode === 'party' ? true : false,
+					alreadySetHighlight:false,
+					UserId:interaction.user.id,
+				}])
+				.then()
+				if (updatedData.body) {
+					const existingGoal = await ChannelController.getMessage(channelGoals,updatedData.body.id)
+					const {
+						role,
+						project,
+						goal,
+						about,
+						shareProgressAt,
+						deadlineGoal,
+						isPartyMode,
+					} = updatedData.body
+					existingGoal.edit(PartyMessage.postGoal({
+						project,
+						goal,
+						about,
+						shareProgressAt,
+						role,
+						deadlineGoal:{deadlineDate:deadlineGoal,dayLeft:0},
+						user:interaction.user,
+						value:isPartyMode ? 'party':'solo'
+					}))
+				}
+				
+			})
 			ChannelController.createThread(msg,project,interaction.user.username)
 			supabase.from('Users')
 				.update({
-					goal_id:msg.id,
-					reminder_progress:shareProgressAt
+					goalId:msg.id,
+					reminderProgress:shareProgressAt
 				})
 				.eq('id',interaction.user.id)
 				.then()
@@ -181,7 +203,7 @@ class PartyController{
 
 	static async sendNotifToSetHighlight(client,userId) {
 		supabase.from("Goals")
-			.select('id,alreadySetHighlight,Users(notification_id,reminder_highlight)')
+			.select('id,alreadySetHighlight,Users(notificationId,reminderHighlight)')
 			.eq("UserId",userId)
 			.gt('deadlineGoal',Time.getTodayDateOnly())
 			.eq('alreadySetHighlight',false)
@@ -192,10 +214,10 @@ class PartyController{
 							.update({alreadySetHighlight:true})
 							.eq('id',data.body.id)
 							.then()
-						const {reminder_highlight,notification_id}= data.body.Users
-						const notificationThread = await ChannelController.getNotificationThread(client,userId,notification_id)
-						if(reminder_highlight){
-							notificationThread.send(PartyMessage.settingReminderHighlightExistingUser(userId,reminder_highlight))
+						const {reminderHighlight,notificationId}= data.body.Users
+						const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+						if(reminderHighlight){
+							notificationThread.send(PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight))
 						}else{
 							notificationThread.send(PartyMessage.settingReminderHighlight(userId))
 						}
@@ -207,7 +229,7 @@ class PartyController{
 	static async interactionSetDefaultReminder(interaction,value){
 		if (!value) {
 			supabase.from("Users")
-				.update({reminder_highlight:'07.30'})
+				.update({reminderHighlight:'07.30'})
 				.eq('id',interaction.user.id)
 				.then()
 		}
@@ -217,17 +239,17 @@ class PartyController{
 
 	static setProgressReminder(interaction,shareProgressAt){
 		supabase.from("Users")
-		.select('reminder_progress')
+		.select('reminderProgress')
 		.eq('id',interaction.user.id)
 		.single()
 		.then(data => {
-			if (data.body.reminder_progress !== shareProgressAt) {
+			if (data.body.reminderProgress !== shareProgressAt) {
 				supabase.from("Users")
-				.update({reminder_progress:shareProgressAt})
+				.update({reminderProgress:shareProgressAt})
 				.eq('id',interaction.user.id)
 				.single()
 				.then(async ({data:user})=>{
-					const [hours,minutes] = user.reminder_progress.split(/[.:]/)
+					const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 					let ruleReminderProgress = new schedule.RecurrenceRule();
 					ruleReminderProgress.hour = Time.minus7Hours(hours)
 					ruleReminderProgress.minute = minutes
@@ -238,11 +260,11 @@ class PartyController{
 						.single()
 						.then(async ({data})=>{
 							if (data) {
-								if (user.reminder_progress !== data.reminder_progress) {
+								if (user.reminderProgress !== data.reminderProgress) {
 									scheduleReminderProgress.cancel()
-								}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
+								}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
 									const userId = data.id;
-									const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+									const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
 									notificationThread.send(TodoReminderMessage.progressReminder(userId))
 
 								}

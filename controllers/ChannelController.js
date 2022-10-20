@@ -17,11 +17,11 @@ class ChannelController{
 			return thread
         }else{
             const data = await supabase.from("Users")
-            .select("notification_id")
+            .select("notificationId")
             .eq('id',userId)
             .single()
             
-            const thread = await ChannelController.getThread(channelNotifications,data.body.notification_id)
+            const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }
         

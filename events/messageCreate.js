@@ -31,7 +31,7 @@ module.exports = {
 		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")
 			.update({
-				last_active:Time.getTodayDateOnly()
+				lastActive:Time.getTodayDateOnly()
 			})
 			.eq('id',msg.author.id)
 			.then()
@@ -52,7 +52,7 @@ module.exports = {
 				)
 				supabase.from('Users')
 					.update({
-						goal_id:threadGoal.id
+						goalId:threadGoal.id
 					})
 					.eq('id',msg.author.id)
 					.then()
@@ -77,8 +77,8 @@ module.exports = {
 					supabase.from('FocusSessions')
 						.insert({
 							UserId:msg.author.id,
-							thread_id:thread.id,
-							task_name: msg.content
+							threadId:thread.id,
+							taskName: msg.content
 						})
 						.then()
 				})
@@ -108,12 +108,12 @@ module.exports = {
 						.then(()=>{
 							
 							supabase.from('Users')
-								.update({last_highlight:Time.getTodayDateOnly()})
+								.update({lastHighlight:Time.getTodayDateOnly()})
 								.eq('id',msg.author.id)
 								.single()
 								.then(data=>{
 									const reminderHighlight = schedule.scheduleJob(date,async function () {
-										const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notification_id)
+										const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
 										notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
 									})
 								})
@@ -156,16 +156,16 @@ so, you can learn or sharing from each others.`)
 				})
 
 				let goalName = ''
-				if (data?.goal_id) {
+				if (data?.goalId) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(data.goal_id);
+					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
 					thread.send({
 						content:msg.content,
 						files
 					})
 				}else{
-					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notification_id)
+					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notificationId)
 					notificationThread.send(TodoReminderMessage.warningNeverSetGoal(msg.author.id))
 					msg.delete()
 					return
@@ -207,10 +207,10 @@ so, you can learn or sharing from each others.`)
 					}
 				})
 				.then(async data=>{
-					let current_streak = data.body.current_streak + 1
-					let total_days =  (data.body.total_days || 0) + 1
-					if (Time.isValidStreak(data.body.last_done,current_streak) || Time.isCooldownPeriod()) {
-						if (Time.onlyMissOneDay(data.body.last_done) && !Time.isCooldownPeriod()) {
+					let currentStreak = data.body.currentStreak + 1
+					let totalDay =  (data.body.totalDay || 0) + 1
+					if (Time.isValidStreak(data.body.lastDone,currentStreak) || Time.isCooldownPeriod()) {
+						if (Time.onlyMissOneDay(data.body.lastDone) && !Time.isCooldownPeriod()) {
 							const missedDate = Time.getNextDate(-1)
 							missedDate.setHours(8)
 							await supabase.from("Todos")
@@ -221,21 +221,21 @@ so, you can learn or sharing from each others.`)
 										type:'safety'
 									})
 						}
-						if (current_streak > data.body.longest_streak) {
+						if (currentStreak > data.body.longestStreak) {
 							return supabase.from("Users")
 								.update({
-									current_streak,
-									total_days,
-									'longest_streak':current_streak,
-									'end_longest_streak':Time.getTodayDateOnly()
+									currentStreak,
+									totalDay,
+									'longestStreak':currentStreak,
+									'endLongestStreak':Time.getTodayDateOnly()
 								})
 								.eq('id',msg.author.id)
 								.single()
 						}else{
 							return supabase.from("Users")
 								.update({
-									current_streak,
-									total_days
+									currentStreak,
+									totalDay
 								})
 								.eq('id',msg.author.id)
 								.single()
@@ -243,8 +243,8 @@ so, you can learn or sharing from each others.`)
 					}else{
 						return supabase.from("Users")
 							.update({
-								'current_streak':1,
-								total_days,
+								'currentStreak':1,
+								totalDay,
 							})
 							.eq('id',msg.author.id)
 							.single()
@@ -252,13 +252,13 @@ so, you can learn or sharing from each others.`)
 				})
 				.then(data => {
 					supabase.from('Users')
-						.update({last_done:Time.getTodayDateOnly()})
+						.update({lastDone:Time.getTodayDateOnly()})
 						.eq('id',msg.author.id)
 						.then()
-					let dailyStreak = data.body.current_streak
-					let longestStreak = data.body.longest_streak
-					let totalDays = data.body.total_days
-					let totalPoints = data.body.total_points
+					let dailyStreak = data.body.currentStreak
+					let longestStreak = data.body.longestStreak
+					let totalDays = data.body.totalDay
+					let totalPoints = data.body.totalPoint
 					
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 					if (goalName) {
@@ -317,9 +317,9 @@ so, you can learn or sharing from each others.`)
 					})
 				})
 
-				if (dataUser.body?.goal_id) {
+				if (dataUser.body?.goalId) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(dataUser.body?.goal_id);
+					const thread = await channel.threads.fetch(dataUser.body?.goalId);
 					thread.send({
 						content:msg.content,
 						files:filesCelebration
@@ -372,11 +372,11 @@ Thank you for your support to closa community!`)
 
 							
 							supabase.from('Users')
-								.update({"end_membership":Time.getEndMembership(type,total,data.createdAt),email,name})
+								.update({"endMembership":Time.getEndMembership(type,total,data.createdAt),email,name})
 								.eq('id',UserId)
 								.single()
 								.then(data=>{
-									const date = Time.getFormattedDate(Time.getDate(data.body.end_membership))
+									const date = Time.getFormattedDate(Time.getDate(data.body.endMembership))
 									const startDate = Time.getFormattedDate(Time.getDate())
 									user.send(`Hi <@${UserId}>, your membership status until ${date}.
 Thank you for your support to closa community!`)

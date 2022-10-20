@@ -33,12 +33,12 @@ class DailyStreakController {
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
-					.select('id,name,notification_id')
-					.gte('current_streak',2)
-					.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
+					.select('id,name,notificationId')
+					.gte('currentStreak',2)
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
 						data.body.forEach(async member=>{
-								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
 								notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
 						})
 				})
@@ -49,7 +49,7 @@ class DailyStreakController {
 	static addSafetyCooldown(){
 		supabase.from("Users")
 			.select('id')
-			.gte('end_membership',Time.getDateOnly(Time.getDate()))
+			.gte('endMembership',Time.getDateOnly(Time.getDate()))
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
@@ -80,11 +80,11 @@ class DailyStreakController {
 		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
-					.select('id,goal_id,name')
-					.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
+					.select('id,goalId,name')
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
 					.then(dataUsers =>{
 						dataUsers.body.forEach(async data=>{
-							const goalThread = await ChannelController.getThread(channelGoals,data.goal_id)
+							const goalThread = await ChannelController.getThread(channelGoals,data.goalId)
 							goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
 						})
 					})

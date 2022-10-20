@@ -49,13 +49,13 @@ module.exports = {
 		switch (command) {
 			case 'highlight':
 
-				if (data.reminder_highlight !== time) {
+				if (data.reminderHighlight !== time) {
 					supabase.from("Users")
-						.update({reminder_highlight:time})
+						.update({reminderHighlight:time})
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminder_highlight.split(/[.:]/)
+							const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 							let ruleReminderHighlight = new schedule.RecurrenceRule();
 							ruleReminderHighlight.hour = Time.minus7Hours(hours)
 							ruleReminderHighlight.minute = minutes
@@ -66,11 +66,11 @@ module.exports = {
 								.single()
 								.then(async ({data})=>{
 									if (data) {
-										if (user.reminder_highlight !== data.reminder_highlight) {
+										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
-										}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
+										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
 											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
 											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
 										}
 									}
@@ -84,13 +84,13 @@ module.exports = {
 
 				break;
 			case 'progress':
-				if (data.reminder_highlight !== time) {
+				if (data.reminderHighlight !== time) {
 					supabase.from("Users")
-						.update({reminder_progress:time})
+						.update({reminderProgress:time})
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminder_progress.split(/[.:]/)
+							const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 							let ruleReminderProgress = new schedule.RecurrenceRule();
 							ruleReminderProgress.hour = Time.minus7Hours(hours)
 							ruleReminderProgress.minute = minutes
@@ -101,11 +101,11 @@ module.exports = {
 								.single()
 								.then(async ({data})=>{
 									if (data) {
-										if (user.reminder_progress !== data.reminder_progress) {
+										if (user.reminderProgress !== data.reminderProgress) {
 											scheduleReminderProgress.cancel()
-										}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
+										}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
 											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
 											notificationThread.send(TodoReminderMessage.progressReminder(userId))
 										}
 									}

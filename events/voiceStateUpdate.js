@@ -33,7 +33,7 @@ module.exports = {
 		if(oldMember.channelId !== newMember.channelId && newMember.channel !== null){
 			supabase.from("Users")
 			.update({
-				last_active:Time.getTodayDateOnly()
+				lastActive:Time.getTodayDateOnly()
 			})
 			.eq('id',userId)
 			.then()
@@ -60,13 +60,13 @@ module.exports = {
 					focusRoomUser[userId] = {
 						selfVideo : newMember.selfVideo,
 						streaming : newMember.streaming,
-						threadId:data.thread_id,
+						threadId:data.threadId,
 						status : 'processed',
 						firstTime:true
 					}
 					
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
-					const thread = await channel.threads.fetch(data.thread_id);
+					const thread = await channel.threads.fetch(data.threadId);
 					if (newMember.selfVideo || newMember.streaming ){
 						CoworkingController.handleStartCoworkingSession(oldMember.client)
 						let minute = 0
@@ -145,7 +145,7 @@ module.exports = {
 							RequestAxios.get('voice/report/'+userId)
 								.then(async data=>{
 									channelSessionLog.send({
-										content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalInMinutes)}**\n:arrow_right: ${response.data.task_name}`, 
+										content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalInMinutes)}**\n:arrow_right: ${response.data.taskName}`, 
 										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
 									})
 								})

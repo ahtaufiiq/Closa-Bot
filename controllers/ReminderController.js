@@ -9,10 +9,10 @@ class ReminderController{
     static remindPostProgress(client){
         supabase.from('Users')
 		.select()
-		.neq('reminder_progress',null)
+		.neq('reminderProgress',null)
 		.then(data=>{
 			data.body.forEach(user=>{
-				const [hours,minutes] = user.reminder_progress.split(/[.:]/)
+				const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 				let ruleReminderProgress = new schedule.RecurrenceRule();
 				ruleReminderProgress.hour = Time.minus7Hours(hours)
 				ruleReminderProgress.minute = minutes
@@ -24,11 +24,11 @@ class ReminderController{
 						.single()
 						.then(async ({data})=>{
 							if (data) {
-								if (user.reminder_progress !== data.reminder_progress) {
+								if (user.reminderProgress !== data.reminderProgress) {
 									scheduleReminderProgress.cancel()
-								}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
+								}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
 									const userId = data.id;
-									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
 									notificationThread.send(TodoReminderMessage.progressReminder(userId))
 								}
 							}
@@ -45,10 +45,10 @@ class ReminderController{
     static remindSetHighlight(client){
         supabase.from('Users')
 			.select()
-			.neq('reminder_highlight',null)
+			.neq('reminderHighlight',null)
 			.then(data=>{
 				data.body.forEach(user=>{
-					const [hours,minutes] = user.reminder_highlight.split(/[.:]/)
+					const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 					
 					let ruleReminderHighlight = new schedule.RecurrenceRule();
 					ruleReminderHighlight.hour = Time.minus7Hours(hours)
@@ -61,11 +61,11 @@ class ReminderController{
 							.single()
 							.then(async ({data})=>{
 								if (data) {
-									if (user.reminder_highlight !== data.reminder_highlight) {
+									if (user.reminderHighlight !== data.reminderHighlight) {
 										scheduleReminderHighlight.cancel()
-									}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
+									}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
 										const userId = data.id;
-										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
 										notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
 									}
 								}
@@ -79,13 +79,13 @@ class ReminderController{
 
     static remindHighlightUser(client){
         supabase.from('Reminders')
-			.select('*,Users(notification_id)')
+			.select('*,Users(notificationId)')
 			.gte('time',new Date().toUTCString())
 			.eq('type',"highlight")
 			.then(data=>{
 				data.body.forEach(reminder=>{
 					schedule.scheduleJob(reminder.time,async function() {
-						const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notification_id)
+						const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
 						notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
 					})
 				})

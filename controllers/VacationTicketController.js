@@ -10,9 +10,9 @@ class VacationTicketController {
 		ruleRemindBoost.minute = 0
 		schedule.scheduleJob(ruleRemindBoost,function(){
 			supabase.from("Users")
-			.select("id,current_streak,notification_id")
-			.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
-			.gte('current_streak',2)
+			.select("id,currentStreak,notificationId")
+			.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+			.gte('currentStreak',2)
 			.then(data =>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
