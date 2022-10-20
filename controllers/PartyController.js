@@ -256,13 +256,6 @@ class PartyController{
 
 	}
 
-	static isRangeCooldownPeriod(){
-		const {kickoffDate} = LocalData.getData()
-		const cooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
-		const todayDate = Time.getTodayDateOnly()
-		return todayDate >= cooldownPeriod && todayDate <= kickoffDate
-	}
-
 	static isLastWeekCohort(){
 		const {kickoffDate} = LocalData.getData()
 		const todayDate = Time.getTodayDateOnly()
@@ -279,7 +272,7 @@ class PartyController{
 			deadlineDate:null
 		}
 		
-		if (this.isLastWeekCohort() || this.isRangeCooldownPeriod() ) {
+		if (this.isLastWeekCohort() || Time.isCooldownPeriod() ) {
 			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
 			result.deadlineDate = celebrationDate
 			result.description = 'celebration'

@@ -14,8 +14,10 @@ class CoworkingController {
         ruleNotifStartCoworkingNight.hour = Time.minus7Hours(19)
         ruleNotifStartCoworkingNight.minute = 50
         schedule.scheduleJob(ruleNotifStartCoworkingNight,function(){
-            const data = LocalData.getData()
-            CoworkingController.sendReminder10MinutesBeforeStart(client,"Night",data.night)
+            if (!Time.isCooldownPeriod()) {
+                const data = LocalData.getData()
+                CoworkingController.sendReminder10MinutesBeforeStart(client,"Night",data.night)
+            }
         })
 
         let ruleCoworkingSession = new schedule.RecurrenceRule();

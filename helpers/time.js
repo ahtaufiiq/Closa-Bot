@@ -135,10 +135,11 @@ class Time {
     }
 
     static isCooldownPeriod(){
-        const {celebrationDate,kickoffDate} = LocalData.getData()
-        return Time.getTodayDateOnly() > celebrationDate && Time.getTodayDateOnly() <= kickoffDate
-    }
-
+		const {kickoffDate} = LocalData.getData()
+		const cooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const todayDate = Time.getTodayDateOnly()
+		return todayDate >= cooldownPeriod && todayDate <= kickoffDate
+	}
     static isValidStreak(date,currentStreak) {
         return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak > 2)
     }
@@ -165,6 +166,8 @@ class Time {
         const diffInMinute = Math.ceil(diff / 1000/60)
         return diffInMinute > 1
     }
+
+
 }
 
 module.exports = Time
