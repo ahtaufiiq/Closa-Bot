@@ -14,7 +14,7 @@ module.exports = {
 			ChannelController.createThread(msg,member.user.username)
 			MemberController.addRole(member.client,member.user.id,ROLE_ACTIVE_MEMBER)
 			supabase.from("Users")
-				.select('notification_id')
+				.select('notificationId')
 				.eq('id',member.user.id)
 				.single()
 				.then(data => {
@@ -24,17 +24,17 @@ module.exports = {
 								id:member.user.id,
 								username:member.user.username,
 								name:member.user.username,
-								notification_id:msg.id,
-								current_streak:0,
-								longest_streak:0,
-								total_days:0,
-								total_points:0,
-								last_active:Time.getTodayDateOnly()
+								notificationId:msg.id,
+								currentStreak:0,
+								longestStreak:0,
+								totalDay:0,
+								totalPoint:0,
+								lastActive:Time.getTodayDateOnly()
 							}])
 							.then()
-					}else if(!data.body?.notification_id){
+					}else if(!data.body?.notificationId){
 						supabase.from("Users")
-							.update({notification_id:msg.id})
+							.update({notificationId:msg.id})
 							.eq('id',member.user.id)
 							.then()
 					}	

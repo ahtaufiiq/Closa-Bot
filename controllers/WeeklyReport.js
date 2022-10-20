@@ -48,8 +48,8 @@ class WeeklyReport{
     static async getInactiveMember(){
         let data = await supabase.from("Users")
             .select('name')
-            .gte('end_membership',Time.getTodayDateOnly())
-            .lt('last_active',Time.getDateOnly(Time.getNextDate(-7)))
+            .gte('endMembership',Time.getTodayDateOnly())
+            .lt('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 
         return data.body
     }
@@ -64,17 +64,17 @@ class WeeklyReport{
 
     static async getAllMember(){
         let data = await supabase.from("Users")
-            .select('name,last_active')
-            .gte('end_membership',Time.getTodayDateOnly())
-            .order('last_active',{ascending:false})
+            .select('name,lastActive')
+            .gte('endMembership',Time.getTodayDateOnly())
+            .order('lastActive',{ascending:false})
         return data.body
     }
 
     static async getAllMemberPreviousMonth(){
         let data = await supabase.from("Users")
-            .select('name,last_active')
-            .gte('end_membership',Time.getDateOnly(Time.getBeginningOfTheMonth(-1)))
-            .order('last_active',{ascending:false})
+            .select('name,lastActive')
+            .gte('endMembership',Time.getDateOnly(Time.getBeginningOfTheMonth(-1)))
+            .order('lastActive',{ascending:false})
         return data.body
     }
 
@@ -97,7 +97,7 @@ class WeeklyReport{
         
         let retentionRate = 0
         data.body.forEach(stat=>{
-            retentionRate += stat.retention_rate
+            retentionRate += stat.retentionRate
         })
         retentionRate /= data.body.length
         return Number(retentionRate.toFixed(0))
@@ -112,7 +112,7 @@ class WeeklyReport{
 
         let retentionRate = 0
         data.body.forEach(stat=>{
-            retentionRate += stat.retention_rate
+            retentionRate += stat.retentionRate
         })
         retentionRate /= data.body.length
         return Number(retentionRate.toFixed(0))
@@ -131,14 +131,14 @@ class WeeklyReport{
 				const date = Time.getDateOnly(todayDate)
 				const totalMember = allMembers.length
 				const totalActiveMember = totalMember - inactiveMembers.length
-				const retention_rate = Number((totalActiveMember/totalMember*100).toFixed(0))
+				const retentionRate = Number((totalActiveMember/totalMember*100).toFixed(0))
 				const inactiveMembersName = inactiveMembers.map(member=>member.name)
 				return supabase.from("WeeklyStats")
 							.insert({
-								retention_rate,
+								retentionRate,
 								date,
-								total_member:totalMember,
-								inactive_members:`${inactiveMembersName}`
+								totalMember:totalMember,
+								inactiveMember:`${inactiveMembersName}`
 							})
 			}).then(()=>{
 				return Promise.all(

@@ -12,15 +12,15 @@ class PointController{
             .eq("UserId",UserId)
             .single()
             .then(data => {
-                const total_points = this.calculatePoint(type,minute,channelId)
+                const totalPoint = this.calculatePoint(type,minute,channelId)
                 let isAddNewPoint = true
                 if(data?.body === null){
                     if (type === 'chat') {
                         supabase.from("Points")
                             .insert({
                                 UserId,
-                                total_points,
-                                last_chat:Time.getDate(),
+                                totalPoint,
+                                lastChat:Time.getDate(),
                                 date:Time.getDateOnly(Time.getDate())
                             })
                             .then()
@@ -28,8 +28,8 @@ class PointController{
                         supabase.from("Points")
                             .insert({
                                 UserId,
-                                total_points,
-                                last_reaction:Time.getDate(),
+                                totalPoint,
+                                lastReaction:Time.getDate(),
                                 date:Time.getDateOnly(Time.getDate())
                             })
                             .then()
@@ -37,7 +37,7 @@ class PointController{
                         supabase.from("Points")
                             .insert({
                                 UserId,
-                                total_points,
+                                totalPoint,
                                 date:Time.getDateOnly(Time.getDate())
                             })
                             .then()
@@ -46,7 +46,7 @@ class PointController{
                     if (type === 'cafe') {
                         supabase.from("Points")
                             .update({
-                                total_points: data.body.total_points + total_points
+                                totalPoint: data.body.totalPoint + totalPoint
                             })
                             .eq('date',Time.getDateOnly(Time.getDate()))
                             .eq("UserId",UserId)
@@ -54,17 +54,17 @@ class PointController{
                     }else if(type === 'focus'){
                         supabase.from("Points")
                             .update({
-                                total_points: data.body.total_points + total_points
+                                totalPoint: data.body.totalPoint + totalPoint
                             })
                             .eq('date',Time.getDateOnly(Time.getDate()))
                             .eq("UserId",UserId)
                             .then()
                     }else if(type === 'chat'){
-                        if (Time.isMoreThanOneMinute(data.body.last_chat)) {
+                        if (Time.isMoreThanOneMinute(data.body.lastChat)) {
                             supabase.from("Points")
                                 .update({
-                                    last_chat:Time.getDate(),
-                                    total_points: data.body.total_points + total_points
+                                    lastChat:Time.getDate(),
+                                    totalPoint: data.body.totalPoint + totalPoint
                                 })
                                 .eq('date',Time.getDateOnly(Time.getDate()))
                                 .eq("UserId",UserId)
@@ -73,11 +73,11 @@ class PointController{
                             isAddNewPoint = false
                         }
                     }else if(type === 'reaction'){
-                        if (Time.isMoreThanOneMinute(data.body.last_reaction)) {
+                        if (Time.isMoreThanOneMinute(data.body.lastReaction)) {
                             supabase.from("Points")
                                 .update({
-                                    last_reaction:Time.getDate(),
-                                    total_points: data.body.total_points + total_points
+                                    lastReaction:Time.getDate(),
+                                    totalPoint: data.body.totalPoint + totalPoint
                                 })
                                 .eq('date',Time.getDateOnly(Time.getDate()))
                                 .eq("UserId",UserId)
@@ -87,7 +87,7 @@ class PointController{
                         }
                     }
                 }
-                if(isAddNewPoint) this.incrementTotalPoints(total_points,UserId)
+                if(isAddNewPoint) this.incrementTotalPoints(totalPoint,UserId)
             })
     }
 
@@ -145,13 +145,13 @@ class PointController{
 
     static incrementTotalPoints(increment,UserId){
         supabase.from("Users")
-            .select('total_points')
+            .select('totalPoint')
             .eq('id',UserId)
             .single()
             .then(data=>{
                 supabase.from("Users")
                     .update({
-                        total_points:(data.body?.total_points||0) + increment
+                        totalPoint:(data.body?.totalPoint||0) + increment
                     })
                     .eq('id',UserId)
                     .then()

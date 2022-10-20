@@ -17,8 +17,8 @@ class BoostController{
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
 					.select()
-					.eq('last_active',Time.getDateOnly(Time.getNextDate(-6)))
-					.gte('end_membership',Time.getDateOnly(Time.getDate()))
+					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
+					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
@@ -39,8 +39,8 @@ class BoostController{
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
 					.select()
-					.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
-					.gte('end_membership',Time.getDateOnly(Time.getDate()))
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
+					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
@@ -56,12 +56,12 @@ class BoostController{
 	static remindEveryMonday(client){
 		schedule.scheduleJob(`1 0 ${Time.minus7Hours(7)} * * 1`,async function() {
 			supabase.from("Users")
-				.select('id,notification_id')
-				.gte('end_membership',Time.getDateOnly(Time.getDate()))
+				.select('id,notificationId')
+				.gte('endMembership',Time.getDateOnly(Time.getDate()))
 				.then(data=>{
 					if (data.body.length > 0) {
 						data.body.forEach(async member=>{
-							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
 							notificationThread.send(BoostMessage.remindToBoost(member.id))
 						})
 					}
@@ -110,7 +110,7 @@ class BoostController{
 			supabase.from("Boosts")	
 				.update({
 					total:totalBoost,
-					last_boost:Time.getDate()
+					lastBoost:Time.getDate()
 				})
 				.eq('id',id)
 				.then()
@@ -121,13 +121,13 @@ class BoostController{
 					senderId,
 					targetUserId,
 					total:1,
-					last_boost:Time.getDate(),
+					lastBoost:Time.getDate(),
 				})
 				.then()
 		}
 
 		supabase.from("Users")
-			.update({last_active:Time.getTodayDateOnly()})
+			.update({lastActive:Time.getTodayDateOnly()})
 			.eq('id',senderId)
 			.then()
 
@@ -142,14 +142,14 @@ class BoostController{
 		schedule.scheduleJob(ruleRemindBoost,function(){
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
-					.select("id,current_streak")
-					.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
-					.gte('current_streak',5)
+					.select("id,currentStreak")
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+					.gte('currentStreak',5)
 					.then(data =>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
-								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.current_streak))
+								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
 							})
 						}
 					})
@@ -167,7 +167,7 @@ class BoostController{
 		let isMoreThanOneMinute = false
 
 		if(data?.body){
-			if (Time.isMoreThanOneMinute(data.body.last_boost)) {
+			if (Time.isMoreThanOneMinute(data.body.lastBoost)) {
 				isMoreThanOneMinute = true
 			}
 		}else{

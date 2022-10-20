@@ -5,18 +5,18 @@ class MembershipController{
     static async updateMembership(totalMonth,userId){
         
         const data = await supabase.from("Users")
-            .select('end_membership')
+            .select('endMembership')
             .eq('id',userId)
             .single()
-        const end_membership = Time.getEndMembership(totalMonth,data.body.end_membership)
+        const endMembership = Time.getEndMembership(totalMonth,data.body.endMembership)
 
         supabase.from("Users")
-            .update({end_membership})
+            .update({endMembership})
             .eq('id',userId)
             .single()
             .then()
         
-        const formattedDate = Time.getFormattedDate(Time.getDate(end_membership))
+        const formattedDate = Time.getFormattedDate(Time.getDate(endMembership))
         return formattedDate
     }
 }

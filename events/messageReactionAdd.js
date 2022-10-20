@@ -25,7 +25,7 @@ module.exports = {
 		
 		supabase.from("Users")
 		.update({
-			last_active:Time.getTodayDateOnly()
+			lastActive:Time.getTodayDateOnly()
 		})
 		.eq('id',user.id)
 		.then()

@@ -230,11 +230,11 @@ class CoworkingController {
                 member.roles.cache.forEach(role=>{
                     if (role.id === roleId) {
                         supabase.from("Users")
-                            .select('id,notification_id')
+                            .select('id,notificationId')
                             .eq('id',member.id)
                             .single()
                             .then(async data => {
-                                const notificationId = data.body.notification_id
+                                const notificationId = data.body.notificationId
                                 const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
                                 notificationThread.send(CoworkingMessage.remind10MinutesBeforeStart(member.id,eventId))
                             })
@@ -251,11 +251,11 @@ class CoworkingController {
                 member.roles.cache.forEach(role=>{
                     if (role.id === roleId) {
                         supabase.from("Users")
-                            .select('id,notification_id')
+                            .select('id,notificationId')
                             .eq('id',member.id)
                             .single()
                             .then(async data => {
-                                const notificationId = data.body.notification_id
+                                const notificationId = data.body.notificationId
                                 const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
                                 notificationThread.send(CoworkingMessage.notifCoworkingStarted(type,data.body.id,eventId))
                             })

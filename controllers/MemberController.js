@@ -16,7 +16,7 @@ class MemberController{
         const {count} = await supabase
         .from('Users')
         .select('id', { count: 'exact' })
-        .not('end_membership','is',null)
+        .not('endMembership','is',null)
 
         return count
     }
