@@ -1,5 +1,12 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const { CHANNEL_GOALS } = require('../helpers/config');
+const LocalData = require('../helpers/getData');
+const supabase = require('../helpers/supabaseClient');
+const Time = require('../helpers/time');
 const PartyMessage = require('../views/PartyMessage');
+const ChannelController = require('./ChannelController');
+const schedule = require('node-schedule');
+const TodoReminderMessage = require('../views/TodoReminderMessage');
 class PartyController{
     static showModalWriteGoal(interaction){
         if(interaction.customId.includes('writeGoal')){
@@ -92,13 +99,190 @@ class PartyController{
         return false
     }
 
-    static async interactionPickRole(interaction,role,userId,type='party'){
-        await interaction.editReply(PartyMessage.pickYourGoalCategory(role,userId,type))
+
+    static async interactionPickRole(interaction,role,type='party'){
+        await interaction.editReply(PartyMessage.pickYourGoalCategory(role,interaction.user.id,type))
         interaction.message.delete()
     }
 
 	static getTimeShareProgress(shareProgressAt){
 		return shareProgressAt.split(" ")[0]
+	}
+
+	static async interactionPostGoal(interaction,value){
+		const deadlineGoal = PartyController.getDeadlineGoal()
+		const project = interaction.message.embeds[0].title
+		const [
+			{value:goal},
+			{value:about},
+			{value:descriptionShareProgress}
+		] = interaction.message.embeds[0].fields
+		const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
+		const [accountabilityMode,role,goalCategory] = value.split('-')
+		await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
+		interaction.message.delete()
+
+		supabase.from("Goals")
+		.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
+		.eq("UserId",interaction.user.id)
+		.gt('deadlineGoal',Time.getTodayDateOnly())
+		.single()
+		.then(()=>{
+			supabase.from('Goals')
+			.insert([{
+				role,
+				goalCategory,
+				project,
+				goal,
+				about,
+				shareProgressAt,
+				deadlineGoal:deadlineGoal.deadlineDate,
+				isPartyMode:accountabilityMode === 'party' ? true : false,
+				alreadySetHighlight:false,
+				UserId:interaction.user.id,
+			}])
+			.then()
+		})
+		
+
+		PartyController.setProgressReminder(interaction,shareProgressAt)
+		const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
+		channelGoals.send(PartyMessage.postGoal({
+			project,
+			goal,
+			about,
+			shareProgressAt,
+			role,
+			user:interaction.user,
+			deadlineGoal:deadlineGoal,
+			value
+		}))
+		.then(msg=>{
+			ChannelController.createThread(msg,project,interaction.user.username)
+			supabase.from('Users')
+				.update({
+					goal_id:msg.id,
+					reminder_progress:shareProgressAt
+				})
+				.eq('id',interaction.user.id)
+				.then()
+		})
+	}
+
+	static async alreadyHaveGoal(userId){
+		const data = await supabase.from("Goals")
+		.select('id')
+		.eq("UserId",userId)
+		.gt('deadlineGoal',Time.getTodayDateOnly())
+		
+
+		return data.body.length !== 0
+	}
+
+	static async sendNotifToSetHighlight(client,userId) {
+		supabase.from("Goals")
+			.select('id,alreadySetHighlight,Users(notification_id,reminder_highlight)')
+			.eq("UserId",userId)
+			.gt('deadlineGoal',Time.getTodayDateOnly())
+			.eq('alreadySetHighlight',false)
+			.single()
+			.then(async data => {
+				 if(data.body){
+						supabase.from("Goals")
+							.update({alreadySetHighlight:true})
+							.eq('id',data.body.id)
+							.then()
+						const {reminder_highlight,notification_id}= data.body.Users
+						const notificationThread = await ChannelController.getNotificationThread(client,userId,notification_id)
+						if(reminder_highlight){
+							notificationThread.send(PartyMessage.settingReminderHighlightExistingUser(userId,reminder_highlight))
+						}else{
+							notificationThread.send(PartyMessage.settingReminderHighlight(userId))
+						}
+												
+				}
+			})
+	}
+
+	static async interactionSetDefaultReminder(interaction,value){
+		if (!value) {
+			supabase.from("Users")
+				.update({reminder_highlight:'07.30'})
+				.eq('id',interaction.user.id)
+				.then()
+		}
+		await interaction.editReply(PartyMessage.replyDefaultReminder(value))
+		interaction.message.delete()
+	}
+
+	static setProgressReminder(interaction,shareProgressAt){
+		supabase.from("Users")
+		.select('reminder_progress')
+		.eq('id',interaction.user.id)
+		.single()
+		.then(data => {
+			if (data.body.reminder_progress !== shareProgressAt) {
+				supabase.from("Users")
+				.update({reminder_progress:shareProgressAt})
+				.eq('id',interaction.user.id)
+				.single()
+				.then(async ({data:user})=>{
+					const [hours,minutes] = user.reminder_progress.split(/[.:]/)
+					let ruleReminderProgress = new schedule.RecurrenceRule();
+					ruleReminderProgress.hour = Time.minus7Hours(hours)
+					ruleReminderProgress.minute = minutes
+					const scheduleReminderProgress = schedule.scheduleJob(ruleReminderProgress,function(){
+						supabase.from('Users')
+						.select()
+						.eq('id',user.id)
+						.single()
+						.then(async ({data})=>{
+							if (data) {
+								if (user.reminder_progress !== data.reminder_progress) {
+									scheduleReminderProgress.cancel()
+								}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
+									const userId = data.id;
+									const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notification_id)
+									notificationThread.send(TodoReminderMessage.progressReminder(userId))
+
+								}
+							}
+						})
+					
+					})
+				})
+			}
+		})
+
+	}
+
+	static isLastWeekCohort(){
+		const {kickoffDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const lastWeekCohort = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
+		return todayDate <= lastWeekCohort
+	}
+
+	static getDeadlineGoal(){
+		const {celebrationDate,kickoffDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const result = {
+			dayLeft:null,
+			description:'',
+			deadlineDate:null
+		}
+		
+		if (this.isLastWeekCohort() || Time.isCooldownPeriod() ) {
+			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
+			result.deadlineDate = celebrationDate
+			result.description = 'celebration'
+		}else {
+			const deadlineDate = Time.getNextDate(-1,kickoffDate)
+			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),deadlineDate)
+			result.deadlineDate = Time.getDateOnly(deadlineDate)
+			result.description = 'kick-off'
+		}
+		return result
 	}
 }
 

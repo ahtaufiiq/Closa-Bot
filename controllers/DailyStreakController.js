@@ -31,16 +31,18 @@ class DailyStreakController {
 		ruleReminderMissOneDay.hour = Time.minus7Hours(6)
 		ruleReminderMissOneDay.minute = 0
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
-			supabase.from("Users")
-				.select('id,name,notification_id')
-				.gte('current_streak',2)
-				.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
-				.then(data=>{
-					data.body.forEach(async member=>{
-							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
-							notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
-					})
-			})
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select('id,name,notification_id')
+					.gte('current_streak',2)
+					.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
+					.then(data=>{
+						data.body.forEach(async member=>{
+								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notification_id)
+								notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
+						})
+				})
+			}
 		})
     }
 
@@ -76,16 +78,17 @@ class DailyStreakController {
 		ruleReminderSkipTwoDays.minute = 0
 
 		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
-			supabase.from("Users")
-			.select('id,goal_id,name')
-			.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
-			.then(dataUsers =>{
-				dataUsers.body.forEach(async data=>{
-					const goalThread = await ChannelController.getThread(channelGoals,data.goal_id)
-					goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
-				})
-			})
-			
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select('id,goal_id,name')
+					.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
+					.then(dataUsers =>{
+						dataUsers.body.forEach(async data=>{
+							const goalThread = await ChannelController.getThread(channelGoals,data.goal_id)
+							goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
+						})
+					})
+			}
 		})
     }
 }

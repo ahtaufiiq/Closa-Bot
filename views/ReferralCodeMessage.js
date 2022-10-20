@@ -2,6 +2,7 @@ const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, Me
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class ReferralCodeMessage{
 
@@ -40,7 +41,7 @@ class ReferralCodeMessage{
 Hi <@${userId}> thank you for being active & progressive on our community!
 If you find the community is valuable, help us spread it to your friends. :smile: 
 
-**Get 1 month free membership** both you and your friends for every referral code that redeemed. :stonks:` , 
+**Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 this.createComponent(this.addEmojiButton(`claimReferral_${userId}`,'Claim',"🎁","PRIMARY"))

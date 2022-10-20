@@ -14,18 +14,20 @@ class BoostController{
 		ruleRemindBoost.hour = Time.minus7Hours(8)
 		ruleRemindBoost.minute = 0
 		schedule.scheduleJob(ruleRemindBoost,function(){
-			supabase.from("Users")
-				.select()
-				.eq('last_active',Time.getDateOnly(Time.getNextDate(-6)))
-				.gte('end_membership',Time.getDateOnly(Time.getDate()))
-				.then(data=>{
-					if (data.body.length > 0) {
-						data.body.forEach(async member=>{
-                            const {user} = await MemberController.getMember(client,member.id)
-							channelBoost.send(BoostMessage.notActive5Days(user))
-						})
-					}
-				})
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select()
+					.eq('last_active',Time.getDateOnly(Time.getNextDate(-6)))
+					.gte('end_membership',Time.getDateOnly(Time.getDate()))
+					.then(data=>{
+						if (data.body.length > 0) {
+							data.body.forEach(async member=>{
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.notActive5Days(user))
+							})
+						}
+					})
+			}
 		})
     }
     static remindBoostNotMakingProgress3Days(client){
@@ -34,18 +36,20 @@ class BoostController{
 		ruleRemindBoost.hour = Time.minus7Hours(8)
 		ruleRemindBoost.minute = 0
 		schedule.scheduleJob(ruleRemindBoost,function(){
-			supabase.from("Users")
-				.select()
-				.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
-				.gte('end_membership',Time.getDateOnly(Time.getDate()))
-				.then(data=>{
-					if (data.body.length > 0) {
-						data.body.forEach(async member=>{
-                            const {user} = await MemberController.getMember(client,member.id)
-							channelBoost.send(BoostMessage.notMakingProgress2Days(user))
-						})
-					}
-				})
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select()
+					.eq('last_done',Time.getDateOnly(Time.getNextDate(-3)))
+					.gte('end_membership',Time.getDateOnly(Time.getDate()))
+					.then(data=>{
+						if (data.body.length > 0) {
+							data.body.forEach(async member=>{
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+							})
+						}
+					})
+			}
 		})
     }
 
@@ -72,7 +76,7 @@ class BoostController{
 		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 		if (isMoreThanOneMinute) {
 			PointController.incrementTotalPoints(5,interaction.user.id)
-			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThreadTargetUser.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
 		}else{
@@ -84,10 +88,10 @@ class BoostController{
 	static async interactionBoostInactiveMember(interaction,targetUser){
 		PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
-		isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
 		if (isMoreThanOneMinute) {
 			PointController.incrementTotalPoints(5,interaction.user.id)
-			totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
+			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThreadTargetUser.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 		}else {
@@ -136,18 +140,20 @@ class BoostController{
 		ruleRemindBoost.hour = Time.minus7Hours(20)
 		ruleRemindBoost.minute = 15
 		schedule.scheduleJob(ruleRemindBoost,function(){
-			supabase.from("Users")
-			.select("id,current_streak")
-			.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
-			.gte('current_streak',5)
-			.then(data =>{
-				if (data.body.length > 0) {
-					data.body.forEach(async member=>{
-						const {user} = await MemberController.getMember(client,member.id)
-						channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.current_streak))
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select("id,current_streak")
+					.eq('last_done',Time.getDateOnly(Time.getNextDate(-2)))
+					.gte('current_streak',5)
+					.then(data =>{
+						if (data.body.length > 0) {
+							data.body.forEach(async member=>{
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.current_streak))
+							})
+						}
 					})
-				}
-			})
+			}
 		})
 		
 	}

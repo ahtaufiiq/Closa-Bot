@@ -1,11 +1,20 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageFormatting = require("../helpers/MessageFormatting")
+const Time = require("../helpers/time")
 class PartyMessage {
     static initSoloMode(){
         return { 
-            content:`:love_you_gesture: *Solo mode* — you'll accountable for yourself & closa community.` , 
-            components: [this.createComponent(this.addButton("writeGoalSolo","Start"))] 
+            content:`${MessageFormatting.customEmoji().thumbsupkid} **Solo mode**
+It's a mode where you work on yourself as solo for your \`\`passion projects\`\` but keep accountable
+
+\`\`\`diff
+- Difficulty: Hard
+• Accountability: You'll accountable for yourself & closa community.
++ Avg. timeline: 4 Weeks
+\`\`\`` , 
+            components: [this.createComponent(this.addButton("startSoloMode","Start"))] 
         }
     }
     static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
@@ -24,18 +33,14 @@ You will be grouped with members up to 4 people`)],
         }
     }
 
-    static replySuccessStartSoloMode(notificationId){
-        return `**You've selected solo mode.** 
+    static replySuccessStartAccountabilityMode(notificationId,accountabilityMode='party'){
+        return `**You've selected ${accountabilityMode} mode.** 
 For the next step check your 🔔 **notification** → https://discord.com/channels/${GUILD_ID}/${notificationId}`
-    }
-    static replySuccessJoinParty(notificationId){
-        return `**You've joined party mode.** 
-        For the next step follow the step on your 🔔 **notification** → https://discord.com/channels/${GUILD_ID}/${notificationId}`
     }
 
     static pickYourRole(userId,type="party"){
         return {
-            content:`**Pick your role**
+            content:`**Pick your role ${MessageFormatting.tagUser(userId)}**
 p.s: *you can always change it in the next cohort*`,
             components:[this.createComponent(
                 this.addButton(`roleDeveloper_${userId}_${type}`,"💻 Developers"),
@@ -48,33 +53,35 @@ p.s: *you can always change it in the next cohort*`,
     static pickYourGoalCategory(role,userId,type='party'){
         let options = []
         switch (role) {
-            case `developer`:
+            case `Developer`:
                 options = [
-                    { label:`Build a website `, value:`${type}-developer-Build a website `},
-                    { label:`Build an app`, value:`${type}-developer-Build an app`},
-                    { label:`Coding interview preparation`, value:`${type}-developer-Coding interview preparation`},
-                    { label:`Learn new front-end stacks`, value:`${type}-developer-Learn new front-end stacks`},
-                    { label:`Learn new back-end stacks`, value:`${type}-developer-Learn new back-end stacks`},
-                    { label:`Learn new mobile stacks`, value:`${type}-developer-Learn new mobile stacks`},
-                    { label:`Learn new tech stacks`, value:`${type}-developer-Learn new tech stacks`},
-                    { label:`Other`, value:`${type}-developer-Other`}
+                    { label:`Coding interview preparation`, value:`${type}-Developer-Coding interview preparation`},
+                    { label:`Build personal website`, value:`${type}-Developer-Build personal website`},
+                    { label:`Build a web app`, value:`${type}-Developer-Build a web app`},
+                    { label:`Build a mobile app`, value:`${type}-Developer-Build a mobile app`},
+                    { label:`Learn new front-end stacks`, value:`${type}-Developer-Learn new front-end stacks`},
+                    { label:`Learn new back-end stacks`, value:`${type}-Developer-Learn new back-end stacks`},
+                    { label:`Learn new mobile stacks`, value:`${type}-Developer-Learn new mobile stacks`},
+                    { label:`Learn new tech stacks`, value:`${type}-Developer-Learn new tech stacks`},
+                    { label:`Other`, value:`${type}-Developer-Other`}
                 ]
                 break;
-            case `designer`:
+            case `Designer`:
                 options = [
-                    { label:`Writing case study`,value:`${type}-designer-Writing case study`},
-                    { label:`Design exploration`,value:`${type}-designer-Design exploration`},
-                    { label:`Building personal website`,value:`${type}-designer-Building personal website`},
-                    { label:`Learn design things`,value:`${type}-designer-Learn design things`},
-                    { label:`Other`, value:`${type}-designer-Other`}
+                    { label:`Writing case study`,value:`${type}-Designer-Writing case study`},
+                    { label:`Design exploration`,value:`${type}-Designer-Design exploration`},
+                    { label:`Build design portfolio`,value:`${type}-Designer-Build design portfolio`},
+                    { label:`Building personal website`,value:`${type}-Designer-Building personal website`},
+                    { label:`Learn design skills`,value:`${type}-Designer-Learn design skills`},
+                    { label:`Other`, value:`${type}-Designer-Other`}
                 ]
                 break;
-            case `creator`:
+            case `Creator`:
                 options = [
-                    { label:`Create new content`,value:`${type}-creator-Create new content`},
-                    { label:`Learn new skills`,value:`${type}-creator-Learn new skills`},
-                    { label:`Building Audience`,value:`${type}-creator-Building Audience`},
-                    { label:`Other`, value:`${type}-creator-Other`}
+                    { label:`Create new content`,value:`${type}-Creator-Create new content`},
+                    { label:`Learn new skills`,value:`${type}-Creator-Learn new skills`},
+                    { label:`Building Audience`,value:`${type}-Creator-Building Audience`},
+                    { label:`Other`, value:`${type}-Creator-Other`}
                 ]
                 break;
             default:
@@ -86,7 +93,7 @@ p.s: *you can always change it in the next cohort*`,
                 this.createComponent(
                     this.addMenu(
                         `goalCategory_${userId}`,
-                        "[–Select–]",
+                        "– Select –",
                         options
                     )
                 )
@@ -110,14 +117,16 @@ p.s: *you can always join the other club*`,
         }
     }
 
-    static askUserWriteGoal(dayLeft,userId,valueMenu){
+    static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
         return {
-            content:`**Post your goal & let the community know**
-You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (celebration day).
-Make sure to set your goal based on the deadline to match with community timeline.`,
+            content:`**Set your goal for a passion project**
+
+You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
+
+*Make sure to estimate your goal according community timeline above.*`,
             components:[
                 this.createComponent(
-                    this.addButton(`writeGoalParty_${userId}_${valueMenu}`,"🎯 Write goal")
+                    this.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Set your goal")
                 )
             ]
         }
@@ -136,11 +145,11 @@ See you on our kick-off day! (in ${textDayLeft})
 You will be matched with other members on the kick-off day at 20.30 WIB`
     }
 
-    static reviewYourGoal({project,goal,about,shareProgressAt,role,dayLeft,user,value}){
+    static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         const typeAccountability = value.split('-')[0]
         return {
             content:"**REVIEW YOUR GOAL 📝**\n↓",
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,dayLeft,user}) ],
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
             components:[
                 this.createComponent(
                     this.addButton(`postGoal_${user.id}_${value}`,"Post & commit","PRIMARY"),
@@ -149,12 +158,11 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             ]
         }
     }
-    static postGoal({project,goal,about,shareProgressAt,role,dayLeft,user,value}){
+    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         const typeAccountability = value.split('-')[0]
         return {
-            content:`from ${user}`,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,dayLeft,user}) ],
-            
+            content:`${user} just started a new project 🔥`,
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
         }
     }
 
@@ -180,19 +188,25 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
 
     static askUserWriteHighlight(userId){
         return {
-            content:`**Your goal has been submitted ✅**
+            content:`✅ <@${userId}> your goal has been submitted to <#${CHANNEL_GOALS}>
 
-Next, write your highlight of the day → on <#${CHANNEL_HIGHLIGHT}> `,
+**Next, write your highlight of the day** → on <#${CHANNEL_HIGHLIGHT}> `,
             components:[
                 this.createComponent(this.addLinkButton("Learn more about 🔆highlight","https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386"))
             ]
         }
     }
 
+    static endOfOnboarding(){
+        return `**That's all you are set! **:tada: 
+looking forward for your <#${CHANNEL_TODO}> !
+
+https://tenor.com/view/usagyuuun-confetti-sorpresa-gif-13354314`
+    }
 
     static settingReminderHighlight(userId){
         return {
-            content:`**Your highlight successfully scheduled!** :white_check_mark:
+            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
 
 Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
@@ -205,9 +219,24 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
             ]
         }
     }
+    static settingReminderHighlightExistingUser(userId,prevDefaultTime){
+        return {
+            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
+
+Continue to set highlight reminder at \`\`${prevDefaultTime} WIB\`\` every day?
+> p.s: *91% of people who set highlight are would like to get things done.*`,
+            components:[
+                this.createComponent(
+                    this.addButton(`defaultReminder_${userId}_${prevDefaultTime}`,`Yes, set at ${prevDefaultTime} WIB`,"PRIMARY"),
+                    this.addButton(`customReminder_${userId}`,"Edit Default Time","PRIMARY"),
+                    this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
+                )
+            ]
+        }
+    }
     
-    static replyDefaultReminder(){
-        return `**Your daily highlight reminder at 07.30 WIB is set!** 🔔`
+    static replyDefaultReminder(time='07.30'){
+        return `**Your daily highlight reminder at ${time} WIB is set!** 🔔`
     }
 
     static replyCustomReminder(){
@@ -224,8 +253,27 @@ You can type \`\`/remind highlight\`\` here, if you want to set your reminder in
 Thank you!`
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,dayLeft,user}){
-        
+    static warningReplaceExistingGoal(userId,accountabilityMode='party'){
+        return {
+            content:`Are you sure want to take another solo mode? 
+Your future progress will be updated to your new project.`,
+            components:[
+                this.createComponent(
+                    this.addButton(`continueReplaceGoal_${userId}_${accountabilityMode}`,"Yes, continue"),
+                    this.addButton(`cancelReplaceGoal_${userId}_${accountabilityMode}`,"No","SECONDARY"),
+                )
+            ]
+        }
+    }
+
+    static cancelReplaceGoal(accountabilityMode='party'){
+        return `New ${accountabilityMode} mode has been canceled.`
+    }
+
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
+        let {dayLeft,deadlineDate} = deadlineGoal
+        const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
+        let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new MessageEmbed()
         .setColor("#ffffff")
         .setTitle(project)
@@ -236,7 +284,7 @@ Thank you!`
             { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
             { name: "Accountability", value: typeAccountability === 'party' ? "Party Mode" : "Solo Mode" },
             { name: "Role", value: role },
-            { name: "Timeline", value: `${dayLeft} days left before celebration day` },
+            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
         )
     }
 

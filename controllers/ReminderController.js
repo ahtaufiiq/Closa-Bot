@@ -17,21 +17,23 @@ class ReminderController{
 				ruleReminderProgress.hour = Time.minus7Hours(hours)
 				ruleReminderProgress.minute = minutes
 				const scheduleReminderProgress = schedule.scheduleJob(ruleReminderProgress,function(){
-					supabase.from('Users')
-					.select()
-					.eq('id',user.id)
-					.single()
-					.then(async ({data})=>{
-						if (data) {
-							if (user.reminder_progress !== data.reminder_progress) {
-								scheduleReminderProgress.cancel()
-							}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
-								const userId = data.id;
-								const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
-								notificationThread.send(TodoReminderMessage.progressReminder(userId))
+					if (!Time.isCooldownPeriod()) {
+						supabase.from('Users')
+						.select()
+						.eq('id',user.id)
+						.single()
+						.then(async ({data})=>{
+							if (data) {
+								if (user.reminder_progress !== data.reminder_progress) {
+									scheduleReminderProgress.cancel()
+								}else if (data.last_done !== Time.getDate().toISOString().substring(0,10)) {
+									const userId = data.id;
+									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+									notificationThread.send(TodoReminderMessage.progressReminder(userId))
+								}
 							}
-						}
-					})
+						})
+					}
 				
 				})
 			})
@@ -52,22 +54,23 @@ class ReminderController{
 					ruleReminderHighlight.hour = Time.minus7Hours(hours)
 					ruleReminderHighlight.minute = minutes
 					const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
-						supabase.from('Users')
-						.select()
-						.eq('id',user.id)
-						.single()
-						.then(async ({data})=>{
-							if (data) {
-								if (user.reminder_highlight !== data.reminder_highlight) {
-									scheduleReminderHighlight.cancel()
-								}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
-									const userId = data.id;
-									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
-									notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+						if(!Time.isCooldownPeriod()){
+							supabase.from('Users')
+							.select()
+							.eq('id',user.id)
+							.single()
+							.then(async ({data})=>{
+								if (data) {
+									if (user.reminder_highlight !== data.reminder_highlight) {
+										scheduleReminderHighlight.cancel()
+									}else if(data.last_highlight !== Time.getDate().toISOString().substring(0,10)){
+										const userId = data.id;
+										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notification_id)
+										notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+									}
 								}
-							}
-						})
-					
+							})
+						}
 					})
 				})
 				

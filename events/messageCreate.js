@@ -18,6 +18,8 @@ const DailyReport = require("../controllers/DailyReport");
 const CoworkingController = require("../controllers/CoworkingController");
 const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
+const PartyController = require("../controllers/PartyController");
+const TodoReminderMessage = require("../views/TodoReminderMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -117,6 +119,8 @@ module.exports = {
 								})
 							
 						})
+
+						PartyController.sendNotifToSetHighlight(msg.client,msg.author.id)
 					}else{
 						msg.delete()
 						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
@@ -135,20 +139,12 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
-				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author.id)
-				}
-				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
-				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
-
-				ChannelController.createThread(msg,titleProgress)
-				
 				const { data, error } = await supabase
-											.from('Users')
-											.select()
-											.eq('id',msg.author.id)
-											.single()
-				
+					.from('Users')
+					.select()
+					.eq('id',msg.author.id)
+					.single()
+
 				const attachments = []
 				let files = []
 
@@ -168,7 +164,24 @@ so, you can learn or sharing from each others.`)
 						content:msg.content,
 						files
 					})
+				}else{
+					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notification_id)
+					notificationThread.send(TodoReminderMessage.warningNeverSetGoal(msg.author.id))
+					msg.delete()
+					return
 				}
+
+				if(ReferralCodeController.isTimeToGenerateReferral()){
+					ReferralCodeController.generateReferral(msg.client,msg.author.id)
+				}
+				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
+				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
+
+				ChannelController.createThread(msg,titleProgress)
+				
+
+				
+
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then((data) => {
