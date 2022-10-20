@@ -319,7 +319,7 @@ so, you can learn or sharing from each others.`)
 
 				if (dataUser.body?.goal_id) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(data.goal_id);
+					const thread = await channel.threads.fetch(dataUser.body?.goal_id);
 					thread.send({
 						content:msg.content,
 						files:filesCelebration
