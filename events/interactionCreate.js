@@ -41,10 +41,10 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "boostInactiveMember":
-					BoostController.interactionBoostInactiveMember(interaction,targetUser)
+					BoostController.interactionBoostInactiveMember(interaction,targetUser,notificationThreadTargetUser)
 					break;
 				case "boostBack":
-					BoostController.interactionBoostBack(interaction,targetUser)
+					BoostController.interactionBoostBack(interaction,targetUser,notificationThreadTargetUser)
 					break;
 				case "joinParty":{
 					const alreadyHaveGoal = await PartyController.alreadyHaveGoal(interaction.user.id)
