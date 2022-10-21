@@ -8,6 +8,7 @@ const CoworkingController = require('../controllers/CoworkingController');
 const BoostController = require('../controllers/BoostController');
 const TimelineController = require('../controllers/TimelineController');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
+const PartyController = require('../controllers/PartyController');
 
 
 module.exports = {
@@ -28,6 +29,8 @@ module.exports = {
 		TimelineController.sendNotif5DaysBeforeCelebration(client)
 		TimelineController.sendNotifShareStoryCelebrationDay(client)
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
+
+		PartyController.updateAllActiveGoal(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()

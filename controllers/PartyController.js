@@ -7,6 +7,7 @@ const PartyMessage = require('../views/PartyMessage');
 const ChannelController = require('./ChannelController');
 const schedule = require('node-schedule');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const MemberController = require('./MemberController');
 class PartyController{
     static showModalWriteGoal(interaction){
         if(interaction.customId.includes('writeGoal')){
@@ -138,7 +139,7 @@ class PartyController{
 			supabase.from("Goals")
 			.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
 			.eq("UserId",interaction.user.id)
-			.gt('deadlineGoal',Time.getTodayDateOnly())
+			.gte('deadlineGoal',Time.getTodayDateOnly())
 			.single()
 			.then(async updatedData =>{
 				supabase.from('Goals')
@@ -157,28 +158,8 @@ class PartyController{
 				}])
 				.then()
 				if (updatedData.body) {
-					const existingGoal = await ChannelController.getMessage(channelGoals,updatedData.body.id)
-					const {
-						role,
-						project,
-						goal,
-						about,
-						shareProgressAt,
-						deadlineGoal,
-						isPartyMode,
-					} = updatedData.body
-					existingGoal.edit(PartyMessage.postGoal({
-						project,
-						goal,
-						about,
-						shareProgressAt,
-						role,
-						deadlineGoal:{deadlineDate:deadlineGoal,dayLeft:0},
-						user:interaction.user,
-						value:isPartyMode ? 'party':'solo'
-					}))
+					PartyController.updateGoal(interaction.client,updatedData.body,0)
 				}
-				
 			})
 			ChannelController.createThread(msg,project,interaction.user.username)
 			supabase.from('Users')
@@ -199,6 +180,55 @@ class PartyController{
 		
 
 		return data.body.length !== 0
+	}
+
+	static async getAllActiveGoal(){
+		const data = await supabase.from("Goals")
+		.select()
+		.gte('deadlineGoal',Time.getTodayDateOnly())
+		
+		return data
+	}
+
+	static async updateGoal(client,data,dayLeft){
+		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+		const user = await MemberController.getMember(client,data.UserId)
+		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
+		const {
+			role,
+			project,
+			goal,
+			about,
+			shareProgressAt,
+			deadlineGoal,
+			isPartyMode,
+		} = data
+		existingGoal.edit(PartyMessage.postGoal({
+			project,
+			goal,
+			about,
+			shareProgressAt,
+			role,
+			deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},
+			user:user,
+			value:isPartyMode ? 'party':'solo'
+		}))
+	}
+
+	static async updateAllActiveGoal(client){
+		let ruleUpdateGoal = new schedule.RecurrenceRule();
+        
+        ruleUpdateGoal.hour = 17
+        ruleUpdateGoal.minute = 1
+        schedule.scheduleJob(ruleUpdateGoal,function(){
+			PartyController.getAllActiveGoal()
+				.then(data=>{
+					data.body.forEach(goal=>{
+						const dayLeft = Time.getDayLeft(Time.getDate(goal.deadlineGoal))
+						PartyController.updateGoal(client,goal,dayLeft)
+					})
+				})
+		})
 	}
 
 	static async sendNotifToSetHighlight(client,userId) {
