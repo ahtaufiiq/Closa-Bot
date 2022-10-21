@@ -1,5 +1,5 @@
-const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_TODO } = require("../helpers/config")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 let accountabilityPartners = {
 	"810695169497759814":["732219930954563615","408275385223217154"],
@@ -19,11 +19,11 @@ let accountabilityPartners = {
 
 class AccountabilityPartnerMessage{
     static remindPartnerAfterMissTwoDays(userId){
-        return `Hi <@${userId}>, you haven't update your ${ChannelController.getStringChannel(CHANNEL_TODO)} in the last two days.
+        return `Hi <@${userId}>, you haven't update your ${MessageFormatting.tagChannel(CHANNEL_TODO)} in the last two days.
 how are you doing? is everything okay? 
 
 cc ${accountabilityPartners[userId].map(idUser=>`<@${idUser}>`)}: please check how <@${userId}> doing on your multi-chat.
-Let's support each other to make ${ChannelController.getStringChannel(CHANNEL_TODO)} 🙌`
+Let's support each other to make ${MessageFormatting.tagChannel(CHANNEL_TODO)} 🙌`
     }
 }
 

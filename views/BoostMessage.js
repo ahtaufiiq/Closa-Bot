@@ -1,6 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
-const ChannelController = require("../controllers/ChannelController")
 const InfoUser = require("../helpers/InfoUser")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class BoostMessage{
 
@@ -41,7 +41,7 @@ class BoostMessage{
     static sendBoostToInactiveMember(inactiveUser,sender,totalBoost){
         
         return { 
-            content:`**Hi ${inactiveUser} someone sent you a boost.  ${ChannelController.getStringEmoji("success","741455081009840128")}**` , 
+            content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
             embeds: [this.embedMessage(
                 `Boosted you ${totalBoost}x 🚀`,
                 `Let's start tiny & get back on track!`,

@@ -50,14 +50,6 @@ class ChannelController{
     static getEmojiByName(client,emojiName){
         return client.guilds.cache.get(GUILD_ID).emojis.cache.find(emoji => emoji.name === emojiName)
     }
-
-    static getStringChannel(channelId){
-        return `<#${channelId}>`
-    }
-
-    static getStringEmoji(name,emojiId){
-        return `<:${name}:${emojiId}>`
-    }
 }
 
 
