@@ -1,19 +1,11 @@
-const { MessageAttachment } = require("discord.js");
 const BoostController = require("../controllers/BoostController");
 const ChannelController = require("../controllers/ChannelController");
-const DailyReport = require("../controllers/DailyReport");
 const MemberController = require("../controllers/MemberController");
-const PointController = require("../controllers/PointController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
-const GenerateImage = require("../helpers/GenerateImage");
 const BoostMessage = require("../views/BoostMessage");
-const ReferralCodeMessage = require("../views/ReferralCodeMessage");
-const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const PaymentMessage = require("../views/PaymentMessage");
 const PaymentController = require("../controllers/PaymentController");
 const PartyMessage = require("../views/PartyMessage");
-const { CHANNEL_GOALS } = require("../helpers/config");
-const supabase = require("../helpers/supabaseClient");
 const PartyController = require("../controllers/PartyController");
 module.exports = {
 	name: 'interactionCreate',

@@ -5,7 +5,6 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');
 const ChannelController = require('./ChannelController');
-const MemberController = require('./MemberController');
 
 class CoworkingController {
     static recurringCoworkingSession(client){

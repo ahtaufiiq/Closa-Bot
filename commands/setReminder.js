@@ -1,8 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const RequestAxios = require('../helpers/axios');
-const { GUILD_ID, CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require('../helpers/config');
+const { CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
-const FocusSessionMessage = require('../views/FocusSessionMessage');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');

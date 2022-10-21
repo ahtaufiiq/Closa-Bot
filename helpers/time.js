@@ -14,6 +14,10 @@ class Time {
         const diff = toDate.getTime() - fromDate.getTime()
         return Math.floor(diff/ 1000 / 60 /60/24)
     }
+
+    static getDayLeft(toDate){
+        return this.getDiffDay(Time.getDate(Time.getTodayDateOnly()),toDate)
+    }
     static convertTime(time,type='long'){
         let hour = Math.floor(time/60)
         let minute = time%60

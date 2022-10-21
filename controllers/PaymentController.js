@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { CHANNEL_WELCOME, ROLE_NEW_MEMBER } = require('../helpers/config');
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const LocalData = require('../helpers/getData');
 const supabase = require('../helpers/supabaseClient');
@@ -93,7 +93,7 @@ class PaymentController{
                             user.send(PaymentMessage.remindJoinNextCohort(id))
                                 .catch(err=>console.log("Cannot send message to user"))
                             MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
-                            MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
+                            MemberController.removeRole(client,id,ROLE_MEMBER)
                         })
                     }
                 })
