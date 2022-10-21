@@ -1,14 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageAttachment } = require('discord.js');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
 const DailyReport = require('../controllers/DailyReport');
 const PointController = require('../controllers/PointController');
-const RequestAxios = require('../helpers/axios');
-const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
-const GenerateImage = require('../helpers/GenerateImage');
-const InfoUser = require('../helpers/InfoUser');
-const supabase = require('../helpers/supabaseClient');
 const BoostMessage = require('../views/BoostMessage');
 
 module.exports = {

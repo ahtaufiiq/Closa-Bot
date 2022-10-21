@@ -1,6 +1,5 @@
 const ChannelController = require("../controllers/ChannelController");
 const MemberController = require("../controllers/MemberController");
-const RequestAxios = require("../helpers/axios");
 const { CHANNEL_NOTIFICATION, ROLE_ACTIVE_MEMBER } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");

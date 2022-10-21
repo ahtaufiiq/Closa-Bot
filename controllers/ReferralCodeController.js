@@ -6,7 +6,6 @@ const ChannelController = require("./ChannelController");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const LocalData = require("../helpers/getData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const RequestAxios = require("../helpers/axios");
 const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
 class ReferralCodeController{

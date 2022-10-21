@@ -1,8 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
-const RequestAxios = require('../helpers/axios');
-const { GUILD_ID } = require('../helpers/config');
-const FocusSessionMessage = require('../views/FocusSessionMessage');
 const ReferralCodeMessage = require('../views/ReferralCodeMessage');
 
 module.exports = {

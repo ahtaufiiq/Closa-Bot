@@ -1,5 +1,4 @@
 const {createCanvas,loadImage,registerFont} = require('canvas')
-const fs = require('fs')
 const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const Time = require('./time')

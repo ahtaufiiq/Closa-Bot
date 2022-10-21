@@ -1,8 +1,6 @@
 const ChannelController = require("../controllers/ChannelController");
-const RequestAxios = require("../helpers/axios");
 const { CHANNEL_NOTIFICATION } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
-const Time = require("../helpers/time");
 
 module.exports = {
 	name: 'guildMemberRemove',

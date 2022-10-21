@@ -5,7 +5,6 @@ const PartyController = require("../controllers/PartyController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
-const Time = require("../helpers/time");
 const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 
