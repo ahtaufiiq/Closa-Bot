@@ -1,7 +1,7 @@
 const schedule = require('node-schedule');
 const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
-const LocalData = require('../helpers/getData');
+const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const PaymentMessage = require('../views/PaymentMessage');

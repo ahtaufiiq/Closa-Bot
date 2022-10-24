@@ -1,3 +1,5 @@
+const { GUILD_ID } = require("./config")
+
 class MessageFormatting{
     static tagUser(userId){
         return `<@${userId}>`
@@ -9,6 +11,17 @@ class MessageFormatting{
 
     static tagRole(roleId){
         return `<@&${roleId}>`
+    }
+
+    static linkToEvent(eventId){
+        return `https://discord.com/events/${GUILD_ID}/${eventId}`
+    }
+
+    static linkToInsideThread(msgId){
+        return `https://discord.com/channels/${GUILD_ID}/${msgId}`
+    }
+    static linkToMessage(channelId,msgId){
+        return `https://discord.com/channels/${GUILD_ID}/${channelId}/${msgId}`
     }
 
     static customEmoji(){

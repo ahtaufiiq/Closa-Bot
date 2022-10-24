@@ -20,7 +20,7 @@ class ChannelController{
             .select("notificationId")
             .eq('id',userId)
             .single()
-            
+            if(!data.body) return null
             const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }

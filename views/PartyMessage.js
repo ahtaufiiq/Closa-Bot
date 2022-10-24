@@ -19,23 +19,28 @@ It's a mode where you work on yourself as solo for your \`\`passion projects\`\`
     }
     static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
         return `**🛋 Waiting Room**
-Waiting for **${totalPeopleWaitingFor}** people to set goal
+${totalPeopleWaitingFor > 0 ? `Waiting for **${totalPeopleWaitingFor}** people to set goal` : "Currently matching you with your group party, please wait..."}
 ${listPeople}`
     }
-    static embedMessageWaitingRoom(time,msgId){
+    static embedMessageWaitingRoom(time){
         return {
             embeds:[this.embedMessage("🎊 PARTY MODE",`**${time}** before kick-off day & group match-making.
 You will be grouped with members up to 4 people`)],
             components:[this.createComponent(
-                this.addButton(`joinParty_${msgId}`,'Join Party'),
-                this.addButton(`leaveWaitingRoom_${msgId}`, "Leave waiting room","SECONDARY")
+                this.addButton(`joinParty`,'Join Party'),
+                this.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY")
             )]
         }
     }
 
-    static replySuccessStartAccountabilityMode(notificationId,accountabilityMode='party'){
-        return `**You've selected ${accountabilityMode} mode.** 
-For the next step check your 🔔 **notification** → https://discord.com/channels/${GUILD_ID}/${notificationId}`
+    static replySuccessStartSoloMode(notificationId){
+        return `**You've selected solo mode.** 
+For the next step check your 🔔 **notification** → ${MessageFormatting.linkToInsideThread(notificationId)}`
+    }
+    static replySuccessStartPartyMode(notificationId){
+        return `**You've selected party mode ✅**
+
+Next, follow the step on your 🔔 **notification** → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
 
     static pickYourRole(userId,type="party"){
@@ -152,7 +157,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
             components:[
                 this.createComponent(
-                    this.addButton(`postGoal_${user.id}_${value}`,"Post & commit","PRIMARY"),
+                    this.addButton(`postGoal_${user.id}_${value}`,typeAccountability === 'party' ? "Submit":"Post & commit","PRIMARY"),
                     this.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
                 )
             ]
@@ -186,6 +191,22 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
         }
     }
 
+    static remindUserAttendKicoff(userId,kickoffDate,eventId){
+        return {
+            content:`**Your goal has been recorded ${MessageFormatting.tagUser(userId)} :white_check_mark:**
+See you in our kick-off day on \`\`${kickoffDate} at 20.00 WIB\`\`! :rocket:
+
+Click :bell: **interested** to get notified when the event started.`,
+        }
+    }
+
+    static remind30MinutesBeforeKickoff(eventId){
+        return `Hi @here!
+30 minutes before our kick-off day 🚀
+
+Prepare yourself :success:
+${MessageFormatting.linkToEvent(eventId)}`
+    }
     static askUserWriteHighlight(userId){
         return {
             content:`✅ <@${userId}> your goal has been submitted to <#${CHANNEL_GOALS}>

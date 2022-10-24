@@ -49,7 +49,11 @@ class MemberController{
     }
 
     static async getMember(client,userId){
-        return await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
+        try {
+            return await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
+        } catch (error) {
+            return error            
+        }
     }
 
     static changeRole(client,userId,fromRole,toRole){

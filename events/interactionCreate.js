@@ -7,6 +7,9 @@ const PaymentMessage = require("../views/PaymentMessage");
 const PaymentController = require("../controllers/PaymentController");
 const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
+const supabase = require("../helpers/supabaseClient");
+const LocalData = require("../helpers/LocalData");
+const { CHANNEL_PARTY_MODE } = require("../helpers/config");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -16,7 +19,6 @@ module.exports = {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(PartyController.showModalWriteGoal(interaction)) return
 			if(PartyController.showModalEditGoal(interaction)) return 
-
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory') {
 				await interaction.deferReply();
@@ -44,12 +46,54 @@ module.exports = {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
 					}else{
 						notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
-						await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id))
+						await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationThreadTargetUser.id))
+						const data = await supabase.from('JoinParties')
+							.select()
+							.eq("UserId",interaction.user.id)
+							.eq('cohort',PartyController.getNextCohort())
+							.single()
+						if (data.body) {
+							console.log('already join');
+						}else{
+							await supabase.from("JoinParties")
+								.insert({
+									UserId:interaction.user.id,
+									cohort:PartyController.getNextCohort(),
+								})
+							PartyController.updateMessageWaitingRoom(interaction.client)
+						}
 					}}
+					break;
+				case "leaveWaitingRoom":
+					await supabase.from("JoinParties")
+						.delete()
+						.eq("UserId",interaction.user.id)
+						.eq("cohort",PartyController.getNextCohort())
+					PartyController.updateMessageWaitingRoom(interaction.client)
+					interaction.editReply("Success leave party")
 					break;
 				case "continueReplaceGoal":
 					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,value))
-					await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id,value))
+					if (PartyController.isPartyMode(value)) {
+						await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationThreadTargetUser.id))
+						const data = await supabase.from('JoinParties')
+							.select()
+							.eq("UserId",interaction.user.id)
+							.eq('cohort',PartyController.getNextCohort())
+							.single()
+						if (data.body) {
+							console.log('already join');
+						}else{
+							await supabase.from("JoinParties")
+								.insert({
+									UserId:interaction.user.id,
+									cohort:PartyController.getNextCohort(),
+								})
+							PartyController.updateMessageWaitingRoom(interaction.client)
+						}
+					}else{
+						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
+					}
 					break;
 				case "cancelReplaceGoal":
 					await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
@@ -60,7 +104,7 @@ module.exports = {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
 					}else{
 						notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,'solo'))
-						await interaction.editReply(PartyMessage.replySuccessStartAccountabilityMode(notificationThreadTargetUser.id))
+						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
 					}
 					break;
 				case "postGoal":

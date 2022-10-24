@@ -1,5 +1,5 @@
 const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT } = require("../helpers/config")
-const LocalData = require("../helpers/getData")
+const LocalData = require("../helpers/LocalData.js")
 const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
 const schedule = require('node-schedule');

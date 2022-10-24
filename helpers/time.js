@@ -1,5 +1,5 @@
 const {TIMEZONE} = require('../helpers/config')
-const LocalData = require('./getData')
+const LocalData = require('./LocalData.js')
 class Time {
     static haveTime(text){
         const patternTime = /\d+[.:]\d+/
