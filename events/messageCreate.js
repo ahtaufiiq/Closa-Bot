@@ -208,7 +208,8 @@ so, you can learn or sharing from each others.`)
 				.then(async data=>{
 					let currentStreak = data.body.currentStreak + 1
 					let totalDay =  (data.body.totalDay || 0) + 1
-					if (Time.isValidStreak(data.body.lastDone,currentStreak) || Time.isCooldownPeriod()) {
+					
+					if (Time.isValidStreak(data.body.lastDone,currentStreak) || Time.isValidCooldownPeriod(data.body.lastDone)) {
 						if (Time.onlyMissOneDay(data.body.lastDone) && !Time.isCooldownPeriod()) {
 							const missedDate = Time.getNextDate(-1)
 							missedDate.setHours(8)
