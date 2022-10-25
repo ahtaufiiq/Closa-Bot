@@ -38,7 +38,7 @@ module.exports = {
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
-				const threadName = `${msg.content.split('\n')[0]}`
+				let threadName = `${msg.content.split('\n')[0]}`
 				if (threadName.includes("**")) {
 					threadName = threadName.split("**")[1]
 				}else if (threadName.includes("*")) {
