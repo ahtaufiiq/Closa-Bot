@@ -1,6 +1,6 @@
 const schedule = require('node-schedule');
 const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID } = require('../helpers/config');
-const LocalData = require('../helpers/getData');
+const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');

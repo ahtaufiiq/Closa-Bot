@@ -20,7 +20,7 @@ class ChannelController{
             .select("notificationId")
             .eq('id',userId)
             .single()
-            
+            if(!data.body) return null
             const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }
@@ -49,14 +49,6 @@ class ChannelController{
 
     static getEmojiByName(client,emojiName){
         return client.guilds.cache.get(GUILD_ID).emojis.cache.find(emoji => emoji.name === emojiName)
-    }
-
-    static getStringChannel(channelId){
-        return `<#${channelId}>`
-    }
-
-    static getStringEmoji(name,emojiId){
-        return `<:${name}:${emojiId}>`
     }
 }
 

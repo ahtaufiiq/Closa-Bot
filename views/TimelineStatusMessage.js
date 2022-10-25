@@ -1,6 +1,7 @@
 const { MessageActionRow, MessageButton } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_CELEBRATE } = require("../helpers/config")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class TimelineStatusMessage{
     static notificationBeforeCelebrationDay(userId,dayLeft = 1){
@@ -21,7 +22,7 @@ Let's prepare your 10 slides story format before our celebration day.`,
     }
     static notificationShareStory(userId){
         
-        return `Hi <@${userId}>, Let's ${ChannelController.getStringChannel(CHANNEL_CELEBRATE)} your progress & share your story with the community :smile:
+        return `Hi <@${userId}>, Let's ${MessageFormatting.tagChannel(CHANNEL_CELEBRATE)} your progress & share your story with the community :smile:
 Let people know a brief of your progress & story.
 
 1. Copy the template below to join the vibe:
@@ -41,7 +42,7 @@ Story deck → link
 
 Thank you for reading, have a great day!
 \`\`\`
-2. Submit to ${ChannelController.getStringChannel(CHANNEL_CELEBRATE)}`
+2. Submit to ${MessageFormatting.tagChannel(CHANNEL_CELEBRATE)}`
     }
     static notificationBeforeKickoffDay(userId){
         
