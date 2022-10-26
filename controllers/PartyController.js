@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -9,6 +9,7 @@ const schedule = require('node-schedule');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MemberController = require('./MemberController');
 const MessageFormatting = require('../helpers/MessageFormatting');
+const { ChannelType, PermissionFlagsBits } = require('discord-api-types/v9');
 class PartyController{
     static showModalWriteGoal(interaction){
         if(interaction.customId.includes('writeGoal')){
@@ -16,30 +17,10 @@ class PartyController{
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
 			.addComponents(
-				new TextInputComponent()
-					.setCustomId('project')
-					.setLabel("Project Name")
-					.setPlaceholder("Short project's name e.g: Design Exploration")
-					.setStyle("SHORT")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('goal')
-					.setLabel("My goal is")
-					.setPlaceholder("Write specific & measurable goal e.g: read 2 books")
-					.setStyle("SHORT")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('about')
-					.setLabel("About Project")
-					.setPlaceholder("Tell a bit about this project")
-					.setStyle("LONG")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('shareProgressAt')
-					.setLabel("I'll share my progress at")
-					.setPlaceholder("e.g 21.00")
-					.setStyle("SHORT")
-					.setRequired(true),
+				new TextInputComponent().setCustomId('project').setLabel("Project Name").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('about').setLabel("About Project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
+				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, {
 				client: interaction.client, // Client to show the Modal through the Discord API.
@@ -53,44 +34,16 @@ class PartyController{
     static showModalEditGoal(interaction){
         if(interaction.customId.includes('editGoal')){
 			const project = interaction.message.embeds[0].title
-			const [
-				{value:goal},
-				{value:about},
-				{value:descriptionShareProgress},
-			] = interaction.message.embeds[0].fields
+			const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
 			const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
 			.addComponents(
-				new TextInputComponent()
-					.setCustomId('project')
-					.setLabel("Project Name")
-					.setDefaultValue(project)
-					.setPlaceholder("Short project's name e.g: Design Exploration")
-					.setStyle("SHORT")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('goal')
-					.setLabel("My goal is")
-					.setDefaultValue(goal)
-					.setPlaceholder("Write specific & measurable goal e.g: read 2 books")
-					.setStyle("SHORT")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('about')
-					.setLabel("About Project")
-					.setDefaultValue(about)
-					.setPlaceholder("Tell a bit about this project")
-					.setStyle("LONG")
-					.setRequired(true),
-				new TextInputComponent()
-					.setCustomId('shareProgressAt')
-					.setLabel("I'll share my progress at")
-					.setDefaultValue(shareProgressAt)
-					.setPlaceholder("e.g 21.00")
-					.setStyle("SHORT")
-					.setRequired(true),
+				new TextInputComponent().setCustomId('project').setLabel("Project Name").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setDefaultValue(goal).setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('about').setLabel("About Project").setDefaultValue(about).setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
+				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, {
 				client: interaction.client, // Client to show the Modal through the Discord API.
@@ -100,7 +53,6 @@ class PartyController{
 		}
         return false
     }
-
 
     static async interactionPickRole(interaction,role,type='party'){
         await interaction.editReply(PartyMessage.pickYourGoalCategory(role,interaction.user.id,type))
@@ -127,10 +79,10 @@ class PartyController{
 
 	static async getTotalUserHaveNotSetGoal(){
         const {count} = await supabase
-        .from('JoinParties')
-        .select('id', { count: 'exact' })
-        .eq('cohort',this.getNextCohort())
-		.eq('alreadySetGoal',false)
+			.from('JoinParties')
+			.select('id', { count: 'exact' })
+			.eq('cohort',this.getNextCohort())
+			.eq('alreadySetGoal',false)
 
         return count
 	}
@@ -163,11 +115,7 @@ class PartyController{
 	static async interactionPostGoal(interaction,value){
 		const deadlineGoal = PartyController.getDeadlineGoal()
 		const project = interaction.message.embeds[0].title
-		const [
-			{value:goal},
-			{value:about},
-			{value:descriptionShareProgress}
-		] = interaction.message.embeds[0].fields
+		const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
 		const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
 		const [accountabilityMode,role,goalCategory] = value.split('-')
 		
@@ -246,12 +194,7 @@ class PartyController{
 	}
 
 	static async alreadyHaveGoal(userId){
-		const data = await supabase.from("Goals")
-		.select('id')
-		.eq("UserId",userId)
-		.gt('deadlineGoal',Time.getTodayDateOnly())
-		
-
+		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gt('deadlineGoal',Time.getTodayDateOnly())
 		return data.body.length !== 0
 	}
 
@@ -267,25 +210,8 @@ class PartyController{
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
 		const user = await MemberController.getMember(client,data.UserId)
 		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-		const {
-			role,
-			project,
-			goal,
-			about,
-			shareProgressAt,
-			deadlineGoal,
-			isPartyMode,
-		} = data
-		existingGoal.edit(PartyMessage.postGoal({
-			project,
-			goal,
-			about,
-			shareProgressAt,
-			role,
-			deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},
-			user:user,
-			value:isPartyMode ? 'party':'solo'
-		}))
+		const {role,project,goal,about,shareProgressAt,deadlineGoal,isPartyMode} = data
+		existingGoal.edit(PartyMessage.postGoal({project,goal,about,shareProgressAt,role,deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},user:user,value:isPartyMode ? 'party':'solo'}))
 	}
 
 	static async updateAllActiveGoal(client){
@@ -296,15 +222,126 @@ class PartyController{
         schedule.scheduleJob(ruleUpdateGoal,function(){
 			PartyController.getAllActiveGoal()
 				.then(data=>{
-					data.body.forEach(goal=>{
-						const dayLeft = Time.getDayLeft(Time.getDate(goal.deadlineGoal))
-						PartyController.updateGoal(client,goal,dayLeft)
-					})
+					if (data.body) {
+						data.body.forEach(goal=>{
+							const dayLeft = Time.getDayLeft(Time.getDate(goal.deadlineGoal))
+							PartyController.updateGoal(client,goal,dayLeft)
+						})
+					}
 				})
 		})
 	}
 
+	static hideChannelPartyMode(client){
+		const {kickoffDate} = LocalData.getData()
+		const ruleFirstDayCooldown = Time.getDate(kickoffDate)
+		ruleFirstDayCooldown.setHours(Time.minus7Hours(21))
+		ruleFirstDayCooldown.setMinutes(0)
+		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
+			ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,false)
+		})
+	}
+	static showChannelPartyMode(client){
+		ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,true)
+	}
+
+	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
+		const guild = client.guilds.cache.get(GUILD_ID)
+
+		const permissionOverwrites = [
+			{
+				id:guild.roles.everyone.id,
+				deny:[
+					PermissionFlagsBits.ViewChannel
+				]
+			}
+		]
+
+		for (let i = 0; i < allowedUsers.length; i++) {
+			const userId = allowedUsers[i];
+			const {user} = await MemberController.getMember(client,userId)
+			permissionOverwrites.push({
+				id:user.id,
+				allow:[
+					PermissionFlagsBits.ViewChannel
+				]
+			})
+		}
+		
+		const voiceChannel = await guild.channels.create(channelName,{
+			permissionOverwrites,
+			parent:ChannelController.getChannel(client,CATEGORY_CHAT),
+			type:ChannelType.GuildVoice,
+		})
+		return voiceChannel.id
+	}
+
+	static async generateWaitingRoomPartyMode(client){
+		const {kickoffDate} = LocalData.getData()
+		const ruleFirstDayCooldown = Time.getNextDate(-7,kickoffDate)
+		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
+		ruleFirstDayCooldown.setMinutes(30)
+		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
+			PartyController.showChannelPartyMode(client)
+			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+			const usersJoinedParty = await PartyController.getUsersJoinedParty()
+			const totalUserHaveNotSetGoal = await PartyController.getTotalUserHaveNotSetGoal()
+			const msg = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+			channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
+			
+			const data = LocalData.getData()
+			data.msgIdContentWaitingRoom = msg.id
+			LocalData.writeData(data)
+		})
+	}
+
+	static getTimeLeftUntilKickoff(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setMinutes(0)
+		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
+		return Time.convertTime(diffTime)
+	}
+
+	static createKickoffEvent(client){
+		const {kickoffDate} = LocalData.getData()
+		const ruleFirstDayCooldown = Time.getNextDate(-7,kickoffDate)
+        ruleFirstDayCooldown.setHours(22)
+        ruleFirstDayCooldown.setMinutes(0)
+
+		schedule.scheduleJob(ruleFirstDayCooldown,function(){
+            ChannelController.scheduleEvent(client,{
+                name:"Live Kick-off 🚀",
+                description:PartyMessage.descriptionKickoffEvent(),
+                scheduledStartTime:PartyController.getStartTimeKickoffEvent(),
+                scheduledEndTime:PartyController.getEndTimeKickoffEvent(),
+                entityType:"VOICE",
+                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+            })
+            .then(kickoffEventId=>{
+                const data = LocalData.getData()
+                data.kickoffEventId = kickoffEventId.id
+                LocalData.writeData(data)
+            })
+        })
+	}
+
+	static getStartTimeKickoffEvent(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setMinutes(0)
+		return kickoffDate
+	}
+
+	static getEndTimeKickoffEvent(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(21))
+		kickoffDate.setMinutes(0)
+		return kickoffDate
+	}
+
 	static remind30MinutesBeforeKickoff(client){
+		const {kickoffDate} = LocalData.getData()
 		const remindBeforeKickoff = Time.getDate(kickoffDate)
         remindBeforeKickoff.setHours(Time.minus7Hours(19))
         remindBeforeKickoff.setMinutes(30)

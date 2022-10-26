@@ -37,10 +37,12 @@ class DailyStreakController {
 					.gte('currentStreak',2)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
-						data.body.forEach(async member=>{
+						if (data.body) {
+							data.body.forEach(async member=>{
 								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
 								notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
-						})
+							})
+						}
 				})
 			}
 		})
@@ -83,10 +85,12 @@ class DailyStreakController {
 					.select('id,goalId,name')
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
 					.then(dataUsers =>{
-						dataUsers.body.forEach(async data=>{
-							const goalThread = await ChannelController.getThread(channelGoals,data.goalId)
-							goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
-						})
+						if (dataUsers.body) {
+							dataUsers.body.forEach(async data=>{
+								const goalThread = await ChannelController.getThread(channelGoals,data.goalId)
+								goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
+							})
+						}
 					})
 			}
 		})

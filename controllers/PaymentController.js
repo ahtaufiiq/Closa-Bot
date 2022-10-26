@@ -171,19 +171,21 @@ class PaymentController{
 			.gte('time',new Date().toUTCString())
 			.eq('type',"joinNextCohort")
 			.then(data=>{
-				data.body.forEach(reminder=>{
-					schedule.scheduleJob(reminder.time,async function() {
-						const user = await MemberController.getMember(client,reminder.UserId)
-                        if (reminder.message === "5") {
-                            const {kickoffDate} = LocalData.getData()
-                            user.send(PaymentMessage.remind5DaysBeforeKickoff(reminder.UserId,Time.getFormattedDate(Time.getDate(kickoffDate))))
-                                .catch(err=>console.log("Cannot send message to user"))
-                        }else if(reminder.message === '1'){
-                            user.send(PaymentMessage.remind1DayBeforeKickoff(reminder.UserId))
-                                .catch(err=>console.log("Cannot send message to user"))
-                        }
-					})
-				})
+				if (data.body) {
+                    data.body.forEach(reminder=>{
+                        schedule.scheduleJob(reminder.time,async function() {
+                            const user = await MemberController.getMember(client,reminder.UserId)
+                            if (reminder.message === "5") {
+                                const {kickoffDate} = LocalData.getData()
+                                user.send(PaymentMessage.remind5DaysBeforeKickoff(reminder.UserId,Time.getFormattedDate(Time.getDate(kickoffDate))))
+                                    .catch(err=>console.log("Cannot send message to user"))
+                            }else if(reminder.message === '1'){
+                                user.send(PaymentMessage.remind1DayBeforeKickoff(reminder.UserId))
+                                    .catch(err=>console.log("Cannot send message to user"))
+                            }
+                        })
+                    })
+                }
 			})
     }
     

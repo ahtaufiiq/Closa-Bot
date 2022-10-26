@@ -1,13 +1,28 @@
+const { PermissionFlagsBits } = require("discord-api-types/v9");
 const { GUILD_ID, CHANNEL_NOTIFICATION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 
 class ChannelController{
-    static getChannel(client,ChannelId){
-        return client.guilds.cache.get(GUILD_ID).channels.cache.get(ChannelId)
+    static getChannel(client,channelId){
+        return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId)
     }
-    static changeName(client,ChannelId,name){
-        return client.guilds.cache.get(GUILD_ID).channels.cache.get(ChannelId).setName(name)
+    static changeName(client,channelId,name){
+        return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId).setName(name)
+    }
+
+    static setVisibilityChannel(client,channelId,setVisible){
+        const guild = client.guilds.cache.get(GUILD_ID)
+		const channel = ChannelController.getChannel(client,channelId)
+		const permissionOverwrites = [
+			{
+				id:guild.roles.everyone.id,
+				[setVisible ? "allow":"deny"]:[PermissionFlagsBits.ViewChannel]
+			}
+		]
+		channel.edit({
+			permissionOverwrites 
+		})
     }
 
     static async getNotificationThread(client,userId,notificationId){
@@ -32,6 +47,27 @@ class ChannelController{
     }
     static async getMessage(channel,messageId){
         return await channel.messages.fetch(messageId)
+    }
+
+    static async scheduleEvent(client,{
+        name,
+        description,
+        scheduledStartTime,
+        scheduledEndTime,
+        entityType,
+        location,
+        channel
+    }){ 
+        return client.guilds.cache.get(GUILD_ID).scheduledEvents.create({
+            name,
+            description,
+            scheduledStartTime,
+            scheduledEndTime,
+            entityType,
+            entityMetadata:{location},
+            channel,
+            privacyLevel:"GUILD_ONLY",
+        })
     }
 
     static async createThread(msg,threadName,byAuthor){

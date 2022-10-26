@@ -14,14 +14,22 @@ class Time {
         const diff = toDate.getTime() - fromDate.getTime()
         return Math.floor(diff/ 1000 / 60 /60/24)
     }
+    static getDiffTime(fromDate,toDate){
+        const diff = toDate.getTime() - fromDate.getTime()
+        return Math.floor(diff/ 1000 / 60 )
+    }
 
     static getDayLeft(toDate){
         return this.getDiffDay(Time.getDate(Time.getTodayDateOnly()),toDate)
     }
     static convertTime(time,type='long'){
+        let day = Math.floor((time/60/24))
         let hour = Math.floor(time/60)
         let minute = time%60
-        if (time<60) {
+        if(day > 0){
+            hour = hour % 24
+            return `${formatDay(day)} ${formatHour(hour)}`
+        }else if (time<60) {
           return formatMinute(minute)
         }else{
           if (minute>1) {
@@ -29,6 +37,10 @@ class Time {
           }else{
               return formatHour(hour)
           }
+        }
+
+        function formatDay(day) {
+            return `${day} ${day>1?"days":"day"}`
         }
         
         function formatMinute(minute) {
@@ -66,7 +78,7 @@ class Time {
     }
 
     static getNextDate(day=0,dateOnly){
-        const date = dateOnly? Time.getDate(dateOnly):Time.getDate()
+        const date = dateOnly ? Time.getDate(dateOnly):Time.getDate()
         date.setDate(date.getDate()+day)
         return date
     }
@@ -136,6 +148,12 @@ class Time {
             }
         }
         return false
+    }
+
+    static isValidCooldownPeriod(lastDone){
+        const {kickoffDate} = LocalData.getData()
+		const oneDayBeforeCelebrationDay = Time.getDateOnly(Time.getNextDate(-8,kickoffDate))
+        return this.isCooldownPeriod() && lastDone >= oneDayBeforeCelebrationDay
     }
 
     static isCooldownPeriod(){

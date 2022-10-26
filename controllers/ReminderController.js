@@ -11,32 +11,34 @@ class ReminderController{
 		.select()
 		.neq('reminderProgress',null)
 		.then(data=>{
-			data.body.forEach(user=>{
-				const [hours,minutes] = user.reminderProgress.split(/[.:]/)
-				let ruleReminderProgress = new schedule.RecurrenceRule();
-				ruleReminderProgress.hour = Time.minus7Hours(hours)
-				ruleReminderProgress.minute = minutes
-				const scheduleReminderProgress = schedule.scheduleJob(ruleReminderProgress,function(){
-					if (!Time.isCooldownPeriod()) {
-						supabase.from('Users')
-						.select()
-						.eq('id',user.id)
-						.single()
-						.then(async ({data})=>{
-							if (data) {
-								if (user.reminderProgress !== data.reminderProgress) {
-									scheduleReminderProgress.cancel()
-								}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
-									const userId = data.id;
-									const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
-									notificationThread.send(TodoReminderMessage.progressReminder(userId))
+			if (data.body) {
+				data.body.forEach(user=>{
+					const [hours,minutes] = user.reminderProgress.split(/[.:]/)
+					let ruleReminderProgress = new schedule.RecurrenceRule();
+					ruleReminderProgress.hour = Time.minus7Hours(hours)
+					ruleReminderProgress.minute = minutes
+					const scheduleReminderProgress = schedule.scheduleJob(ruleReminderProgress,function(){
+						if (!Time.isCooldownPeriod()) {
+							supabase.from('Users')
+							.select()
+							.eq('id',user.id)
+							.single()
+							.then(async ({data})=>{
+								if (data) {
+									if (user.reminderProgress !== data.reminderProgress) {
+										scheduleReminderProgress.cancel()
+									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
+										const userId = data.id;
+										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
+										notificationThread.send(TodoReminderMessage.progressReminder(userId))
+									}
 								}
-							}
-						})
-					}
-				
+							})
+						}
+					
+					})
 				})
-			})
+			}
 			
 		})
         
@@ -47,32 +49,35 @@ class ReminderController{
 			.select()
 			.neq('reminderHighlight',null)
 			.then(data=>{
-				data.body.forEach(user=>{
-					const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
-					
-					let ruleReminderHighlight = new schedule.RecurrenceRule();
-					ruleReminderHighlight.hour = Time.minus7Hours(hours)
-					ruleReminderHighlight.minute = minutes
-					const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
-						if(!Time.isCooldownPeriod()){
-							supabase.from('Users')
-							.select()
-							.eq('id',user.id)
-							.single()
-							.then(async ({data})=>{
-								if (data) {
-									if (user.reminderHighlight !== data.reminderHighlight) {
-										scheduleReminderHighlight.cancel()
-									}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
-										const userId = data.id;
-										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
-										notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+				if(data.body){
+					data.body.forEach(user=>{
+						const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
+						
+						let ruleReminderHighlight = new schedule.RecurrenceRule();
+						ruleReminderHighlight.hour = Time.minus7Hours(hours)
+						ruleReminderHighlight.minute = minutes
+						const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
+							if(!Time.isCooldownPeriod()){
+								supabase.from('Users')
+								.select()
+								.eq('id',user.id)
+								.single()
+								.then(async ({data})=>{
+									if (data) {
+										if (user.reminderHighlight !== data.reminderHighlight) {
+											scheduleReminderHighlight.cancel()
+										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
+											const userId = data.id;
+											const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
+											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+										}
 									}
-								}
-							})
-						}
+								})
+							}
+						})
 					})
-				})
+					
+				}
 				
 			})
     }
@@ -83,12 +88,14 @@ class ReminderController{
 			.gte('time',new Date().toUTCString())
 			.eq('type',"highlight")
 			.then(data=>{
-				data.body.forEach(reminder=>{
-					schedule.scheduleJob(reminder.time,async function() {
-						const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-						notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
+				if(data.body){
+					data.body.forEach(reminder=>{
+						schedule.scheduleJob(reminder.time,async function() {
+							const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
+							notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
+						})
 					})
-				})
+				}
 			})
     }
 	
