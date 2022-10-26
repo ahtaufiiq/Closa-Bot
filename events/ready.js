@@ -31,6 +31,10 @@ module.exports = {
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
 		PartyController.updateAllActiveGoal(client)
+		PartyController.remind30MinutesBeforeKickoff(client)
+		PartyController.createKickoffEvent(client)
+		PartyController.hideChannelPartyMode(client)
+		PartyController.generateWaitingRoomPartyMode(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()

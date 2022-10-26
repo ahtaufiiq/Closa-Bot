@@ -123,13 +123,15 @@ class ReferralCodeController{
                 .eq('UserId',userId)
                 .gte('time',new Date().toUTCString())
                 .then(data=>{
-                    data.body.forEach(async reminder=>{
-                        schedule.scheduleJob(reminder.time,async function() {
-                            const type = reminder.message === '5 days' ? 5 : 2
-                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-                            notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                    if (data.body) {
+                        data.body.forEach(async reminder=>{
+                            schedule.scheduleJob(reminder.time,async function() {
+                                const type = reminder.message === '5 days' ? 5 : 2
+                                const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
+                                notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                            })
                         })
-                    })
+                    }
                 })
         }else{
             supabase.from('Reminders')
@@ -137,13 +139,15 @@ class ReferralCodeController{
                 .eq('type',"claimReferral")
                 .gte('time',new Date().toUTCString())
                 .then(data=>{
-                    data.body.forEach(async reminder=>{
-                        schedule.scheduleJob(reminder.time,async function() {
-                            const type = reminder.message === '5 days' ? 5 : 2
-                            const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-                            notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                    if (data.body) {
+                        data.body.forEach(async reminder=>{
+                            schedule.scheduleJob(reminder.time,async function() {
+                                const type = reminder.message === '5 days' ? 5 : 2
+                                const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
+                                notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                            })
                         })
-                    })
+                    }
                 })
         }
     }
