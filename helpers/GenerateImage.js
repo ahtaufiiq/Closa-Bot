@@ -138,7 +138,7 @@ class GenerateImage{
         registerFont('./assets/fonts/IBMPlexMono-Regular.ttf',{family:'IBMPlexMono',weight:400})
         registerFont('./assets/fonts/DMMono-Medium.ttf',{family:'DMMono',weight:500})
         
-        const canvas = createCanvas(1220,920)
+        const canvas = createCanvas(1213,913)
 
         const context = canvas.getContext('2d')
  
