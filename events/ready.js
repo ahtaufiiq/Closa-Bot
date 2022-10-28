@@ -44,7 +44,7 @@ module.exports = {
 		ReminderController.remindPostProgress(client)
 		
 		DailyStreakController.remindMissOneDay(client)
-		// DailyStreakController.remindMissTwoDays(client)
+		DailyStreakController.remindMissTwoDays(client)
 
 		CoworkingController.recurringCoworkingSession(client)
 

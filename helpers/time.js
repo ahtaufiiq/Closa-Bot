@@ -153,7 +153,8 @@ class Time {
     static isValidCooldownPeriod(lastDone){
         const {kickoffDate} = LocalData.getData()
 		const oneDayBeforeCelebrationDay = Time.getDateOnly(Time.getNextDate(-8,kickoffDate))
-        return this.isCooldownPeriod() && lastDone >= oneDayBeforeCelebrationDay
+		const isFirstDayAfterKickoff = Time.getDateOnly(Time.getNextDate(-34,kickoffDate)) === Time.getTodayDateOnly()
+        return (this.isCooldownPeriod() || isFirstDayAfterKickoff) && lastDone >= oneDayBeforeCelebrationDay
     }
 
     static isCooldownPeriod(){
