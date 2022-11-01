@@ -92,7 +92,7 @@ module.exports = {
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
-						date.setHours(Time.minus7Hours(hours+differentTime))
+						date.setHours(Time.minus7Hours(Number(hours)+differentTime))
 						date.setMinutes(minutes-10)
 						supabase.from('Reminders')
 							.insert({
