@@ -88,10 +88,11 @@ module.exports = {
 				if (patternEmoji.test(msg.content.trimStart())) {
                     
 					if (Time.haveTime(msg.content)) {
+						const differentTime = msg.content.toLowerCase().includes(' wita') ? -1 : msg.content.toLowerCase().includes(' wit') ? -2 : 0
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
-						date.setHours(Time.minus7Hours(hours))
+						date.setHours(Time.minus7Hours(hours+differentTime))
 						date.setMinutes(minutes-10)
 						supabase.from('Reminders')
 							.insert({
