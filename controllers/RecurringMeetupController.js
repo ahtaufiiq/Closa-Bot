@@ -13,7 +13,7 @@ class RecurringMeetupController {
 			{
 				id:guild.roles.everyone.id,
 				deny:[
-					PermissionFlagsBits.ViewChannel
+					PermissionFlagsBits.Connect
 				]
 			}
 		]
@@ -24,7 +24,7 @@ class RecurringMeetupController {
 			permissionOverwrites.push({
 				id:user.id,
 				allow:[
-					PermissionFlagsBits.ViewChannel
+					PermissionFlagsBits.Connect
 				]
 			})
 		}
