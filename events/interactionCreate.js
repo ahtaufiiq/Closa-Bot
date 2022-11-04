@@ -176,7 +176,6 @@ module.exports = {
 							.eq("UserId",interaction.user.id)
 							.eq("PartyRoomId",partyId)
 							.gte('meetupDate',new Date().toISOString())
-						console.log('sudah ada data');
 					}
 					RecurringMeetupController.getTotalResponseMemberMeetup(partyId)
 						.then(totalUser=>{
@@ -230,9 +229,13 @@ module.exports = {
 											.select("MemberPartyRooms(UserId)")
 											.eq('id',partyId)
 											.single()
-											.then(data=>{
+											.then(async data=>{
 												const members = data.body.MemberPartyRooms.map(member=>member.UserId)
-												RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
+												const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
+												supabase.from('PartyRooms')
+													.update({voiceChannelId})
+													.eq('id',partyId)
+													.then()
 											})
 										})
 									})
