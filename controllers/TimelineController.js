@@ -31,7 +31,7 @@ class TimelineController{
 
                 const updateCohortDate =  Time.getDate()
                 updateCohortDate.setHours(Time.minus7Hours(20))
-                updateCohortDate.setMinutes(30)
+                updateCohortDate.setMinutes(25)
                 TimelineController.updateCohort(client,updateCohortDate)
             }else if(tomorrowDate === data.kickoffDate){
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)

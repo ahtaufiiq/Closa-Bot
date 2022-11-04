@@ -40,6 +40,7 @@ class Time {
         }
 
         function formatDay(day) {
+            if(type === 'short') return `${day} d` 
             return `${day} ${day>1?"days":"day"}`
         }
         
@@ -113,8 +114,13 @@ class Time {
     static getTodayDateOnly(){
         return this.getDate().toISOString().substring(0,10)
     }
-    static getFormattedDate(date){
-        return date.toLocaleDateString("en-US", { dateStyle:'medium'}) //Apr 26 2022
+    static getFormattedDate(date,showDay){
+        let formattedDate = date.toLocaleDateString("en-US", { dateStyle:'medium'}) //Apr 26 2022
+
+        if (showDay ) {
+            formattedDate = `${Time.getDay()} `+formattedDate
+        }
+        return formattedDate
     }
     
     static isVacationMode(date) {
@@ -190,6 +196,18 @@ class Time {
         return diffInMinute > 1
     }
 
+    static getNextTuesdayDate(){
+        const day = Time.getDate().getDay()
+        let date
+        if (day === 2) {
+            date = Time.getNextDate(7)
+        }else if(day < 2){
+            date = Time.getNextDate(2 - day)
+        }else {
+            date = Time.getNextDate(7 - (day - 2) )
+        }
+        return date
+    }
 
 }
 

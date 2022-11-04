@@ -18,7 +18,6 @@ module.exports = {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
-
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 
@@ -35,6 +34,7 @@ module.exports = {
 		PartyController.createKickoffEvent(client)
 		PartyController.hideChannelPartyMode(client)
 		PartyController.generateWaitingRoomPartyMode(client)
+		PartyController.generateAllUserGoalFromWaitingRoom(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()

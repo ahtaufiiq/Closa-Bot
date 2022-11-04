@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -10,6 +10,7 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MemberController = require('./MemberController');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const { ChannelType, PermissionFlagsBits } = require('discord-api-types/v9');
+const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 class PartyController{
     static showModalWriteGoal(interaction){
         if(interaction.customId.includes('writeGoal')){
@@ -75,6 +76,69 @@ class PartyController{
 		const usersJoinedParty = await PartyController.getUsersJoinedParty()
 		const totalUserHaveNotSetGoal = await PartyController.getTotalUserHaveNotSetGoal()
 		msg.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+	}
+
+	static async generateAllUserGoalFromWaitingRoom(client){
+		const {kickoffDate} = LocalData.getData()
+		const ruleKickoff = Time.getDate(kickoffDate)
+		ruleKickoff.setHours(Time.minus7Hours(20))
+		ruleKickoff.setMinutes(30)
+		schedule.scheduleJob(ruleKickoff,async function(){
+			const data = await supabase.from("JoinParties")
+			.select()
+			.eq('cohort',this.getNextCohort())
+			.not('goal','is',null)
+			const deadlineGoal = PartyController.getDeadlineGoal()
+			const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role,})=>{
+				const {user} = await MemberController.getMember(client,UserId)
+				channelGoals.send(PartyMessage.postGoal({
+					project,
+					goal,
+					about,
+					shareProgressAt,
+					role,
+					user:user,
+					deadlineGoal:deadlineGoal
+				}))
+				.then(msg=>{
+					supabase.from("Goals")
+					.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
+					.eq("UserId",user.id)
+					.gte('deadlineGoal',Time.getTodayDateOnly())
+					.single()
+					.then(async updatedData =>{
+						supabase.from('Goals')
+						.insert([{
+							role,
+							goalCategory,
+							project,
+							goal,
+							about,
+							shareProgressAt,
+							id:msg.id,
+							deadlineGoal:deadlineGoal.deadlineDate,
+							isPartyMode:true,
+							alreadySetHighlight:false,
+							UserId:user.id,
+						}])
+						.then()
+						if (updatedData.body) {
+							PartyController.updateGoal(client,updatedData.body,0)
+						}
+					})
+					ChannelController.createThread(msg,project,user.username)
+					supabase.from('Users')
+						.update({
+							goalId:msg.id,
+							reminderProgress:shareProgressAt
+						})
+						.eq('id',user.id)
+						.then()
+				})
+			})
+		})
+		
 	}
 
 	static async getTotalUserHaveNotSetGoal(){
@@ -245,36 +309,6 @@ class PartyController{
 		ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,true)
 	}
 
-	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
-		const guild = client.guilds.cache.get(GUILD_ID)
-
-		const permissionOverwrites = [
-			{
-				id:guild.roles.everyone.id,
-				deny:[
-					PermissionFlagsBits.ViewChannel
-				]
-			}
-		]
-
-		for (let i = 0; i < allowedUsers.length; i++) {
-			const userId = allowedUsers[i];
-			const {user} = await MemberController.getMember(client,userId)
-			permissionOverwrites.push({
-				id:user.id,
-				allow:[
-					PermissionFlagsBits.ViewChannel
-				]
-			})
-		}
-		
-		const voiceChannel = await guild.channels.create(channelName,{
-			permissionOverwrites,
-			parent:ChannelController.getChannel(client,CATEGORY_CHAT),
-			type:ChannelType.GuildVoice,
-		})
-		return voiceChannel.id
-	}
 
 	static async generateWaitingRoomPartyMode(client){
 		const {kickoffDate} = LocalData.getData()
@@ -288,6 +322,23 @@ class PartyController{
 			const totalUserHaveNotSetGoal = await PartyController.getTotalUserHaveNotSetGoal()
 			const msg = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
 			channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
+				.then(msg=>{
+					const countdownWaitingRoomHourly = setInterval(() => {
+						if(!PartyController.getTimeLeftUntilKickoff().includes('day')){
+							clearInterval(countdownWaitingRoomHourly)
+							const countdownWaitingRoomMinutely = setInterval(() => {
+								if(PartyController.getTimeLeftUntilKickoff().includes('-')){
+									clearInterval(countdownWaitingRoomMinutely)
+									msg.edit(PartyMessage.embedMessageWaitingRoom('0 m'))
+								}else{
+									msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
+								}
+							}, 1000 * 60);
+						}else{
+							msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
+						}
+					}, 1000 * 60 * 60);
+				})
 			
 			const data = LocalData.getData()
 			data.msgIdContentWaitingRoom = msg.id
@@ -300,7 +351,7 @@ class PartyController{
 		kickoffDate.setHours(Time.minus7Hours(20))
 		kickoffDate.setMinutes(0)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
-		return Time.convertTime(diffTime)
+		return Time.convertTime(diffTime,'short')
 	}
 
 	static createKickoffEvent(client){
@@ -458,6 +509,82 @@ class PartyController{
 			result.description = 'kick-off'
 		}
 		return result
+	}
+
+	static formatMembersPartyRoom(members=[]){
+		let result = ''
+		for (let i = 0; i < 4; i++) {
+			const member = members[i];
+			if (member) {
+				result += `**${MessageFormatting.tagUser(member.UserId)} ${member.isLeader ? "👑":""} — ${member.goal}**\n`
+			}else{
+				result += `*empty slot*\n`
+			}
+
+		}
+		return result
+	}
+
+	static countTotalMemberParty(members){
+		let totalExistingMembers = 0
+		let totalTrialMember = 0
+		for (let i = 0; i < members.length; i++) {
+			const member = members[i];
+			if (member.isTrialMember) totalTrialMember++
+			else totalExistingMembers++
+		}
+		return {
+			totalExistingMembers,
+			totalTrialMember
+		}
+	}
+
+	static generatePartyRoom(client,cohort){
+		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const formattedDate = Time.getFormattedDate(Time.getNextDate(7),true)
+		const meetupDate = Time.getDateOnly(Time.getNextDate(7))
+		supabase.from("PartyRooms")
+		.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+		.eq('cohort',cohort)
+		.then(data=>{
+			for (let i = 0; i < data.body.length; i++) {
+				const party = data.body[i]
+				const members = party.MemberPartyRooms
+				members.sort(member=> {
+					return member.isLeader ? -1 : 1 
+				})
+
+				setTimeout(() => {
+					members.forEach(async member=>{
+						const notificationThread = await ChannelController.getNotificationThread(client,member.id)
+						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(user.id))
+					})
+				}, 1000 * 60 * 15);
+				
+				channelParty.send(PartyMessage.partyRoom(
+					party.id,
+					PartyController.formatMembersPartyRoom(members),
+					PartyController.countTotalMemberParty(members),
+					members[0].UserId
+				))
+				.then(async msg=>{
+					supabase.from("PartyRooms")
+						.update({msgId:msg.id})
+						.eq('id',party.id)
+						.then()
+					const thread = await ChannelController.createThread(msg,`Party ${party.id}`)
+					thread.send(PartyMessage.shareLinkPartyRoom(msg.id))
+					setTimeout(() => {
+						thread.send(PartyMessage.welcomingPartyRoom(party.id))
+					}, 1000 * 60 * 5);
+					setTimeout(() => {
+						thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id))
+					}, 1000 * 60 * 10);
+				})
+			}
+		})
+
+		
 	}
 }
 
