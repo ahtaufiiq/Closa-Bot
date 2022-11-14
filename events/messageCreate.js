@@ -24,6 +24,9 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) return
+
+		PartyController.handleMentionOutsideMemberInPartyRoom(msg)
+		PartyController.handleOutsideMemberChatInPartyRoom(msg)
 		DailyReport.activeMember(msg.client,msg.author.id)
 		PointController.addPoint(msg.author.id,'chat',0,msg.channelId)
 

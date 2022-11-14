@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
@@ -19,18 +19,27 @@ It's a mode where you work on yourself as solo for your \`\`passion projects\`\`
     }
     static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
         return `**🛋 Waiting Room**
-${totalPeopleWaitingFor > 0 ? `Waiting for **${totalPeopleWaitingFor}** people to set goal` : "Currently matching you with your group party, please wait..."}
+----
+:arrow_forward: Status → \`\`${totalPeopleWaitingFor > 0 ? `Waiting for **${totalPeopleWaitingFor}** people to set goal` : "Currently matching you with your group party, please wait..."}\`\`
+----
 ${listPeople}`
     }
     static embedMessageWaitingRoom(time){
         return {
-            embeds:[this.embedMessage("🎊 PARTY MODE",`**${time}** before kick-off day & group match-making.
+            embeds:[this.embedMessage("🎊 PARTY MODE",`Time before group match making:
+:hourglass_flowing_sand: **${time}** 
+
 You will be grouped with members up to 4 people`)],
             components:[this.createComponent(
-                this.addButton(`joinParty`,'Join Party'),
+                this.addButton(`joinPartyMode`,'Join Party'),
                 this.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY")
             )]
         }
+    }
+
+    static remindToWriteGoal(userId){
+        return `Hi ${MessageFormatting.tagUser(userId)} you haven't pick your role & set your goals yet. 
+Please follow the step below until finish. `
     }
 
     static replySuccessStartSoloMode(notificationId){
@@ -38,9 +47,12 @@ You will be grouped with members up to 4 people`)],
 For the next step check your 🔔 **notification** → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
     static replySuccessStartPartyMode(notificationId){
-        return `**You've selected party mode ✅**
+        return `You've joined party mode waiting room ✅
 
 Next, follow the step on your 🔔 **notification** → ${MessageFormatting.linkToInsideThread(notificationId)}`
+    }
+    static replyAlreadyJoinWaitingRoom(){
+        return `⚠️ You've joined the waiting room.`
     }
 
     static pickYourRole(userId,type="party"){
@@ -105,22 +117,6 @@ p.s: *you can always change it in the next cohort*`,
             ]
         }
     }
-    
-    static pickCoworkingTime(userId){
-        return {
-            content:`**Pick your favorite working time:**
-🌤️ *Morning Club* — co-working hour from 07.00 – 11.30 WIB 
-🌙 *Night Club* — co-working hour from 19.30 – 22.00  WIB
-
-p.s: *you can always join the other club*`,
-            components:[
-                this.createComponent(
-                    this.addButton(`morningTime_${userId}`,"🌤️ Morning"),
-                    this.addButton(`nightTime_${userId}`,"🌙 Night"),
-                )
-            ]
-        }
-    }
 
     static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
         return {
@@ -151,7 +147,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
     }
 
     static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
-        const typeAccountability = value.split('-')[0]
+        let typeAccountability = value.split('-')[0]
         return {
             content:"**REVIEW YOUR GOAL 📝**\n↓",
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
@@ -163,29 +159,30 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             ]
         }
     }
-    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
-        const typeAccountability = value.split('-')[0]
+    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value='party'}){
+        let typeAccountability = value.split('-')[0]
         return {
             content:`${user} just started a new project 🔥`,
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
         }
     }
 
-    static partyRoom(partyNumber,members,totalExistingMembers,totalFreeTrialMember){
+    static partyRoom(partyNumber,members,totalMember,leaderId,isFull=false){
+        const {totalExistingMembers,totalTrialMember} = totalMember
         return {
             embeds:[
                 new MessageEmbed()
-                .setColor("#4ba341")
+                .setColor(isFull ? "#8b3636" :"#4ba341")
                 .setTitle(`PARTY #${partyNumber}`)
                 .setDescription("—————————")
                 .addFields(
-                    { name: 'Members:', value: '@apri 👑 — learn flutter\n\n@taufiq — learn flutter\n\n@someone — learn flutter\n\n*empty slot for trial member*\n\n—————————' },
-		            { name: '\u200B', value: '\`3/3 Pro members \`\n\`0/1 Free Trial Member\`' },
+                    { name: 'Members:', value: `${members}\n\`${totalExistingMembers}/3 Existing members \`\n\`${totalTrialMember}/1 Free Trial Member\`` },
                 )
             ],
             components:[
                 this.createComponent(
-                    this.addButton(`joinParty_${partyNumber}`,"Join")
+                    isFull ? this.addDisabledButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Full","DANGER") : this.addButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Join"),
+                    this.addButton(`leavePartyRoom_${leaderId}_${partyNumber}`,"Leave","SECONDARY")
                 )
             ]
         }
@@ -207,6 +204,24 @@ Click :bell: **interested** to get notified when the event started.`,
 Prepare yourself :success:
 ${MessageFormatting.linkToEvent(eventId)}`
     }
+
+    static descriptionKickoffEvent(){
+        return `You will be grouped during the kick-off day if you select #party-mode
+
+The goal of this event is to kick-off together your project with closa members.
+
+Agenda
+19.50 – Open Gate
+20.00 – Opening 
+20.05 – Meet Accountability Partners
+20.30 – Set Goal together with Accountability Partners.
+21.00 – Ended
+
+Rules: 
+• come on time, respect other members' time.
+• turn on the camera during the session.`
+    }
+
     static askUserWriteHighlight(userId){
         return {
             content:`✅ <@${userId}> your goal has been submitted to <#${CHANNEL_GOALS}>
@@ -291,6 +306,175 @@ Your future progress will be updated to your new project.`,
         return `New ${accountabilityMode} mode has been canceled.`
     }
 
+    static confirmationLeaveParty(userId,partyId){
+        return {
+            content:`Are you sure to leave your party?`,
+            components:[this.createComponent(
+                this.addButton(`acceptLeaveParty_${userId}_${partyId}`,"Yes"),
+                this.addButton(`declineLeaveParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
+            )]
+        }
+    }
+
+    static succesLeaveParty(partyId){
+        return `You just left party ${partyId}.`
+    }
+
+    static declineLeaveParty(){
+        return "Leave party canceled."
+    }
+
+    static leaveBeforeJoinedParty(){
+        return `Don't trick yourself :P
+You are not belong to any party at the moment.`
+    }
+
+    static leaveOtherPartyRoom(msgId){
+        return `Cannot leave the party you are not belong with.
+Go your party room instead → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_ROOM,msgId)}`
+    }
+
+    static confirmationJoinParty(userId,partyId){
+        return {
+            content:`Are you sure to join party ${partyId}? ${MessageFormatting.tagUser(userId)}`,
+            components:[this.createComponent(
+                this.addButton(`acceptJoinParty_${userId}_${partyId}`,"Yes"),
+                this.addButton(`declineJoinParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
+            )]
+        }
+    }
+
+    static shareLinkPartyRoom(msgId){
+        return `Share your party room using this link →  ${MessageFormatting.linkToMessage(CHANNEL_PARTY_ROOM,msgId)} (copy & share the link)`
+    }
+
+    static userJoinedParty(userId){
+        return `${MessageFormatting.tagUser(userId)} joined the party`
+    }
+    static userLeaveParty(userId){
+        return {
+            content:"@here",
+            embeds:[this.embedMessage('',`${MessageFormatting.tagUser(userId)} just left party`)]
+        }
+    }
+
+    static replyPartyIsFull(leftFor){
+        return `the party is full. cannot join the party
+The slot left is for ${leftFor} member, please join another party.`
+    }
+
+    static replyCancelJoinParty(){
+        return "Join party has been canceled."
+    }
+
+    static replySuccessJoinParty(userId,msgId){
+        return `**Hi ${MessageFormatting.tagUser(userId)} you've joined a party! 🎉**
+Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
+    }
+
+    static welcomingPartyRoom(partyId){
+       return `**Welcome to Party #${partyId}**! @here
+**Let's introduce yourself and connect with each other :raised_hands:**
+
+**What you can do inside this party?**
+• Casual chit-chat.
+• Remind if someone not making a progress.
+• Discuss your group meetup or 1 on 1 session.
+• Invite someone to join virtual co-working session at closa cafe.
+
+This party will active for the next \`\`28 days\`\` until celebration day.
+And then, it will automatically disbanded.
+*Because every story has a beginning and an ending*:sparkles:.
+
+Wish you all success with your project!
+let's make some good memories~`
+    }
+
+    static reminderSetHighlightAfterJoinParty(userId){
+        return {
+            content:`Hi ${MessageFormatting.tagUser(userId)}, 
+You next step is to write your highlight of the day → on ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)}`,
+            components:[this.createComponent(
+                this.addLinkButton('Learn more about 🔆highlight',"https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386")
+            )]
+        }
+    }
+
+    static alreadyJoinPartyRoom(userId,msgId){
+        return `You already joined a party ${MessageFormatting.tagUser(userId)}.
+Go to your party room instead → ${MessageFormatting.linkToInsideThread(msgId)}`
+    }
+    static alreadyJoinWaitingRoom(){
+        return `⚠️ You've joined the waiting room.`
+    }
+
+    static replyCannotJoinPartyBeforeSetGoal(userId,notificationId){
+        return `**Hi ${MessageFormatting.tagUser(userId)}, cannot join the party because you haven't set your 🎯goals yet.**
+
+Continue to the next step here → ${MessageFormatting.linkToInsideThread(notificationId)}`
+    }
+
+    static announceOpenPartyMode(date){
+        return `Hi @everyone! The **PARTY MODE** for our next cohort is open now!  :green_circle:
+
+Go to ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} to join group accountability group  before our next cohort begin.
+\`\`Open until ${date} at 20.30\`\``
+    }
+
+    static reminderOpenPartyMode(){
+        return `Hi @everyone! if you want to have accountability group for our next cohort.
+
+→ join ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}
+
+\`\`Open until Tomorrow at 20.30\`\` (but better join now).`
+    }
+
+    static replyOutsiderMemberCannotChat(){
+        return `your chat has been deleted, because you are not belong to the party.`
+    }
+
+    static replyCannotMentionNotPartyMember(){
+        return "cannot mention other members outside the party"
+    }
+
+    static remindSharePartyWhenSomeoneLeaveParty(userId,msgId){
+        return `Hi ${MessageFormatting.tagUser(userId)}, you have 1 party slot available.
+Share it on ${MessageFormatting.tagChannel(CHANNEL_GENERAL)}. So, someone who haven't join any party can join yours.
+
+\`\`Copy your party room link\`\` → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_ROOM,msgId)}`
+    }
+
+    static replyCannotJoinPartyFullAfterSetGoal(userId){
+        return `Hi ${MessageFormatting.tagUser(userId)} your goal are set! ✅
+
+**Next, find & join available party** → ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}`
+    }
+    
+    static replyImmediatelyJoinParty(userId,msgId){
+        return `**Hi ${MessageFormatting.tagUser(userId)} you've joined a party! 🎉**
+Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
+    }
+
+    static remindPartyWillEnded2Days(){
+        return ":bell: **Reminder**: The party will be ended in 2 days. @here"
+    }
+
+    static remindPartyWillEndedToday(){
+        return ":bell: **Reminder**: The party will be ended today at 22.00 WIB @here"
+    }
+
+    static remindPartyWillEnded30Minutes(){
+        return ":bell: **Reminder**: The party will be ended in 30 minutes @here"
+    }
+
+    static remindPartyWillEnded5Minutes(){
+        return ":bell: **Reminder**: The party will be ended in 5 minutes, Let's have the last minutes chat @here 💬"
+    }
+
+    static remindPartyWillEndedNow(){
+        return "See you on next journey 👊 @here"
+    }
+
     static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
         let {dayLeft,deadlineDate} = deadlineGoal
         const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
@@ -303,7 +487,7 @@ Your future progress will be updated to your new project.`,
             { name: 'Goal 🎯', value: goal },
             { name: 'About project', value: about },
             { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
-            { name: "Accountability", value: typeAccountability === 'party' ? "Party Mode" : "Solo Mode" },
+            { name: "Accountability", value: typeAccountability === 'solo' ? "Solo Mode" : "Party Mode" },
             { name: "Role", value: role },
             { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
         )
@@ -321,6 +505,13 @@ Your future progress will be updated to your new project.`,
             .setCustomId(id)
             .setLabel(text)
             .setStyle(style)
+    }
+    static addDisabledButton(id,text,style="SUCCESS"){
+        return new MessageButton()
+            .setCustomId(id)
+            .setLabel(text)
+            .setStyle(style)
+            .setDisabled(true);
     }
     static addLinkButton(text,link){
         return new MessageButton()

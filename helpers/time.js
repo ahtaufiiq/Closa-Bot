@@ -40,6 +40,7 @@ class Time {
         }
 
         function formatDay(day) {
+            if(type === 'short') return `${day} d` 
             return `${day} ${day>1?"days":"day"}`
         }
         
@@ -93,6 +94,26 @@ class Time {
         month = month === undefined ? this.getDate().getMonth() : month < 0 ? month + 12 : month
         return months[month]
     }
+
+    static convertMonthInNumber(month){
+        let listMonth = {
+            "january":0,
+            "february":1,
+            "march":2,
+            "april":3,
+            "may":4,
+            "june":5,
+            "july":6,
+            "august":7,
+            "september":8,
+            'october':9,
+            "november":10,
+            "december":11
+        }
+
+        return listMonth[month.toLowerCase()] || -1
+    }
+
     static minus7Hours(hour){
     	hour = hour - Number(TIMEZONE)		
         return hour < 0 ? 24 + hour : hour
@@ -113,8 +134,14 @@ class Time {
     static getTodayDateOnly(){
         return this.getDate().toISOString().substring(0,10)
     }
-    static getFormattedDate(date){
-        return date.toLocaleDateString("en-US", { dateStyle:'medium'}) //Apr 26 2022
+    static getFormattedDate(date,showDay=false,dateStyle='medium'){
+        let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
+
+        if (showDay ) {
+            const [month,date,year] = formattedDate.split(/[, ]+/)
+            formattedDate = `${Time.getDay()}, ${date} ${month}, ${year}` //Tuesday, 29 Oct, 2022
+        }
+        return formattedDate
     }
     
     static isVacationMode(date) {
@@ -190,6 +217,18 @@ class Time {
         return diffInMinute > 1
     }
 
+    static getNextTuesdayDate(){
+        const day = Time.getDate().getDay()
+        let date
+        if (day === 2) {
+            date = Time.getNextDate(7)
+        }else if(day < 2){
+            date = Time.getNextDate(2 - day)
+        }else {
+            date = Time.getNextDate(7 - (day - 2) )
+        }
+        return date
+    }
 
 }
 

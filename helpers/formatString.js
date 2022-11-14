@@ -10,6 +10,10 @@ class FormatString {
     static notCharacter(text){
         return text > "~"
     }
+
+    static isNumber(stringNumber){
+        return !Number.isNaN(Number(stringNumber))
+    }
 }
 
 module.exports = FormatString
