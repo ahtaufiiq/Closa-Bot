@@ -43,9 +43,7 @@ module.exports = {
 					.eq("UserId",userId)
 					.eq("PartyRoomId",partyId)
 					.gte("meetupDate",new Date().toUTCString())
-					.then(data =>{
-						console.log(data);
-					})
+					.then()
 			}
 			if(newMember.channel.members.size >= 2 && !meetup[channelId].status){
 				meetup[channelId].status = 'start'
@@ -56,23 +54,44 @@ module.exports = {
 					.then(async data=>{
 						const channelParty = ChannelController.getChannel(newMember.client,CHANNEL_PARTY_ROOM)
 						const threadParty = await ChannelController.getThread(channelParty,data.body.msgId)
+						const dataParty = await supabase.from("PartyRooms")
+						.select()
+						.eq('id',partyId)
+						.single()
+						const voiceChannelId = dataParty.body.voiceChannelId
+						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
 						let minutes = 30
-						threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes))
-							.then(msg=>{
+
+						//TODO kirim countdown dan reminder 5 minutes and 15 secodns to voice chat
+						threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
+							.then(async msg=>{
 								const timerMeetup = setInterval(() => {
 									if (minutes > 0) {
 										minutes--
-										msg.edit(RecurringMeetupMessage.countdownMeetup(minutes))
+										msg.edit(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
 									}
 									if (minutes === 0) {
-										threadParty.send(RecurringMeetupMessage.reminderFifteenSecondsBeforeEnded())
 										clearInterval(timerMeetup)
 										setTimeout(() => {
 											newMember.channel.delete()
 											delete meetup[channelId]
 										}, 1000 * 15);
+									}
+								}, 1000 * 60);
+							})
+
+
+						voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+							.then(async msg=>{
+								const timerMeetup = setInterval(() => {
+									if (minutes > 0) {
+										msg.edit(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+									}
+									if (minutes === 0) {
+										voiceChannel.send(RecurringMeetupMessage.reminderFifteenSecondsBeforeEnded())
+										clearInterval(timerMeetup)
 									}else if(minutes === 5){
-										threadParty.send(RecurringMeetupMessage.reminderFiveMinutesBeforeEnded())
+										voiceChannel.send(RecurringMeetupMessage.reminderFiveMinutesBeforeEnded())
 									}
 								}, 1000 * 60);
 							})
@@ -220,8 +239,8 @@ module.exports = {
 		if (newMember.channel !== null) {
 			let data = newMember.channel.members.filter(user=>!user.bot)
 			totalNewMember = data.size
-			if (totalNewMember === 3 && totalNewMember !== totalOldMember && newMember.channelId === CHANNEL_CLOSA_CAFE) {
-				let msg = `@here there are 3 people in <#${CHANNEL_CLOSA_CAFE}> right now, let's vibin :beers:`
+			if (totalNewMember === 4 && totalNewMember !== totalOldMember && newMember.channelId === CHANNEL_CLOSA_CAFE) {
+				let msg = `@here there are 4 people in <#${CHANNEL_CLOSA_CAFE}> right now, let's vibin :beers:`
 				const channelGeneral = oldMember.guild.channels.cache.get(CHANNEL_GENERAL)
 				channelGeneral.send(msg)
 			}

@@ -26,7 +26,7 @@ notes:
     }
 
     static showHowToRescheduleMeetup(formattedDate,customDate){
-        return `:repeat: **The meetup automatically rescheduled in the next week:**
+        return `:repeat: **The meetup automatically rescheduled**
 :calendar_spiral:**${formattedDate} at 21.30 WIB**
 
 You can also change the schedule manually using command below:
@@ -49,10 +49,14 @@ ps: *feel free to discuss with other member to adjust the time and date accordin
 prepare your seat & chill ✨`
     }
 
+    static remindSomeoneToAcceptMeetup(tagMembers){
+        return `Hi ${tagMembers} please confirm your virtual meetup attendance to the message above.`
+    }
+
     static countdownMeetup(min,channelId){
         return `\`\`The virtual meetup just started!\`\` @here
 
-\`\`⏳\`\`the room will be ended in → **${min} min** (${min===0 ? "ended":'live'})
+\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
 let's have a good time~
@@ -60,10 +64,18 @@ Join here → ${MessageFormatting.tagChannel(channelId)}`
     }
 
     static countdownMeetupVoiceChat(min){
-        return `\`\`⏳\`\`the room will be ended in → **${min} min** (${min===0 ? "ended":'live'})
+        return `\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
 cc: @here `
+    }
+
+    static remindUserJoinMeetupSession(channelId){
+        return `Hi @here the virtual meetup room is ready.
+
+Waiting for 2 people to start the virtual meetup session.
+
+Join → ${MessageFormatting.tagChannel(channelId)}`
     }
 
     static reminderFiveMinutesBeforeEnded(){

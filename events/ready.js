@@ -17,10 +17,9 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		user.send("Restart Bot")
+		// user.send("Restart Bot")
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
-
 		// if(CLIENT_ID === "948546574550695936") return
 
 		TimelineController.updateTimeline(client)
@@ -30,11 +29,13 @@ module.exports = {
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
 		PartyController.updateAllActiveGoal(client)
+		PartyController.remindToWriteGoal(client)
 		PartyController.remind30MinutesBeforeKickoff(client)
 		PartyController.createKickoffEvent(client)
 		PartyController.hideChannelPartyMode(client)
 		PartyController.generateWaitingRoomPartyMode(client)
 		PartyController.generateAllUserGoalFromWaitingRoom(client)
+		PartyController.announcePartyModeAvailable(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()
