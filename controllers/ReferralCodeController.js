@@ -280,7 +280,7 @@ class ReferralCodeController{
 
     static async getTotalDays(userId) {
         const data = await supabase.from("Users")
-        .select('totalDay')
+        .select('totalDaysThisCohort')
         .eq("id",userId)
         .single()
 
