@@ -17,7 +17,7 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		// user.send("Restart Bot")
+		user.send("Restart Bot")
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 		// if(CLIENT_ID === "948546574550695936") return
