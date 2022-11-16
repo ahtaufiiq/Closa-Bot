@@ -19,6 +19,7 @@ const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
+const GoalController = require("../controllers/GoalController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -41,23 +42,8 @@ module.exports = {
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_GOALS:
-				let threadName = `${msg.content.split('\n')[0]}`
-				if (threadName.includes("**")) {
-					threadName = threadName.split("**")[1]
-				}else if (threadName.includes("*")) {
-					threadName = threadName.split("*")[1]
-				}
-				const threadGoal = await ChannelController.createThread(
-					msg,
-					threadName,
-					msg.author.username
-				)
-				supabase.from('Users')
-					.update({
-						goalId:threadGoal.id
-					})
-					.eq('id',msg.author.id)
-					.then()
+				const threadGoal = await GoalController.createThreadGoal()
+				GoalController.updateGoalId(threadGoal.id,msg.author.id)
 				break;
 			case CHANNEL_SESSION_GOAL:
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)

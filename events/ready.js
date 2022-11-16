@@ -9,6 +9,7 @@ const BoostController = require('../controllers/BoostController');
 const TimelineController = require('../controllers/TimelineController');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const PartyController = require('../controllers/PartyController');
+const GoalController = require('../controllers/GoalController');
 
 
 module.exports = {
@@ -28,14 +29,15 @@ module.exports = {
 		TimelineController.sendNotifShareStoryCelebrationDay(client)
 		TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
-		PartyController.updateAllActiveGoal(client)
-		PartyController.remindToWriteGoal(client)
 		PartyController.remind30MinutesBeforeKickoff(client)
 		PartyController.createKickoffEvent(client)
 		PartyController.hideChannelPartyMode(client)
 		PartyController.generateWaitingRoomPartyMode(client)
-		PartyController.generateAllUserGoalFromWaitingRoom(client)
 		PartyController.announcePartyModeAvailable(client)
+		
+		GoalController.remindToWriteGoal(client)
+		GoalController.updateAllActiveGoal(client)
+		GoalController.generateAllUserGoalFromWaitingRoom(client)
 
 		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()

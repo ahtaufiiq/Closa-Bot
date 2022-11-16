@@ -37,10 +37,10 @@ class MessageComponent {
 
     static addEmojiButton(id,text,emoji,style="SUCCESS"){
         return new MessageButton()
-                    .setCustomId(id)
-                    .setLabel(text)
-                    .setStyle(style)
-                    .setEmoji(emoji)
+            .setCustomId(id)
+            .setLabel(text)
+            .setStyle(style)
+            .setEmoji(emoji)
     }
 
     static embedMessage({title,description,user},color="#00B264"){

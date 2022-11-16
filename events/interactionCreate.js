@@ -14,6 +14,8 @@ const RecurringMeetupController = require("../controllers/RecurringMeetupControl
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const schedule = require('node-schedule');
+const GoalController = require("../controllers/GoalController");
+const GoalMessage = require("../views/GoalMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -21,8 +23,8 @@ module.exports = {
 
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
-			if(PartyController.showModalWriteGoal(interaction)) return
-			if(PartyController.showModalEditGoal(interaction)) return 
+			if(GoalController.showModalWriteGoal(interaction)) return
+			if(GoalController.showModalEditGoal(interaction)) return 
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('ttendMeetup')) {
 				await interaction.deferReply();
@@ -82,7 +84,7 @@ module.exports = {
 					.single()
 					if (!dataUser.body?.goalId) {
 						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataUser.body.notificationId)
-						notificationThread.send(PartyMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
+						notificationThread.send(GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
 						await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,dataUser.body.notificationId))
 						return
 					}
@@ -204,7 +206,7 @@ module.exports = {
 
 					break;
 				case "joinPartyMode":{
-					const alreadyHaveGoal = await PartyController.alreadyHaveGoal(interaction.user.id)
+					const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
 					if (alreadyHaveGoal) {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
 					}else{
@@ -216,7 +218,7 @@ module.exports = {
 						if (data.body) {
 							await interaction.editReply(PartyMessage.alreadyJoinWaitingRoom())
 						}else{
-							notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId))
+							notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId))
 							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationThreadTargetUser.id))
 							await supabase.from("JoinParties")
 								.insert({
@@ -228,148 +230,11 @@ module.exports = {
 					}}
 					break;
 				case "attendMeetup":
-					const partyId = value.split('|')[0]
-					const meetupDate = Time.getDate(value.split('|')[1])
-					meetupDate.setHours(Time.minus7Hours(21))
-					meetupDate.setMinutes(0)
-					const data = await supabase.from("WeeklyMeetups")
-						.select()
-						.eq('PartyRoomId',partyId)
-						.eq('UserId',interaction.user.id)
-						.gte('meetupDate',new Date().toISOString())
-						.single()
-					if (!data.body) {
-						await supabase.from("WeeklyMeetups")
-						.insert({
-							meetupDate,
-							UserId:interaction.user.id,
-							isAcceptMeetup:true,
-							PartyRoomId:partyId
-						})
-					}else{
-						await supabase.from("WeeklyMeetups")
-							.update({isAcceptMeetup:true})
-							.eq("UserId",interaction.user.id)
-							.eq("PartyRoomId",partyId)
-							.gte('meetupDate',new Date().toISOString())
-					}
-					RecurringMeetupController.getTotalResponseMemberMeetup(partyId)
-						.then(totalUser=>{
-							if (totalUser === 2) {
-								const oneDayBefore = Time.getNextDate(-1,Time.getDateOnly(meetupDate))
-								const oneHourBefore = Time.getDate(meetupDate.valueOf())
-								oneHourBefore.setHours(oneHourBefore.getHours()-1)
-								const tenMinutesBefore = Time.getDate(meetupDate.valueOf())
-								tenMinutesBefore.setMinutes(tenMinutesBefore.getMinutes()-10)
-								const fiveMinutesBefore = Time.getDate(meetupDate.valueOf())
-								fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
-								
-								supabase.from("Reminders")
-									.insert([
-										{
-											message:partyId,
-											time:oneDayBefore,
-											type:'oneDayBeforeMeetup'
-										},
-										{
-											message:partyId,
-											time:oneHourBefore,
-											type:'oneHourBeforeMeetup'
-										},
-										{
-											message:partyId,
-											time:tenMinutesBefore,
-											type:'tenMinutesBeforeMeetup'
-										},
-										{
-											message:partyId,
-											time:fiveMinutesBefore,
-											type:'fiveMinutesBeforeMeetup'
-										},
-										{
-											message:partyId,
-											time:meetupDate,
-											type:'weeklyMeetup'
-										},
-									])
-									.then(async ()=>{
-										const channelPartyRoom = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-										const threadParty = await ChannelController.getThread(channelPartyRoom,interaction.message.channelId)
-										//TODO add this cron to events ready like remind highlight user for this 4 event
-										schedule.scheduleJob(oneDayBefore,async function() {
-											threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
-										})
-										schedule.scheduleJob(oneHourBefore,async function() {
-											threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
-										})
-										schedule.scheduleJob(tenMinutesBefore,async function() {
-											threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
-										})
-										schedule.scheduleJob(fiveMinutesBefore,async function() {
-											supabase.from("PartyRooms")
-											.select("MemberPartyRooms(UserId)")
-											.eq('id',partyId)
-											.single()
-											.then(async data=>{
-												const members = data.body.MemberPartyRooms.map(member=>member.UserId)
-												const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
-												supabase.from('PartyRooms')
-													.update({voiceChannelId})
-													.eq('id',partyId)
-													.then()
-											})
-										})
-										schedule.scheduleJob(meetupDate,async function() {
-											const dataParty = await supabase.from("PartyRooms")
-												.select()
-												.eq('id',partyId)
-												.single()
-											const voiceChannelId = dataParty.body.voiceChannelId
-											threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
-										})
-									})
-							}
-						})
-						
-						interaction.editReply(`${interaction.user} just accepted the meetup invitation ✅`)
+					RecurringMeetupController.interactionConfirmationMeetup(interaction,true,value)
 					break
-				case "cannotAttendMeetup":{
-					const [partyId,meetupDateOnly] = value.split('|')
-					const meetupDate = Time.getDate(meetupDateOnly)
-					meetupDate.setHours(Time.minus7Hours(21))
-					meetupDate.setMinutes(0)
-					const data = await supabase.from("WeeklyMeetups")
-						.select()
-						.eq('PartyRoomId',partyId)
-						.eq('UserId',interaction.user.id)
-						.gte('meetupDate',new Date().toISOString())
-						.single()
-					if (!data.body) {
-						await supabase.from("WeeklyMeetups")
-						.insert({
-							meetupDate,
-							UserId:interaction.user.id,
-							isAcceptMeetup:false,
-							PartyRoomId:partyId
-						})
-						.then(()=>{})
-					}else{
-						await supabase.from("WeeklyMeetups")
-							.update({isAcceptMeetup:false})
-							.eq("UserId",interaction.user.id)
-							.eq("PartyRoomId",partyId)
-							.gte('meetupDate',new Date().toISOString())
-							.then()
-					}
-					interaction.editReply(`${interaction.user} just declined the meetup invitation`)
-					RecurringMeetupController.getTotalResponseMemberMeetup(partyId,false)
-						.then(async totalUser=>{
-							if (totalUser === 2) {
-								RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDateOnly,partyId)
-							}
-						})
-					
-					break;}
+				case "cannotAttendMeetup":
+					RecurringMeetupController.interactionConfirmationMeetup(interaction,false,value)
+					break;
 				case "leaveWaitingRoom":
 					await supabase.from("JoinParties")
 						.delete()
@@ -379,7 +244,7 @@ module.exports = {
 					interaction.editReply("Success leave party")
 					break;
 				case "continueReplaceGoal":
-					notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,value))
+					notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId,value))
 					if (PartyController.isPartyMode(value)) {
 						const data = await supabase.from('JoinParties')
 						.select()
@@ -405,25 +270,25 @@ module.exports = {
 					await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
 					break;
 				case "startSoloMode":
-					const alreadyHaveGoal = await PartyController.alreadyHaveGoal(interaction.user.id)
+					const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
 					if (alreadyHaveGoal) {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
 					}else{
-						notificationThreadTargetUser.send(PartyMessage.pickYourRole(targetUserId,'solo'))
+						notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId,'solo'))
 						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
 					}
 					break;
 				case "postGoal":
-					PartyController.interactionPostGoal(interaction,value)
+					GoalController.interactionPostGoal(interaction,value)
 					break;
 				case "roleDeveloper":
-					PartyController.interactionPickRole(interaction,'Developer',value)
+					GoalController.interactionPickRole(interaction,'Developer',value)
 					break;
 				case "roleDesigner":
-					PartyController.interactionPickRole(interaction,'Designer',value)
+					GoalController.interactionPickRole(interaction,'Designer',value)
 					break;
 				case "roleCreator":
-					PartyController.interactionPickRole(interaction,'Creator',value)
+					GoalController.interactionPickRole(interaction,'Creator',value)
 					break;
 				case "defaultReminder":
 					await PartyController.interactionSetDefaultReminder(interaction,value)
@@ -475,9 +340,7 @@ module.exports = {
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 				case "goalCategory":
-					const deadlineGoal = PartyController.getDeadlineGoal()
-					await interaction.editReply(PartyMessage.askUserWriteGoal(deadlineGoal.dayLeft,deadlineGoal.description,targetUserId,valueMenu))
-					interaction.message.delete()
+					GoalController.interactionPickGoalCategory(interaction,valueMenu)
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

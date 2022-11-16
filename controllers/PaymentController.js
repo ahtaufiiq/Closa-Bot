@@ -161,8 +161,6 @@ class PaymentController{
                     .catch(err=>console.log("Cannot send message to user"))
             })
         }
-
-
     }
 
     static async remindJoinCohort(client){

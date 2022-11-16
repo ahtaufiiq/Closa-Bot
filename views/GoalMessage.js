@@ -118,6 +118,24 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
         }
     }
+
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
+        let {dayLeft,deadlineDate} = deadlineGoal
+        const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
+        let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
+        return new MessageEmbed()
+        .setColor("#ffffff")
+        .setTitle(project)
+        .setThumbnail(InfoUser.getAvatar(user))
+        .addFields(
+            { name: 'Goal 🎯', value: goal },
+            { name: 'About project', value: about },
+            { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
+            { name: "Accountability", value: typeAccountability === 'solo' ? "Solo Mode" : "Party Mode" },
+            { name: "Role", value: role },
+            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
+        )
+    }
 }
 
 module.exports = GoalMessage
