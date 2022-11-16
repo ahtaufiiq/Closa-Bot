@@ -75,15 +75,18 @@ class ReferralCodeController{
             interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
         }
     }
-    static async generateReferral(client,userId){
+    static async generateReferral(client,userId,threadProgress){
         const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
         if (!isGenerateNewReferral) return
 
-        const totalReferral = await ReferralCodeController.getTotalReferral(userId)
-        if(totalReferral === 0) return
+        const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
+        if(totalActiveReferral > 1) return
+
+        const totalNewReferral = await ReferralCodeController.getTotalNewReferral(userId,totalActiveReferral)
+        if(totalNewReferral === 0) return
 
         const codes = referralCodes.generate({
-            count:totalReferral,
+            count:totalNewReferral,
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
@@ -110,8 +113,10 @@ class ReferralCodeController{
         .eq("id",userId)
         .single()
         .then(async data=>{
+            const isAdditionalReferral = totalActiveReferral === 1
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
-            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalReferral))
+            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral)) 
+            threadProgress.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral)) 
         })
     }
 
@@ -178,30 +183,36 @@ class ReferralCodeController{
         return data
     }
 
-    static async getTotalReferral(userId){
+    static async getTotalNewReferral(userId,totalActiveReferral){
         const data = await supabase.from("Users")
                 .select('totalDaysThisCohort')
                 .eq('id',userId)
                 .single()
                 
         const totalDaysThisCohort = data.body.totalDaysThisCohort
+        let totalNewReferral = 0
         if (totalDaysThisCohort >= 18) {
-            return 2
+            totalNewReferral = 2
         }else if(totalDaysThisCohort >= 12){
-            return 1
-        }else{
-            return 0
+            totalNewReferral = 1
         }
+        
+        if(totalActiveReferral === 1 && totalNewReferral > 0){
+            totalNewReferral -= 1
+        }
+
+        return totalNewReferral
     }
 
-    static async isEligibleGenerateNewReferral(userId){
+    static async getTotalActiveReferral(userId){
         const data = await supabase.from("Referrals")
             .select('id')
             .eq("UserId",userId)
             .gte("expired",Time.getTodayDateOnly())
-        
-        if (data.body?.length > 0) return false
+        return data.body.length
+    }
 
+    static async isEligibleGenerateNewReferral(userId){
         const dataUser = await supabase.from("Users")
             .select("longestStreak")
             .eq('id',userId)
