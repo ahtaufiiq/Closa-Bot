@@ -1,6 +1,7 @@
 const { MessageActionRow, MessageButton } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_CELEBRATE } = require("../helpers/config")
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class TimelineStatusMessage{
@@ -10,13 +11,9 @@ class TimelineStatusMessage{
             content:`Hi <@${userId}>, ${message}
 Let's prepare your 10 slides story format before our celebration day.`,
             components: [
-                new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setLabel('learn more')
-                            .setURL("https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40")
-                            .setStyle('LINK')
-                    )
+                MessageComponent.createComponent(
+                    MessageComponent.addLinkButton('learn more',"https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40")
+                )
             ] 
         }
     }
@@ -51,13 +48,9 @@ Thank you for reading, have a great day!
 
 \`\`Fill the form below to join accountability group on next cohort.\`\``,
             components: [
-                new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setLabel('Join group')
-                            .setURL("https://tally.so/r/mVLN8y")
-                            .setStyle('LINK')
-                    )
+                MessageComponent.createComponent(
+                    MessageComponent.addLinkButton("Join group","https://tally.so/r/mVLN8y")
+                )
             ] 
         }
     }

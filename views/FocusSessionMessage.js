@@ -52,11 +52,6 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }
-    static embedMessage(text){
-        return new MessageEmbed()
-        .setColor('#fefefe')
-        .setDescription(text)
-    }
 
     static startFocusSession(author){
         

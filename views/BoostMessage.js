@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
 const InfoUser = require("../helpers/InfoUser")
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class BoostMessage{
@@ -7,18 +8,17 @@ class BoostMessage{
     static boostBack(user,sender,totalBoost){
         return { 
             content:`**Hi ${user} someone just boosted you back **` , 
-            embeds: [this.embedMessage(
-                `Boosted you ${totalBoost}x 🚀`,
-                "",
-                sender
-            )]
+            embeds: [MessageComponent.embedMessage({
+                title:`Boosted you ${totalBoost}x 🚀`,
+                user:sender
+            })]
         }
     }
     static IamBack(user,sender,message){
         return { 
             content:`${message}${user}` , 
             embeds:[
-                this.embedMessage("","",sender)
+                MessageComponent.embedMessage({user:sender})
             ]
         }
     }
@@ -26,15 +26,19 @@ class BoostMessage{
     static sendBoost(user,sender,totalBoost,message){
         return { 
             content:`**Hi ${user} someone just boosted you **` , 
-            embeds: [this.embedMessage(
-                `Boosted you ${totalBoost}x 🚀`,
-                message,
-                sender
-            )], 
-            components: [this.createButton(
-                `boostBack_${sender.id}`,
-                '🚀  Boost!'
-            )] 
+            embeds: [MessageComponent.embedMessage({
+                titel: `Boosted you ${totalBoost}x 🚀`,
+                description: message,
+                user: sender
+            })], 
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(
+                        `boostBack_${sender.id}`,
+                        '🚀  Boost!'
+                    )
+                )
+            ] 
         }
     }
 
@@ -42,29 +46,31 @@ class BoostMessage{
         
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
-            embeds: [this.embedMessage(
-                `Boosted you ${totalBoost}x 🚀`,
-                `Let's start tiny & get back on track!`,
-                sender
-            )], 
+            embeds: [MessageComponent.embedMessage({
+                title: `Boosted you ${totalBoost}x 🚀`,
+                description: `Let's start tiny & get back on track!`,
+                user: sender
+            })], 
             components: [
-                this.createMenu(
-                    `inactiveReply_${sender.id}`,
-                    "Reply",
-                    [
-                        {
-                            label:'I am back thanks!',
-                            value:'I am back thanks!'
-                        },
-                        {
-                            label:"I'll be back tomorrow, thanks!",
-                            value:"I'll be back tomorrow, thanks!"
-                        },
-                        {
-                            label:'I still need to take a break, but thanks!',
-                            value:'I still need to take a break, but thanks!'
-                        }
-                    ]
+                MessageComponent.createComponent(
+                    MessageComponent.addMenu( 
+                        `inactiveReply_${sender.id}`,
+                        "Reply",
+                        [
+                            {
+                                label:'I am back thanks!',
+                                value:'I am back thanks!'
+                            },
+                            {
+                                label:"I'll be back tomorrow, thanks!",
+                                value:"I'll be back tomorrow, thanks!"
+                            },
+                            {
+                                label:'I still need to take a break, but thanks!',
+                                value:'I still need to take a break, but thanks!'
+                            }
+                        ]
+                    )
                 )
             ] 
         }
@@ -74,24 +80,24 @@ class BoostMessage{
         return { 
             content:`**IT'S TIME TO BOOST! 
 it looks like ${user} is not making progress for 2 days.**` , 
-            embeds: [this.embedMessage(
-                "Send Boost 🚀",
-                `Show your support by sending ${user} a boost.`,
+            embeds: [MessageComponent.embedMessage({
+                title: "Send Boost 🚀",
+                description: `Show your support by sending ${user} a boost.`,
                 user
-            )], 
-            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
+            })], 
+            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
         }
     }
     static aboutToLoseStreak(user,currentStreak){
         return { 
             content:`**${user} is about to lose ${currentStreak} streak!** 
 **IT'S TIME TO BOOST!**` , 
-            embeds: [this.embedMessage(
-                "Send Boost 🚀",
-                `Show your support by sending ${user} a boost.`,
+            embeds: [MessageComponent.embedMessage({
+                title: "Send Boost 🚀",
+                description: `Show your support by sending ${user} a boost.`,
                 user
-            )], 
-            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
+            })], 
+            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
         }
     }
 
@@ -99,12 +105,12 @@ it looks like ${user} is not making progress for 2 days.**` ,
         return { 
             content:`IT'S TIME TO BOOST! 
 it's almost a week our friend ${user} not making progress` , 
-            embeds: [this.embedMessage(
-                "Send Boost 🚀",
-                `Show your support by sending ${user} a boost.`,
+            embeds: [MessageComponent.embedMessage({
+                title: "Send Boost 🚀",
+                description: `Show your support by sending ${user} a boost.`,
                 user
-            )], 
-            components: [this.createButton(`boostInactiveMember_${user.id}`,'🚀  Boost!')] 
+            })], 
+            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
         }
     }
 
@@ -114,11 +120,11 @@ type the command below here:
 \`\`\`/boost @User [your message]\`\`\``
     }
     static successSendBoost(user){
-        return this.embedMessage(
-                "Boost sent 🚀",
-                `You just sent boost to ${user}`,
+        return MessageComponent.embedMessage({
+                title: "Boost sent 🚀",
+                description: `You just sent boost to ${user}`,
                 user
-            ) 
+            }) 
     }
 
     static successBoostBack(user){
@@ -139,34 +145,7 @@ type the command below here:
     static warningReplyYourself(){
         return "⚠️ Can't reply to yourself. Boost other instead."
     }
-    
-    static createButton(id,text,style="SUCCESS"){
-        
-        return new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(id)
-                    .setLabel(text)
-                    .setStyle(style)
-            )
-    }
-    static createMenu(id,placeholder,options){
-        return new MessageActionRow()
-            .addComponents(
-                new MessageSelectMenu()
-                    .setCustomId(id)
-                    .setPlaceholder(placeholder)
-                    .addOptions(options)
-            )
-    }
 
-    static embedMessage(title,description,user){
-        return new MessageEmbed()
-        .setColor('#00B264')
-        .setTitle(title)
-        .setDescription(description)
-        .setFooter({iconURL:InfoUser.getAvatar(user),text:user.username})
-    }
 }
 
 module.exports=BoostMessage
