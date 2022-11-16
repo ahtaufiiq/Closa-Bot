@@ -295,7 +295,7 @@ class ReferralCodeController{
         .eq("id",userId)
         .single()
 
-        return data.body.totalDay
+        return data.body.totalDaysThisCohort
     }
 
     static async updateTotalDaysThisCohort(userId){
