@@ -2,6 +2,7 @@ const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, Me
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class ReferralCodeMessage{
@@ -12,9 +13,9 @@ class ReferralCodeMessage{
 \`\`1 month free membership for code owner & redeemer.\`\``,
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
-                this.createComponent(
-                    this.addButton("redeem","Enter Code","PRIMARY"),
-                    this.addLinkButton(
+                MessageComponent.createComponent(
+                    MessageComponent.addButton("redeem","Enter Code","PRIMARY"),
+                    MessageComponent.addLinkButton(
                         'Find on twitter',
                         "https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode"
                     )
@@ -28,8 +29,8 @@ class ReferralCodeMessage{
             content:`Hi <@${userId}> your referral code will be expired in ${day} days. ` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
-                this.createComponent(
-                    this.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY")
+                MessageComponent.createComponent(
+                    MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY")
                 )
             ] 
         }
@@ -45,7 +46,7 @@ If you find the community is valuable, help us spread it to your friends. :smile
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
-                this.createComponent(this.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))
+                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))
             ] 
         }
     }
@@ -66,9 +67,9 @@ Your friends can redeem it via https://closa.me/referral`
 
         return { 
             content, 
-            components:[this.createComponent(
-                this.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
-                this.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
+                MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
     }
@@ -100,12 +101,12 @@ We'll send you once a month based on your active participation at closa.`
 You can type \`\`/referral\`\` to check your referral status.
 
 Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
-            embeds: [this.embedMessage(
-                "1 month free membership from referral 🎁",
-                `Your friend has onboarded to closa using this referral code from you:
+            embeds: [MessageComponent.embedMessage({
+                title: "1 month free membership from referral 🎁",
+                description: `Your friend has onboarded to closa using this referral code from you:
 ${referralCode}`,
                 user
-            )], 
+            })], 
         }
 
     }
@@ -147,8 +148,8 @@ Share it to your friends to get 1 month free membership.`
         return {
             content:"⚠️ Invalid referral code",
             components: [
-                this.createComponent(
-                    this.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                MessageComponent.createComponent(
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
                 )
             ] 
         }
@@ -157,8 +158,8 @@ Share it to your friends to get 1 month free membership.`
         return {
             content:"⚠️ This code already redeemed before. Use other code.",
             components: [
-                this.createComponent(
-                    this.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                MessageComponent.createComponent(
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
                 )
             ] 
         }
@@ -169,47 +170,11 @@ Share it to your friends to get 1 month free membership.`
         return {
             content:"This referral code has expired.",
             components: [
-                this.createComponent(
-                    this.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                MessageComponent.createComponent(
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
                 )
             ] 
         }
-    }
-    static createComponent(...buttons){
-        
-        return new MessageActionRow()
-            .addComponents(
-                ...buttons
-            )
-    }
-    static addButton(id,text,style="SUCCESS"){
-        return new MessageButton()
-            .setCustomId(id)
-            .setLabel(text)
-            .setStyle(style)
-    }
-
-    static addEmojiButton(id,text,emoji,style="SUCCESS"){
-        
-        return new MessageButton()
-                    .setCustomId(id)
-                    .setLabel(text)
-                    .setStyle(style)
-                    .setEmoji(emoji)
-    }
-    static addLinkButton(label,url){
-        return new MessageButton()
-        .setLabel(label)
-        .setURL(url)
-        .setStyle('LINK')
-    }
-
-    static embedMessage(title,description,user){
-        return new MessageEmbed()
-        .setColor('#00B264')
-        .setTitle(title)
-        .setDescription(description)
-        .setFooter({iconURL:InfoUser.getAvatar(user),text:user.username})
     }
 }
 

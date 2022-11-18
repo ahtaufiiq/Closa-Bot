@@ -76,9 +76,9 @@ class RecurringMeetupController {
 	}
 
 	static async scheduleMeetup(client,scheduleMeetupDate,threadId,partyId){
-		console.log({client,scheduleMeetupDate,threadId,partyId});
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
+
 		const oneDayBefore = Time.getDate(scheduleMeetupDate.valueOf())
 		oneDayBefore.setDate(oneDayBefore.getDate()-1)
 		
@@ -119,7 +119,6 @@ class RecurringMeetupController {
 				},
 			])
 			.then(async ()=>{
-				console.log('masuk sini');
 				//TODO add this cron to events ready like remind highlight user for this 4 event 
 				schedule.scheduleJob(oneDayBefore,async function() {
 					threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
@@ -128,7 +127,6 @@ class RecurringMeetupController {
 					threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
 				})
 				schedule.scheduleJob(tenMinutesBefore,async function() {
-					console.log('masuk ten minutes');
 					threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
 				})
 				schedule.scheduleJob(fiveMinutesBefore,async function() {
@@ -154,6 +152,49 @@ class RecurringMeetupController {
 					threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
 				})
 			})
+	}
+
+	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
+		const [partyId,meetupDateOnly] = value.split('|')
+		const meetupDate = Time.getDate(meetupDateOnly)
+		meetupDate.setHours(Time.minus7Hours(21))
+		meetupDate.setMinutes(0)
+		const data = await supabase.from("WeeklyMeetups")
+			.select()
+			.eq('PartyRoomId',partyId)
+			.eq('UserId',interaction.user.id)
+			.gte('meetupDate',new Date().toISOString())
+			.single()
+
+		if (!data.body) {
+			await supabase.from("WeeklyMeetups")
+			.insert({
+				meetupDate,
+				isAcceptMeetup,
+				UserId:interaction.user.id,
+				PartyRoomId:partyId
+			})
+			.then(()=>{})
+		}else{
+			await supabase.from("WeeklyMeetups")
+				.update({isAcceptMeetup})
+				.eq("UserId",interaction.user.id)
+				.eq("PartyRoomId",partyId)
+				.gte('meetupDate',new Date().toISOString())
+				.then()
+		}
+		
+		if(isAcceptMeetup) interaction.editReply(`${interaction.user} just accepted the meetup invitation ✅`)
+		else interaction.editReply(`${interaction.user} just declined the meetup invitation`)
+		
+		RecurringMeetupController.getTotalResponseMemberMeetup(partyId,isAcceptMeetup)
+			.then(async totalUser=>{
+				if (totalUser === 2) {
+					if(isAcceptMeetup) RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
+					else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDateOnly,partyId)
+				}
+			})
+					
 	}
 }
 

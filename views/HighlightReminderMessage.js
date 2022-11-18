@@ -5,11 +5,6 @@ class HighlightReminderMessage{
     static highlightReminder(userId){
         return `Hi <@${userId}>, let's start your day and do what matters by writing your <#${CHANNEL_HIGHLIGHT}> today`
     }
-    static embedMessage(text){
-        return new MessageEmbed()
-        .setColor('#fefefe')
-        .setDescription(text)
-    }
 
     static wrongFormat(author){
         return `Hi ${author} please __add a specific time__ to your highlight to stay accountable!

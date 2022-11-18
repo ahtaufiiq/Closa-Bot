@@ -1,5 +1,5 @@
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
-const TemplateEmbedMessage = require("./TemplateEmbedMessage")
 
 class RecurringMeetupMessage {
     static askToScheduleRecurringMeetup(formattedDate,meetupDate,partyId){
@@ -17,9 +17,9 @@ notes:
 
 **Confirm** @here`,
             components:[
-                TemplateEmbedMessage.createComponent(
-                    TemplateEmbedMessage.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Accept'),
-                    TemplateEmbedMessage.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Decline","SECONDARY")
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Accept'),
+                    MessageComponent.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Decline","SECONDARY")
                 )
             ]
         }

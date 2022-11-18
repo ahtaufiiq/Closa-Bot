@@ -1,5 +1,6 @@
 const { MessageEmbed } = require("discord.js")
 const InfoUser = require("../helpers/InfoUser")
+const MessageComponent = require("../helpers/MessageComponent")
 
 class DailyStreakMessage{
 
@@ -39,21 +40,20 @@ class DailyStreakMessage{
     }
 
     static notify7DaysStreak(user){
-        return DailyStreakMessage.embedMessage(`Congratulations ${user} in honor of your consistency to do what matters every day.  you just got 🔥7x day streak badge! 
+        return MessageComponent.embedMessage({
+            description:`Congratulations ${user} in honor of your consistency to do what matters every day.  you just got 🔥7x day streak badge! 
 
 Now your fire have animation 👀every time you keep the streak.
-You can check the badge on your profile.`)
+You can check the badge on your profile.`
+        },"#fefefe")
     }
 
     static notifyDailyStreak(total){
-        return DailyStreakMessage.embedMessage(`In honor of your consistency to do what matters every day. You just got 🔥 ${total}x day streak badge!
+        return MessageComponent.embedMessage({
+            description:`In honor of your consistency to do what matters every day. You just got 🔥 ${total}x day streak badge!
 Now you have fire animation every time you keep the streak. 👀
-You can check the badge on your profile.`)
-    }
-    static embedMessage(text){
-        return new MessageEmbed()
-        .setColor('#fefefe')
-        .setDescription(text)
+You can check the badge on your profile.`
+        },"#fefefe")
     }
 }
 

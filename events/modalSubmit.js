@@ -1,10 +1,12 @@
 const ChannelController = require("../controllers/ChannelController");
+const GoalController = require("../controllers/GoalController");
 const MemberController = require("../controllers/MemberController");
 const MembershipController = require("../controllers/MembershipController");
 const PartyController = require("../controllers/PartyController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
+const GoalMessage = require("../views/GoalMessage");
 const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 
@@ -79,7 +81,7 @@ module.exports = {
 			}
 			
 		}else if(commandButton === "writeGoal"){
-			const deadlineGoal = PartyController.getDeadlineGoal()
+			const deadlineGoal = GoalController.getDeadlineGoal()
 			const [type,role,goalCategory] = value.split('-')
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
@@ -87,7 +89,7 @@ module.exports = {
 			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
 
 			await modal.deferReply()
-			await modal.editReply(PartyMessage.reviewYourGoal({
+			await modal.editReply(GoalMessage.reviewYourGoal({
 				project,
 				goal,
 				about,
@@ -99,14 +101,14 @@ module.exports = {
 			}))
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
-			const deadlineGoal = PartyController.getDeadlineGoal()
+			const deadlineGoal = GoalController.getDeadlineGoal()
 			const role = value.split('-')[1]
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
 			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
 			await modal.deferReply()
-			await modal.editReply(PartyMessage.reviewYourGoal({
+			await modal.editReply(GoalMessage.reviewYourGoal({
 				project,
 				goal,
 				about,

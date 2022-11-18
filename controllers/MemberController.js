@@ -9,7 +9,6 @@ class MemberController{
             .then(user=>{
                 user.roles.add(role)
             })
-        
     }
 
     static async getTotalMember(){

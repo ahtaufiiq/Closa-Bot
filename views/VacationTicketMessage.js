@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton} = require("discord.js")
+const MessageComponent = require("../helpers/MessageComponent")
 class VacationTicketMessage {
     static remindAboutToLoseStreak(userId){
         return { 
@@ -12,17 +12,17 @@ To keep your streak you can:
     }
 
     static componentVacationTicket(userId){
-        return new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`buyVacationTicket_${userId}`)
-                    .setLabel("🏖 Buy vacation ticket")
-                    .setStyle("SUCCESS"),
-                    new MessageButton()
-                    .setLabel("Learn more ↗")
-                    .setURL("https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe")
-                    .setStyle("LINK")
+        return MessageComponent.createComponent(
+            MessageComponent.addButton(
+                `buyVacationTicket_${userId}`,
+                "🏖 Buy vacation ticket",
+                "SUCCESS"
+            ),
+            MessageComponent.addLinkButton(
+                "Learn more ↗",
+                "https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"
             )
+        )
     }
 }
 

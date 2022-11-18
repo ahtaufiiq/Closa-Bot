@@ -25,11 +25,6 @@ Please \`\`select\`\` your accountability mode first to continue to the next ste
 ${MessageFormatting.tagChannel(CHANNEL_SOLO_MODE)} — *do your passion project alone.*
 ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} — *build alongside with other.*`
     }
-    static embedMessage(text){
-        return new MessageEmbed()
-        .setColor('#fefefe')
-        .setDescription(text)
-    }
 }
 
 module.exports = TodoReminderMessage

@@ -13,65 +13,18 @@ const { ChannelType, PermissionFlagsBits } = require('discord-api-types/v9');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
 class PartyController{
-    static showModalWriteGoal(interaction){
-        if(interaction.customId.includes('writeGoal')){
-			const modal = new Modal()
-			.setCustomId(interaction.customId)
-			.setTitle("Set your goal 🎯")
-			.addComponents(
-				new TextInputComponent().setCustomId('project').setLabel("Project Name").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('about').setLabel("About Project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
-				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
-			)
-			showModal(modal, {
-				client: interaction.client, // Client to show the Modal through the Discord API.
-				interaction: interaction, // Show the modal with interaction data.
-			});
-			return true
+
+	static async interactionSetDefaultReminder(interaction,value){
+		if (!value) {
+			supabase.from("Users")
+				.update({reminderHighlight:'07.30'})
+				.eq('id',interaction.user.id)
+				.then()
 		}
-        return false
-    }
-
-    static showModalEditGoal(interaction){
-        if(interaction.customId.includes('editGoal')){
-			const project = interaction.message.embeds[0].title
-			const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
-			const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
-			const modal = new Modal()
-			.setCustomId(interaction.customId)
-			.setTitle("Set your goal 🎯")
-			.addComponents(
-				new TextInputComponent().setCustomId('project').setLabel("Project Name").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setDefaultValue(goal).setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('about').setLabel("About Project").setDefaultValue(about).setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
-				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
-			)
-			showModal(modal, {
-				client: interaction.client, // Client to show the Modal through the Discord API.
-				interaction: interaction, // Show the modal with interaction data.
-			});
-			return true
-		}
-        return false
-    }
-
-    static async interactionPickRole(interaction,role,type='party'){
-        await interaction.editReply(PartyMessage.pickYourGoalCategory(role,interaction.user.id,type))
-        interaction.message.delete()
-    }
-
-	static getNextCohort(){
-		return LocalData.getData().cohort + 1
+		await interaction.editReply(PartyMessage.replyDefaultReminder(value))
+		interaction.message.delete()
 	}
 
-	static async getUsersJoinedParty(){
-		const data = await supabase.from("JoinParties")
-			.select()
-			.eq('cohort',this.getNextCohort())
-			.order('createdAt',{ascending:false})
-		return data.body
-	}
 	static async updateMessageWaitingRoom(client){
 		const msg = await PartyController.getMessageWaitingRoom(client)
 		const usersJoinedParty = await PartyController.getUsersJoinedParty()
@@ -79,345 +32,229 @@ class PartyController{
 		msg.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
 	}
 
-	static async generateAllUserGoalFromWaitingRoom(client){
+	static async generateWaitingRoomPartyMode(client){
 		const {kickoffDate} = LocalData.getData()
-		const ruleKickoff = Time.getDate(kickoffDate)
-		ruleKickoff.setHours(Time.minus7Hours(20))
-		ruleKickoff.setMinutes(30)
-		schedule.scheduleJob(ruleKickoff,async function(){
-			const data = await supabase.from("JoinParties")
-			.select()
-			.eq('cohort',this.getNextCohort())
-			.not('goal','is',null)
-			const deadlineGoal = PartyController.getDeadlineGoal()
-			const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
-			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role,})=>{
-				const {user} = await MemberController.getMember(client,UserId)
-				channelGoals.send(PartyMessage.postGoal({
-					project,
-					goal,
-					about,
-					shareProgressAt,
-					role,
-					user:user,
-					deadlineGoal:deadlineGoal
-				}))
-				.then(msg=>{
-					supabase.from("Goals")
-					.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
-					.eq("UserId",user.id)
-					.gte('deadlineGoal',Time.getTodayDateOnly())
-					.single()
-					.then(async updatedData =>{
-						supabase.from('Goals')
-						.insert([{
-							role,
-							goalCategory,
-							project,
-							goal,
-							about,
-							shareProgressAt,
-							id:msg.id,
-							deadlineGoal:deadlineGoal.deadlineDate,
-							isPartyMode:true,
-							alreadySetHighlight:false,
-							UserId:user.id,
-						}])
-						.then()
-						if (updatedData.body) {
-							PartyController.updateGoal(client,updatedData.body,0)
-						}
-					})
-					ChannelController.createThread(msg,project,user.username)
-					supabase.from('Users')
-						.update({
-							goalId:msg.id,
-							reminderProgress:shareProgressAt
-						})
-						.eq('id',user.id)
-						.then()
-				})
-			})
-		})
-		
-	}
-
-	static async getTotalUserHaveNotSetGoal(){
-        const {count} = await supabase
-			.from('JoinParties')
-			.select('id', { count: 'exact' })
-			.eq('cohort',this.getNextCohort())
-			.eq('alreadySetGoal',false)
-
-        return count
-	}
-
-	static async getMessageWaitingRoom(client){
-		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
-		const msg = await ChannelController.getMessage(channelParty,LocalData.getData().msgIdContentWaitingRoom)
-		return msg
-	}
-
-	static isPartyMode(value){
-		const accountabilityMode = value.split('-')[0]
-		return accountabilityMode === 'party'
-	}
-
-	static formatUsersJoinedParty(users){
-		let result = ''
-		for (let i = 0; i < users.length; i++) {
-			const user = users[i];
-			result += `${MessageFormatting.tagUser(user.UserId)} ${user.alreadySetGoal ? "✅" : "⏳"}`
-			if(i !== users.length - 1) result += '\n'
-		}
-		return result
-	}
-
-	static getTimeShareProgress(shareProgressAt){
-		return shareProgressAt.split(" ")[0]
-	}
-
-	static async interactionPostGoal(interaction,value){
-		const deadlineGoal = PartyController.getDeadlineGoal()
-		const project = interaction.message.embeds[0].title
-		const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
-		const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
-		const [accountabilityMode,role,goalCategory] = value.split('-')
-		PartyController.setProgressReminder(interaction,shareProgressAt)
-		if(this.isPartyMode(value)){
-			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
-			const kickoffEventId = LocalData.getData().kickoffEventId
-			const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
-			await interaction.editReply(PartyMessage.remindUserAttendKicoff(interaction.user.id,kickoffDate,kickoffEventId))
-			notificationThread.send(MessageFormatting.linkToEvent(kickoffEventId))
-			interaction.message.delete()
-			await supabase.from("JoinParties")
-			.update({
-				role,
-				goalCategory,
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				alreadySetGoal:true
-			})
-			.eq('UserId',interaction.user.id)
-			.eq('cohort',PartyController.getNextCohort())
-			PartyController.updateMessageWaitingRoom(interaction.client)
-		}else if(accountabilityMode.includes('joinParty')){
-			const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-			channelGoals.send(PartyMessage.postGoal({
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				role,
-				user:interaction.user,
-				deadlineGoal:deadlineGoal,
-				value
-			}))
-			.then(msg=>{
-				supabase.from("Goals")
-				.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
-				.eq("UserId",interaction.user.id)
-				.gte('deadlineGoal',Time.getTodayDateOnly())
-				.single()
-				.then(async updatedData =>{
-					supabase.from('Goals')
-					.insert([{
-						role,
-						goalCategory,
-						project,
-						goal,
-						about,
-						shareProgressAt,
-						id:msg.id,
-						deadlineGoal:deadlineGoal.deadlineDate,
-						isPartyMode: true ,
-						alreadySetHighlight:false,
-						UserId:interaction.user.id,
-					}])
-					.then()
-					if (updatedData.body) {
-						PartyController.updateGoal(interaction.client,updatedData.body,0)
-					}
-				})
-				ChannelController.createThread(msg,project,interaction.user.username)
-				supabase.from('Users')
-					.update({
-						goalId:msg.id,
-						reminderProgress:shareProgressAt
-					})
-					.eq('id',interaction.user.id)
-					.then()
-			})
-
-			const partyId = accountabilityMode.split('joinParty')[1]
-
-			const dataParty = await supabase.from("PartyRooms")
-			.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
-			.eq('id',partyId)
-			.single()
-			const members = dataParty.body?.MemberPartyRooms
-			const {
-				totalExistingMembers,
-				totalTrialMember
-			} = PartyController.countTotalMemberParty(members)
-			const isTrialMember = await MemberController.hasRole(interaction.client,interaction.user.id,ROLE_TRIAL_MEMBER)
-
-			if ((isTrialMember && totalTrialMember === 1) || (!isTrialMember && totalExistingMembers === 3)) {
-				await interaction.editReply(PartyMessage.replyCannotJoinPartyFullAfterSetGoal(interaction.user.id))
-			}else{
-				const {celebrationDate} = LocalData.getData()
-				supabase.from("MemberPartyRooms")
-					.insert({
-						goal,
-						isTrialMember,
-						partyId,
-						endPartyDate:celebrationDate,
-						UserId:interaction.user.id
-					})
-					.then(()=>{
-						PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
-					})
-				await interaction.editReply(PartyMessage.replyImmediatelyJoinParty(interaction.user.id,dataParty.body?.msgId))
-			}
-			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
-			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
-			interaction.message.delete()
-		}else{
-			await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
-			interaction.message.delete()
-			const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-			channelGoals.send(PartyMessage.postGoal({
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				role,
-				user:interaction.user,
-				deadlineGoal:deadlineGoal,
-				value
-			}))
-			.then(msg=>{
-				supabase.from("Goals")
-				.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
-				.eq("UserId",interaction.user.id)
-				.gte('deadlineGoal',Time.getTodayDateOnly())
-				.single()
-				.then(async updatedData =>{
-					supabase.from('Goals')
-					.insert([{
-						role,
-						goalCategory,
-						project,
-						goal,
-						about,
-						shareProgressAt,
-						id:msg.id,
-						deadlineGoal:deadlineGoal.deadlineDate,
-						isPartyMode:accountabilityMode === 'party' ? true : false,
-						alreadySetHighlight:false,
-						UserId:interaction.user.id,
-					}])
-					.then()
-					if (updatedData.body) {
-						PartyController.updateGoal(interaction.client,updatedData.body,0)
-					}
-				})
-				ChannelController.createThread(msg,project,interaction.user.username)
-				supabase.from('Users')
-					.update({
-						goalId:msg.id,
-						reminderProgress:shareProgressAt
-					})
-					.eq('id',interaction.user.id)
-					.then()
-			})
-
-		}
-	}
-
-	static async alreadyHaveGoal(userId){
-		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gt('deadlineGoal',Time.getTodayDateOnly())
-		return data.body.length !== 0
-	}
-
-	static async getAllActiveGoal(){
-		const data = await supabase.from("Goals")
-		.select()
-		.gte('deadlineGoal',Time.getTodayDateOnly())
-		
-		return data
-	}
-
-	static async updateGoal(client,data,dayLeft){
-		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
-		const user = await MemberController.getMember(client,data.UserId)
-		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-		const {role,project,goal,about,shareProgressAt,deadlineGoal,isPartyMode} = data
-		existingGoal.edit(PartyMessage.postGoal({project,goal,about,shareProgressAt,role,deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},user:user,value:isPartyMode ? 'party':'solo'}))
-	}
-
-	static handleOutsideMemberChatInPartyRoom(msg){
-		const [label,partyNumber] = msg.channel.name.split(' ')
-		if(label === "Party"){
-			supabase.from("MemberPartyRooms")
-				.select()
-				.eq('UserId',msg.author.id)
-				.eq('partyId',partyNumber)
-				.single()
-				.then(async data=>{
-					if (!data.body) {
-						msg.delete()
-						msg.channel.members.remove(msg.author.id)
-						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-						notificationThread.send(PartyMessage.replyOutsiderMemberCannotChat())
-					}
-				})
+		const ruleFirstDayCooldown = Time.getNextDate(-6,kickoffDate)
+		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
+		ruleFirstDayCooldown.setMinutes(30)
+		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
+			PartyController.showChannelPartyMode(client)
+			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+			const [usersJoinedParty,totalUserHaveNotSetGoal] = await Promise.all([PartyController.getUsersJoinedParty(),await PartyController.getTotalUserHaveNotSetGoal()])
 			
-		}
+			const data = LocalData.getData()
+			if(data.msgIdContentWaitingRoom){
+				const msgContentWaitingRoom = await ChannelController.getMessage(channelParty,data.msgIdContentWaitingRoom)
+				msgContentWaitingRoom.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+
+				const msgCountdownWaitingRoom = await ChannelController.getMessage(channelParty,data.msgIdCountdownWaitingRoom)
+				PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
+			}else{
+				const msgContentWaitingRoom = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+				const msgCountdownWaitingRoom = await channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
+
+				PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
+				data.msgIdContentWaitingRoom = msgContentWaitingRoom.id
+				data.msgIdCountdownWaitingRoom = msgCountdownWaitingRoom.id
+				LocalData.writeData(data)
+			}
+		})
 	}
-	static async handleMentionOutsideMemberInPartyRoom(msg){
-		const [label,partyNumber] = msg.channel.name.split(' ')
-		if(label === "Party" && msg.mentions.users.size > 0){
-			let isDeleteMessage = false
-			for (const [userId] of msg.mentions.users) {
-				const data = await supabase.from("MemberPartyRooms")
-				.select()
-				.eq('UserId',userId)
-				.eq('partyId',partyNumber)
-				.single()
-				
-				if (!data.body) {
-					isDeleteMessage = true
-					msg.channel.members.remove(userId)
-				}
-			}
-			if(isDeleteMessage){
-				msg.delete()
-				msg.channel.send(PartyMessage.replyCannotMentionNotPartyMember())
-			}
+
+	static isRangePartyMode(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setMinutes(0)
+		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
+
+		return diffTime >= 0 && diffTime <= (60 * 24 * 7)
+	}
+
+	static getFormattedTimeLeftUntilKickoff(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setMinutes(0)
+		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
+		return Time.convertTime(diffTime,'short')
+	}
+
+	static async updateMessageWaitingRoom(client){
+		const data = LocalData.getData()
+		const channelPartyMode = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+		
+		if(data.msgIdCountdownWaitingRoom && PartyController.isRangePartyMode()){
+			const [usersJoinedParty,totalUserHaveNotSetGoal] = await Promise.all([PartyController.getUsersJoinedParty(),await PartyController.getTotalUserHaveNotSetGoal()])
+			const msgContentWaitingRoom = await ChannelController.getMessage(channelPartyMode,data.msgIdContentWaitingRoom)
+			msgContentWaitingRoom.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+
+			const msgCountdownWaitingRoom = await ChannelController.getMessage(channelPartyMode,data.msgIdCountdownWaitingRoom)
+			PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
 		}
 	}
 
-	static async updateAllActiveGoal(client){
-		let ruleUpdateGoal = new schedule.RecurrenceRule();
-        
-        ruleUpdateGoal.hour = 17
-        ruleUpdateGoal.minute = 1
-        schedule.scheduleJob(ruleUpdateGoal,function(){
-			PartyController.getAllActiveGoal()
-				.then(data=>{
-					if (data.body) {
-						data.body.forEach(goal=>{
-							const dayLeft = Time.getDayLeft(Time.getDate(goal.deadlineGoal))
-							PartyController.updateGoal(client,goal,dayLeft)
-						})
+	static countdownWaitingRoom(msg){
+		msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
+		const isStartUpdateHourly = PartyController.getFormattedTimeLeftUntilKickoff().includes('d')
+		const countdownWaitingRoomHourly = setInterval(() => {
+			if(!PartyController.getFormattedTimeLeftUntilKickoff().includes('d')){
+				clearInterval(countdownWaitingRoomHourly)
+				const countdownWaitingRoomMinutely = setInterval(() => {
+					if(PartyController.getFormattedTimeLeftUntilKickoff().includes('-')){
+						clearInterval(countdownWaitingRoomMinutely)
+						msg.edit(PartyMessage.embedMessageWaitingRoom('0 m'))
+					}else{
+						msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
 					}
-				})
+				}, 1000 * 60);
+			}else{
+				msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
+			}
+		}, 1000 * 60 * (isStartUpdateHourly ? 60 : 1));
+	}
+
+	static sendReminderSetHighlightAfterJoinParty(client,members){
+		setTimeout(() => {
+			members.forEach(async member=>{
+				const notificationThread = await ChannelController.getNotificationThread(client,member.id)
+				notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(member.id))
+			})
+		}, 1000 * 60 * 15);
+	}
+
+	static async createPartyRoom(channelParty,members,partyId){
+		const totalMemberParty = PartyController.countTotalMemberParty(members)
+		const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
+		const msgPartyRoom = await channelParty.send(PartyMessage.partyRoom(
+			partyId,
+			PartyController.formatMembersPartyRoom(members),
+			totalMemberParty,
+			members[0].UserId,
+			isFullParty
+		))
+
+		return msgPartyRoom
+	}
+
+	static saveMessagePartyRoomId(msgId,partyId){
+		supabase.from("PartyRooms").update({msgId}).eq('id',partyId).then()
+	}
+
+	static async getListMemberNotResponseScheduleMeetup(dataMembersParty,partyId){
+		const queryOr = dataMembersParty.body.map(member=>`UserId.eq.${member.UserId}`)
+		const dataWeeklyMeetup = await supabase.from("WeeklyMeetups")
+			.select("UserId")
+			.or(queryOr.join(','))
+			.eq('PartyRoomId',partyId)
+
+		const memberList = {}
+		dataMembersParty.body.forEach(member=>memberList[member.UserId]=false)
+		dataWeeklyMeetup.body.forEach(member=>memberList[member.UserId]=true)
+		const tagMembers = []
+		for (const userId in memberList) {
+			if(!memberList[userId]) tagMembers.push(MessageFormatting.tagUser(userId))
+		}
+		return tagMembers
+	}
+
+	static async remindUserToResponseScheduleMeetup(client,thread,partyId){
+		const time = Time.getNextDate(1)
+		await supabase.from("Reminders")
+			.insert({
+				time,
+				message:partyId,
+				type:'reminderScheduleMeetup'
+			})
+		schedule.scheduleJob(time,async function() {
+			const dataReminder = await supabase.from("Reminders")
+				.select()
+				.eq('type','weeklyMeetup')
+				.eq('message',partyId)
+				.gte('time',new Date().toISOString())
+
+			if (dataReminder.body?.length === 0) {
+				const dataMembersParty = await supabase.from("MemberPartyRooms")
+					.select("UserId")
+					.eq('partyId',partyId)
+
+				if(dataMembersParty.body.length > 0){
+					const tagMembers = await PartyController.getListMemberNotResponseScheduleMeetup(dataMembersParty,partyId)
+					
+					const dataParty = await supabase.from("PartyRooms")
+						.select('msgId,meetupMessageId')
+						.eq('id',partyId)
+						.single()
+
+					const msgMeetup = await ChannelController.getMessage(thread,dataParty.body?.meetupMessageId)
+					msgMeetup.reply(RecurringMeetupMessage.remindSomeoneToAcceptMeetup(tagMembers.join(' ')))
+
+					PartyController.autoRescheduleMeetup(client,dataParty,partyId)
+				}
+
+			}
 		})
+	}
+
+	static async autoRescheduleMeetup(client,dataParty,partyId){
+		const time = Time.getNextDate(1)
+		await supabase.from("Reminders")
+			.insert({
+				time,
+				message:partyId,
+				type:'autoRescheduleMeetup'
+			})
+		schedule.scheduleJob(time,async function() {
+			const dataReminder = await supabase.from("Reminders")
+				.select()
+				.eq('type','weeklyMeetup')
+				.eq('message',partyId)
+				.gte('time',new Date().toISOString())
+
+			if (dataReminder.body?.length === 0) {
+				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,Time.getNextTuesdayDate(),partyId)
+			}
+		})
+	}
+
+	static async generatePartyRoom(client,cohort){
+		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const formattedDate = Time.getFormattedDate(Time.getNextDate(7),true)
+		const meetupDate = Time.getDateOnly(Time.getNextDate(7))
+		const data = await supabase.from("PartyRooms")
+			.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+			.eq('cohort',cohort)
+		
+		for (let i = 0; i < data.body.length; i++) {
+			const party = data.body[i]
+			const members = PartyController.sortMemberByLeader(party.MemberPartyRooms)
+
+			PartyController.sendReminderSetHighlightAfterJoinParty(client,members)
+
+			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
+			PartyController.saveMessagePartyRoomId(msgPartyRoom.id,party.id)
+
+			const thread = await ChannelController.createThread(msgPartyRoom,`Party ${party.id}`)
+			thread.send(PartyMessage.shareLinkPartyRoom(msgPartyRoom.id))
+
+			for (let i = 0; i < members.length; i++) {
+				const member = members[i];
+				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
+			}
+			
+			setTimeout(() => {
+				thread.send(PartyMessage.welcomingPartyRoom(party.id))
+			}, 1000 * 60 * 5);
+
+			setTimeout(async () => {
+				PartyController.remindUserToResponseScheduleMeetup(client,thread,party.id)
+
+				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id))
+				
+				supabase.from("PartyRooms")
+					.update({meetupMessageId:msgPartyRoom.id})
+					.eq('id',party.id)
+					.then()
+			}, 1000 * 60 * 10);
+		}
 	}
 
 	static hideChannelPartyMode(client){
@@ -428,9 +265,6 @@ class PartyController{
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
 			ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,false)
 		})
-	}
-	static showChannelPartyMode(client){
-		ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,true)
 	}
 
 	static async announcePartyModeAvailable(client){
@@ -449,51 +283,6 @@ class PartyController{
 		schedule.scheduleJob(ruleLastDayCooldown,async function(){
 			channelGeneral.send(PartyMessage.reminderOpenPartyMode())
 		})
-	}
-
-
-	static async generateWaitingRoomPartyMode(client){
-		const {kickoffDate} = LocalData.getData()
-		const ruleFirstDayCooldown = Time.getNextDate(-6,kickoffDate)
-		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
-		ruleFirstDayCooldown.setMinutes(30)
-		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
-			PartyController.showChannelPartyMode(client)
-			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
-			const usersJoinedParty = await PartyController.getUsersJoinedParty()
-			const totalUserHaveNotSetGoal = await PartyController.getTotalUserHaveNotSetGoal()
-			const msg = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
-			channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
-				.then(msg=>{
-					const countdownWaitingRoomHourly = setInterval(() => {
-						if(!PartyController.getTimeLeftUntilKickoff().includes('day')){
-							clearInterval(countdownWaitingRoomHourly)
-							const countdownWaitingRoomMinutely = setInterval(() => {
-								if(PartyController.getTimeLeftUntilKickoff().includes('-')){
-									clearInterval(countdownWaitingRoomMinutely)
-									msg.edit(PartyMessage.embedMessageWaitingRoom('0 m'))
-								}else{
-									msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
-								}
-							}, 1000 * 60);
-						}else{
-							msg.edit(PartyMessage.embedMessageWaitingRoom(PartyController.getTimeLeftUntilKickoff()))
-						}
-					}, 1000 * 60 * 60);
-				})
-			
-			const data = LocalData.getData()
-			data.msgIdContentWaitingRoom = msg.id
-			LocalData.writeData(data)
-		})
-	}
-
-	static getTimeLeftUntilKickoff(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(Time.minus7Hours(20))
-		kickoffDate.setMinutes(0)
-		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
-		return Time.convertTime(diffTime,'short')
 	}
 
 	static createKickoffEvent(client){
@@ -527,10 +316,7 @@ class PartyController{
 		.eq('id',partyNumber)
 		.single()
 		.then(async data=>{
-			const members = data?.body?.MemberPartyRooms
-			members.sort(member=> {
-				return member.isLeader ? -1 : 1 
-			})
+			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
 			const totalMemberParty = PartyController.countTotalMemberParty(members)
 			const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
 			msgParty.edit(PartyMessage.partyRoom(
@@ -544,20 +330,6 @@ class PartyController{
 
 	}
 
-	static getStartTimeKickoffEvent(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(Time.minus7Hours(20))
-		kickoffDate.setMinutes(0)
-		return kickoffDate
-	}
-
-	static getEndTimeKickoffEvent(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(Time.minus7Hours(21))
-		kickoffDate.setMinutes(0)
-		return kickoffDate
-	}
-
 	static remind30MinutesBeforeKickoff(client){
 		const {kickoffDate} = LocalData.getData()
 		const remindBeforeKickoff = Time.getDate(kickoffDate)
@@ -568,29 +340,6 @@ class PartyController{
         schedule.scheduleJob(remindBeforeKickoff,function() {
 			const kickoffEventId = LocalData.getData().kickoffEventId
 			channel.send(PartyMessage.remind30MinutesBeforeKickoff(kickoffEventId))
-        })
-	
-	}
-	static remindToWriteGoal(client){
-		const {kickoffDate} = LocalData.getData()
-		const remindBeforeKickoff = Time.getDate(kickoffDate)
-        remindBeforeKickoff.setHours(Time.minus7Hours(20))
-        remindBeforeKickoff.setMinutes(5)
-
-        schedule.scheduleJob(remindBeforeKickoff,function() {
-			supabase.from("JoinParties")
-				.select("UserId")
-				.eq('cohort',PartyController.getNextCohort())
-				.eq('alreadySetGoal',false)
-				.then(data=>{
-					if(data.body){
-						data.body.forEach(async member=>{
-							const notificationThread = await ChannelController.getNotificationThread(client,member.UserId)
-							notificationThread.send(PartyMessage.remindToWriteGoal(member.UserId))
-							notificationThread.send(PartyMessage.pickYourRole(member.UserId,'party'))
-						})
-					}
-				})
         })
 	
 	}
@@ -620,17 +369,7 @@ class PartyController{
 			})
 	}
 
-	static async interactionSetDefaultReminder(interaction,value){
-		if (!value) {
-			supabase.from("Users")
-				.update({reminderHighlight:'07.30'})
-				.eq('id',interaction.user.id)
-				.then()
-		}
-		await interaction.editReply(PartyMessage.replyDefaultReminder(value))
-		interaction.message.delete()
-	}
-
+	//TODO make it efficient
 	static setProgressReminder(interaction,shareProgressAt){
 		supabase.from("Users")
 		.select('reminderProgress')
@@ -679,28 +418,6 @@ class PartyController{
 		return todayDate <= lastWeekCohort
 	}
 
-	static getDeadlineGoal(){
-		const {celebrationDate,kickoffDate} = LocalData.getData()
-		const todayDate = Time.getTodayDateOnly()
-		const result = {
-			dayLeft:null,
-			description:'',
-			deadlineDate:null
-		}
-		
-		if (this.isLastWeekCohort() || Time.isCooldownPeriod() ) {
-			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
-			result.deadlineDate = celebrationDate
-			result.description = 'celebration'
-		}else {
-			const deadlineDate = Time.getNextDate(-1,kickoffDate)
-			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),deadlineDate)
-			result.deadlineDate = Time.getDateOnly(deadlineDate)
-			result.description = 'kick-off'
-		}
-		return result
-	}
-
 	static formatMembersPartyRoom(members=[]){
 		let result = ''
 		for (let i = 0; i < 4; i++) {
@@ -727,127 +444,6 @@ class PartyController{
 			totalExistingMembers,
 			totalTrialMember
 		}
-	}
-
-	static generatePartyRoom(client,cohort){
-		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
-		const formattedDate = Time.getFormattedDate(Time.getNextDate(7),true)
-		const meetupDate = Time.getDateOnly(Time.getNextDate(7))
-		supabase.from("PartyRooms")
-		.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
-		.eq('cohort',cohort)
-		.then(data=>{
-			for (let i = 0; i < data.body.length; i++) {
-				const party = data.body[i]
-				const members = party.MemberPartyRooms
-				members.sort(member=> {
-					return member.isLeader ? -1 : 1 
-				})
-
-				setTimeout(() => {
-					members.forEach(async member=>{
-						const notificationThread = await ChannelController.getNotificationThread(client,member.id)
-						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(member.id))
-					})
-				}, 1000 * 60 * 15);
-				const totalMemberParty = PartyController.countTotalMemberParty(members)
-				const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
-				channelParty.send(PartyMessage.partyRoom(
-					party.id,
-					PartyController.formatMembersPartyRoom(members),
-					totalMemberParty,
-					members[0].UserId,
-					isFullParty
-				))
-				.then(async msg=>{
-					supabase.from("PartyRooms")
-						.update({msgId:msg.id})
-						.eq('id',party.id)
-						.then()
-					const thread = await ChannelController.createThread(msg,`Party ${party.id}`)
-					thread.send(PartyMessage.shareLinkPartyRoom(msg.id))
-					for (let i = 0; i < members.length; i++) {
-						const member = members[i];
-						await thread.send(PartyMessage.userJoinedParty(member.UserId))	
-					}
-					setTimeout(() => {
-						thread.send(PartyMessage.welcomingPartyRoom(party.id))
-					}, 1000 * 60 * 5);
-					setTimeout(async () => {
-						thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id))
-							.then(msg=>{
-								supabase.from("PartyRooms")
-									.update({meetupMessageId:msg.id})
-									.eq('id',party.id)
-									.then()
-							})
-						const time = Time.getNextDate(1)
-						await supabase.from("Reminders")
-							.insert({
-								time,
-								message:party.id,
-								type:'reminderScheduleMeetup'
-							})
-						schedule.scheduleJob(time,async function() {
-							const dataReminder = await supabase.from("Reminders")
-								.select()
-								.eq('type','weeklyMeetup')
-								.eq('message',party.id)
-								.gte('time',new Date().toISOString())
-
-							if (dataReminder.body?.length === 0) {
-								const dataMembersParty = await supabase.from("MemberPartyRooms")
-									.select("UserId")
-									.eq('partyId',party.id)
-
-								if(dataMembersParty.body.length > 0){
-									const queryOr = dataMembersParty.body.map(member=>`UserId.eq.${member.UserId}`)
-									const dataWeeklyMeetup = await supabase.from("WeeklyMeetups")
-										.select("UserId")
-										.or(queryOr.join(','))
-										.eq('PartyRoomId',party.id)
-									const memberList = {}
-									dataMembersParty.body.forEach(member=>memberList[member.UserId]=false)
-									dataWeeklyMeetup.body.forEach(member=>memberList[member.UserId]=true)
-									const tagMembers = []
-									for (const userId in memberList) {
-										if(!memberList[userId]) tagMembers.push(MessageFormatting.tagUser(userId))
-									}
-									const dataParty = await supabase.from("PartyRooms")
-									.select('msgId,meetupMessageId')
-									.eq('id',party.id)
-									.single()
-									const msgMeetup = await ChannelController.getMessage(thread,dataParty.body?.meetupMessageId)
-									msgMeetup.reply(RecurringMeetupMessage.remindSomeoneToAcceptMeetup(tagMembers.join(' ')))
-									
-									const time = Time.getNextDate(1)
-									await supabase.from("Reminders")
-										.insert({
-											time,
-											message:party.id,
-											type:'autoRescheduleMeetup'
-										})
-									schedule.scheduleJob(time,async function() {
-										const dataReminder = await supabase.from("Reminders")
-											.select()
-											.eq('type','weeklyMeetup')
-											.eq('message',party.id)
-											.gte('time',new Date().toISOString())
-			
-										if (dataReminder.body?.length === 0) {
-											RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,Time.getNextTuesdayDate(),party.id)
-										}
-									})
-								}
-
-							}
-						})
-					}, 1000 * 60 * 10);
-				})
-			}
-		})
-
-		
 	}
 
 	static async disbandParty(client){
@@ -890,28 +486,24 @@ class PartyController{
 					party.thread.send(PartyMessage.remindPartyWillEnded2Days())
 				}
 			})
-	
 			schedule.scheduleJob(oneDayBeforeDisbandParty,async ()=>{
 				for (let i = 0; i < partyRooms.length; i++) {
 					const party = partyRooms[i];
 					party.thread.send(PartyMessage.remindPartyWillEndedToday())
 				}
 			})
-	
 			schedule.scheduleJob(disbandPartyIn30Minutes,async ()=>{
 				for (let i = 0; i < partyRooms.length; i++) {
 					const party = partyRooms[i];
 					party.thread.send(PartyMessage.remindPartyWillEnded30Minutes())
 				}
 			})
-	
 			schedule.scheduleJob(disbandPartyIn5Minutes,async ()=>{
 				for (let i = 0; i < partyRooms.length; i++) {
 					const party = partyRooms[i];
 					party.thread.send(PartyMessage.remindPartyWillEnded5Minutes())
 				}
 			})
-	
 			schedule.scheduleJob(disbandPartyDate,async ()=>{
 				for (let i = 0; i < partyRooms.length; i++) {
 					const party = partyRooms[i];
@@ -923,10 +515,138 @@ class PartyController{
 				}
 			})
 		}
-
 	}
 
+	static async getMessageWaitingRoom(client){
+		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+		const msg = await ChannelController.getMessage(channelParty,LocalData.getData().msgIdContentWaitingRoom)
+		return msg
+	}
 
+	static formatUsersJoinedParty(users){
+		let result = ''
+		for (let i = 0; i < users.length; i++) {
+			const user = users[i];
+			result += `${MessageFormatting.tagUser(user.UserId)} ${user.alreadySetGoal ? "✅" : "⏳"}`
+			if(i !== users.length - 1) result += '\n'
+		}
+		return result
+	}
+
+	static getStartTimeKickoffEvent(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setMinutes(0)
+		return kickoffDate
+	}
+
+	static getEndTimeKickoffEvent(){
+		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		kickoffDate.setHours(Time.minus7Hours(21))
+		kickoffDate.setMinutes(0)
+		return kickoffDate
+	}
+
+	static getTimeShareProgress(shareProgressAt){
+		return shareProgressAt.split(" ")[0]
+	}
+
+	static async getUsersJoinedParty(){
+		const data = await supabase.from("JoinParties")
+			.select()
+			.eq('cohort',this.getNextCohort())
+			.order('createdAt',{ascending:false})
+		return data.body
+	}
+
+	static sortMemberByLeader(members){
+		members.sort(member=> {
+			return member.isLeader ? -1 : 1 
+		})
+		return members
+	}
+
+	static async deleteUserFromParty(userId,partyNumber){
+		return await supabase.from("MemberPartyRooms")
+			.delete()		
+			.eq("UserId",userId)
+			.eq('partyId',partyNumber)
+			.single()
+	}
+
+	static async getRecentActiveUserInParty(members){
+		const queryOr = members.map(member=>`UserId.eq.${member.UserId}`)
+		const dataRecentUser = await supabase.from('Points')
+			.select()
+			.or(queryOr.join(','))
+			.limit(1)
+			.order('createdAt',{ascending:false})
+			.single()
+		return dataRecentUser
+	}
+
+	static async getTotalUserHaveNotSetGoal(){
+        const {count} = await supabase
+			.from('JoinParties')
+			.select('id', { count: 'exact' })
+			.eq('cohort',this.getNextCohort())
+			.eq('alreadySetGoal',false)
+
+        return count
+	}
+
+	static getNextCohort(){
+		return LocalData.getData().cohort + 1
+	}
+
+	static isPartyMode(value){
+		const accountabilityMode = value.split('-')[0]
+		return accountabilityMode === 'party'
+	}
+
+	static showChannelPartyMode(client){
+		ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,true)
+	}
+
+	static async isMemberParty(userId,partyNumber){
+		const data = await supabase.from("MemberPartyRooms")
+			.select()
+			.eq('UserId',userId)
+			.eq('partyId',partyNumber)
+			.single()
+		return !!data.body
+	}
+
+	static async handleOutsideMemberChatInPartyRoom(msg){
+		const [label,partyNumber] = msg.channel.name.split(' ')
+		if(label === "Party"){
+			const isMemberParty = await PartyController.isMemberParty(msg.author.id,partyNumber)
+			if (!isMemberParty) {
+				msg.delete()
+				msg.channel.members.remove(msg.author.id)
+				const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
+				notificationThread.send(PartyMessage.replyOutsiderMemberCannotChat())
+			}
+		}
+	}
+
+	static async handleMentionOutsideMemberInPartyRoom(msg){
+		const [label,partyNumber] = msg.channel.name.split(' ')
+		if(label === "Party" && msg.mentions.users.size > 0){
+			let isDeleteMessage = false
+			for (const [userId] of msg.mentions.users) {
+				const isMemberParty = await PartyController.isMemberParty(msg.author.id,partyNumber)
+				if (!isMemberParty) {
+					isDeleteMessage = true
+					msg.channel.members.remove(userId)
+				}
+			}
+			if(isDeleteMessage){
+				msg.delete()
+				msg.channel.send(PartyMessage.replyCannotMentionNotPartyMember())
+			}
+		}
+	}
 }
 
 module.exports = PartyController

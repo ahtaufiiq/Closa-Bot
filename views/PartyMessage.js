@@ -1,6 +1,7 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 class PartyMessage {
@@ -14,7 +15,7 @@ It's a mode where you work on yourself as solo for your \`\`passion projects\`\`
 • Accountability: You'll accountable for yourself & closa community.
 + Avg. timeline: 4 Weeks
 \`\`\`` , 
-            components: [this.createComponent(this.addButton("startSoloMode","Start"))] 
+            components: [MessageComponent.createComponent(MessageComponent.addButton("startSoloMode","Start"))] 
         }
     }
     static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
@@ -26,20 +27,18 @@ ${listPeople}`
     }
     static embedMessageWaitingRoom(time){
         return {
-            embeds:[this.embedMessage("🎊 PARTY MODE",`Time before group match making:
+            embeds:[MessageComponent.embedMessage({
+                title:"🎊 PARTY MODE",
+                description:`Time before group match making:
 :hourglass_flowing_sand: **${time}** 
 
-You will be grouped with members up to 4 people`)],
-            components:[this.createComponent(
-                this.addButton(`joinPartyMode`,'Join Party'),
-                this.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY")
+You will be grouped with members up to 4 people`}
+            )],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`joinPartyMode`,'Join Party'),
+                MessageComponent.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY")
             )]
         }
-    }
-
-    static remindToWriteGoal(userId){
-        return `Hi ${MessageFormatting.tagUser(userId)} you haven't pick your role & set your goals yet. 
-Please follow the step below until finish. `
     }
 
     static replySuccessStartSoloMode(notificationId){
@@ -55,118 +54,6 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
         return `⚠️ You've joined the waiting room.`
     }
 
-    static pickYourRole(userId,type="party"){
-        return {
-            content:`**Pick your role ${MessageFormatting.tagUser(userId)}**
-p.s: *you can always change it in the next cohort*`,
-            components:[this.createComponent(
-                this.addButton(`roleDeveloper_${userId}_${type}`,"💻 Developers"),
-                this.addButton(`roleDesigner_${userId}_${type}`,"🏀 Designer"),
-                this.addButton(`roleCreator_${userId}_${type}`,"🎨 Creators"),
-            )]
-        }
-    }
-
-    static pickYourGoalCategory(role,userId,type='party'){
-        let options = []
-        switch (role) {
-            case `Developer`:
-                options = [
-                    { label:`Coding interview preparation`, value:`${type}-Developer-Coding interview preparation`},
-                    { label:`Build personal website`, value:`${type}-Developer-Build personal website`},
-                    { label:`Build a web app`, value:`${type}-Developer-Build a web app`},
-                    { label:`Build a mobile app`, value:`${type}-Developer-Build a mobile app`},
-                    { label:`Learn new front-end stacks`, value:`${type}-Developer-Learn new front-end stacks`},
-                    { label:`Learn new back-end stacks`, value:`${type}-Developer-Learn new back-end stacks`},
-                    { label:`Learn new mobile stacks`, value:`${type}-Developer-Learn new mobile stacks`},
-                    { label:`Learn new tech stacks`, value:`${type}-Developer-Learn new tech stacks`},
-                    { label:`Other`, value:`${type}-Developer-Other`}
-                ]
-                break;
-            case `Designer`:
-                options = [
-                    { label:`Writing case study`,value:`${type}-Designer-Writing case study`},
-                    { label:`Design exploration`,value:`${type}-Designer-Design exploration`},
-                    { label:`Build design portfolio`,value:`${type}-Designer-Build design portfolio`},
-                    { label:`Building personal website`,value:`${type}-Designer-Building personal website`},
-                    { label:`Learn design skills`,value:`${type}-Designer-Learn design skills`},
-                    { label:`Other`, value:`${type}-Designer-Other`}
-                ]
-                break;
-            case `Creator`:
-                options = [
-                    { label:`Create new content`,value:`${type}-Creator-Create new content`},
-                    { label:`Learn new skills`,value:`${type}-Creator-Learn new skills`},
-                    { label:`Building Audience`,value:`${type}-Creator-Building Audience`},
-                    { label:`Other`, value:`${type}-Creator-Other`}
-                ]
-                break;
-            default:
-                break;
-        }
-        return {
-            content:"Pick your goal category:",
-            components:[
-                this.createComponent(
-                    this.addMenu(
-                        `goalCategory_${userId}`,
-                        "– Select –",
-                        options
-                    )
-                )
-            ]
-        }
-    }
-
-    static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
-        return {
-            content:`**Set your goal for a passion project**
-
-You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
-
-*Make sure to estimate your goal according community timeline above.*`,
-            components:[
-                this.createComponent(
-                    this.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Set your goal")
-                )
-            ]
-        }
-    }
-
-    static replySuccessSubmitGoal(dayLeft){
-        let textDayLeft = `${dayLeft} days`
-        if (dayLeft === 0) {
-            textDayLeft = 'Today' 
-        }else if(dayLeft === 1){
-            textDayLeft = "Tomorrow"
-        }
-        return `**Your goal are set!**
-
-See you on our kick-off day! (in ${textDayLeft})
-You will be matched with other members on the kick-off day at 20.30 WIB`
-    }
-
-    static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
-        let typeAccountability = value.split('-')[0]
-        return {
-            content:"**REVIEW YOUR GOAL 📝**\n↓",
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
-            components:[
-                this.createComponent(
-                    this.addButton(`postGoal_${user.id}_${value}`,typeAccountability === 'party' ? "Submit":"Post & commit","PRIMARY"),
-                    this.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
-                )
-            ]
-        }
-    }
-    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value='party'}){
-        let typeAccountability = value.split('-')[0]
-        return {
-            content:`${user} just started a new project 🔥`,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
-        }
-    }
-
     static partyRoom(partyNumber,members,totalMember,leaderId,isFull=false){
         const {totalExistingMembers,totalTrialMember} = totalMember
         return {
@@ -180,9 +67,9 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
                 )
             ],
             components:[
-                this.createComponent(
-                    isFull ? this.addDisabledButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Full","DANGER") : this.addButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Join"),
-                    this.addButton(`leavePartyRoom_${leaderId}_${partyNumber}`,"Leave","SECONDARY")
+                MessageComponent.createComponent(
+                    isFull ? MessageComponent.addDisabledButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Full","DANGER") : MessageComponent.addButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Join"),
+                    MessageComponent.addButton(`leavePartyRoom_${leaderId}_${partyNumber}`,"Leave","SECONDARY")
                 )
             ]
         }
@@ -228,7 +115,7 @@ Rules:
 
 **Next, write your highlight of the day** → on <#${CHANNEL_HIGHLIGHT}> `,
             components:[
-                this.createComponent(this.addLinkButton("Learn more about 🔆highlight","https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386"))
+                MessageComponent.createComponent(MessageComponent.addLinkButton("Learn more about 🔆highlight","https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386"))
             ]
         }
     }
@@ -247,10 +134,10 @@ https://tenor.com/view/usagyuuun-confetti-sorpresa-gif-13354314`
 Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
             components:[
-                this.createComponent(
-                    this.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
-                    this.addButton(`customReminder_${userId}`,"Let me custom my own reminder","PRIMARY"),
-                    this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
+                    MessageComponent.addButton(`customReminder_${userId}`,"Let me custom my own reminder","PRIMARY"),
+                    MessageComponent.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]
         }
@@ -262,10 +149,10 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
 Continue to set highlight reminder at \`\`${prevDefaultTime} WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
             components:[
-                this.createComponent(
-                    this.addButton(`defaultReminder_${userId}_${prevDefaultTime}`,`Yes, set at ${prevDefaultTime} WIB`,"PRIMARY"),
-                    this.addButton(`customReminder_${userId}`,"Edit Default Time","PRIMARY"),
-                    this.addButton(`noReminder_${userId}`,"No","SECONDARY"),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`defaultReminder_${userId}_${prevDefaultTime}`,`Yes, set at ${prevDefaultTime} WIB`,"PRIMARY"),
+                    MessageComponent.addButton(`customReminder_${userId}`,"Edit Default Time","PRIMARY"),
+                    MessageComponent.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]
         }
@@ -294,9 +181,9 @@ Thank you!`
             content:`Are you sure want to take another solo mode? 
 Your future progress will be updated to your new project.`,
             components:[
-                this.createComponent(
-                    this.addButton(`continueReplaceGoal_${userId}_${accountabilityMode}`,"Yes, continue"),
-                    this.addButton(`cancelReplaceGoal_${userId}_${accountabilityMode}`,"No","SECONDARY"),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`continueReplaceGoal_${userId}_${accountabilityMode}`,"Yes, continue"),
+                    MessageComponent.addButton(`cancelReplaceGoal_${userId}_${accountabilityMode}`,"No","SECONDARY"),
                 )
             ]
         }
@@ -309,9 +196,9 @@ Your future progress will be updated to your new project.`,
     static confirmationLeaveParty(userId,partyId){
         return {
             content:`Are you sure to leave your party?`,
-            components:[this.createComponent(
-                this.addButton(`acceptLeaveParty_${userId}_${partyId}`,"Yes"),
-                this.addButton(`declineLeaveParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`acceptLeaveParty_${userId}_${partyId}`,"Yes"),
+                MessageComponent.addButton(`declineLeaveParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
             )]
         }
     }
@@ -337,9 +224,9 @@ Go your party room instead → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_R
     static confirmationJoinParty(userId,partyId){
         return {
             content:`Are you sure to join party ${partyId}? ${MessageFormatting.tagUser(userId)}`,
-            components:[this.createComponent(
-                this.addButton(`acceptJoinParty_${userId}_${partyId}`,"Yes"),
-                this.addButton(`declineJoinParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`acceptJoinParty_${userId}_${partyId}`,"Yes"),
+                MessageComponent.addButton(`declineJoinParty_${userId}_${partyId}`,"Cancel","SECONDARY"),
             )]
         }
     }
@@ -354,7 +241,7 @@ Go your party room instead → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_R
     static userLeaveParty(userId){
         return {
             content:"@here",
-            embeds:[this.embedMessage('',`${MessageFormatting.tagUser(userId)} just left party`)]
+            embeds:[MessageComponent.embedMessage({description:`${MessageFormatting.tagUser(userId)} just left party`})]
         }
     }
 
@@ -394,8 +281,8 @@ let's make some good memories~`
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, 
 You next step is to write your highlight of the day → on ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)}`,
-            components:[this.createComponent(
-                this.addLinkButton('Learn more about 🔆highlight',"https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386")
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Learn more about 🔆highlight',"https://closa.notion.site/Highlight-8173c92b7c014beb9e86f05a54e91386")
             )]
         }
     }
@@ -475,64 +362,6 @@ Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
         return "See you on next journey 👊 @here"
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
-        let {dayLeft,deadlineDate} = deadlineGoal
-        const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
-        let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
-        return new MessageEmbed()
-        .setColor("#ffffff")
-        .setTitle(project)
-        .setThumbnail(InfoUser.getAvatar(user))
-        .addFields(
-            { name: 'Goal 🎯', value: goal },
-            { name: 'About project', value: about },
-            { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
-            { name: "Accountability", value: typeAccountability === 'solo' ? "Solo Mode" : "Party Mode" },
-            { name: "Role", value: role },
-            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
-        )
-    }
-
-    static createComponent(...buttons){
-        return new MessageActionRow()
-            .addComponents(
-                ...buttons
-            )
-    }
-
-    static addButton(id,text,style="SUCCESS"){
-        return new MessageButton()
-            .setCustomId(id)
-            .setLabel(text)
-            .setStyle(style)
-    }
-    static addDisabledButton(id,text,style="SUCCESS"){
-        return new MessageButton()
-            .setCustomId(id)
-            .setLabel(text)
-            .setStyle(style)
-            .setDisabled(true);
-    }
-    static addLinkButton(text,link){
-        return new MessageButton()
-            .setLabel(text)
-            .setURL(link)
-            .setStyle("LINK")
-    }
-
-    static addMenu(id,placeholder,options){
-        return new MessageSelectMenu()
-            .setCustomId(id)
-            .setPlaceholder(placeholder)
-            .addOptions(options)
-    }
-
-    static embedMessage(title,description,color="#00B264"){
-        return new MessageEmbed()
-        .setColor(color)
-        .setTitle(title)
-        .setDescription(description)
-    }
 }
 
 module.exports = PartyMessage

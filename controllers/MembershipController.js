@@ -3,7 +3,6 @@ const Time = require("../helpers/time")
 
 class MembershipController{
     static async updateMembership(totalMonth,userId){
-        
         const data = await supabase.from("Users")
             .select('endMembership')
             .eq('id',userId)
