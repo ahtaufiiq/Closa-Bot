@@ -26,10 +26,15 @@ class ChannelController{
     }
 
     static async removeUserFromThread(client,channelId,threadId,userId){
-        const channel = this.getChannel(client,channelId)
-        const thread = await this.getThread(channel,threadId)
-        const removedUser = await thread.members.remove(userId)
-        return removedUser
+        try {
+            const channel = this.getChannel(client,channelId)
+            const thread = await this.getThread(channel,threadId)
+            const removedUser = await thread.members.remove(userId)
+            return removedUser
+        } catch (error) {
+            return error
+        }
+        
     }
 
     static async getNotificationThread(client,userId,notificationId){

@@ -1,5 +1,8 @@
+const { MessageEmbed } = require("discord.js")
+const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
+const Time = require("../helpers/time")
 
 class GoalMessage {
     static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){

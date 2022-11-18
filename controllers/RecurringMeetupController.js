@@ -127,7 +127,6 @@ class RecurringMeetupController {
 					threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
 				})
 				schedule.scheduleJob(tenMinutesBefore,async function() {
-					console.log('masuk ten minutes');
 					threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
 				})
 				schedule.scheduleJob(fiveMinutesBefore,async function() {

@@ -24,7 +24,7 @@ class GoalController {
 
     static async interactionPickGoalCategory(interaction,valueMenu){
         const deadlineGoal = GoalController.getDeadlineGoal()
-        await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,deadlineGoal.description,targetUserId,valueMenu))
+        await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,deadlineGoal.description,interaction.user.id,valueMenu))
         interaction.message.delete()
     }
 
@@ -53,7 +53,7 @@ class GoalController {
 
 		PartyController.setProgressReminder(interaction,shareProgressAt)
 		
-		if(this.isPartyMode(value)){
+		if(PartyController.isPartyMode(value)){
 			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
 			const kickoffEventId = LocalData.getData().kickoffEventId
 			const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
@@ -185,7 +185,7 @@ class GoalController {
 		schedule.scheduleJob(ruleKickoff,async function(){
 			const data = await supabase.from("JoinParties")
 			.select()
-			.eq('cohort',this.getNextCohort())
+			.eq('cohort',PartyController.getNextCohort())
 			.not('goal','is',null)
 			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
 				const {user} = await MemberController.getMember(client,UserId)
@@ -286,7 +286,7 @@ class GoalController {
 			deadlineDate:null
 		}
 		
-		if (this.isLastWeekCohort() || Time.isCooldownPeriod() ) {
+		if (PartyController.isLastWeekCohort() || Time.isCooldownPeriod() ) {
 			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
 			result.deadlineDate = celebrationDate
 			result.description = 'celebration'
