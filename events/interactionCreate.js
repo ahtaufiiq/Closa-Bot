@@ -47,41 +47,23 @@ module.exports = {
 					BoostController.interactionBoostBack(interaction,targetUser,notificationThreadTargetUser)
 					break;
 				case "joinPartyRoom":
-					const {cohort} = LocalData.getData()
-					const dataJoinedParty = await supabase.from("MemberPartyRooms")
-						.select('PartyRooms(msgId),Users(notificationId)')
-						.eq("UserId",interaction.user.id)
-						.gte("endPartyDate",Time.getTodayDateOnly())
-						.single()
-					if (dataJoinedParty.body) {
+					const isAlreadyJoinedParty = await PartyController.isAlreadyJoinedParty(interaction.user.id)
+					if (isAlreadyJoinedParty) {
 						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.body.Users.notificationId)
 						notificationThread.send(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.body.PartyRooms.msgId))
 						await interaction.editReply(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.body.PartyRooms.msgId))
 						return
 					}
-					const dataParty = await supabase.from("PartyRooms")
-					.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
-					.eq('id',value)
-					.single()
-					const members = dataParty.body?.MemberPartyRooms
-					const {
-						totalExistingMembers,
-						totalTrialMember
-					} = PartyController.countTotalMemberParty(members)
-					const isTrialMember = await MemberController.hasRole(interaction.client,interaction.user.id,ROLE_TRIAL_MEMBER)
-
-					if ((isTrialMember && totalTrialMember === 1)) {
-						await interaction.editReply(PartyMessage.replyPartyIsFull('existing'))
-						return
-					}else if(!isTrialMember && totalExistingMembers === 3){
-						await interaction.editReply(PartyMessage.replyPartyIsFull('free trial'))
+					const slotParty = await PartyController.checkSlotParty(interaction.client,interaction.user.id,value)
+					if(slotParty.isFull){
+						await interaction.editReply(PartyMessage.replyPartyIsFull(slotParty.forMember))
 						return
 					}
 
 					const dataUser = await supabase.from("Users")
-					.select('goalId,notificationId')
-					.eq('id',interaction.user.id)
-					.single()
+						.select('goalId,notificationId')
+						.eq('id',interaction.user.id)
+						.single()
 					if (!dataUser.body?.goalId) {
 						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataUser.body.notificationId)
 						notificationThread.send(GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
@@ -125,7 +107,6 @@ module.exports = {
 							}, 1000 * 60 * 5);
 						}
 					})
-					
 					threadParty.send(PartyMessage.userLeaveParty(interaction.user.id))
 					PartyController.updateMessagePartyRoom(interaction.client,msgId,partyNumber)
 					
@@ -139,54 +120,30 @@ module.exports = {
 					break;
 				case "acceptJoinParty":
 					let notificationId
-					supabase.from("Users")
-					.select('goalId,notificationId')
-					.eq('id',interaction.user.id)
-					.single()
-					.then(async data=>{
-						notificationId = data.body.notificationId
-						const channelGoals = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-						const thread = await ChannelController.getThread(channelGoals,data.body.goalId)
-						let goal = thread.name.split('by')[0]
-						const {celebrationDate} = LocalData.getData()
-						const isTrialMember = await MemberController.hasRole(interaction.client,interaction.user.id,ROLE_TRIAL_MEMBER)
+					const data = await supabase.from("Users")
+						.select('goalId,notificationId')
+						.eq('id',interaction.user.id)
+						.single()
+					notificationId = data.body.notificationId
+					await PartyController.addMemberPartyRoom(client,data.body?.goalId,value,interaction.user.id)
+	
+					const dataPartyRooms = await supabase.from("PartyRooms")
+						.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+						.eq('id',value)
+						.single()
 
-						await supabase.from("MemberPartyRooms")
-							.insert({
-								goal,
-								isTrialMember,
-								partyId:value,
-								endPartyDate:celebrationDate,
-								UserId:interaction.user.id
-							})
-						const dataPartyRooms = await supabase.from("PartyRooms")
-							.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
-							.eq('id',value)
-							.single()
-
-						const members = PartyController.sortMemberByLeader(dataPartyRooms.body.MemberPartyRooms)
-
-						const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-						const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body.msgId)
-						threadPartyRoom.send(PartyMessage.userJoinedParty(interaction.user.id))
-
-						const totalMemberParty = PartyController.countTotalMemberParty(members)
-						const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
-						const msgParty = await ChannelController.getMessage(channelParty,dataPartyRooms.body.msgId)
-						msgParty.edit(PartyMessage.partyRoom(
-							dataPartyRooms.body.id,
-							PartyController.formatMembersPartyRoom(members),
-							totalMemberParty,
-							members[0].UserId,
-							isFullParty
-						))
-						await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
-						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,notificationId)
-						notificationThread.send(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
-						setTimeout(() => {
-							notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id))
-						}, 1000 * 60 * 15);
-					})
+					const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
+					const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body.msgId)
+					threadPartyRoom.send(PartyMessage.userJoinedParty(interaction.user.id))
+					
+					PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,value)
+					
+					await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
+					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,notificationId)
+					notificationThread.send(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
+					setTimeout(() => {
+						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id))
+					}, 1000 * 60 * 15);
 
 					break;
 				case "joinPartyMode":{

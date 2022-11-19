@@ -308,6 +308,15 @@ class PartyController{
         })
 	}
 
+	static async addMemberPartyRoom(client,goalId,partyId,UserId){
+		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+		const thread = await ChannelController.getThread(channelGoals,goalId)
+		let goal = thread.name.split('by')[0]
+		const endPartyDate = LocalData.getData().celebrationDate
+		const isTrialMember = await MemberController.hasRole(client,UserId,ROLE_TRIAL_MEMBER)
+		return await supabase.from("MemberPartyRooms").insert({goal,isTrialMember,partyId,endPartyDate,UserId})
+	}
+
 	static async updateMessagePartyRoom(client,msgId,partyNumber){
 		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const msgParty = await ChannelController.getMessage(channelParty,msgId)
@@ -566,6 +575,40 @@ class PartyController{
 		return members
 	}
 
+	static async checkSlotParty(client,userId,partyNumber){
+		const dataParty = await supabase.from("PartyRooms")
+		.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+		.eq('id',partyNumber)
+		.single()
+		const members = dataParty.body?.MemberPartyRooms
+		const {
+			totalExistingMembers,
+			totalTrialMember
+		} = PartyController.countTotalMemberParty(members)
+		const result = {
+			isFull:false,
+			forMember:null
+		}
+		const isTrialMember = await MemberController.hasRole(client,userId,ROLE_TRIAL_MEMBER)
+		if ((isTrialMember && totalTrialMember === 1)) {
+			result.isFull = true
+			result.forMember = "existing"
+		}else if(!isTrialMember && totalExistingMembers === 3){
+			result.isFull = true
+			result.forMember = "free trial"
+		}
+		return result
+	}
+
+	static async isAlreadyJoinedParty(userId){
+		const dataJoinedParty = await supabase.from("MemberPartyRooms")
+			.select('PartyRooms(msgId),Users(notificationId)')
+			.eq("UserId",userId)
+			.gte("endPartyDate",Time.getTodayDateOnly())
+			.single()
+		return !!dataJoinedParty.body
+	}
+
 	static async deleteUserFromParty(userId,partyNumber){
 		return await supabase.from("MemberPartyRooms")
 			.delete()		
@@ -635,7 +678,7 @@ class PartyController{
 		if(label === "Party" && msg.mentions.users.size > 0){
 			let isDeleteMessage = false
 			for (const [userId] of msg.mentions.users) {
-				const isMemberParty = await PartyController.isMemberParty(msg.author.id,partyNumber)
+				const isMemberParty = await PartyController.isMemberParty(userId,partyNumber)
 				if (!isMemberParty) {
 					isDeleteMessage = true
 					msg.channel.members.remove(userId)

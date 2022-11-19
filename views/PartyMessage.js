@@ -21,7 +21,7 @@ It's a mode where you work on yourself as solo for your \`\`passion projects\`\`
     static contentWaitingRoom(totalPeopleWaitingFor,listPeople){
         return `**🛋 Waiting Room**
 ----
-:arrow_forward: Status → \`\`${totalPeopleWaitingFor > 0 ? `Waiting for **${totalPeopleWaitingFor}** people to set goal` : "Currently matching you with your group party, please wait..."}\`\`
+:arrow_forward: Status → \`\`${totalPeopleWaitingFor > 0 ? `Waiting for ${totalPeopleWaitingFor} people to set goal` : "Currently matching you with your group party, please wait..."}\`\`
 ----
 ${listPeople}`
     }
@@ -178,7 +178,7 @@ Thank you!`
 
     static warningReplaceExistingGoal(userId,accountabilityMode='party'){
         return {
-            content:`Are you sure want to take another solo mode? 
+            content:`Are you sure want to take another ${accountabilityMode} mode? 
 Your future progress will be updated to your new project.`,
             components:[
                 MessageComponent.createComponent(

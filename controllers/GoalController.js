@@ -37,7 +37,7 @@ class GoalController {
 				new TextInputComponent().setCustomId('project').setLabel("Project Name").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
 				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
 				new TextInputComponent().setCustomId('about').setLabel("About Project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
-				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my everyday progress at").setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
 			return true
