@@ -44,20 +44,19 @@ class PartyController{
 			
 			const data = LocalData.getData()
 			if(data.msgIdContentWaitingRoom){
-				const msgContentWaitingRoom = await ChannelController.getMessage(channelParty,data.msgIdContentWaitingRoom)
-				msgContentWaitingRoom.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
-
-				const msgCountdownWaitingRoom = await ChannelController.getMessage(channelParty,data.msgIdCountdownWaitingRoom)
-				PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
-			}else{
-				const msgContentWaitingRoom = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
-				const msgCountdownWaitingRoom = await channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
-
-				PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
-				data.msgIdContentWaitingRoom = msgContentWaitingRoom.id
-				data.msgIdCountdownWaitingRoom = msgCountdownWaitingRoom.id
-				LocalData.writeData(data)
+				ChannelController.getMessage(channelParty,data.msgIdContentWaitingRoom)
+					.then(msg=>msg.delete())
+				ChannelController.getMessage(channelParty,data.msgIdCountdownWaitingRoom)
+					.then(msg=>msg.delete())
 			}
+			
+			const msgContentWaitingRoom = await channelParty.send(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
+			const msgCountdownWaitingRoom = await channelParty.send(PartyMessage.embedMessageWaitingRoom(PartyController.getFormattedTimeLeftUntilKickoff()))
+
+			PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
+			data.msgIdContentWaitingRoom = msgContentWaitingRoom.id
+			data.msgIdCountdownWaitingRoom = msgCountdownWaitingRoom.id
+			LocalData.writeData(data)
 		})
 	}
 
