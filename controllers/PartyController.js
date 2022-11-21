@@ -220,7 +220,7 @@ class PartyController{
 		const formattedDate = Time.getFormattedDate(Time.getNextDate(7),true)
 		const meetupDate = Time.getDateOnly(Time.getNextDate(7))
 		const data = await supabase.from("PartyRooms")
-			.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+			.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 			.eq('cohort',cohort)
 		
 		for (let i = 0; i < data.body.length; i++) {
@@ -311,17 +311,17 @@ class PartyController{
 	static async addMemberPartyRoom(client,goalId,partyId,UserId){
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
 		const thread = await ChannelController.getThread(channelGoals,goalId)
-		let goal = thread.name.split('by')[0]
+		let project = thread.name.split('by')[0]
 		const endPartyDate = LocalData.getData().celebrationDate
 		const isTrialMember = await MemberController.hasRole(client,UserId,ROLE_TRIAL_MEMBER)
-		return await supabase.from("MemberPartyRooms").insert({goal,isTrialMember,partyId,endPartyDate,UserId})
+		return await supabase.from("MemberPartyRooms").insert({project,isTrialMember,partyId,endPartyDate,UserId})
 	}
 
 	static async updateMessagePartyRoom(client,msgId,partyNumber){
 		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const msgParty = await ChannelController.getMessage(channelParty,msgId)
 		supabase.from("PartyRooms")
-		.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+		.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 		.eq('id',partyNumber)
 		.single()
 		.then(async data=>{
@@ -432,7 +432,7 @@ class PartyController{
 		for (let i = 0; i < 4; i++) {
 			const member = members[i];
 			if (member) {
-				result += `**${MessageFormatting.tagUser(member.UserId)} ${member.isLeader ? "👑":""} — ${member.goal}**\n`
+				result += `**${MessageFormatting.tagUser(member.UserId)} ${member.isLeader ? "👑":""} — ${member.project}**\n`
 			}else{
 				result += `*EMPTY SLOT*\n`
 			}
@@ -577,7 +577,7 @@ class PartyController{
 
 	static async checkSlotParty(client,userId,partyNumber){
 		const dataParty = await supabase.from("PartyRooms")
-		.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+		.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 		.eq('id',partyNumber)
 		.single()
 		const members = dataParty.body?.MemberPartyRooms

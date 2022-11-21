@@ -128,7 +128,7 @@ module.exports = {
 					await PartyController.addMemberPartyRoom(client,data.body?.goalId,value,interaction.user.id)
 	
 					const dataPartyRooms = await supabase.from("PartyRooms")
-						.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+						.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 						.eq('id',value)
 						.single()
 

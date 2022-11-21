@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_BOT } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -73,7 +73,7 @@ class GoalController {
 
 			const partyId = accountabilityMode.split('joinParty')[1]
 			const dataParty = await supabase.from("PartyRooms")
-				.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 				.eq('id',partyId)
 				.single()
 			const members = dataParty.body?.MemberPartyRooms
@@ -88,7 +88,7 @@ class GoalController {
 			}else{
 				const {celebrationDate} = LocalData.getData()
 				supabase.from("MemberPartyRooms")
-					.insert({goal,isTrialMember,partyId,endPartyDate:celebrationDate,UserId:interaction.user.id})
+					.insert({project,isTrialMember,partyId,endPartyDate:celebrationDate,UserId:interaction.user.id})
 					.then(()=>{
 						PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
 					})
@@ -191,6 +191,39 @@ class GoalController {
 				const {user} = await MemberController.getMember(client,UserId)
 				GoalController.submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode:'party'})
 			})
+		})
+	}
+
+	static async getAllUserJoinedPartyForMatchMaking(client){
+
+		const data = await supabase.from("JoinParties")
+		.select()
+		.eq('cohort',PartyController.getNextCohort())
+		.order('role')
+		.order('goalCategory')
+		.order('shareProgressAt')
+		.not('goal','is',null)
+		const channelBot = ChannelController.getChannel(client,CHANNEL_BOT)
+		const msg = await channelBot.send(`Cohort ${PartyController.getNextCohort()}`)
+		const thread = await ChannelController.createThread(msg,`Cohort ${PartyController.getNextCohort()}`)
+		const deadlineGoal = GoalController.getDeadlineGoal()
+		let roleChannel =''
+		data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
+			const {user} = await MemberController.getMember(client,UserId)
+			if(roleChannel !== role) {
+				roleChannel = role
+				await thread.send(`--------------------------------------\n${role.toUpperCase()}\n--------------------------------------`)
+			}
+			thread.send(GoalMessage.postGoal({
+				project,
+				goal,
+				about,
+				shareProgressAt,
+				role,
+				user:user,
+				deadlineGoal:deadlineGoal,
+				value:'party'
+			}))
 		})
 	}
 
