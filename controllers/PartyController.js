@@ -660,6 +660,57 @@ class PartyController{
 		return !!data.body
 	}
 
+	static async saveDataJoinPartyToMemberPartyRoom(){
+		const data = await supabase.from("JoinParties")
+		.select("id,UserId,project")
+		.eq('cohort',PartyController.getNextCohort())
+
+		if(data.body){
+			const endPartyDate = LocalData.getData().celebrationDate
+			const memberPartyRooms = data.body.map(({id,UserId,project})=>{
+				return {
+					UserId,
+					project,
+					endPartyDate,
+					JoinPartyId:id,
+				}
+			})
+			await supabase.from("MemberPartyRooms")
+				.insert(memberPartyRooms)
+		}
+	}
+
+	static async partyReminder(client){
+        let ruleReminderSkipTwoDays = new schedule.RecurrenceRule();
+		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)
+		ruleReminderSkipTwoDays.minute = 0
+
+		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select('id,name')
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
+					.then(dataUsers =>{
+						if (dataUsers.body) {
+							dataUsers.body.forEach(async user=>{
+								const data = await supabase.from("MemberPartyRooms")
+									.select("PartyRooms(MemberPartyRooms(UserId),msgId)")
+									.eq("UserId",user.id)
+									.gte('endPartyDate',Time.getTodayDateOnly())
+									.single()
+								if(data.body){
+									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.body.PartyRooms.MemberPartyRooms)
+									const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+									const threadParty = await ChannelController.getThread(channelPartyRoom,data.body.PartyRooms.msgId)
+									threadParty.send(PartyMessage.partyReminder(user.id,dataActiveUser.body.UserId))
+								}
+							})
+						}
+					})
+			}
+		})
+	}
+
 	static async handleOutsideMemberChatInPartyRoom(msg){
 		const [label,partyNumber] = msg.channel.name.split(' ')
 		if(label === "Party"){

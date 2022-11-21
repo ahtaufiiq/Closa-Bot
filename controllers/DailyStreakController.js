@@ -6,7 +6,6 @@ const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
-const AccountabilityPartnerMessage = require('../views/AccountabilityPartnerMessage');
 class DailyStreakController {
     
     static achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
@@ -79,30 +78,6 @@ class DailyStreakController {
 				}
 			})
 	}
-
-    static remindMissTwoDays(client){
-        const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
-
-        let ruleReminderSkipTwoDays = new schedule.RecurrenceRule();
-		ruleReminderSkipTwoDays.hour = Time.minus7Hours(21)
-		ruleReminderSkipTwoDays.minute = 0
-
-		schedule.scheduleJob(ruleReminderSkipTwoDays,function(){
-			if (!Time.isCooldownPeriod()) {
-				supabase.from("Users")
-					.select('id,goalId,name')
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
-					.then(dataUsers =>{
-						if (dataUsers.body) {
-							dataUsers.body.forEach(async data=>{
-								const goalThread = await ChannelController.getThread(channelGoals,data.goalId)
-								goalThread.send(AccountabilityPartnerMessage.remindPartnerAfterMissTwoDays(data.id))
-							})
-						}
-					})
-			}
-		})
-    }
 }
 
 module.exports = DailyStreakController

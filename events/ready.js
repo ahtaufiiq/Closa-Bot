@@ -34,6 +34,7 @@ module.exports = {
 		PartyController.hideChannelPartyMode(client)
 		PartyController.generateWaitingRoomPartyMode(client)
 		PartyController.announcePartyModeAvailable(client)
+		PartyController.partyReminder(client)
 		
 		GoalController.remindToWriteGoal(client)
 		GoalController.updateAllActiveGoal(client)
@@ -47,7 +48,6 @@ module.exports = {
 		ReminderController.remindPostProgress(client)
 		
 		DailyStreakController.remindMissOneDay(client)
-		DailyStreakController.remindMissTwoDays(client)
 
 		CoworkingController.recurringCoworkingSession(client)
 

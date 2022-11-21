@@ -362,6 +362,13 @@ Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
         return "See you on next journey 👊 @here"
     }
 
+    static partyReminder(inactiveUserId,activeUserId){
+        return `Hi ${MessageFormatting.tagUser(inactiveUserId)}, how are you doing? is everything okay?
+bacause you haven't update your #✅progress in the past two days.
+
+${MessageFormatting.tagUser(activeUserId)} please check how your partner doing.
+let's support each other to make progress 🙌`
+    }
 }
 
 module.exports = PartyMessage
