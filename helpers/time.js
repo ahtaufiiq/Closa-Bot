@@ -186,10 +186,18 @@ class Time {
 
     static isCooldownPeriod(){
 		const {kickoffDate} = LocalData.getData()
-		const cooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
 		const todayDate = Time.getTodayDateOnly()
-		return todayDate >= cooldownPeriod && todayDate <= kickoffDate
+		return todayDate >= startCooldownPeriod && todayDate <= kickoffDate
 	}
+
+    static isFirstDayCooldownPeriod(){
+        const {kickoffDate} = LocalData.getData()
+		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const todayDate = Time.getTodayDateOnly()
+		return todayDate === startCooldownPeriod
+    }
+
     static isValidStreak(date,currentStreak) {
         return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak > 2)
     }
