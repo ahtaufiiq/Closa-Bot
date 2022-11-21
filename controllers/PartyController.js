@@ -535,7 +535,7 @@ class PartyController{
 		let result = ''
 		for (let i = 0; i < users.length; i++) {
 			const user = users[i];
-			result += `${MessageFormatting.tagUser(user.UserId)} ${user.alreadySetGoal ? "✅" : "⏳"}`
+			result += `${user.alreadySetGoal ? "✅" : "⏳"} ${MessageFormatting.tagUser(user.UserId)}`
 			if(i !== users.length - 1) result += '\n'
 		}
 		return result
