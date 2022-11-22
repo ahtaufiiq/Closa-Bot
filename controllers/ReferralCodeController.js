@@ -162,9 +162,9 @@ class ReferralCodeController{
         const reminder2Days = Time.getNextDate(16)
 
         reminder5Days.setHours(Time.minus7Hours(8))
-        reminder5Days.setMinutes(0)
+        reminder5Days.setMinutes(15)
         reminder2Days.setHours(Time.minus7Hours(8))
-        reminder2Days.setMinutes(0)
+        reminder2Days.setMinutes(15)
         const data = await supabase.from('Reminders')
         .insert([
             {

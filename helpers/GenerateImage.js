@@ -3,7 +3,7 @@ const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints){
+    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
@@ -11,8 +11,9 @@ class GenerateImage{
         const canvas = createCanvas(1078,1167)
 
         const context = canvas.getContext('2d')
+        const additionalStreak = isVacation ? '_vacation' :longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
  
-        const template = await loadImage('./assets/images/template.jpg')
+        const template = await loadImage(`./assets/images/template${additionalStreak}.png`)
         context.drawImage(template,0,0)
         context.fillStyle = "#2B2B2B"; 
         context.font = "600 56px Inter";
@@ -32,11 +33,12 @@ class GenerateImage{
         context.textAlign = 'end'
         context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
         
+
           
-        const greenDot = await loadImage('./assets/images/green_dot.png')
-        const safetyDot = await loadImage('./assets/images/safety_dot.jpg')
-        const checklist = await loadImage('./assets/images/checklist.png')
-        const empty = await loadImage('./assets/images/empty.png')
+        const greenDot = await loadImage(`./assets/images/progress${additionalStreak}.png`)
+        const safetyDot = await loadImage(`./assets/images/safety${additionalStreak}.png`)
+        const checklist = await loadImage(`./assets/images/checklist${additionalStreak}.png`)
+        const empty = await loadImage(`./assets/images/empty.png`)
 
         const today = Time.getDate()
         const day = today.getDay() === 0 ? 7 : today.getDay()

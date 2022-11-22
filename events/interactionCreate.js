@@ -26,7 +26,7 @@ module.exports = {
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
-			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('ttendMeetup')) {
+			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup')) {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -128,7 +128,7 @@ module.exports = {
 					await PartyController.addMemberPartyRoom(client,data.body?.goalId,value,interaction.user.id)
 	
 					const dataPartyRooms = await supabase.from("PartyRooms")
-						.select("*,MemberPartyRooms(UserId,goal,isLeader,isTrialMember)")
+						.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 						.eq('id',value)
 						.single()
 
@@ -169,6 +169,12 @@ module.exports = {
 							PartyController.updateMessageWaitingRoom(interaction.client)
 						}
 					}}
+					break;
+				case "acceptConfirmationMeetup":
+					RecurringMeetupController.interactionConfirmationAttendance(interaction,true,value)
+					break;
+				case "declineConfirmationMeetup":
+					RecurringMeetupController.interactionConfirmationAttendance(interaction,false,value)
 					break;
 				case "attendMeetup":
 					RecurringMeetupController.interactionConfirmationMeetup(interaction,true,value)

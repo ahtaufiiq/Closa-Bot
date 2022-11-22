@@ -8,6 +8,7 @@ const FormatString = require('../helpers/formatString');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const Time = require('../helpers/time');
 const BoostMessage = require('../views/BoostMessage');
+const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -38,6 +39,11 @@ The correct format:
 		meetupDate.setMonth(monthInNumber)
 		meetupDate.setHours(Time.minus7Hours(hours))
 		meetupDate.setMinutes(minutes)
+
+		if(!RecurringMeetupController.isDateBeforeCelebrationDay(meetupDate)){
+			interaction.editReply(RecurringMeetupMessage.cannotSetMeetupAfterCelebrationDay())
+			return
+		}
 
 		const partyId = interaction.channel.name.split(' ')[1]
 		RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.channelId,partyId)

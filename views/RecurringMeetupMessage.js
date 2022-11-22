@@ -53,6 +53,34 @@ prepare your seat & chill ✨`
         return `Hi ${tagMembers} please confirm your virtual meetup attendance to the message above.`
     }
 
+    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId){
+        return {
+            content:`**Reminder** 🔔
+
+Hi @here it's 2 days before the next virtual meetup begin.
+
+\`\`Please confirm your attendance\`\``,
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`acceptConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,'Yes'),
+                    MessageComponent.addButton(`declineConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,"No","SECONDARY")
+                )
+            ]
+        }
+    }
+
+    static cannotSetMeetupAfterCelebrationDay(){
+        return "Cannot set more than celebration day."
+    }
+
+    static notAutomaticRescheduleMeetupAfterCelebrationDay(customDate){
+        return `2 people can't attend the meetup
+**Please discuss & set a new schedule by typing the command below in this chat**
+\`\`/schedule meetup ${customDate} at 21.00\`\`
+
+\`\`💡\`\` Make sure to set the schedule before celebration day.`
+    }
+
     static countdownMeetup(min,channelId){
         return `\`\`The virtual meetup just started!\`\` @here
 
@@ -64,10 +92,17 @@ Join here → ${MessageFormatting.tagChannel(channelId)}`
     }
 
     static countdownMeetupVoiceChat(min){
-        return `\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
+        return {
+            content:`Have a good time! @here
+
+\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
-cc: @here `
+\`\`here's the icebreaker questions (if you need it)\`\``,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton("Icebreaker questions","https://closa.notion.site/Icebreaker-Questions-a26d658e90984fb38b37f86d156dcfbe")
+            )]
+        }
     }
 
     static remindUserJoinMeetupSession(channelId){

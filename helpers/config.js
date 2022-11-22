@@ -32,6 +32,7 @@ module.exports = {
     CHANNEL_SOLO_MODE: process.env.CHANNEL_SOLO_MODE,
     CHANNEL_PARTY_MODE: process.env.CHANNEL_PARTY_MODE,
     CHANNEL_PARTY_ROOM: process.env.CHANNEL_PARTY_ROOM,
+    CHANNEL_BOT: process.env.CHANNEL_BOT,
     CATEGORY_CHAT: process.env.CATEGORY_CHAT,
     ROLE_7STREAK: process.env.ROLE_7STREAK,
     ROLE_30STREAK: process.env.ROLE_30STREAK,
