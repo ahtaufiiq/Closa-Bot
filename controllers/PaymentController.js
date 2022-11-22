@@ -17,8 +17,8 @@ class PaymentController{
     }
     static async remindMember(client){
         let rulePaymentReminder = new schedule.RecurrenceRule();
-		rulePaymentReminder.hour = Time.minus7Hours(19)
-		rulePaymentReminder.minute = 30
+		rulePaymentReminder.hour = Time.minus7Hours(20)
+		rulePaymentReminder.minute = 50
 		schedule.scheduleJob(rulePaymentReminder,function(){
             
             PaymentController.getEndedMembership(5)
@@ -49,8 +49,8 @@ class PaymentController{
 		})
 
         let ruleLatePaymentReminder = new schedule.RecurrenceRule();
-		ruleLatePaymentReminder.hour = Time.minus7Hours(19)
-		ruleLatePaymentReminder.minute = 30
+		ruleLatePaymentReminder.hour = Time.minus7Hours(20)
+		ruleLatePaymentReminder.minute = 50
 		schedule.scheduleJob(rulePaymentReminder,function(){
             PaymentController.getEndedMembership(-1)
                 .then(async data=>{
