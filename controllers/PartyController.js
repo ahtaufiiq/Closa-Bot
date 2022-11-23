@@ -71,7 +71,7 @@ class PartyController{
 
 	static getFormattedTimeLeftUntilKickoff(){
 		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setHours(20)
 		kickoffDate.setMinutes(0)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
 		return Time.convertTime(diffTime,'short')
