@@ -29,7 +29,7 @@ module.exports = {
 		PartyController.handleMentionOutsideMemberInPartyRoom(msg)
 		PartyController.handleOutsideMemberChatInPartyRoom(msg)
 		DailyReport.activeMember(msg.client,msg.author.id)
-		PointController.addPoint(msg.author.id,'chat',0,msg.channelId)
+		PointController.addPoint(msg.author.id,msg.channel.type,0,msg.channelId)
 
 		if (msg.type !== "DEFAULT") return
 		supabase.from("Users")

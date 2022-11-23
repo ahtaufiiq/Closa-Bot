@@ -24,9 +24,10 @@ module.exports = {
 			await interaction.editReply(BoostMessage.warningBoostYourself())
 			return	
 		}
-		PointController.addPoint(interaction.user.id,'boost')
+		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
+		if(!isMoreThanOneMinute) return await interaction.editReply(BoostMessage.warningSpamBoost())
+		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
-		PointController.incrementTotalPoints(5,interaction.user.id)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
 		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,totalBoost,message))
