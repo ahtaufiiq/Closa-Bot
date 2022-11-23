@@ -35,7 +35,8 @@ module.exports = {
 		PartyController.generateWaitingRoomPartyMode(client)
 		PartyController.announcePartyModeAvailable(client)
 		PartyController.partyReminder(client)
-		
+		PartyController.updateMessageWaitingRoom(client)
+
 		GoalController.remindToWriteGoal(client)
 		GoalController.updateAllActiveGoal(client)
 		GoalController.generateAllUserGoalFromWaitingRoom(client)
