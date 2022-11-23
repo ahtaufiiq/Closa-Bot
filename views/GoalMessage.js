@@ -136,7 +136,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
             { name: "Accountability", value: typeAccountability === 'solo' ? "Solo Mode" : "Party Mode" },
             { name: "Role", value: role },
-            { name: "Timeline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
+            { name: "Community deadline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
         )
     }
 }
