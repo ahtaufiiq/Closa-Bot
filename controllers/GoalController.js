@@ -14,6 +14,7 @@ const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
 const GoalMessage = require('../views/GoalMessage');
 const PartyController = require('./PartyController');
+const PointController = require('./PointController');
 
 class GoalController {
 
@@ -70,7 +71,6 @@ class GoalController {
 			PartyController.updateMessageWaitingRoom(interaction.client)
 		}else if(accountabilityMode.includes('joinParty')){
 			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
-
 			const partyId = accountabilityMode.split('joinParty')[1]
 			const dataParty = await supabase.from("PartyRooms")
 				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -107,6 +107,8 @@ class GoalController {
 	}
 
 	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode}){
+		PointController.addPoint(user.id,'goal')
+
 		const deadlineGoal = GoalController.getDeadlineGoal()
 
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)

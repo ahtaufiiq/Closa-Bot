@@ -115,7 +115,7 @@ module.exports = {
 			closaCafe[userId] = Time.getDate()
 		}else if (newMember.channel === null) {
 			const {totalInMinutes}= getGapTime(closaCafe[userId],true)
-			PointController.addPoint(userId,'cafe',totalInMinutes)
+			if(totalInMinutes >= 20) PointController.addPoint(userId,'cafe',totalInMinutes)
 			DailyReport.activeMember(oldMember.client,userId)
 
 			delete closaCafe[userId]

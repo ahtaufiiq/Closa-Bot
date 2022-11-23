@@ -617,7 +617,7 @@ class PartyController{
 			.select()
 			.or(queryOr.join(','))
 			.limit(1)
-			.order('createdAt',{ascending:false})
+			.order('updatedAt',{ascending:false})
 			.single()
 		return dataRecentUser
 	}

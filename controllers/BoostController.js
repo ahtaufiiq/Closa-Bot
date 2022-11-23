@@ -71,11 +71,11 @@ class BoostController{
 
 	static async interactionBoostBack(interaction,targetUser,notificationThread){
 		
-		PointController.addPoint(interaction.user.id,'boost')
+		
 		DailyReport.activeMember(interaction.client,interaction.user.id)
-		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
+		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {
-			PointController.incrementTotalPoints(5,interaction.user.id)
 			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThread.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
@@ -86,11 +86,10 @@ class BoostController{
 	}
 
 	static async interactionBoostInactiveMember(interaction,targetUser,notificationThread){
-		PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
-		const isMoreThanOneMinute = await BoostController.isPreviousBoostMoreThanOneMinute(interaction.user.id,targetUser.user.id)
+		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
+		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {
-			PointController.incrementTotalPoints(5,interaction.user.id)
 			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
 			notificationThread.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
 			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
@@ -156,24 +155,6 @@ class BoostController{
 			}
 		})
 		
-	}
-
-	static async isPreviousBoostMoreThanOneMinute(senderId,targetUserId){
-		const id = `${senderId}_${targetUserId}`
-		let data = await supabase.from("Boosts")
-			.select()
-			.eq("id",id)
-			.single()
-		let isMoreThanOneMinute = false
-
-		if(data?.body){
-			if (Time.isMoreThanOneMinute(data.body.lastBoost)) {
-				isMoreThanOneMinute = true
-			}
-		}else{
-			isMoreThanOneMinute = true
-		}
-		return isMoreThanOneMinute
 	}
 }
 

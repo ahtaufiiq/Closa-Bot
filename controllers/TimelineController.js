@@ -38,11 +38,11 @@ class TimelineController{
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Tomorrow at 20.00 WIB")
             }else if (todayDate <= data.celebrationDate) {
-                if (data.kickoffDate < data.celebrationDate) {
+                const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
+                if (dayLeft === 27) {
                     data.kickoffDate = Time.addDateByWeek(data.kickoffDate,5)
                     LocalData.writeData(data)
                 }
-                const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Celebration day 🎉")
                 if (todayDate === data.celebrationDate) {
