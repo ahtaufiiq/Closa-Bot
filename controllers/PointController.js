@@ -15,7 +15,7 @@ class PointController{
                     case "GUILD_TEXT":
                         if (channelId === CHANNEL_GENERAL && Time.isMoreThanOneMinute(data.body?.lastTimeChatGeneral)) {
                             key = 'lastTimeChatGeneral'
-                            value = Time.getDate()
+                            value = new Date()
                         }else if(channelId === CHANNEL_MEMES && !PointController.isTodayDate(data.body?.lastDateMemes)){
                             key = "lastDateMemes"
                             value = Time.getTodayDateOnly()
@@ -36,7 +36,7 @@ class PointController{
                     case "GUILD_PUBLIC_THREAD":
                         if(Time.isMoreThanOneMinute(data.body?.lastTimeChatThread)){
                             key = 'lastTimeChatThread'
-                            value = Time.getDate()
+                            value = new Date()
                         }
                         break;
                     case "goal":
@@ -48,7 +48,7 @@ class PointController{
                     case "reaction":
                         if(Time.isMoreThanOneMinute(data.body?.lastTimeReaction)){
                             key = "lastTimeReaction"
-                            value = Time.getDate()
+                            value = new Date()
                         }
                         break;
                 }
@@ -69,6 +69,7 @@ class PointController{
                         supabase.from("Points")
                             .update({
                                 [key]:value,
+                                updatedAt:new Date()
                             })
                             .eq("UserId",UserId)
                             .then()

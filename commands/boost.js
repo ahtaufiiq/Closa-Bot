@@ -24,7 +24,7 @@ module.exports = {
 			await interaction.editReply(BoostMessage.warningBoostYourself())
 			return	
 		}
-		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
+		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,taggedUser.id)
 		if(!isMoreThanOneMinute) return await interaction.editReply(BoostMessage.warningSpamBoost())
 		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		DailyReport.activeMember(interaction.client,interaction.user.id)
