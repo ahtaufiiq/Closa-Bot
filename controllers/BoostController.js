@@ -109,7 +109,7 @@ class BoostController{
 			supabase.from("Boosts")	
 				.update({
 					total:totalBoost,
-					lastBoost:Time.getDate()
+					lastBoost:new Date()
 				})
 				.eq('id',id)
 				.then()
@@ -120,7 +120,7 @@ class BoostController{
 					senderId,
 					targetUserId,
 					total:1,
-					lastBoost:Time.getDate(),
+					lastBoost:new Date(),
 				})
 				.then()
 		}
