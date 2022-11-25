@@ -46,6 +46,8 @@ class TimelineController{
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Celebration day 🎉")
                 if (todayDate === data.celebrationDate) {
+                    data.deadlineGoal = Time.addDateByWeek(data.deadlineGoal,5)
+                    LocalData.writeData(data)
                     ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Today at 20.00 WIB")
                 }else if(tomorrowDate === data.celebrationDate){
                     ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Tomorrow at 20.00 WIB")
