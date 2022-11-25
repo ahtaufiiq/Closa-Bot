@@ -313,7 +313,7 @@ class GoalController {
     }
 
     static getDeadlineGoal(){
-		const {celebrationDate,kickoffDate} = LocalData.getData()
+		const {kickoffDate,deadlineGoal} = LocalData.getData()
 		const todayDate = Time.getTodayDateOnly()
 		const result = {
 			dayLeft:null,
@@ -322,8 +322,8 @@ class GoalController {
 		}
 		
 		if (PartyController.isLastWeekCohort() || Time.isCooldownPeriod() ) {
-			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
-			result.deadlineDate = celebrationDate
+			result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(deadlineGoal))
+			result.deadlineDate = deadlineGoal
 			result.description = 'celebration'
 		}else {
 			const deadlineDate = Time.getNextDate(-1,kickoffDate)
