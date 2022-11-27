@@ -7,7 +7,8 @@ class MembershipController{
             .select('endMembership')
             .eq('id',userId)
             .single()
-        const endMembership = Time.getEndMembership(totalMonth,data.body.endMembership)
+        const initialDate = data.body.endMembership < Time.getTodayDateOnly() ? Time.getTodayDateOnly() : data.body.endMembership
+        const endMembership = Time.getEndMembership(totalMonth,initialDate)
 
         supabase.from("Users")
             .update({endMembership})
