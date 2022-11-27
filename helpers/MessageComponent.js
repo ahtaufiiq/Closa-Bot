@@ -1,4 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require("discord.js");
+const FormatString = require("./formatString");
 const InfoUser = require("./InfoUser");
 class MessageComponent {
     static createComponent(...buttons){
@@ -46,8 +47,8 @@ class MessageComponent {
     static embedMessage({title,description,user},color="#00B264"){
         const embed = new MessageEmbed()
         .setColor(color)
-        .setTitle(title||"")
-        .setDescription(description||"")
+        .setTitle(FormatString.truncateString(title,252)||"")
+        .setDescription(FormatString.truncateString(description,4092)||"")
 
         if(user){
             embed.setFooter({iconURL:InfoUser.getAvatar(user),text:user.username})
