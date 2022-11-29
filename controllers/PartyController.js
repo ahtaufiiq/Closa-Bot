@@ -25,13 +25,6 @@ class PartyController{
 		interaction.message.delete()
 	}
 
-	// static async updateMessageWaitingRoom(client){
-	// 	const msg = await PartyController.getMessageWaitingRoom(client)
-	// 	const usersJoinedParty = await PartyController.getUsersJoinedParty()
-	// 	const totalUserHaveNotSetGoal = await PartyController.getTotalUserHaveNotSetGoal()
-	// 	msg.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
-	// }
-
 	static async generateWaitingRoomPartyMode(client){
 		const {kickoffDate} = LocalData.getData()
 		const ruleFirstDayCooldown = Time.getNextDate(-6,kickoffDate)
@@ -62,7 +55,7 @@ class PartyController{
 
 	static isRangePartyMode(){
 		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(Time.minus7Hours(20))
+		kickoffDate.setHours(20)
 		kickoffDate.setMinutes(0)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
 
