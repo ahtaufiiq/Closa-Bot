@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -128,15 +129,15 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new MessageEmbed()
         .setColor("#ffffff")
-        .setTitle(project)
+        .setTitle(FormatString.truncateString(project,250))
         .setThumbnail(InfoUser.getAvatar(user))
         .addFields(
-            { name: 'Goal 🎯', value: goal },
-            { name: 'About project', value: about },
-            { name: "I'll share my progress at", value: `${shareProgressAt} WIB every day` },
-            { name: "Accountability", value: typeAccountability === 'solo' ? "Solo Mode" : "Party Mode" },
-            { name: "Role", value: role },
-            { name: "Community deadline", value: `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}` },
+            { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
+            { name: 'About project', value:FormatString.truncateString( about,1020) },
+            { name: "I'll share my progress at", value:FormatString.truncateString( `${shareProgressAt} WIB every day`,1020) },
+            { name: "Accountability", value:FormatString.truncateString( typeAccountability === 'solo' ? "Solo Mode" : "Party Mode",1020) },
+            { name: "Role", value:FormatString.truncateString( role,1020) },
+            { name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
         )
     }
 }

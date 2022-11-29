@@ -179,6 +179,11 @@ class GoalController {
         return false
     }
 
+	static async saveDataUnsubmittedGoal({id,role,goalCategory,project,goal,about,shareProgressAt,isPartyMode,UserId}){
+		return await supabase.from('Goals')
+			.insert({id,role,goalCategory,project,goal,about,shareProgressAt,isPartyMode,UserId})
+	}
+
 	static async generateAllUserGoalFromWaitingRoom(client){
 		const {kickoffDate} = LocalData.getData()
 		const ruleKickoff = Time.getDate(kickoffDate)

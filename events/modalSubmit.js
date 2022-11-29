@@ -82,7 +82,7 @@ module.exports = {
 			
 		}else if(commandButton === "writeGoal"){
 			const deadlineGoal = GoalController.getDeadlineGoal()
-			const [type,role,goalCategory] = value.split('-')
+			const [accountabilityMode,role,goalCategory] = value.split('-')
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
@@ -97,8 +97,22 @@ module.exports = {
 				role,
 				value,
 				user:modal.user,
-				deadlineGoal:deadlineGoal
+				deadlineGoal:deadlineGoal,
 			}))
+			GoalController.saveDataUnsubmittedGoal({
+				role,
+				goalCategory,
+				about,
+				shareProgressAt,
+				goal,
+				project,
+				isPartyMode:accountabilityMode === 'solo' ? false : true,
+				UserId:modal.user.id,
+				id:modal.message.id
+			})
+			.then(data=>{
+				console.log(data);
+			})
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
 			const deadlineGoal = GoalController.getDeadlineGoal()
