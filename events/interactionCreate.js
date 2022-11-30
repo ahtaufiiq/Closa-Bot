@@ -51,7 +51,7 @@ module.exports = {
 					if (dataJoinedParty) {
 						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.Users.notificationId)
 						notificationThread.send(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
-						await interaction.editReply(PardtyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
+						await interaction.editReply(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
 						return
 					}
 					const slotParty = await PartyController.checkSlotParty(interaction.client,interaction.user.id,value)
