@@ -149,7 +149,8 @@ class PartyController{
 	}
 
 	static async remindUserToResponseScheduleMeetup(client,thread,partyId){
-		const time = Time.getNextDate(1)
+		const time = new Date()
+		time.setDate(time.getDate() + 1)
 		await supabase.from("Reminders")
 			.insert({
 				time,

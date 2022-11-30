@@ -82,19 +82,19 @@ class RecurringMeetupController {
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
 
-		const twoDayBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const twoDayBefore = new Date(scheduleMeetupDate.valueOf())
 		twoDayBefore.setDate(twoDayBefore.getDate()-2)
 
-		const oneDayBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const oneDayBefore = new Date(scheduleMeetupDate.valueOf())
 		oneDayBefore.setDate(oneDayBefore.getDate()-1)
 		
-		const oneHourBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const oneHourBefore = new Date(scheduleMeetupDate.valueOf())
 		oneHourBefore.setHours(oneHourBefore.getHours()-1)
 		
-		const tenMinutesBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const tenMinutesBefore = new Date(scheduleMeetupDate.valueOf())
 		tenMinutesBefore.setMinutes(tenMinutesBefore.getMinutes()-10)
 
-		const fiveMinutesBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const fiveMinutesBefore = new Date(scheduleMeetupDate.valueOf())
 		fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
 		supabase.from("Reminders")
 			.insert([
