@@ -198,12 +198,12 @@ class Time {
 		return todayDate === startCooldownPeriod
     }
 
-    static isValidStreak(date,currentStreak) {
-        return this.isYesterday(date) || (this.onlyMissOneDay(date) && currentStreak > 2)
+    static isValidStreak(currentStreak,lastDone,lastSafety) {
+        return this.isYesterday(lastDone) || this.isYesterday(lastSafety) || (this.onlyMissOneDay(lastDone,lastSafety) && currentStreak > 2)
     }
 
-    static onlyMissOneDay(date){
-        return date === this.getDateOnly(this.getNextDate(-2))
+    static onlyMissOneDay(lastDone,lastSafety){
+        return lastDone === this.getDateOnly(this.getNextDate(-2)) || lastSafety === this.getDateOnly(this.getNextDate(-2))
     }
 
     static addDateByWeek(dateOnly,totalweek){

@@ -185,19 +185,19 @@ so, you can learn or sharing from each others.`)
 							description:msg.content,
 							UserId:msg.author.id
 						})
-							
-						return supabase.from("Users")
-							.select()
-							.eq('id',msg.author.id)
-							.single()
 					}
+					
+					return supabase.from("Users")
+						.select()
+						.eq('id',msg.author.id)
+						.single()
 				})
 				.then(async data=>{
 					let currentStreak = data.body.currentStreak + 1
 					let totalDay =  (data.body.totalDay || 0) + 1
 					
-					if (Time.isValidStreak(data.body.lastDone,currentStreak) || Time.isValidCooldownPeriod(data.body.lastDone)) {
-						if (Time.onlyMissOneDay(data.body.lastDone) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
+					if (Time.isValidStreak(currentStreak,data.body.lastDone,data.body.lastSafety) || Time.isValidCooldownPeriod(data.body.lastDone)) {
+						if (Time.onlyMissOneDay(data.body.lastDone,data.body.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
 							const missedDate = Time.getNextDate(-1)
 							missedDate.setHours(8)
 							await supabase.from("Todos")
