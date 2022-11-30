@@ -26,7 +26,7 @@ module.exports = {
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
-			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup')) {
+			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -47,11 +47,11 @@ module.exports = {
 					BoostController.interactionBoostBack(interaction,targetUser,notificationThreadTargetUser)
 					break;
 				case "joinPartyRoom":
-					const isAlreadyJoinedParty = await PartyController.isAlreadyJoinedParty(interaction.user.id)
-					if (isAlreadyJoinedParty) {
-						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.body.Users.notificationId)
-						notificationThread.send(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.body.PartyRooms.msgId))
-						await interaction.editReply(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.body.PartyRooms.msgId))
+					const dataJoinedParty = await PartyController.dataJoinedParty(interaction.user.id)
+					if (dataJoinedParty) {
+						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.Users.notificationId)
+						notificationThread.send(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
+						await interaction.editReply(PardtyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
 						return
 					}
 					const slotParty = await PartyController.checkSlotParty(interaction.client,interaction.user.id,value)

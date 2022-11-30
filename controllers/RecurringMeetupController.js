@@ -54,13 +54,6 @@ class RecurringMeetupController {
 		return count
 	}
 
-	static async createChannel5MinutesBeforeSchedule(){
-		schedule.scheduleJob(reminder.time,async function() {
-			const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-			notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
-		})
-	}
-
 	static async rescheduleMeetup(client,threadId,date,partyId){
 		date.setDate(date.getDate()+7)
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
@@ -76,25 +69,199 @@ class RecurringMeetupController {
 		}
 	}
 
+	static async setReminderTwoDayBeforeMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"twoDayBeforeMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.remindTwoDayBeforeMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindTwoDayBeforeMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const dataParty = await RecurringMeetupController.getDataParty(partyId)
+			const threadParty = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)			
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id))
+			}
+		})
+	}
+
+	static async setReminderOneDayBeforeMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"oneDayBeforeMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.remindOneDayBeforeMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindOneDayBeforeMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const dataParty = await RecurringMeetupController.getDataParty(partyId)
+			const threadParty = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
+			}
+		})
+	}
+
+	static async setReminderOneHourBeforeMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"oneHourBeforeMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.remindOneHourBeforeMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindOneHourBeforeMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const dataParty = await RecurringMeetupController.getDataParty(partyId)
+			const threadParty = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
+			}
+		})
+	}
+
+	static async setReminderTenMinuteBeforeMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"tenMinutesBeforeMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.remindTenMinuteBeforeMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindTenMinuteBeforeMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const dataParty = await RecurringMeetupController.getDataParty(partyId)
+			const threadParty = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
+			}
+		})
+	}
+
+	static async setScheduleCreateTemporaryVoiceChannel(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"fiveMinutesBeforeMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.scheduleCreateTemporaryVoiceChannel(client,time,partyId)
+		}
+	}
+
+	static async scheduleCreateTemporaryVoiceChannel(client,time,partyId){
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				supabase.from("PartyRooms")
+					.select("MemberPartyRooms(UserId)")
+					.eq('id',partyId)
+					.single()
+					.then(async data=>{
+						const members = data.body.MemberPartyRooms.map(member=>member.UserId)
+						const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(client,`Party ${partyId}`,members)
+						supabase.from('PartyRooms')
+							.update({voiceChannelId})
+							.eq('id',partyId)
+							.then()
+					})
+			}
+		})
+	}
+
+	static async setReminderWeeklyMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"weeklyMeetup")
+			.gte('time',new Date().toISOString())
+
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			RecurringMeetupController.remindWeeklyMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindWeeklyMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+
+		schedule.scheduleJob(time,async function() {
+			const dataParty = await RecurringMeetupController.getDataParty(partyId)
+
+			const threadParty = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getDate(newWeeklyMeetup.body?.time))){
+					const nextMeetupDate = new Date()
+					nextMeetupDate.setDate(nextMeetupDate.getDate() + 7)
+					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId)
+				}
+				const voiceChannelId = dataParty.body.voiceChannelId
+				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
+			}
+		})
+	}
+
 	static async scheduleMeetup(client,scheduleMeetupDate,threadId,partyId){
 		await RecurringMeetupController.deleteOldWeeklyMeetup(partyId)
 
-		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
-		const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
-
-		const twoDayBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const twoDayBefore = new Date(scheduleMeetupDate.valueOf())
 		twoDayBefore.setDate(twoDayBefore.getDate()-2)
 
-		const oneDayBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const oneDayBefore = new Date(scheduleMeetupDate.valueOf())
 		oneDayBefore.setDate(oneDayBefore.getDate()-1)
 		
-		const oneHourBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const oneHourBefore = new Date(scheduleMeetupDate.valueOf())
 		oneHourBefore.setHours(oneHourBefore.getHours()-1)
 		
-		const tenMinutesBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const tenMinutesBefore = new Date(scheduleMeetupDate.valueOf())
 		tenMinutesBefore.setMinutes(tenMinutesBefore.getMinutes()-10)
 
-		const fiveMinutesBefore = Time.getDate(scheduleMeetupDate.valueOf())
+		const fiveMinutesBefore = new Date(scheduleMeetupDate.valueOf())
 		fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
 		supabase.from("Reminders")
 			.insert([
@@ -114,64 +281,12 @@ class RecurringMeetupController {
 			})
 			.single()
 			.then(async scheduleWeeklyMeetup=>{
-				//TODO add this cron to events ready like remind highlight user for this 4 event 
-				schedule.scheduleJob(twoDayBefore,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,scheduleWeeklyMeetup.body.id))
-					}
-				})
-				schedule.scheduleJob(oneDayBefore,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
-					}
-				})
-				schedule.scheduleJob(oneHourBefore,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
-					}
-				})
-				schedule.scheduleJob(tenMinutesBefore,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
-					}
-				})
-				schedule.scheduleJob(fiveMinutesBefore,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						supabase.from("PartyRooms")
-						.select("MemberPartyRooms(UserId)")
-						.eq('id',partyId)
-						.single()
-						.then(async data=>{
-							const members = data.body.MemberPartyRooms.map(member=>member.UserId)
-							const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(client,`Party ${partyId}`,members)
-							supabase.from('PartyRooms')
-								.update({voiceChannelId})
-								.eq('id',partyId)
-								.then()
-						})
-					}
-				})
-				schedule.scheduleJob(scheduleMeetupDate,async function() {
-					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body && dataWeeklyMeetup.body.id === scheduleWeeklyMeetup.body.id ){
-						if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getDate(dataWeeklyMeetup.body.time))){
-							const nextMeetupDate = Time.getDate(scheduleMeetupDate.valueOf())
-							nextMeetupDate.setDate(nextMeetupDate.getDate() + 7)
-							RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,threadId)
-						}
-						const dataParty = await supabase.from("PartyRooms")
-							.select()
-							.eq('id',partyId)
-							.single()
-						const voiceChannelId = dataParty.body.voiceChannelId
-						threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
-					}
-				})
+				RecurringMeetupController.remindTwoDayBeforeMeetup(client,twoDayBefore,partyId)
+				RecurringMeetupController.remindOneDayBeforeMeetup(client,oneDayBefore,partyId)
+				RecurringMeetupController.remindOneHourBeforeMeetup(client,oneHourBefore,partyId)
+				RecurringMeetupController.remindTenMinuteBeforeMeetup(client,tenMinutesBefore,partyId)
+				RecurringMeetupController.scheduleCreateTemporaryVoiceChannel(client,fiveMinutesBefore,partyId)
+				RecurringMeetupController.remindWeeklyMeetup(client,scheduleMeetupDate,partyId)
 			})
 	}
 
@@ -186,6 +301,13 @@ class RecurringMeetupController {
 			.eq('type','weeklyMeetup')
 			.eq('message',partyId)
 			.gte('time',new Date().toISOString())
+			.single()
+	}
+
+	static async getDataParty(partyId){
+		return await supabase.from("PartyRooms")
+			.select()
+			.eq('id',partyId)
 			.single()
 	}
 

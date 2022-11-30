@@ -11,7 +11,7 @@ module.exports = {
 		// handle only message with this id
 
 		if(user.bot) return
-		DailyReport.activeMember(reaction.client,user.id)
+		await DailyReport.activeMember(reaction.client,user.id)
 		PointController.addPoint(user.id,'reaction',0,reaction.message.channelId)
 		if(reaction.message.id !== "960790258256064542" && reaction.message.id !== "1013254534262423553") return
 		if (reaction.partial) {

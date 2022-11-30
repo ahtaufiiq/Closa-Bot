@@ -148,49 +148,77 @@ class PartyController{
 		return tagMembers
 	}
 
-	static async remindUserToResponseScheduleMeetup(client,thread,partyId){
-		const time = Time.getNextDate(1)
-		await supabase.from("Reminders")
-			.insert({
-				time,
-				message:partyId,
-				type:'reminderScheduleMeetup'
-			})
+	static async setReminderScheduleMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"reminderScheduleMeetup")
+			.gte('time',new Date().toISOString())
+		if(data.body.length === 0 ) return
+
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			PartyController.remindUserToResponseScheduleMeetup(client,time,partyId)
+		}
+	}
+
+	static async remindUserToResponseScheduleMeetup(client,time,partyId){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+
 		schedule.scheduleJob(time,async function() {
 			const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-
+			const dataParty = await supabase.from("PartyRooms")
+						.select('msgId,meetupMessageId')
+						.eq('id',partyId)
+						.single()
+			const thread = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			
 			if (dataWeeklyMeetup.body) {
 				const dataMembersParty = await supabase.from("MemberPartyRooms")
 					.select("UserId")
 					.eq('partyId',partyId)
 
 				if(dataMembersParty.body.length > 0){
-					PartyController.autoRescheduleMeetup(client,dataParty,partyId)
+					const time = new Date()
+					time.setDate(time.getDate()+1)
+					await supabase.from("Reminders")
+						.insert({
+							time,
+							message:partyId,
+							type:'autoRescheduleMeetup'
+						})
+					PartyController.autoRescheduleMeetup(client,time,partyId)
 
 					const tagMembers = await PartyController.getListMemberNotResponseScheduleMeetup(dataMembersParty,partyId)
-					
-					const dataParty = await supabase.from("PartyRooms")
-						.select('msgId,meetupMessageId')
-						.eq('id',partyId)
-						.single()
 
 					const msgMeetup = await ChannelController.getMessage(thread,dataParty.body?.meetupMessageId)
 					msgMeetup.reply(RecurringMeetupMessage.remindSomeoneToAcceptMeetup(tagMembers.join(' ')))
 				}
 
 			}
-		})
+		})	
 	}
 
-	static async autoRescheduleMeetup(client,dataParty,partyId){
-		const time = Time.getNextDate(1)
-		await supabase.from("Reminders")
-			.insert({
-				time,
-				message:partyId,
-				type:'autoRescheduleMeetup'
-			})
+
+	static async setReminderAutoRescheduleMeetup(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"autoRescheduleMeetup")
+			.gte('time',new Date().toISOString())
+		
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:partyId} = data.body[i];
+			PartyController.autoRescheduleMeetup(client,time,partyId)
+		}
+	}
+
+	static async autoRescheduleMeetup(client,time,partyId){
+		//TODO add this cron to events ready like remind highlight user 
 		schedule.scheduleJob(time,async function() {
+			const dataParty = await supabase.from("PartyRooms")
+						.select('msgId,meetupMessageId')
+						.eq('id',partyId)
+						.single()
 			const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 
 			if (dataWeeklyMeetup.body) {
@@ -228,7 +256,15 @@ class PartyController{
 			}, 1000 * 60 * 5);
 
 			setTimeout(async () => {
-				PartyController.remindUserToResponseScheduleMeetup(client,thread,party.id)
+				const time = new Date()
+				time.setDate(time.getDate() + 1)
+				await supabase.from("Reminders")
+					.insert({
+						time,
+						message:party.id,
+						type:'reminderScheduleMeetup'
+					})
+				PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
 
 				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id))
 				
@@ -244,6 +280,7 @@ class PartyController{
 	}
 
 	static hideChannelPartyMode(client){
+		//TODO change permission hide channel party based on role
 		const {kickoffDate} = LocalData.getData()
 		const ruleFirstDayCooldown = Time.getDate(kickoffDate)
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(21))
@@ -587,13 +624,13 @@ class PartyController{
 		return result
 	}
 
-	static async isAlreadyJoinedParty(userId){
+	static async dataJoinedParty(userId){
 		const dataJoinedParty = await supabase.from("MemberPartyRooms")
 			.select('PartyRooms(msgId),Users(notificationId)')
 			.eq("UserId",userId)
 			.gte("endPartyDate",Time.getTodayDateOnly())
 			.single()
-		return !!dataJoinedParty.body
+		return dataJoinedParty.body
 	}
 
 	static async deleteUserFromParty(userId,partyNumber){
