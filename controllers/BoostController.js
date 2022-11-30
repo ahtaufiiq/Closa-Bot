@@ -44,14 +44,42 @@ class BoostController{
 					.then(data=>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
-								const {user} = await MemberController.getMember(client,member.id)
-								channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+								if(!Time.isValidStreak(member.currentStreak,member.lastDone,member.lastSafety)){
+									const {user} = await MemberController.getMember(client,member.id)
+									channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+								}
 							})
 						}
 					})
 			}
 		})
     }
+
+	static remindUserAboutToLoseStreak(client){
+		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
+		let ruleRemindBoost = new schedule.RecurrenceRule();
+		ruleRemindBoost.hour = Time.minus7Hours(20)
+		ruleRemindBoost.minute = 15
+		schedule.scheduleJob(ruleRemindBoost,function(){
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select()
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+					.gte('currentStreak',5)
+					.then(data =>{
+						if (data.body.length > 0) {
+							data.body.forEach(async member=>{
+								if(!Time.isValidStreak(member.currentStreak,member.lastDone,member.lastSafety)){
+									const {user} = await MemberController.getMember(client,member.id)
+									channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
+								}
+							})
+						}
+					})
+			}
+		})
+		
+	}
 
 	static remindEveryMonday(client){
 		schedule.scheduleJob(`1 0 ${Time.minus7Hours(7)} * * 1`,async function() {
@@ -131,30 +159,6 @@ class BoostController{
 			.then()
 
 		return totalBoost
-	}
-
-	static remindUserAboutToLoseStreak(client){
-		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
-		let ruleRemindBoost = new schedule.RecurrenceRule();
-		ruleRemindBoost.hour = Time.minus7Hours(20)
-		ruleRemindBoost.minute = 15
-		schedule.scheduleJob(ruleRemindBoost,function(){
-			if (!Time.isCooldownPeriod()) {
-				supabase.from("Users")
-					.select("id,currentStreak")
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
-					.gte('currentStreak',5)
-					.then(data =>{
-						if (data.body.length > 0) {
-							data.body.forEach(async member=>{
-								const {user} = await MemberController.getMember(client,member.id)
-								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
-							})
-						}
-					})
-			}
-		})
-		
 	}
 }
 

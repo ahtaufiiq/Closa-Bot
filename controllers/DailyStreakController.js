@@ -25,7 +25,6 @@ class DailyStreakController {
     }
 
     static remindMissOneDay(client){
-        const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
         let ruleReminderMissOneDay = new schedule.RecurrenceRule();
 		ruleReminderMissOneDay.hour = Time.minus7Hours(6)
 		ruleReminderMissOneDay.minute = 0
@@ -54,6 +53,11 @@ class DailyStreakController {
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
+						supabase.from("Users")
+							.update({lastSafety:Time.getDateOnly(Time.getNextDate(6))})
+							.eq('id',member.id)
+							.then()
+
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
 							safetyCooldown.push({
