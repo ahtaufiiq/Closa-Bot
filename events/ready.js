@@ -10,6 +10,7 @@ const TimelineController = require('../controllers/TimelineController');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const PartyController = require('../controllers/PartyController');
 const GoalController = require('../controllers/GoalController');
+const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 
 
 module.exports = {
@@ -37,6 +38,16 @@ module.exports = {
 		PartyController.partyReminder(client)
 		PartyController.updateMessageWaitingRoom(client)
 
+		PartyController.setReminderScheduleMeetup(client)
+		PartyController.setReminderAutoRescheduleMeetup(client)
+
+		RecurringMeetupController.setReminderTwoDayBeforeMeetup(client)
+		RecurringMeetupController.setReminderOneDayBeforeMeetup(client)
+		RecurringMeetupController.setReminderOneHourBeforeMeetup(client)
+		RecurringMeetupController.setReminderTenMinuteBeforeMeetup(client)
+		RecurringMeetupController.setScheduleCreateTemporaryVoiceChannel(client)
+		RecurringMeetupController.setReminderWeeklyMeetup(client)
+
 		GoalController.remindToWriteGoal(client)
 		GoalController.updateAllActiveGoal(client)
 		GoalController.generateAllUserGoalFromWaitingRoom(client)
@@ -49,6 +60,7 @@ module.exports = {
 		ReminderController.remindPostProgress(client)
 		
 		DailyStreakController.remindMissOneDay(client)
+		// DailyStreakController.remindAboutToLoseStreak(client)
 
 		CoworkingController.recurringCoworkingSession(client)
 

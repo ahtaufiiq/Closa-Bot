@@ -62,7 +62,6 @@ module.exports = {
 						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
 						let minutes = 30
 
-						//TODO kirim countdown dan reminder 5 minutes and 15 secodns to voice chat
 						threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
 							.then(async msg=>{
 								const timerMeetup = setInterval(() => {
