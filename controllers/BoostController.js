@@ -72,7 +72,7 @@ class BoostController{
 	static async interactionBoostBack(interaction,targetUser,notificationThread){
 		
 		
-		DailyReport.activeMember(interaction.client,interaction.user.id)
+		await DailyReport.activeMember(interaction.client,interaction.user.id)
 		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
 		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {
@@ -86,7 +86,7 @@ class BoostController{
 	}
 
 	static async interactionBoostInactiveMember(interaction,targetUser,notificationThread){
-		DailyReport.activeMember(interaction.client,interaction.user.id)
+		await DailyReport.activeMember(interaction.client,interaction.user.id)
 		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
 		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {

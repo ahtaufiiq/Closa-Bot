@@ -587,13 +587,13 @@ class PartyController{
 		return result
 	}
 
-	static async isAlreadyJoinedParty(userId){
+	static async dataJoinedParty(userId){
 		const dataJoinedParty = await supabase.from("MemberPartyRooms")
 			.select('PartyRooms(msgId),Users(notificationId)')
 			.eq("UserId",userId)
 			.gte("endPartyDate",Time.getTodayDateOnly())
 			.single()
-		return !!dataJoinedParty.body
+		return dataJoinedParty.body
 	}
 
 	static async deleteUserFromParty(userId,partyNumber){
