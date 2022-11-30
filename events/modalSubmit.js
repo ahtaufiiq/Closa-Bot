@@ -110,9 +110,7 @@ module.exports = {
 				UserId:modal.user.id,
 				id:modal.message.id
 			})
-			.then(data=>{
-				console.log(data);
-			})
+			.then()
 			modal.message.delete()
 		}else if(commandButton === "editGoal"){
 			const deadlineGoal = GoalController.getDeadlineGoal()

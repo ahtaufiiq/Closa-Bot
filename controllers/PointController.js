@@ -55,7 +55,6 @@ class PointController{
 
                 if(data?.body === null){
                     if(key){
-                        console.log(`insertData: ${key} -> ${totalPoint}`);
                         supabase.from("Points")
                             .insert({
                                 UserId,
@@ -65,7 +64,6 @@ class PointController{
                     }
                 }else{
                     if(key){
-                        console.log(`updateData: ${key} -> ${totalPoint}`);
                         supabase.from("Points")
                             .update({
                                 [key]:value,
@@ -76,7 +74,6 @@ class PointController{
                     }
                 }
                 if(key || type === 'cafe' || type === 'boost'){
-                    console.log('increment point',type);
                     this.incrementTotalPoints(totalPoint,UserId)
                 }
             })

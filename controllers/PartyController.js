@@ -351,7 +351,6 @@ class PartyController{
 			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
 			const totalMemberParty = PartyController.countTotalMemberParty(members)
 			const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
-			console.log(members);
 			msgParty.edit(PartyMessage.partyRoom(
 				partyNumber,
 				PartyController.formatMembersPartyRoom(members),
