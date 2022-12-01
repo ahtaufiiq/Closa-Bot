@@ -163,16 +163,15 @@ class PartyController{
 
 	static async remindUserToResponseScheduleMeetup(client,time,partyId){
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
-
 		schedule.scheduleJob(time,async function() {
 			const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			const dataParty = await supabase.from("PartyRooms")
 						.select('msgId,meetupMessageId')
 						.eq('id',partyId)
 						.single()
-			const thread = ChannelController.getThread(channelPartyRoom,dataParty.body?.meetupMessageId)
+			const thread = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			
-			if (dataWeeklyMeetup.body) {
+			if (!dataWeeklyMeetup.body) {
 				const dataMembersParty = await supabase.from("MemberPartyRooms")
 					.select("UserId")
 					.eq('partyId',partyId)
