@@ -220,7 +220,7 @@ class PartyController{
 						.single()
 			const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 
-			if (dataWeeklyMeetup.body) {
+			if (!dataWeeklyMeetup.body) {
 				const date = new Date(dataWeeklyMeetup.body.time)
 				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,date,partyId)
 			}
