@@ -102,7 +102,7 @@ module.exports = {
 						const members = data?.body?.MemberPartyRooms
 						if(members.length === 3){
 							setTimeout(async () => {
-								const dataRecentUser = await PartyController.getRecentActiveUserInParty(members)
+								const dataRecentUser = await PartyController.getRecentActiveUserInParty(members,interaction.user.id)
 								if(dataRecentUser.body) threadParty.send(PartyMessage.remindSharePartyWhenSomeoneLeaveParty(dataRecentUser.body.UserId,msgId))
 							}, 1000 * 60 * 5);
 						}
