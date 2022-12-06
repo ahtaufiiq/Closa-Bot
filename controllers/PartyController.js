@@ -212,7 +212,6 @@ class PartyController{
 	}
 
 	static async autoRescheduleMeetup(client,time,partyId){
-		//TODO add this cron to events ready like remind highlight user 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await supabase.from("PartyRooms")
 						.select('msgId,meetupMessageId')
@@ -639,11 +638,13 @@ class PartyController{
 			.single()
 	}
 
-	static async getRecentActiveUserInParty(members){
-		const queryOr = members.map(member=>`UserId.eq.${member.UserId}`)
+	static async getRecentActiveUserInParty(members,userId){
+		const filteredMembers = members.filter(member=>member.UserId != userId)
+		const queryOr = filteredMembers.map(member=>`UserId.eq.${member.UserId}`)
 		const dataRecentUser = await supabase.from('Points')
 			.select()
 			.or(queryOr.join(','))
+			.neq('UserId',userId)
 			.limit(1)
 			.order('updatedAt',{ascending:false})
 			.single()
@@ -721,7 +722,7 @@ class PartyController{
 									.gte('endPartyDate',Time.getTodayDateOnly())
 									.single()
 								if(data.body){
-									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.body.PartyRooms.MemberPartyRooms)
+									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.body.PartyRooms.MemberPartyRooms,user.id)
 									const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 									const threadParty = await ChannelController.getThread(channelPartyRoom,data.body.PartyRooms.msgId)
 									threadParty.send(PartyMessage.partyReminder(user.id,dataActiveUser.body.UserId))
