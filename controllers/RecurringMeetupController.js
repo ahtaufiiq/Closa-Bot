@@ -115,7 +115,7 @@ class RecurringMeetupController {
 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRodataParty.body?.msgIdeId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
 				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
@@ -142,7 +142,7 @@ class RecurringMeetupController {
 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRodataParty.body?.msgIdeId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
 				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
@@ -169,7 +169,7 @@ class RecurringMeetupController {
 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRodataParty.body?.msgIdeId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
 				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
@@ -232,7 +232,7 @@ class RecurringMeetupController {
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
 
-			const threadParty = await ChannelController.getThread(channelPartyRodataParty.body?.msgIdeId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
 				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getDate(newWeeklyMeetup.body?.time))){
