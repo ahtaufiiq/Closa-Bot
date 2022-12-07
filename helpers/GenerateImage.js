@@ -3,7 +3,7 @@ const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false){
+    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
@@ -19,7 +19,9 @@ class GenerateImage{
         context.font = "600 56px Inter";
         context.fillText(name, 75 , 102 + 50);
         context.font = "600 48px Inter";
-        context.fillText(FormatString.truncateString(goalName,37), 75 , 359 + 34);
+        const maxCharGoal = isVacation ?(vacationLeft === 0 ? 25 : 23) : 37
+        context.fillText(FormatString.truncateString(goalName,maxCharGoal), 75 , 363 + 34);
+
 
         context.fillStyle = "#888888"; 
         context.font = "40px Inter";
@@ -34,6 +36,18 @@ class GenerateImage{
         context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
         
 
+        if(isVacation){
+            context.fillStyle = "#888888"; 
+            context.font = "500 40px Inter";
+            context.textAlign = 'end'
+            if(vacationLeft === 0 ){
+                if(isBuyOneVacation) context.fillText(`rest day`, 954, 363 + 34);
+                else context.fillText(`last day`, 954, 363 + 34);
+            }else{
+                context.fillText(`${vacationLeft} ${vacationLeft > 1 ? "days" :"day"} left`, 954, 363 + 34);
+                
+            }
+        }
           
         const greenDot = await loadImage(`./assets/images/progress${additionalStreak}.png`)
         const safetyDot = await loadImage(`./assets/images/safety${additionalStreak}.png`)
