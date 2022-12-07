@@ -238,7 +238,7 @@ class RecurringMeetupController {
 				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getDate(newWeeklyMeetup.body?.time))){
 					const nextMeetupDate = new Date()
 					nextMeetupDate.setDate(nextMeetupDate.getDate() + 7)
-					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId)
+					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId,partyId)
 				}
 				const voiceChannelId = dataParty.body.voiceChannelId
 				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
