@@ -1,6 +1,8 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class DailyStreakMessage{
 
@@ -54,6 +56,47 @@ You can check the badge on your profile.`
 Now you have fire animation every time you keep the streak. 👀
 You can check the badge on your profile.`
         },"#fefefe")
+    }
+
+    static missYesterdayProgress(userId){
+        return 	{
+            content:`Hi ${MessageFormatting.tagUser(userId)} **yesterday you forgot to update your ${MessageFormatting.tagChannel(CHANNEL_TODO)}.**
+But don't worry—you are not losing your #🔥streak :v:
+
+\`\`To keep you streak you can:\`\`
+• Continue post your progress today.
+• Or buy a vacation ticket if you want to take a break today.`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton('buyOneVacationTicket','Buy 1 vacation ticket',`🏖`),
+                MessageComponent.addButton('declineBuyVacationTicket',"I'll make progress today","SECONDARY"),
+                MessageComponent.addLinkButton("Learn more ↗","https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"),
+            )]
+        }
+    }
+
+    static remindUserAboutToLoseStreak(userId){
+        return {
+            content:`**Hi ${MessageFormatting.tagUser(userId)} this is a final call. You are about to lose your #🔥streak 🙏**
+
+\`\`To keep your streak you can:\`\`
+• Start tiny and post your progress today.
+• or you can buy a vacation ticket for today.`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton('buyOneVacationTicket','Buy 1 vacation ticket',`🏖`),
+                MessageComponent.addButton('declineBuyVacationTicket',"I'll make progress today","SECONDARY"),
+                MessageComponent.addLinkButton("Learn more ↗","https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"),
+            )]
+        }
+    }
+
+    static activateSafetyDot(userId,currentStreak,attachment){
+        return {
+            content:`${MessageFormatting.tagUser(userId)} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
+\`\`Please don't skip more than once to keep your streak & come back tomorrow.\`\``,
+            files:[
+                attachment
+            ]
+        }
     }
 }
 

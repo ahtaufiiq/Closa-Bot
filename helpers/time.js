@@ -134,6 +134,9 @@ class Time {
     static getTodayDateOnly(){
         return this.getDate().toISOString().substring(0,10)
     }
+    static getTomorrowDateOnly(){
+        return Time.getDateOnly(Time.getNextDate(1))
+    }
     static getFormattedDate(date,showDay=false,dateStyle='medium'){
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
 
