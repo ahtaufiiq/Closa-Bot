@@ -1,3 +1,4 @@
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const { MessageAttachment } = require("discord.js")
 const RequestAxios = require("../helpers/axios")
 const { CHANNEL_STREAK, CHANNEL_GOALS, CHANNEL_SHOP, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK } = require("../helpers/config")
@@ -117,10 +118,10 @@ class VacationController{
         if(data.body?.totalPoint >= totalPrice){
             const {goalId,longestStreak,totalDay,totalPoint} = data.body
             const endDate = Time.getDateOnly(Time.getNextDate(totalTicket-1,startDate))
-            const isAlreadyHaveVacationTicket = await VacationController.isAlreadyHaveVacationTicket(interaction.user.id,startDate,endDate)
+            const dataVacationUser = await VacationController.checkVacationTicket(interaction.user.id,startDate,endDate)
 
-            if(isAlreadyHaveVacationTicket){
-                await interaction.editReply("Already have vacation ticket")
+            if(dataVacationUser.isAlreadyHaveVacationTicket){
+                await interaction.editReply(VacationMessage.pickAnotherDate(interaction.user.id,totalTicket,dataVacationUser.date))
             }else{
                 const comebackDate = Time.getDateOnly(Time.getNextDate(totalTicket,startDate))
                 let goalName = 'Consistency'
@@ -190,6 +191,21 @@ class VacationController{
         }
     }
 
+    static showModalCustomDate(interaction){
+        if(interaction.customId.includes('useTicketCustomDate')){
+            const modal = new Modal()
+                .setCustomId(interaction.customId)
+                .setTitle("🗓 Vacation start on")
+                .addComponents(
+                    new TextInputComponent().setCustomId('customDate').setLabel("Start Date").setPlaceholder("e.g. December 29").setStyle("SHORT").setRequired(true),
+                )
+			showModal(modal, { client: interaction.client, interaction: interaction});
+            return true
+        }else{
+            return false
+        }
+    }
+
     static async notifyVacationEnded(client){
         let ruleNotifyVacationEnded = new schedule.RecurrenceRule();
         ruleNotifyVacationEnded.hour = Time.minus7Hours(6)
@@ -218,13 +234,25 @@ class VacationController{
         return diffDay 
     }
 
-    static async isAlreadyHaveVacationTicket(userId,startDate,endDate){
+    static async checkVacationTicket(userId,startDate,endDate){
+        const result = {
+            isAlreadyHaveVacationTicket: false,
+            date:null
+        }
         const data = await supabase.from("Reminders")
             .select()
             .gte('message',startDate)
             .lte('message',endDate)
             .eq("UserId",userId)
-        return data.body.length > 0
+            .eq('type','vacation')
+            .order('message',{ascending:true})
+
+        if (data.body.length > 0) {
+            result.isAlreadyHaveVacationTicket = true
+            const dateOnly = data.body[0].message
+            result.date = Time.getFormattedDate(Time.getDate(dateOnly),false,'long').split(',')[0]
+        }
+        return result
     }
 
     static getIdBadgeBasedOnTotalTicket(totalTicket){

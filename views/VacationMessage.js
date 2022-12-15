@@ -115,6 +115,15 @@ To get vibe points you can contribute to community by doing certain activities.`
         }
     }
 
+    static pickAnotherDate(userId,totalTicket,date){
+        return {
+            content:`**🗓 Please pick another date, you've already have vacation ticket for ${date}**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`useTicketCustomDate_${userId}_${totalTicket}`,"Set Date")
+            )]
+        }
+    }
+
     static successBuyVacationTicket(userId,totalTicket,pointLeft,startDate,endDate){
         const todayDate = Time.getFormattedDate(Time.getDate())
         const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))

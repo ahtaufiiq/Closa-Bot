@@ -27,6 +27,8 @@ module.exports = {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
+			if(VacationController.showModalCustomDate(interaction)) return
+			
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
 				await interaction.deferReply();
