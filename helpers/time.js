@@ -110,7 +110,7 @@ class Time {
             "november":10,
             "december":11
         }
-        const monthInNumber = listMonth[month.toLowerCase()]
+        const monthInNumber = listMonth[month.trim().toLowerCase()]
         
         return monthInNumber === undefined ? -1 : monthInNumber
     }
