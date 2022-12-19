@@ -38,8 +38,8 @@ class VacationMessage {
                 .setImage("https://media.giphy.com/media/3ohzAttVwOSM1vCdK8/giphy.gif")
             ],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('shopVacation','🎫 Buy Ticket'),
-                MessageComponent.addLinkButton("💡 Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe")
+                MessageComponent.addEmojiButton('shopVacation','Buy Ticket','🎫'),
+                MessageComponent.addLinkButton("Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe").setEmoji('💡')
             )]
         }
     }
@@ -54,15 +54,14 @@ have a productive day!
     static successBuyOneVacationTicket(userId,pointLeft,todayDate,tomorrowDate){
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased 1-day vacation ticket 🎫
-\`\`You don't need to post any progress for today.\`\`
-
-https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif`,
+\`\`You don't need to post any progress for today.\`\``,
             embeds:[new MessageEmbed()
                 .setColor("#00B264")
                 .addField("Ticket Details",`Applied for: Today (${todayDate}).
 Please come back tomorrow sharing your progress. (${tomorrowDate})
 
-Your points: **${pointLeft} :coin:**`)
+Points left: **${pointLeft} :coin:**`)
+                .setImage('https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif')
             ]
         }
     }
@@ -156,16 +155,15 @@ To get vibe points you can contribute to community by doing certain activities.`
         const startVacation = startDate === todayDate ? "Today" : startDate === tomorrowDate ? "Tomorrow" : startDate
 
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased ${totalTicket}-day vacation ticket 🎫
-            
-https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif`,
+            content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased ${totalTicket}-day vacation ticket 🎫`,
             embeds:[new MessageEmbed()
                 .setColor("#00B264")
                 .addField("Ticket Details",`Start: ${startVacation}
 Until: ${endDate}
 Please back making progress at (${endDate})
 
-Your points: **${pointLeft} :coin:**`)
+Points left: **${pointLeft} :coin:**`)
+                .setImage('https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif')
             ]
         }
     }

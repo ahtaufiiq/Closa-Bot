@@ -139,7 +139,11 @@ module.exports = {
 			
 			const totalTicket = modal.customId.split("_")[2]
 			const customDate = modal.getTextInputValue('customDate');
-			const [month,date] = customDate.split(' ')
+			
+			// handle format: 18 Decemember and December 18
+			const date = customDate.match(/(\d+)/)[0]
+			const month = customDate.split(date).filter(Boolean)[0]
+
 			const monthInNumber = Time.convertMonthInNumber(month)
 			if (monthInNumber === -1 || !FormatString.isNumber(date)) {
 				return await modal.editReply(`Incorrect format, please make sure there is no typo or invalid date.
