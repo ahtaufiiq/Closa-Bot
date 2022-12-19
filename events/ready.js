@@ -11,6 +11,7 @@ const ReferralCodeController = require('../controllers/ReferralCodeController');
 const PartyController = require('../controllers/PartyController');
 const GoalController = require('../controllers/GoalController');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
+const VacationController = require('../controllers/VacationController');
 
 
 module.exports = {
@@ -23,6 +24,8 @@ module.exports = {
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 		// if(CLIENT_ID === "948546574550695936") return
+		VacationController.activateVacationTicket(client)
+		VacationController.notifyVacationEnded(client)
 
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotifBeforeCelebration(client)
@@ -65,7 +68,7 @@ module.exports = {
 
 		CoworkingController.recurringCoworkingSession(client)
 
-		BoostController.remindBoostInativeMember(client)
+		BoostController.remindBoostInactiveMember(client)
 		BoostController.remindBoostNotMakingProgress3Days(client)
 		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)

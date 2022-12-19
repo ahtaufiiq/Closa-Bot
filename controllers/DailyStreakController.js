@@ -10,6 +10,7 @@ const RequestAxios = require('../helpers/axios');
 const InfoUser = require('../helpers/InfoUser');
 const GenerateImage = require('../helpers/GenerateImage');
 const { MessageAttachment } = require('discord.js');
+const UserController = require('./UserController');
 class DailyStreakController {
     
     static achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
@@ -36,6 +37,7 @@ class DailyStreakController {
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
 					.select('id,name,notificationId')
+					.eq('onVacation',false)
 					.gte('currentStreak',2)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
@@ -59,6 +61,7 @@ class DailyStreakController {
 				supabase.from("Users")
 					.select()
 					.gte('currentStreak',2)
+					.eq('onVacation',false)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-1)))
 					.then(data=>{
 						if (data.body) {
@@ -82,7 +85,7 @@ class DailyStreakController {
 									const avatarUrl = InfoUser.getAvatar(user)
 									const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
 									const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
-									channelStreak.send(DailyStreakMessage.activateSafetyDot(user.id,currentStreak,attachment))
+									channelStreak.send(DailyStreakMessage.activateSafetyDot(user.id,currentStreak,longestStreak,attachment))
 								})
 							})
 						}
@@ -100,6 +103,7 @@ class DailyStreakController {
 				supabase.from("Users")
 					.select('id,name,notificationId')
 					.gte('currentStreak',2)
+					.eq('onVacation',false)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
 						if (data.body) {
@@ -120,7 +124,7 @@ class DailyStreakController {
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
-						DailyStreakController.updateLastSafety(Time.getDateOnly(Time.getNextDate(6)),member.id)
+						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(6)),member.id)
 
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
@@ -145,13 +149,6 @@ class DailyStreakController {
 					})
 				}
 			})
-	}
-
-	static async updateLastSafety(dateOnly,userId){
-		supabase.from("Users")
-		.update({'lastSafety':dateOnly})
-		.eq('id',userId)
-		.then()
 	}
 
 	static async addSafetyDot(userId,date){

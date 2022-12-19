@@ -1,7 +1,7 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const { MessageAttachment } = require("discord.js")
 const RequestAxios = require("../helpers/axios")
-const { CHANNEL_STREAK, CHANNEL_GOALS, CHANNEL_SHOP, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK } = require("../helpers/config")
+const { CHANNEL_STREAK, CHANNEL_GOALS, CHANNEL_SHOP, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK, CHANNEL_TODO } = require("../helpers/config")
 const GenerateImage = require("../helpers/GenerateImage")
 const InfoUser = require("../helpers/InfoUser")
 const LocalData = require("../helpers/LocalData")
@@ -10,7 +10,9 @@ const Time = require("../helpers/time")
 const VacationMessage = require("../views/VacationMessage")
 const ChannelController = require("./ChannelController")
 const schedule = require('node-schedule');
-const DailyStreakController = require("./DailyStreakController")
+const DailyStreakController = require("./DailyStreakController");
+const MemberController = require('./MemberController');
+const UserController = require('./UserController');
 
 class VacationController{
     static async getMaxHoldVacationTicket(userId){
@@ -85,23 +87,24 @@ class VacationController{
             const pointLeft = totalPoint - 500
             VacationController.updatePoint(pointLeft,interaction.user.id)
             const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
+
+            UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
+            await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
+
             RequestAxios.get('todos/tracker/'+interaction.user.id)
             .then(async progressRecently=>{
                 const avatarUrl = InfoUser.getAvatar(interaction.user)
 
                 const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
                 const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
-                channelStreak.send({
-                    content:`${interaction.user} in vacation mode 🏖`,
-                    files:[
-                        attachment
-                    ]
-                })
+                channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,0,true))
             })
+
+            UserController.updateOnVacation(true,interaction.user.id)
+            VacationController.shareToProgress(interaction.client,interaction.user.id)
             const todayDate = Time.getFormattedDate(Time.getDate())
             const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
             await interaction.editReply(VacationMessage.successBuyOneVacationTicket(interaction.user.id,pointLeft,todayDate,tomorrowDate))
-
         }else{
             await interaction.editReply(VacationMessage.notHaveEnoughPoint(interaction.user.id))
         }
@@ -111,12 +114,12 @@ class VacationController{
     static async interactionBuyTicketViaShop(interaction,totalTicket,startDate){
         const totalPrice = VacationController.calculatePriceVacationTicket(totalTicket)
         const data = await supabase.from("Users")
-        .select('goalId,longestStreak,totalDay,totalPoint')
+        .select('goalId,longestStreak,totalDay,totalPoint,lastDone')
         .eq("id",interaction.user.id)
         .single()
 
         if(data.body?.totalPoint >= totalPrice){
-            const {goalId,longestStreak,totalDay,totalPoint} = data.body
+            const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
             const endDate = Time.getDateOnly(Time.getNextDate(totalTicket-1,startDate))
             const dataVacationUser = await VacationController.checkVacationTicket(interaction.user.id,startDate,endDate)
 
@@ -161,8 +164,14 @@ class VacationController{
                 VacationController.updatePoint(pointLeft,interaction.user.id)
                 if(startDate === Time.getTodayDateOnly()){
                     const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
+                    if (Time.onlyMissOneDay(lastDone)) {
+                        const missedDate = Time.getNextDate(-1)
+                        missedDate.setHours(8)
+                        await DailyStreakController.addSafetyDot(interaction.user.id,missedDate)
+                    }
+                    UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
-
+                    VacationController.shareToProgress(interaction.client,interaction.user.id)
                     RequestAxios.get('todos/tracker/'+interaction.user.id)
                         .then(async progressRecently=>{
                             const avatarUrl = InfoUser.getAvatar(interaction.user)
@@ -172,13 +181,10 @@ class VacationController{
             
                             const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,vacationTicketLeft,isBuyOneVacation)
                             const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
-                            channelStreak.send({
-                                content:`${interaction.user} in vacation mode 🏖`,
-                                files:[
-                                    attachment
-                                ]
-                            })
+                            channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,vacationTicketLeft,isBuyOneVacation))
                         })
+
+                    UserController.updateOnVacation(true,interaction.user.id)
                 }
                 const formattedStartDate = Time.getFormattedDate(Time.getDate(startDate))
                 const formattedEndDate = Time.getFormattedDate(Time.getDate(comebackDate))
@@ -189,6 +195,71 @@ class VacationController{
         }else{
             await interaction.editReply(VacationMessage.notHaveEnoughPoint(interaction.user.id))
         }
+    }
+
+    static async activateVacationTicket(client){
+        let ruleActivateVacation = new schedule.RecurrenceRule();
+		ruleActivateVacation.hour = Time.minus7Hours(8)
+		ruleActivateVacation.minute = 0
+		schedule.scheduleJob(ruleActivateVacation,async function(){
+            const data = await VacationController.getAllActiveVacationTicket(Time.getTodayDateOnly())
+            data.body.forEach(async vacation=>{
+                const userId = vacation.UserId
+                const {goalId,longestStreak,totalDay,totalPoint,lastDone} = vacation.Users
+                const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
+                const {user} = await MemberController.getMember(client,userId)
+
+                const vacationLeft = VacationController.getVacationLeft(vacation.endDate)
+                let goalName = 'Consistency'
+                if (goalId) {
+                    const channelGoal = ChannelController.getChannel(client,CHANNEL_GOALS)
+                    const thread = await ChannelController.getThread(channelGoal,goalId)
+                    goalName = thread.name.split('by')[0]
+                }
+                if (Time.onlyMissOneDay(lastDone)) {
+                    const missedDate = Time.getNextDate(-1)
+                    missedDate.setHours(8)
+                    await DailyStreakController.addSafetyDot(userId,missedDate)
+                }
+                UserController.updateLastSafety(Time.getTodayDateOnly(),userId)
+                await DailyStreakController.addSafetyDot(userId,new Date())
+                
+                RequestAxios.get('todos/tracker/'+userId)
+                .then(async progressRecently=>{
+                    const avatarUrl = InfoUser.getAvatar(user)
+
+                    const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,vacationLeft)
+                    const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
+                    channelStreak.send(VacationMessage.onVacationMode(user.id,attachment,vacationLeft))
+                })
+
+                VacationController.shareToProgress(client,userId)
+
+                UserController.updateOnVacation(true,userId)
+            })
+        })
+    }
+
+    static async shareToProgress(client,userId){
+        const vacationGifs = [
+            "https://media.giphy.com/media/mHHIyJFfa2UTARzFLw/giphy.gif",
+            "https://media.giphy.com/media/fsnNbATnG7YT2lSfQV/giphy.gif",
+            "https://media.giphy.com/media/Yk4zL0BFKh2D2gAZ0p/giphy.gif",
+            "https://media.giphy.com/media/TFYyfFrqxuExEM5r04/giphy.gif",
+            "https://media.giphy.com/media/58wR2Nv7nDOZ9d7yBg/giphy.gif",
+            "https://media.giphy.com/media/et6C65bTNXPZiSkj7X/giphy.gif",
+            "https://media.giphy.com/media/C2L2bXRnv2chSO1mAH/giphy.gif",
+            "https://media.giphy.com/media/l4FAS5vgLprhkrt04/giphy.gif",
+            "https://media.giphy.com/media/3ohuPA1HiVmrcwKOuA/giphy.gif",
+            "https://media.giphy.com/media/WoKPNOr1jrdsc/giphy.gif",
+            "https://media.giphy.com/media/l2SqfuVPmWDuydRHa/giphy.gif",
+            "https://media.giphy.com/media/KD2SBgMMWCkLCxC32Z/giphy.gif",
+        ]
+
+        const randomGif = vacationGifs[Math.floor(Math.random()*vacationGifs.length)]
+        const channelProgress = ChannelController.getChannel(client,CHANNEL_TODO)
+        await channelProgress.send(VacationMessage.vacationModeOn(userId))
+        await channelProgress.send(randomGif)
     }
 
     static showModalCustomDate(interaction){
@@ -217,6 +288,7 @@ class VacationController{
             dataVacation.body.forEach(async vacation=>{
                 const threadNotification = await ChannelController.getNotificationThread(client,vacation.UserId)
                 threadNotification.send(VacationMessage.vacationDayEnded(vacation.UserId))
+                UserController.updateOnVacation(false,vacation.UserId)
             })
 		})
     }
@@ -269,7 +341,7 @@ class VacationController{
         const {msgIdShop} = LocalData.getData()
         const channelShop = ChannelController.getChannel(client,CHANNEL_SHOP)
         const msg = await ChannelController.getMessage(channelShop,msgIdShop)
-    	const totalTicket = Number(msg.content.match(/(\d+)/)[0] ) + totalNewTicket
+    	const totalTicket = Number(msg.embeds[0].description.split('each')[1].match(/(\d+)/)[0] ) + totalNewTicket
 
         msg.edit(VacationMessage.initShopVacation(totalTicket))
     }
@@ -286,12 +358,12 @@ class VacationController{
 
     static async getAllActiveVacationTicket(dateOnly){
        return await supabase.from("VacationTickets")
-            .select()
+            .select('*,Users(goalId,longestStreak,totalDay,totalPoint,lastDone)')
             .gte('endDate',dateOnly)
             .lte('startDate',dateOnly)
-            .limit(1)
-            .single()
     }
+
+
 
     static async isHaveEnoughPoint(userId,totalPrice){
         const totalPointUser = await VacationController.getTotalPoint(userId)

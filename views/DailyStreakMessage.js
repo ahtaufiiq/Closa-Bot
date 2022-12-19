@@ -89,10 +89,22 @@ But don't worry—you are not losing your #🔥streak :v:
         }
     }
 
-    static activateSafetyDot(userId,currentStreak,attachment){
+    static activateSafetyDot(user,currentStreak,longestStreak,attachment){
+        const avatarUrl = InfoUser.getAvatar(user)
+        let color = '#fefefe'
+
         return {
-            content:`${MessageFormatting.tagUser(userId)} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
+            content:`${user} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
 \`\`Please don't skip more than once to keep your streak & come back tomorrow.\`\``,
+            embeds:[
+                 new MessageEmbed()
+                    .setColor(color)
+                    .setAuthor({name:`Safety dot activated 🟩`})
+                    .setFooter({text:`${user.username}`, iconURL:avatarUrl})
+            ],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton("Learn more about safety dot 🟩","https://www.notion.so/closa/Habit-Tracker-dafeb8ce620c4210b3a3be4033933eb6#c48809b429e041be86884562f1b3d77b")
+            )],
             files:[
                 attachment
             ]

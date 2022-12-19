@@ -6,14 +6,40 @@ const Time = require("../helpers/time")
 
 class VacationMessage {
 
+    static onVacationMode(userId,attachment,vacationLeft=0,isBuyOneVacation=false){
+        let textDayLeft = 'last day'
+        if(isBuyOneVacation) textDayLeft = 'rest day'
+        else if(vacationLeft > 0) {
+            textDayLeft = `${vacationLeft} ${vacationLeft>1 ? "days":"day"} left`
+        }
+        
+        return {
+            content:`${MessageFormatting.tagUser(userId)} on vacation mode 🏖
+\`\`${textDayLeft}\`\``,
+            files:[
+                attachment
+            ]
+        }
+    }
+
     static initShopVacation(totalTicket=0){
         return {
-            content: `**Buy vacation ticket 🏖️**
-Ticket sold: ${totalTicket} 🎫
+            embeds:[
+                new MessageEmbed()
+                .setColor("#a9a735")
+                .setTitle("🏖 Vacation Ticket ")
+                .setDescription(`Buy vacation ticket to keep your streak without posting progress
 
-\`\`500 points per ticket\`\``,
+—————————————
+
+**500 points /each**
+
+**${totalTicket} ticket sold**`)
+                .setImage("https://media.giphy.com/media/3ohzAttVwOSM1vCdK8/giphy.gif")
+            ],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('shopVacation','Buy')
+                MessageComponent.addButton('shopVacation','🎫 Buy Ticket'),
+                MessageComponent.addLinkButton("💡 Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe")
             )]
         }
     }
@@ -28,7 +54,9 @@ have a productive day!
     static successBuyOneVacationTicket(userId,pointLeft,todayDate,tomorrowDate){
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased 1-day vacation ticket 🎫
-\`\`You don't need to post any progress for today.\`\``,
+\`\`You don't need to post any progress for today.\`\`
+
+https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif`,
             embeds:[new MessageEmbed()
                 .setColor("#00B264")
                 .addField("Ticket Details",`Applied for: Today (${todayDate}).
@@ -60,13 +88,6 @@ To get vibe points you can contribute to community by doing certain activities.`
         })
         return {
             content:`**Select how many vacation days you would like to take ${MessageFormatting.tagUser(userId)}?** 🏖
-
-\`\`Perks:\`\`
-• ${MessageFormatting.tagRole(ROLE_365STREAK)} — elgible for 7 days.
-• ${MessageFormatting.tagRole(ROLE_100STREAK)} – eligble for 5 days.
-• ${MessageFormatting.tagRole(ROLE_30STREAK)} – elgible for 3 days
-• ${MessageFormatting.tagRole(ROLE_7STREAK)} – eligble for 2 days
-• No badge – eligible for 1 day
 
 \`\`Your points:\`\` **${userPoint} :coin:**`,
             components:[MessageComponent.createComponent(
@@ -124,6 +145,10 @@ To get vibe points you can contribute to community by doing certain activities.`
         }
     }
 
+    static vacationModeOn(userId){
+        return `${MessageFormatting.tagUser(userId)} vacation mode on`
+    }
+
     static successBuyVacationTicket(userId,totalTicket,pointLeft,startDate,endDate){
         const todayDate = Time.getFormattedDate(Time.getDate())
         const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
@@ -131,7 +156,9 @@ To get vibe points you can contribute to community by doing certain activities.`
         const startVacation = startDate === todayDate ? "Today" : startDate === tomorrowDate ? "Tomorrow" : startDate
 
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased ${totalTicket}-day vacation ticket 🎫`,
+            content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased ${totalTicket}-day vacation ticket 🎫
+            
+https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif`,
             embeds:[new MessageEmbed()
                 .setColor("#00B264")
                 .addField("Ticket Details",`Start: ${startVacation}
