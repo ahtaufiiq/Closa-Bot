@@ -160,7 +160,7 @@ To get vibe points you can contribute to community by doing certain activities.`
                 .setColor("#00B264")
                 .addField("Ticket Details",`Start: ${startVacation}
 Until: ${endDate}
-Please back making progress at (${endDate})
+Please back making progress at ${endDate}
 
 Points left: **${pointLeft} :coin:**`)
                 .setImage('https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif')
