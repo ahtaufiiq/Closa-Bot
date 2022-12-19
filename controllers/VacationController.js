@@ -268,7 +268,7 @@ class VacationController{
                 .setCustomId(interaction.customId)
                 .setTitle("🗓 Vacation start on")
                 .addComponents(
-                    new TextInputComponent().setCustomId('customDate').setLabel("Start Date").setPlaceholder("e.g. December 29").setStyle("SHORT").setRequired(true),
+                    new TextInputComponent().setCustomId('customDate').setLabel("Start Date").setPlaceholder("e.g. 18 December").setStyle("SHORT").setRequired(true),
                 )
 			showModal(modal, { client: interaction.client, interaction: interaction});
             return true
