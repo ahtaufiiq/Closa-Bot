@@ -4,8 +4,11 @@ const MemberController = require("../controllers/MemberController");
 const MembershipController = require("../controllers/MembershipController");
 const PartyController = require("../controllers/PartyController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
+const VacationController = require("../controllers/VacationController");
 const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
+const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
+const Time = require("../helpers/time");
 const GoalMessage = require("../views/GoalMessage");
 const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
@@ -131,6 +134,29 @@ module.exports = {
 				deadlineGoal:deadlineGoal,
 			}))
 			modal.message.delete()
+		}else if(commandButton === "useTicketCustomDate"){
+			await modal.deferReply({ephemeral:true})
+			
+			const totalTicket = modal.customId.split("_")[2]
+			const customDate = modal.getTextInputValue('customDate');
+			const [month,date] = customDate.split(' ')
+			const monthInNumber = Time.convertMonthInNumber(month)
+			if (monthInNumber === -1 || !FormatString.isNumber(date)) {
+				return await modal.editReply(`Incorrect format, please make sure there is no typo or invalid date.
+	
+The correct format:
+\`\`December 29\`\``)
+			}else{
+				const vacationDate = Time.getDate()
+				vacationDate.setDate(date)
+				if (monthInNumber < vacationDate.getMonth()) vacationDate.setFullYear(vacationDate.getFullYear()+1)
+				vacationDate.setMonth(monthInNumber)
+				vacationDate.setHours(8)
+				vacationDate.setMinutes(0)
+				const dateOnly = Time.getDateOnly(vacationDate)
+				await VacationController.interactionBuyTicketViaShop(modal,Number(totalTicket),dateOnly)
+			}
+
 		}
 	},
 };

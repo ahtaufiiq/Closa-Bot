@@ -27,7 +27,7 @@ class ReminderController{
 								if (data) {
 									if (user.reminderProgress !== data.reminderProgress) {
 										scheduleReminderProgress.cancel()
-									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
+									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
 										const userId = data.id;
 										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
 										notificationThread.send(TodoReminderMessage.progressReminder(userId))
@@ -66,7 +66,7 @@ class ReminderController{
 									if (data) {
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
-										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
+										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
 											const userId = data.id;
 											const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
 											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))

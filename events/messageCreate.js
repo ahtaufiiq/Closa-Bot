@@ -200,13 +200,7 @@ so, you can learn or sharing from each others.`)
 						if (Time.onlyMissOneDay(data.body.lastDone,data.body.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
 							const missedDate = Time.getNextDate(-1)
 							missedDate.setHours(8)
-							await supabase.from("Todos")
-									.insert({
-										createdAt:missedDate,
-										updatedAt:missedDate,
-										UserId:msg.author.id,
-										type:'safety'
-									})
+							await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
 						}
 						if (currentStreak > data.body.longestStreak) {
 							return supabase.from("Users")
@@ -251,10 +245,6 @@ so, you can learn or sharing from each others.`)
 					if (goalName) {
 						RequestAxios.get('todos/tracker/'+msg.author.id)
 							.then(async progressRecently=>{
-								progressRecently.map(todo=>{
-									todo.date = new Date(todo.createdAt).getDate()
-								})
-								
 								const avatarUrl = InfoUser.getAvatar(msg.author)
 								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak,totalDays,totalPoints)
 								

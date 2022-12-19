@@ -16,6 +16,8 @@ const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const schedule = require('node-schedule');
 const GoalController = require("../controllers/GoalController");
 const GoalMessage = require("../views/GoalMessage");
+const VacationMessage = require("../views/VacationMessage");
+const VacationController = require("../controllers/VacationController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -25,6 +27,8 @@ module.exports = {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
+			if(VacationController.showModalCustomDate(interaction)) return
+			
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
 				await interaction.deferReply();
@@ -261,6 +265,30 @@ module.exports = {
 					PaymentController.setReminderJoinNextCohort(interaction.client,targetUserId)
 					await interaction.editReply(PaymentMessage.replySetReminderJoinNextCohort())
 					break;
+				case "declineBuyVacationTicket":
+					await interaction.editReply(VacationMessage.declineBuyVacationTicket())
+					break;
+				case "buyOneVacationTicket":
+					await VacationController.interactionBuyOneVacationTicket(interaction)
+					break;
+				case "shopVacation":
+					await VacationController.interactionShopVacationTicket(interaction)
+					break;
+				case "cancelBuyTicket":
+					await interaction.editReply(VacationMessage.cancelTransaction())
+					break;
+				case "continueBuyTicket":
+					await VacationController.interactionShopVacationTicket(interaction)
+					break;
+				case "confirmBuyTicket":
+					await interaction.editReply(VacationMessage.confirmationWhenToUseTicket(interaction.user.id,value))
+					break;
+				case "useTicketToday":
+					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTodayDateOnly())
+					break;
+				case "useTicketTomorrow":
+					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
+					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
@@ -274,6 +302,8 @@ module.exports = {
 					await interaction.editReply(BoostMessage.warningReplyYourself())
 					return	
 				}
+			}else if(commandMenu === 'buyVacationTicket'){
+				await interaction.deferReply({ephemeral:true});
 			}else{
 				await interaction.deferReply();
 			}
@@ -288,6 +318,9 @@ module.exports = {
 					break;
 				case "goalCategory":
 					GoalController.interactionPickGoalCategory(interaction,valueMenu)
+					break;
+				case "buyVacationTicket":
+					VacationController.interactionSelectOptionVacationTicket(interaction,valueMenu)
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

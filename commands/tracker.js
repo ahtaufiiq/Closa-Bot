@@ -33,10 +33,6 @@ module.exports = {
 		if(data){
 			RequestAxios.get('todos/tracker/'+user.id)
 			.then(async progressRecently=>{
-				progressRecently.map(todo=>{
-					todo.date = new Date(todo.createdAt).getDate()
-				})
-				
 				const avatarUrl = InfoUser.getAvatar(user)
 				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
 				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)

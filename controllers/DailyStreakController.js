@@ -1,11 +1,16 @@
 const schedule = require('node-schedule');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const MemberController = require('./MemberController');
-const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS} = require('../helpers/config');
+const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK} = require('../helpers/config');
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const RequestAxios = require('../helpers/axios');
+const InfoUser = require('../helpers/InfoUser');
+const GenerateImage = require('../helpers/GenerateImage');
+const { MessageAttachment } = require('discord.js');
+const UserController = require('./UserController');
 class DailyStreakController {
     
     static achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
@@ -32,13 +37,79 @@ class DailyStreakController {
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
 					.select('id,name,notificationId')
+					.eq('onVacation',false)
 					.gte('currentStreak',2)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
 								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-								notificationThread.send(TodoReminderMessage.missYesterdayProgress(member.id))
+								notificationThread.send(DailyStreakMessage.missYesterdayProgress(member.id))
+							})
+						}
+				})
+			}
+		})
+    }
+
+    static notifyActivateSafetyDot(client){
+        let ruleReminderMissOneDay = new schedule.RecurrenceRule();
+		ruleReminderMissOneDay.hour = Time.minus7Hours(23)
+		ruleReminderMissOneDay.minute = 59
+		schedule.scheduleJob(ruleReminderMissOneDay,function(){
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select()
+					.gte('currentStreak',2)
+					.eq('onVacation',false)
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-1)))
+					.then(data=>{
+						if (data.body) {
+							const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
+							data.body.forEach(async member=>{
+								const {goalId,currentStreak,longestStreak,totalDay,totalPoint} = member
+								
+								let goalName = 'Consistency'
+								if (goalId) {
+									const channelGoal = ChannelController.getChannel(client,CHANNEL_GOALS)
+									const thread = await ChannelController.getThread(channelGoal,goalId)
+									goalName = thread.name.split('by')[0]
+								}
+								const {user} = await MemberController.getMember(client,member.id)
+								RequestAxios.get('todos/tracker/'+user.id)
+								.then(async progressRecently=>{
+									progressRecently.push({
+										type:'safety',
+										createdAt:Time.getDate()
+									})
+									const avatarUrl = InfoUser.getAvatar(user)
+									const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
+									const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
+									channelStreak.send(DailyStreakMessage.activateSafetyDot(user.id,currentStreak,longestStreak,attachment))
+								})
+							})
+						}
+				})
+			}
+		})
+    }
+
+    static remindAboutToLoseStreak(client){
+        let ruleReminderAboutToLoseStreak = new schedule.RecurrenceRule();
+		ruleReminderAboutToLoseStreak.hour = Time.minus7Hours(22)
+		ruleReminderAboutToLoseStreak.minute = 30
+		schedule.scheduleJob(ruleReminderAboutToLoseStreak,function(){
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select('id,name,notificationId')
+					.gte('currentStreak',2)
+					.eq('onVacation',false)
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+					.then(data=>{
+						if (data.body) {
+							data.body.forEach(async member=>{
+								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
+								notificationThread.send(DailyStreakMessage.remindUserAboutToLoseStreak(member.id))
 							})
 						}
 				})
@@ -53,10 +124,7 @@ class DailyStreakController {
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
-						supabase.from("Users")
-							.update({lastSafety:Time.getDateOnly(Time.getNextDate(6))})
-							.eq('id',member.id)
-							.then()
+						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(6)),member.id)
 
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
@@ -74,12 +142,22 @@ class DailyStreakController {
 								type:'safety',
 								UserId:member.id
 							})
-							
 						}
+
 						supabase.from("Todos")
 						.insert(safetyCooldown).then()
 					})
 				}
+			})
+	}
+
+	static async addSafetyDot(userId,date){
+		return await supabase.from("Todos")
+			.insert({
+				createdAt:date,
+				updatedAt:date,
+				UserId:userId,
+				type:'safety'
 			})
 	}
 }

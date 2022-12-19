@@ -8,7 +8,7 @@ const MemberController = require("./MemberController");
 const PointController = require("./PointController");
 const DailyReport = require("./DailyReport");
 class BoostController{
-    static remindBoostInativeMember(client){
+    static remindBoostInactiveMember(client){
         const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
         let ruleRemindBoost = new schedule.RecurrenceRule();
 		ruleRemindBoost.hour = Time.minus7Hours(8)
@@ -18,6 +18,7 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
+					.eq('onVacation',false)
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
@@ -40,6 +41,7 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
+					.eq('onVacation',false)
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
@@ -65,6 +67,7 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+					.eq('onVacation',false)
 					.gte('currentStreak',5)
 					.then(data =>{
 						if (data.body.length > 0) {

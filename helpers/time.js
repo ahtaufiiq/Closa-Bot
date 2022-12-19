@@ -110,8 +110,9 @@ class Time {
             "november":10,
             "december":11
         }
-
-        return listMonth[month.toLowerCase()] || -1
+        const monthInNumber = listMonth[month.toLowerCase()]
+        
+        return monthInNumber === undefined ? -1 : monthInNumber
     }
 
     static minus7Hours(hour){
@@ -133,6 +134,9 @@ class Time {
     }
     static getTodayDateOnly(){
         return this.getDate().toISOString().substring(0,10)
+    }
+    static getTomorrowDateOnly(){
+        return Time.getDateOnly(Time.getNextDate(1))
     }
     static getFormattedDate(date,showDay=false,dateStyle='medium'){
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022

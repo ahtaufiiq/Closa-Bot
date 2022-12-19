@@ -34,7 +34,17 @@ class ChannelController{
         } catch (error) {
             return error
         }
-        
+    }
+
+    static async addUserToThread(client,channelId,threadId,userId){
+        try {
+            const channel = this.getChannel(client,channelId)
+            const thread = await this.getThread(channel,threadId)
+            const addedUser = await thread.members.add(userId)
+            return addedUser
+        } catch (error) {
+            return error
+        }
     }
 
     static async getNotificationThread(client,userId,notificationId){
