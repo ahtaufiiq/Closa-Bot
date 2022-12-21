@@ -53,11 +53,10 @@ prepare your seat & chill ✨`
         return `Hi ${tagMembers} please confirm your virtual meetup attendance to the message above.`
     }
 
-    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId){
+    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime){
         return {
-            content:`**Reminder** 🔔
-
-Hi @here it's 2 days before the next virtual meetup begin.
+            content:`**on ${meetupTime}**
+p.s: minimal 2 people accepted the invitation to host virtual meetup.
 
 \`\`Please confirm your attendance\`\``,
             components:[

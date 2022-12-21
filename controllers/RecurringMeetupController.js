@@ -87,11 +87,14 @@ class RecurringMeetupController {
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 
 		schedule.scheduleJob(time,async function() {
+			const meetupDate = Time.getDate(time)
+			meetupDate.setDate(meetupDate.getDate() + 2)
+			const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id))
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime))
 			}
 		})
 	}
