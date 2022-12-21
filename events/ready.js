@@ -35,7 +35,7 @@ module.exports = {
 
 		PartyController.remind30MinutesBeforeKickoff(client)
 		PartyController.createKickoffEvent(client)
-		PartyController.hideChannelPartyMode(client)
+		PartyController.removeWaitingRoom(client)
 		PartyController.generateWaitingRoomPartyMode(client)
 		PartyController.announcePartyModeAvailable(client)
 		PartyController.partyReminder(client)

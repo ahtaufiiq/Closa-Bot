@@ -138,12 +138,16 @@ class Time {
     static getTomorrowDateOnly(){
         return Time.getDateOnly(Time.getNextDate(1))
     }
-    static getFormattedDate(date,showDay=false,dateStyle='medium'){
+    static getFormattedDate(date,showDay=false,dateStyle='medium',showTime=false){
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
 
         if (showDay ) {
             const [month,date,year] = formattedDate.split(/[, ]+/)
-            formattedDate = `${Time.getDay()}, ${date} ${month}, ${year}` //Tuesday, 29 Oct, 2022
+            formattedDate = `${Time.getDay()}, ${date} ${month} ${year}` //Tuesday, 29 Oct, 2022
+        }
+
+        if(showTime){
+            formattedDate += ` at ${date.getHours()}.${date.getMinutes()}`
         }
         return formattedDate
     }

@@ -28,6 +28,7 @@ module.exports = {
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
 			if(VacationController.showModalCustomDate(interaction)) return
+			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 			
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {

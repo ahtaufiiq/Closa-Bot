@@ -13,6 +13,7 @@ const schedule = require('node-schedule');
 const DailyStreakController = require("./DailyStreakController");
 const MemberController = require('./MemberController');
 const UserController = require('./UserController');
+const MessageFormatting = require('../helpers/MessageFormatting');
 
 class VacationController{
     static async getMaxHoldVacationTicket(userId){
@@ -101,7 +102,7 @@ class VacationController{
             })
 
             UserController.updateOnVacation(true,interaction.user.id)
-            VacationController.shareToProgress(interaction.client,interaction.user.id)
+            VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             const todayDate = Time.getFormattedDate(Time.getDate())
             const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
             await interaction.editReply(VacationMessage.successBuyOneVacationTicket(interaction.user.id,pointLeft,todayDate,tomorrowDate))
@@ -147,9 +148,7 @@ class VacationController{
 
                 supabase.from("Reminders")
                     .insert(listVacationTicket)
-                    .then(data=>{
-                        console.log(data);
-                    })
+                    .then()
 
                 supabase.from('VacationTickets')
                     .insert({
@@ -171,7 +170,7 @@ class VacationController{
                     }
                     UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
-                    VacationController.shareToProgress(interaction.client,interaction.user.id)
+                    VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
                     RequestAxios.get('todos/tracker/'+interaction.user.id)
                         .then(async progressRecently=>{
                             const avatarUrl = InfoUser.getAvatar(interaction.user)
@@ -203,7 +202,11 @@ class VacationController{
 		ruleActivateVacation.minute = 0
 		schedule.scheduleJob(ruleActivateVacation,async function(){
             const data = await VacationController.getAllActiveVacationTicket(Time.getTodayDateOnly())
-            data.body.forEach(async vacation=>{
+            const users = data.body.map(el => el.Users)
+            VacationController.shareToProgress(client,users)
+            
+            for (let i = 0; i < data.body.length; i++) {
+                const vacation = data.body[i];
                 const userId = vacation.UserId
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = vacation.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
@@ -233,14 +236,14 @@ class VacationController{
                     channelStreak.send(VacationMessage.onVacationMode(user.id,attachment,vacationLeft))
                 })
 
-                VacationController.shareToProgress(client,userId)
 
                 UserController.updateOnVacation(true,userId)
-            })
+            }
         })
     }
 
-    static async shareToProgress(client,userId){
+    static async shareToProgress(client,users){
+        if(users.length === 0 ) return
         const vacationGifs = [
             "https://media.giphy.com/media/mHHIyJFfa2UTARzFLw/giphy.gif",
             "https://media.giphy.com/media/fsnNbATnG7YT2lSfQV/giphy.gif",
@@ -258,8 +261,21 @@ class VacationController{
 
         const randomGif = vacationGifs[Math.floor(Math.random()*vacationGifs.length)]
         const channelProgress = ChannelController.getChannel(client,CHANNEL_TODO)
-        await channelProgress.send(VacationMessage.vacationModeOn(userId))
-        await channelProgress.send(randomGif)
+        const tagUsers = users.map(user=>MessageFormatting.tagUser(user.id))
+        const msg = await channelProgress.send(VacationMessage.vacationModeOn(tagUsers.join(' '),randomGif))
+        let usersOnVacation = users[0].name
+        for (let i = 1; i < users.length; i++) {
+            const name = users[i].name;
+            if(i === 2 && i !== users.length - 1){
+                usersOnVacation += ', & others'
+                break
+            } 
+            if(i === users.length - 1) usersOnVacation += `, & ${name}`
+            else usersOnVacation += `, ${name}`
+        }
+        msg.startThread({
+            name: `${usersOnVacation} on vacation mode `,
+        });
     }
 
     static showModalCustomDate(interaction){
@@ -358,7 +374,7 @@ class VacationController{
 
     static async getAllActiveVacationTicket(dateOnly){
        return await supabase.from("VacationTickets")
-            .select('*,Users(goalId,longestStreak,totalDay,totalPoint,lastDone)')
+            .select('*,Users(id,name,goalId,longestStreak,totalDay,totalPoint,lastDone)')
             .gte('endDate',dateOnly)
             .lte('startDate',dateOnly)
     }

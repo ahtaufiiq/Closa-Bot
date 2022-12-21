@@ -22,7 +22,7 @@ module.exports = {
 							.insert([{
 								id:member.user.id,
 								username:member.user.username,
-								name:member.user.username,
+								name:member.nickname || member.user.username,
 								notificationId:msg.id,
 								currentStreak:0,
 								longestStreak:0,

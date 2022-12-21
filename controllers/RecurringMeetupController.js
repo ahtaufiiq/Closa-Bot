@@ -7,6 +7,7 @@ const schedule = require('node-schedule');
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
@@ -62,7 +63,7 @@ class RecurringMeetupController {
 		const customDate = Time.getFormattedDate(Time.getNextDate(2),false,'long').split(',')[0]
 
 		if(RecurringMeetupController.isDateBeforeCelebrationDay(date)){
-			threadParty.send(RecurringMeetupMessage.showHowToRescheduleMeetup(formattedDate,customDate))
+			threadParty.send(RecurringMeetupMessage.showHowToRescheduleMeetup(formattedDate,customDate,partyId))
 			this.scheduleMeetup(client,date,threadId,partyId)
 		}else{
 			threadParty.send(RecurringMeetupMessage.notAutomaticRescheduleMeetupAfterCelebrationDay(customDate))
@@ -87,14 +88,33 @@ class RecurringMeetupController {
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 
 		schedule.scheduleJob(time,async function() {
+			const meetupDate = Time.getDate(time)
+			meetupDate.setDate(meetupDate.getDate() + 2)
+			const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id))
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime))
 			}
 		})
 	}
+
+	static showModalRescheduleMeetup(interaction){
+        if(interaction.customId.includes('rescheduleMeetup')){
+            const modal = new Modal()
+                .setCustomId(interaction.customId)
+                .setTitle("🗓 Reschedule Meetup")
+                .addComponents(
+                    new TextInputComponent().setCustomId('date').setLabel("Date").setPlaceholder("e.g. 29 August").setStyle("SHORT").setRequired(true),
+                    new TextInputComponent().setCustomId('time').setLabel("Time").setPlaceholder("e.g 21.00 (24-hour format)").setStyle("SHORT").setRequired(true),
+                )
+			showModal(modal, { client: interaction.client, interaction: interaction});
+            return true
+        }else{
+            return false
+        }
+    }
 
 	static async setReminderOneDayBeforeMeetup(client){
 		const data = await supabase.from("Reminders")
