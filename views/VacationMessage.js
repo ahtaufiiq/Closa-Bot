@@ -144,8 +144,16 @@ To get vibe points you can contribute to community by doing certain activities.`
         }
     }
 
-    static vacationModeOn(userId){
-        return `${MessageFormatting.tagUser(userId)} vacation mode on`
+    static vacationModeOn(tagUsers,urlVacationGif){
+        
+        return {
+            content:`${tagUsers} vacation mode: on`,
+            embeds:[
+                new MessageEmbed()
+                .setColor("#00B264")
+                .setImage(urlVacationGif)
+            ]
+        }
     }
 
     static successBuyVacationTicket(userId,totalTicket,pointLeft,startDate,endDate){
