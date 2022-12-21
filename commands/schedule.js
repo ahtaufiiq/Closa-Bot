@@ -48,7 +48,6 @@ The correct format:
 		const partyId = interaction.channel.name.split(' ')[1]
 		RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.channelId,partyId)
 
-		await interaction.editReply(`${MessageFormatting.tagUser(interaction.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅
-The meetup reminder will be sent 2 days before the meetup begin.`)
+		await interaction.editReply(`${MessageFormatting.tagUser(interaction.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅`)
 	},
 };

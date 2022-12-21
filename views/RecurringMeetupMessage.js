@@ -25,13 +25,18 @@ notes:
         }
     }
 
-    static showHowToRescheduleMeetup(formattedDate,customDate){
-        return `:repeat: **The meetup automatically rescheduled**
+    static showHowToRescheduleMeetup(formattedDate,customDate,partyId){
+        return {
+            content:`:repeat: **The meetup automatically rescheduled**
 :calendar_spiral:**${formattedDate} at 21.30 WIB**
 
 You can also change the schedule manually using command below:
 \`\`\`/schedule meetup ${customDate} at 21.00\`\`\`
-ps: *feel free to discuss with other member to adjust the time and date according to aligned schedule.*`
+Also you can reschedule manually using the button below:`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Reschedule")
+            )]
+        }
     }
 
     static reminderOneDayBeforeMeetup(){
