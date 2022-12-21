@@ -31,15 +31,12 @@ class PartyController{
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
 		ruleFirstDayCooldown.setMinutes(30)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
-			PartyController.showChannelPartyMode(client)
 			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
 			const [usersJoinedParty,totalUserHaveNotSetGoal] = await Promise.all([PartyController.getUsersJoinedParty(),await PartyController.getTotalUserHaveNotSetGoal()])
 			
 			const data = LocalData.getData()
 			if(data.msgIdContentWaitingRoom){
 				ChannelController.getMessage(channelParty,data.msgIdContentWaitingRoom)
-					.then(msg=>msg.delete())
-				ChannelController.getMessage(channelParty,data.msgIdCountdownWaitingRoom)
 					.then(msg=>msg.delete())
 			}
 			
@@ -277,14 +274,20 @@ class PartyController{
 		}
 	}
 
-	static hideChannelPartyMode(client){
-		//TODO change permission hide channel party based on role
+	static async removeWaitingRoom(client){
 		const {kickoffDate} = LocalData.getData()
 		const ruleFirstDayCooldown = Time.getDate(kickoffDate)
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(21))
 		ruleFirstDayCooldown.setMinutes(0)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
-			ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,false)
+			const {msgIdContentWaitingRoom,msgIdCountdownWaitingRoom} = LocalData.getData()
+			const channelPartyMode = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+			const msgContent = await ChannelController.getMessage(channelPartyMode,msgIdContentWaitingRoom)
+			msgContent.edit(`**Find accountability partner by joining available party room** → ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}`)
+			ChannelController.getMessage(channelPartyMode,msgIdCountdownWaitingRoom)
+				.then(msg=>{
+					msg.delete()
+				})
 		})
 	}
 
@@ -668,10 +671,6 @@ class PartyController{
 	static isPartyMode(value){
 		const accountabilityMode = value.split('-')[0]
 		return accountabilityMode === 'party'
-	}
-
-	static showChannelPartyMode(client){
-		ChannelController.setVisibilityChannel(client,CHANNEL_PARTY_MODE,true)
 	}
 
 	static async isMemberParty(userId,partyNumber){
