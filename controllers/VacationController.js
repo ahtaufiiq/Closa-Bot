@@ -300,7 +300,7 @@ class VacationController{
         schedule.scheduleJob(ruleNotifyVacationEnded,async function(){
 			const dataVacation = await supabase.from('VacationTickets')
                 .select()
-                .eq('endDate',Time.getTodayDateOnly())
+                .eq('endDate',Time.getDateOnly(Time.getNextDate(-1)))
             dataVacation.body.forEach(async vacation=>{
                 const threadNotification = await ChannelController.getNotificationThread(client,vacation.UserId)
                 threadNotification.send(VacationMessage.vacationDayEnded(vacation.UserId))
