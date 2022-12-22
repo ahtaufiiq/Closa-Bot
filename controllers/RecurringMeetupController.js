@@ -55,6 +55,14 @@ class RecurringMeetupController {
 		return count
 	}
 
+	static async notifyMeetupSchedule(client,threadId,date){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
+		const meetupDate = Time.getFormattedDate(date,true,'medium',true)
+
+		threadParty.send(RecurringMeetupMessage.meetupSuccessfullyScheduled(meetupDate))
+	}
+
 	static async rescheduleMeetup(client,threadId,date,partyId){
 		date.setDate(date.getDate()+7)
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)

@@ -10,6 +10,7 @@ Your first meetup will be held next week on **${formattedDate} at 21.00 WIB :cal
 > \`Our goal at closa is To make it easy for you to genuinely connect, share & reflect on your progress.\`
 
 notes:
+• Minimum 2 people accepted to host the meetup.
 • Your default party meetup: every tuesday at 21.00 WIB
 • *the bot will create a temporary \`\`30 min\`\` discord voice room for you to join & talk on the day of meetup.
 • Then the room will automatically deleted by bot*. 
@@ -75,6 +76,10 @@ p.s: minimal 2 people accepted the invitation to host virtual meetup.
 
     static cannotSetMeetupAfterCelebrationDay(){
         return "Cannot set more than celebration day."
+    }
+
+    static meetupSuccessfullyScheduled(meetupDate){
+        return `:white_check_mark: \`\`Meetup successfully scheduled\`\` on **${meetupDate}**`
     }
 
     static notAutomaticRescheduleMeetupAfterCelebrationDay(customDate){
