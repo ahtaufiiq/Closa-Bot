@@ -142,7 +142,6 @@ module.exports = {
 					threadPartyRoom.send(PartyMessage.userJoinedParty(interaction.user.id))
 					
 					PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,value)
-					
 					await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
 					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,notificationId)
 					notificationThread.send(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
@@ -150,6 +149,7 @@ module.exports = {
 						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id))
 					}, 1000 * 60 * 15);
 
+					PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id)
 					break;
 				case "joinPartyMode":{
 					const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
