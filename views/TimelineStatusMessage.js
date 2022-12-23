@@ -1,6 +1,6 @@
 const { MessageActionRow, MessageButton } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
-const { CHANNEL_CELEBRATE } = require("../helpers/config")
+const { CHANNEL_CELEBRATE, CHANNEL_PARTY_MODE } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
@@ -44,14 +44,9 @@ Thank you for reading, have a great day!
     static notificationBeforeKickoffDay(userId){
         
         return {
-            content:`Hi <@${userId}>, Closa **next kick-off day will start in 2 days.** :arrow_upper_right:
+            content:`**Hi ${MessageFormatting.tagUser(userId)}, closa's next kick-off day will start in 2 days ✌️**
 
-\`\`Fill the form below to join accountability group on next cohort.\`\``,
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Join group","https://tally.so/r/mVLN8y")
-                )
-            ] 
+Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}`
         }
     }
 }

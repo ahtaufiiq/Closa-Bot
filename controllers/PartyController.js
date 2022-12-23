@@ -215,10 +215,11 @@ class PartyController{
 						.eq('id',partyId)
 						.single()
 			const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
+			const meetupDate = new Date(time)
+			meetupDate.setDate(meetupDate.getDate()+6)
 
 			if (!dataWeeklyMeetup.body) {
-				const date = new Date(dataWeeklyMeetup.body.time)
-				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,date,partyId)
+				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,meetupDate,partyId)
 			}
 		})
 	}
@@ -228,21 +229,26 @@ class PartyController{
 		const formattedDate = Time.getFormattedDate(Time.getNextDate(7),true)
 		const meetupDate = Time.getDateOnly(Time.getNextDate(7))
 		const data = await supabase.from("PartyRooms")
-			.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
+			.select("*,MemberPartyRooms(Users(goalId),UserId,project,isLeader,isTrialMember)")
 			.eq('cohort',cohort)
 		
 		for (let i = 0; i < data.body.length; i++) {
 			const party = data.body[i]
 			const members = PartyController.sortMemberByLeader(party.MemberPartyRooms)
-
+			
 			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
 			PartyController.saveMessagePartyRoomId(msgPartyRoom.id,party.id)
 
 			const thread = await ChannelController.createThread(msgPartyRoom,`Party ${party.id}`)
 			thread.send(PartyMessage.shareLinkPartyRoom(msgPartyRoom.id))
-
 			for (let i = 0; i < members.length; i++) {
 				const member = members[i];
+				const goalId = member.Users.goalId
+				for (let j = 0; j < members.length; j++) {
+					const userId = members[j].UserId;
+					if(member.UserId === userId) continue
+					ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
+				}
 				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
 			}
 			
@@ -271,6 +277,18 @@ class PartyController{
 
 			PartyController.sendReminderSetHighlightAfterJoinParty(client,members)
 
+		}
+	}
+
+	static async followGoalAccountabilityPartner(client,partyId,userId){
+		const {body:members} = await supabase.from("MemberPartyRooms")
+			.select("Users(goalId)")
+			.eq('partyId',partyId)
+			.neq('UserId',userId)
+		for (let i = 0; i < members.length; i++) {
+			const member = members[i];
+			const goalId = member.Users.goalId
+			ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
 		}
 	}
 

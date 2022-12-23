@@ -98,6 +98,7 @@ class GoalController {
 			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
 			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
 			interaction.message.delete()
+			PartyController.followGoalAccountabilityPartner(interaction.client,partyId,interaction.user.id)
 		}else{
 			await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
 			interaction.message.delete()

@@ -55,6 +55,14 @@ class RecurringMeetupController {
 		return count
 	}
 
+	static async notifyMeetupSchedule(client,threadId,date){
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
+		const meetupDate = Time.getFormattedDate(date,true,'medium',true)
+
+		threadParty.send(RecurringMeetupMessage.meetupSuccessfullyScheduled(meetupDate))
+	}
+
 	static async rescheduleMeetup(client,threadId,date,partyId){
 		date.setDate(date.getDate()+7)
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
@@ -376,8 +384,10 @@ class RecurringMeetupController {
 		RecurringMeetupController.getTotalResponseMemberMeetup(partyId,isAcceptMeetup)
 			.then(async totalUser=>{
 				if (totalUser === 2) {
-					if(isAcceptMeetup) RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
-					else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
+					if(isAcceptMeetup) {
+						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
+						RecurringMeetupController.notifyMeetupSchedule(client,interaction.message.channelId,meetupDate)
+					}else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
 				}
 			})
 					

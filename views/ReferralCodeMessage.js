@@ -41,7 +41,9 @@ class ReferralCodeMessage{
             content:`**${totalNewReferral} ${isAdditionalReferral?"more ":""}referral code for you!** :gift: 
 
 Hi <@${userId}> thank you for being active & progressive on our community!
-If you find the community is valuable, help us spread it to your friends. :smile: 
+If you find the community is valuable, help us spread it to your friends that you think also need to know closa :smile:
+
+One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
 
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
