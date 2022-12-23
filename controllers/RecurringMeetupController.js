@@ -256,7 +256,6 @@ class RecurringMeetupController {
 	static async remindWeeklyMeetup(client,time,partyId){
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
 
@@ -276,7 +275,6 @@ class RecurringMeetupController {
 
 	static async scheduleMeetup(client,scheduleMeetupDate,threadId,partyId){
 		await RecurringMeetupController.deleteOldWeeklyMeetup(partyId)
-
 		const twoDayBefore = new Date(scheduleMeetupDate.valueOf())
 		twoDayBefore.setDate(twoDayBefore.getDate()-2)
 
@@ -324,11 +322,13 @@ class RecurringMeetupController {
 	}
 
 	static async getWeeklyMeetupParty(partyId){
+		const time =  new Date()
+		time.setHours(time.getHours()-1)
 		return await supabase.from("Reminders")
 			.select()
 			.eq('type','weeklyMeetup')
 			.eq('message',partyId)
-			.gte('time',new Date().toISOString())
+			.gte('time',time)
 			.single()
 	}
 
@@ -340,12 +340,13 @@ class RecurringMeetupController {
 	}
 
 	static async deleteOldWeeklyMeetup(partyId){
+		const time =  new Date()
+		time.setHours(time.getHours()-1)
 		return await supabase.from("Reminders")
 			.delete()
 			.eq('type','weeklyMeetup')
 			.eq('message',partyId)
-			.gte('time',new Date().toISOString())
-			.single()
+			.gte('time',time)
 	}
 
 	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
