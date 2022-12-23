@@ -60,10 +60,10 @@ module.exports = {
 						.single()
 						const voiceChannelId = dataParty.body.voiceChannelId
 						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
-						let minutes = 30
-
-						threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
-							.then(async msg=>{
+						
+						threadParty.send(RecurringMeetupMessage.countdownMeetup(30,voiceChannelId))
+						.then(async msg=>{
+								let minutes = 30
 								const timerMeetup = setInterval(() => {
 									if (minutes > 0) {
 										minutes--
@@ -80,10 +80,12 @@ module.exports = {
 							})
 
 
-						voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+						voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(30))
 							.then(async msg=>{
+								let minutes = 30
 								const timerMeetup = setInterval(() => {
 									if (minutes > 0) {
+										minutes--
 										msg.edit(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
 									}
 									if (minutes === 0) {
