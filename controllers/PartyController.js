@@ -220,8 +220,6 @@ class PartyController{
 
 			if (!dataWeeklyMeetup.body) {
 				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,meetupDate,partyId)
-			}else{
-				RecurringMeetupController.notifyMeetupSchedule(client,dataParty.body?.msgId,meetupDate)
 			}
 		})
 	}

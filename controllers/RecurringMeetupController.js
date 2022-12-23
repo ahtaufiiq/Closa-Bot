@@ -384,8 +384,10 @@ class RecurringMeetupController {
 		RecurringMeetupController.getTotalResponseMemberMeetup(partyId,isAcceptMeetup)
 			.then(async totalUser=>{
 				if (totalUser === 2) {
-					if(isAcceptMeetup) RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
-					else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
+					if(isAcceptMeetup) {
+						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
+						RecurringMeetupController.notifyMeetupSchedule(client,interaction.message.channelId,meetupDate)
+					}else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
 				}
 			})
 					
