@@ -24,7 +24,10 @@ const GoalController = require("../controllers/GoalController");
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
-		if(msg.author.bot) return
+		if(msg.author.bot) {
+			if(msg.channelId === CHANNEL_PAYMENT) ChannelController.createThread(msg,'Payment')
+			return
+		}
 
 		PartyController.handleMentionOutsideMemberInPartyRoom(msg)
 		PartyController.handleOutsideMemberChatInPartyRoom(msg)
@@ -307,7 +310,6 @@ so, you can learn or sharing from each others.`)
 				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
 				break;
 			case CHANNEL_PAYMENT:
-				ChannelController.createThread(msg,'Payment')
 				if (msg.content[0] === 'v') {
 					const msgReferrence = await msg.client.guilds.cache.get(GUILD_ID).channels.cache.get("953575264208695327").messages.fetch(msg.reference.messageId)
 					const paymentType = msgReferrence.embeds[0].title
