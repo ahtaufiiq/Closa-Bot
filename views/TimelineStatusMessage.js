@@ -6,6 +6,14 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 
 class TimelineStatusMessage{
     static notificationBeforeCelebrationDay(userId,dayLeft = 1){
+        const celebrationGIF = [
+            "https://media.giphy.com/media/oF5oUYTOhvFnO/giphy.gif",
+            "https://media.giphy.com/media/FlWgXEtj5aM5G/giphy.gif",
+            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+            "https://media.giphy.com/media/RzQwk7l0zQnfAbSpCw/giphy.gif",
+            "https://media.giphy.com/media/IoMkSXKHQIDVm/giphy.gif",
+        ]
+        const randomGif = celebrationGIF[Math.floor(Math.random()*celebrationGIF.length)]
         const message = dayLeft === 1 ? "tomorrow is our celebration day! 🎉" : `it's ${dayLeft} days before celebration day! 🎉`
         return {
             content:`Hi <@${userId}>, ${message}
@@ -14,7 +22,12 @@ Let's prepare your 10 slides story format before our celebration day.`,
                 MessageComponent.createComponent(
                     MessageComponent.addLinkButton('learn more',"https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40")
                 )
-            ] 
+            ],
+            embeds: [
+                new MessageEmbed()
+                .setColor("#00B264")
+                .setImage(randomGif)
+            ]
         }
     }
     static notificationShareStory(userId){
@@ -42,11 +55,23 @@ Thank you for reading, have a great day!
 2. Submit to ${MessageFormatting.tagChannel(CHANNEL_CELEBRATE)}`
     }
     static notificationBeforeKickoffDay(userId){
-        
+        const celebrationGIF = [
+            "https://media.giphy.com/media/oF5oUYTOhvFnO/giphy.gif",
+            "https://media.giphy.com/media/FlWgXEtj5aM5G/giphy.gif",
+            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+            "https://media.giphy.com/media/RzQwk7l0zQnfAbSpCw/giphy.gif",
+            "https://media.giphy.com/media/IoMkSXKHQIDVm/giphy.gif",
+        ]
+        const randomGif = celebrationGIF[Math.floor(Math.random()*celebrationGIF.length)]
         return {
             content:`**Hi ${MessageFormatting.tagUser(userId)}, closa's next kick-off day will start in 2 days ✌️**
 
-Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}`
+Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}`,
+            embeds: [
+                new MessageEmbed()
+                .setColor("#00B264")
+                .setImage(randomGif)
+            ]
         }
     }
 }
