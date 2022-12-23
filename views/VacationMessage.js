@@ -177,8 +177,23 @@ Points left: **${pointLeft} :coin:**`)
     }
 
     static vacationDayEnded(userId){
-        return `Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough vacation day!
-It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`
+        const endedVacationGif = [
+            "https://media.giphy.com/media/EbRPam1A4jEWkUokL8/giphy.gif",
+            "https://media.giphy.com/media/H4kIxdgCcPtF7EbnnR/giphy.gif",
+            "https://media.giphy.com/media/rbSNfQdstlYd6DdgcH/giphy.gif",
+            "https://media.giphy.com/media/l1J9urAfGd3grKV6E/giphy.gif",
+            "https://media.giphy.com/media/3o7aDgf134NzaaHI8o/giphy-downsized-large.gif",
+        ]
+        const randomGif = endedVacationGif[Math.floor(Math.random()*endedVacationGif.length)]
+        return {
+            content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough vacation day!
+It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,
+            embeds: [
+                new MessageEmbed()
+                .setColor("#00B264")
+                .setImage(randomGif)
+            ]
+        }
     }
 }
 
