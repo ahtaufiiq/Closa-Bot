@@ -63,10 +63,10 @@ class VacationController{
 
     static async interactionBuyOneVacationTicket(interaction){
         const data = await supabase.from("Users")
-                .select('goalId,longestStreak,totalDay,totalPoint')
+                .select('goalId,longestStreak,totalDay,totalPoint,lastDone')
                 .eq("id",interaction.user.id)
                 .single()
-        const {goalId,longestStreak,totalDay,totalPoint} = data.body
+        const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
         let goalName = 'Consistency'
         if (goalId) {
             const channelGoal = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
@@ -84,7 +84,11 @@ class VacationController{
                     totalTicket: 1
                 })
                 .then()
-
+            if (Time.onlyMissOneDay(lastDone)) {
+                const missedDate = Time.getNextDate(-1)
+                missedDate.setHours(8)
+                await DailyStreakController.addSafetyDot(interaction.user.id,missedDate)
+            }
             const pointLeft = totalPoint - 500
             VacationController.updatePoint(pointLeft,interaction.user.id)
             const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
