@@ -58,11 +58,13 @@ class DailyStreakController {
 		ruleReminderMissOneDay.minute = 59
 		schedule.scheduleJob(ruleReminderMissOneDay,function(){
 			if (!Time.isCooldownPeriod()) {
+				const yesterdayDate =  new Date()
+				yesterdayDate.setDate(yesterdayDate.getDate() - 1)
 				supabase.from("Users")
 					.select()
 					.gte('currentStreak',2)
 					.eq('onVacation',false)
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-1)))
+					.eq('lastDone',Time.getDateOnly(yesterdayDate))
 					.then(data=>{
 						if (data.body) {
 							const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
