@@ -20,6 +20,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const GoalController = require("../controllers/GoalController");
+const TestimonialController = require("../controllers/TestimonialController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -305,6 +306,7 @@ so, you can learn or sharing from each others.`)
 						files:filesCelebration
 					})
 				}
+				TestimonialController.askToWriteTestimonial(msg,dataUser.body.notificationId)
 				break;
 			case CHANNEL_INTRO:
 				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)

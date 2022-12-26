@@ -5,8 +5,9 @@ const MembershipController = require("../controllers/MembershipController");
 const PartyController = require("../controllers/PartyController");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
+const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_TESTIMONIAL } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -14,6 +15,7 @@ const Time = require("../helpers/time");
 const GoalMessage = require("../views/GoalMessage");
 const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const TestimonialMessage = require("../views/TestimonialMessage");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -196,6 +198,16 @@ The correct format:
 			RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
 			await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅`)
 
+		}else if(commandButton === "submitTestimonial"){
+			await modal.deferReply()
+			const testimonialLink = modal.getTextInputValue('link');
+			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL)
+			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink))
+			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
+			ChannelController.createThread(msg,`from ${modal.user.username}`)
+			modal.message.delete()
+
+			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
 		}
 	},
 };
