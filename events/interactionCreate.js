@@ -18,6 +18,7 @@ const GoalController = require("../controllers/GoalController");
 const GoalMessage = require("../views/GoalMessage");
 const VacationMessage = require("../views/VacationMessage");
 const VacationController = require("../controllers/VacationController");
+const TestimonialController = require("../controllers/TestimonialController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -29,6 +30,7 @@ module.exports = {
 			if(GoalController.showModalEditGoal(interaction)) return 
 			if(VacationController.showModalCustomDate(interaction)) return
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
+			if(TestimonialController.showModalSubmitTestimonial(interaction)) return
 			
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
