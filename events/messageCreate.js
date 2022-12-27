@@ -111,7 +111,7 @@ module.exports = {
 							.single()
 							
 						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
-						notificationThread.send(HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1]))
+						notificationThread.send(HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1].trim()))
 
 						schedule.scheduleJob(date,async function () {
 							notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
