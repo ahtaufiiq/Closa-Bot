@@ -82,9 +82,12 @@ module.exports = {
                     
 					if (Time.haveTime(msg.content)) {
 						const differentTime = msg.content.toLowerCase().includes(' wita') ? -1 : msg.content.toLowerCase().includes(' wit') ? -2 : 0
+						const isTomorrow = msg.content.toLowerCase().includes('tomorrow') 
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
+						if(isTomorrow) date.setDate(date.getDate()+1)
+
 						date.setHours(Time.minus7Hours(Number(hours)+differentTime))
 						date.setMinutes(minutes-10)
 						supabase.from('Reminders')
@@ -99,7 +102,6 @@ module.exports = {
 							UserId: msg.author.id
 						})
 						.then(()=>{
-							
 							supabase.from('Users')
 								.update({lastHighlight:Time.getTodayDateOnly()})
 								.eq('id',msg.author.id)
