@@ -86,7 +86,11 @@ module.exports = {
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
-						if(isTomorrow) date.setDate(date.getDate()+1)
+						let lastHighlight = Time.getTodayDateOnly()
+						if(isTomorrow) {
+							date.setDate(date.getDate()+1)
+							lastHighlight = Time.getTomorrowDateOnly()
+						}
 
 						date.setHours(Time.minus7Hours(Number(hours)+differentTime))
 						date.setMinutes(minutes-10)
@@ -103,7 +107,7 @@ module.exports = {
 						})
 						.then(()=>{
 							supabase.from('Users')
-								.update({lastHighlight:Time.getTodayDateOnly()})
+								.update({lastHighlight})
 								.eq('id',msg.author.id)
 								.single()
 								.then(data=>{
