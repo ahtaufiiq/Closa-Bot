@@ -101,24 +101,24 @@ module.exports = {
 								UserId:msg.author.id,
 							})
 							.then()
-						RequestAxios.post('highlights', {
+						await RequestAxios.post('highlights', {
 							description: msg.content,
 							UserId: msg.author.id
 						})
-						.then(()=>{
-							supabase.from('Users')
-								.update({lastHighlight})
-								.eq('id',msg.author.id)
-								.single()
-								.then(data=>{
-									const reminderHighlight = schedule.scheduleJob(date,async function () {
-										const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
-										notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
-									})
-								})
+						const data = await supabase.from('Users')
+							.update({lastHighlight})
+							.eq('id',msg.author.id)
+							.single()
 							
-						})
+						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
+						notificationThread.send(HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1]))
 
+						schedule.scheduleJob(date,async function () {
+							notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
+						})
+							
+
+						
 						PartyController.sendNotifToSetHighlight(msg.client,msg.author.id)
 					}else{
 						msg.delete()
