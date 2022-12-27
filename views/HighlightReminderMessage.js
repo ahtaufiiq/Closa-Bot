@@ -14,6 +14,11 @@ For example: 🔆 read 25 page of book **at 19.00**`
     static remindHighlightUser(author,task){
         return `Hi ${author} reminder: ${task} `
     }
+
+    static successScheduled(highlight){
+        return `**Your highlight has been scheduled ✅**
+↳ ${highlight}`
+    }
 }
 
 module.exports = HighlightReminderMessage

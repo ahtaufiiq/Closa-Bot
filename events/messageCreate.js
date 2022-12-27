@@ -86,7 +86,11 @@ module.exports = {
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
 						const date = new Date()
-						if(isTomorrow) date.setDate(date.getDate()+1)
+						let lastHighlight = Time.getTodayDateOnly()
+						if(isTomorrow) {
+							date.setDate(date.getDate()+1)
+							lastHighlight = Time.getTomorrowDateOnly()
+						}
 
 						date.setHours(Time.minus7Hours(Number(hours)+differentTime))
 						date.setMinutes(minutes-10)
@@ -97,24 +101,24 @@ module.exports = {
 								UserId:msg.author.id,
 							})
 							.then()
-						RequestAxios.post('highlights', {
+						await RequestAxios.post('highlights', {
 							description: msg.content,
 							UserId: msg.author.id
 						})
-						.then(()=>{
-							supabase.from('Users')
-								.update({lastHighlight:Time.getTodayDateOnly()})
-								.eq('id',msg.author.id)
-								.single()
-								.then(data=>{
-									const reminderHighlight = schedule.scheduleJob(date,async function () {
-										const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
-										notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
-									})
-								})
+						const data = await supabase.from('Users')
+							.update({lastHighlight})
+							.eq('id',msg.author.id)
+							.single()
 							
-						})
+						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
+						notificationThread.send(HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1]))
 
+						schedule.scheduleJob(date,async function () {
+							notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
+						})
+							
+
+						
 						PartyController.sendNotifToSetHighlight(msg.client,msg.author.id)
 					}else{
 						msg.delete()
