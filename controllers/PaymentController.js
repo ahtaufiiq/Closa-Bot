@@ -1,7 +1,8 @@
 const schedule = require('node-schedule');
-const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER } = require('../helpers/config');
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER, CHANNEL_STATUS } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const LocalData = require('../helpers/LocalData.js');
+const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const PaymentMessage = require('../views/PaymentMessage');
@@ -43,6 +44,8 @@ class PaymentController{
                     if (data.body) {
                         data.body.forEach(dataUser=>{
                             PaymentController.sendMembershipReminder(client,dataUser)
+                            const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
+                            channelStatus.send(`💳 **Membership ended today for** ${MessageFormatting.tagUser(dataUser.id)}`)
                         })
                     }
                 })
