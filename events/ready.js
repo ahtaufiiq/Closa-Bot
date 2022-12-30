@@ -40,6 +40,7 @@ module.exports = {
 		PartyController.announcePartyModeAvailable(client)
 		PartyController.partyReminder(client)
 		PartyController.updateMessageWaitingRoom(client)
+		PartyController.disbandParty(client)
 
 		PartyController.setReminderScheduleMeetup(client)
 		PartyController.setReminderAutoRescheduleMeetup(client)

@@ -69,6 +69,9 @@ class GoalController {
 				.eq('cohort',PartyController.getNextCohort())
 			
 			PartyController.updateMessageWaitingRoom(interaction.client)
+
+			const channelGeneral = ChannelController.getChannel(interaction.client,CHANNEL_GENERAL)
+			channelGeneral.send(`**${interaction.user} has joined ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} & set a goal**`)
 		}else if(accountabilityMode.includes('joinParty')){
 			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
 			const partyId = accountabilityMode.split('joinParty')[1]
