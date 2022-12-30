@@ -29,7 +29,7 @@ class TimelineController{
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
                 ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Today at 20.00 WIB")
 
-                const updateCohortDate =  Time.getDate()
+                const updateCohortDate =  new Date()
                 updateCohortDate.setHours(Time.minus7Hours(20))
                 updateCohortDate.setMinutes(25)
                 TimelineController.updateCohort(client,updateCohortDate)
