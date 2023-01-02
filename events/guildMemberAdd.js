@@ -16,9 +16,9 @@ module.exports = {
 				.select('notificationId')
 				.eq('id',member.user.id)
 				.single()
-				.then(data => {
+				.then(async data => {
 					if (!data.body) {
-						supabase.from("Users")
+						await supabase.from("Users")
 							.insert([{
 								id:member.user.id,
 								username:member.user.username,
@@ -30,13 +30,12 @@ module.exports = {
 								totalPoint:0,
 								lastActive:Time.getTodayDateOnly()
 							}])
-							.then()
-					}else if(!data.body?.notificationId){
-						supabase.from("Users")
-							.update({notificationId:msg.id})
-							.eq('id',member.user.id)
-							.then()
-					}	
+					}
+
+					supabase.from("Users")
+						.update({notificationId:msg.id})
+						.eq('id',member.user.id)
+						.then()
 				})
 		})
 

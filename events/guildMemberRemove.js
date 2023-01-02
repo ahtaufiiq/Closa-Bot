@@ -11,6 +11,7 @@ module.exports = {
 			.eq("id",member.user.id)
 			.single()
 			.then(async data=>{
+				if(!data.body) return
 				supabase.from("Users")
 					.update({notificationId:null})
 					.eq('id',member.user.id)
