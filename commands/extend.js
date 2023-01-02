@@ -3,9 +3,10 @@ const { PermissionFlagsBits } = require('discord-api-types/v9');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
 const DailyReport = require('../controllers/DailyReport');
+const MemberController = require('../controllers/MemberController');
 const PointController = require('../controllers/PointController');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
-const { CHANNEL_PAYMENT } = require('../helpers/config');
+const { CHANNEL_PAYMENT, ROLE_MEMBER, ROLE_NEW_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const FormatString = require('../helpers/formatString');
 const MessageFormatting = require('../helpers/MessageFormatting');
@@ -58,10 +59,14 @@ module.exports = {
 
 			if(paymentType === "Renewal"){
 				Email.sendSuccessMembershipRenewal(user.username,email,formattedDate)
+				MemberController.addRole(interaction.client,user.id,ROLE_MEMBER)
+			}else{
+				MemberController.addRole(interaction.client,user.id,ROLE_NEW_MEMBER)
 			}
 	
 		} catch (error) {
 			console.log(error);
+			MemberController.addRole(interaction.client,user.id,ROLE_NEW_MEMBER)
 		}
 
 
