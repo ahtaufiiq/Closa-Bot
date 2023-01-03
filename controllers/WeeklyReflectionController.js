@@ -9,7 +9,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
-		schedule.scheduleJob('* * * * * 7', async function(){
+		schedule.scheduleJob('30 19 * * 7', async function(){
 			if(!Time.isCooldownPeriod()){
 				const data = LocalData.getData()
 				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
