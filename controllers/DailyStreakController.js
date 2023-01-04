@@ -87,7 +87,7 @@ class DailyStreakController {
 									const avatarUrl = InfoUser.getAvatar(user)
 									const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
 									const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
-									channelStreak.send(DailyStreakMessage.activateSafetyDot(user.id,currentStreak,longestStreak,attachment))
+									channelStreak.send(DailyStreakMessage.activateSafetyDot(user,currentStreak,longestStreak,attachment))
 								})
 							})
 						}
