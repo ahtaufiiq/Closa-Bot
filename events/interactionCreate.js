@@ -136,7 +136,7 @@ module.exports = {
 						.eq('id',interaction.user.id)
 						.single()
 					notificationId = data.body.notificationId
-					await PartyController.addMemberPartyRoom(client,data.body?.goalId,value,interaction.user.id)
+					await PartyController.addMemberPartyRoom(interaction.client,data.body?.goalId,value,interaction.user.id)
 	
 					const dataPartyRooms = await supabase.from("PartyRooms")
 						.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
