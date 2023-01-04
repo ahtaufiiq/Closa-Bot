@@ -7,7 +7,7 @@ const RecurringMeetupController = require("../controllers/RecurringMeetupControl
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_TESTIMONIAL } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_TESTIMONIAL, CHANNEL_REFLECTION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -16,6 +16,7 @@ const GoalMessage = require("../views/GoalMessage");
 const PartyMessage = require("../views/PartyMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
+const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -208,6 +209,18 @@ The correct format:
 			modal.message.delete()
 
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
+		}else if(commandButton === "writeReflection" || commandButton === 'editReflection'){
+			await modal.deferReply()
+			const highlight = modal.getTextInputValue('highlight');
+			const lowlight = modal.getTextInputValue('lowlight');
+			const actionPlan = modal.getTextInputValue('actionPlan');
+			const note = modal.getTextInputValue('note');
+
+			await modal.editReply(WeeklyReflectionMessage.reviewReflection({
+				highlight,lowlight,actionPlan,note,
+				user:modal.user
+			}))
+			modal.message.delete()
 		}
 	},
 };

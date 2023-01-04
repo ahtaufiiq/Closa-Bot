@@ -2,7 +2,7 @@ const { CHANNEL_CLOSA_CAFE, GUILD_ID } = require("../helpers/config")
 
 class CoworkingMessage {
     static titleCoworkingNight(){
-        return `Closa: Co-working Night 🧑‍💻👩‍💻☕️🌙 `
+        return `Co-working Night 🧑‍💻👩‍💻☕️🌙 `
     }
     static descriptionCoworkingNight(){
         return `🔔 **subscribe to** <#960785506566823946> to get co-working session notification.
@@ -22,7 +22,7 @@ class CoworkingMessage {
 
     static notifCoworkingStarted(type,userId,eventId){
         
-        return ` ${type === "Morning" ? "🌤 Morning Club":"🌙 Night Club"} co-working hour just started at ☕️ Closa café.
+        return `co-working hour just started at ☕️ Closa café.
 Let’s join the session. <@${userId}>
 
 https://discord.com/events/${GUILD_ID}/${eventId}`

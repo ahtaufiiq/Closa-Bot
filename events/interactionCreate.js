@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { CHANNEL_PARTY_MODE, ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS } = require("../helpers/config");
+const { CHANNEL_PARTY_MODE, ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -19,6 +19,8 @@ const GoalMessage = require("../views/GoalMessage");
 const VacationMessage = require("../views/VacationMessage");
 const VacationController = require("../controllers/VacationController");
 const TestimonialController = require("../controllers/TestimonialController");
+const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
+const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -31,6 +33,8 @@ module.exports = {
 			if(VacationController.showModalCustomDate(interaction)) return
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 			if(TestimonialController.showModalSubmitTestimonial(interaction)) return
+			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
+			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
 			
 			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
@@ -132,7 +136,7 @@ module.exports = {
 						.eq('id',interaction.user.id)
 						.single()
 					notificationId = data.body.notificationId
-					await PartyController.addMemberPartyRoom(client,data.body?.goalId,value,interaction.user.id)
+					await PartyController.addMemberPartyRoom(interaction.client,data.body?.goalId,value,interaction.user.id)
 	
 					const dataPartyRooms = await supabase.from("PartyRooms")
 						.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -291,6 +295,35 @@ module.exports = {
 					break;
 				case "useTicketTomorrow":
 					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
+					break;
+				case "joinWeeklyReflection":
+					notificationThreadTargetUser.send(WeeklyReflectionMessage.writeReflection(interaction.user.id))
+					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
+					break;
+				case "submitReflection":
+					const channelReflection = ChannelController.getChannel(interaction.client,CHANNEL_REFLECTION)
+					const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
+					const msg = await channelReflection.send({
+						embeds:[
+							WeeklyReflectionMessage.embedMessageReflection({
+								highlight,lowlight,actionPlan,note,
+								user:interaction.user
+							})
+						]
+					})
+					ChannelController.createThread(msg,`Reflection by ${interaction.user.username}`)
+					const dataPoint = await supabase.from("Users")
+						.select('totalPoint')
+						.eq('id',targetUserId)
+						.single()
+					const totalPoint = Number(dataPoint.body.totalPoint) + 100
+					supabase.from("Users")
+						.update({totalPoint})
+						.eq('id',targetUserId)
+						.then()
+					WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:targetUserId})
+					await interaction.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
+					interaction.message.delete()
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

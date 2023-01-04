@@ -12,6 +12,7 @@ const PartyController = require('../controllers/PartyController');
 const GoalController = require('../controllers/GoalController');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const VacationController = require('../controllers/VacationController');
+const WeeklyReflectionController = require('../controllers/WeeklyReflectionController');
 
 
 module.exports = {
@@ -73,6 +74,9 @@ module.exports = {
 		BoostController.remindBoostNotMakingProgress3Days(client)
 		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
+
+		WeeklyReflectionController.sendReflectionEveryWeek(client)
+		WeeklyReflectionController.updateAnnouncementReflection(client)
 
 		DailyReport.inactiveMember(client)
 
