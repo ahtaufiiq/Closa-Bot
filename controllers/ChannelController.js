@@ -2,6 +2,7 @@ const { PermissionFlagsBits } = require("discord-api-types/v9");
 const { GUILD_ID, CHANNEL_NOTIFICATION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
+const Time = require("../helpers/time");
 
 class ChannelController{
     static getChannel(client,channelId){
@@ -113,8 +114,10 @@ class ChannelController{
         const dataUser = await supabase.from("MemberPartyRooms")
 			.select('partyId')
             .eq('UserId',userId)
+            .gte("endPartyDate",Time.getTodayDateOnly())
             .single()
-
+        if(!dataUser.body) return 
+        
         const partyId = dataUser.body.partyId
         
         const {body:members} = await supabase.from("MemberPartyRooms")
@@ -124,7 +127,7 @@ class ChannelController{
 
         for (let i = 0; i < members.length; i++) {
 			const memberId = members[i].UserId;
-			ChannelController.addUserToThread(client,channelId,threadId,memberId)
+			await ChannelController.addUserToThread(client,channelId,threadId,memberId)
 		}
     }
 }

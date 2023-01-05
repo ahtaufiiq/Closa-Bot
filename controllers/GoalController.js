@@ -88,9 +88,9 @@ class GoalController {
 				return
 			}
 
-			const {celebrationDate} = LocalData.getData()
+			const {deadlineGoal} = LocalData.getData()
 			supabase.from("MemberPartyRooms")
-				.insert({project,partyId,endPartyDate:celebrationDate,UserId:interaction.user.id})
+				.insert({project,partyId,endPartyDate:deadlineGoal,UserId:interaction.user.id})
 				.then((data)=>{
 					PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
 				})

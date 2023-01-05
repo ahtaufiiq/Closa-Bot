@@ -74,8 +74,8 @@ class Time {
         return beginningMonthDate
     }
 
-    static getDay(){
-        return this.getDate().toLocaleDateString("en-US", { weekday: 'long'})
+    static getDay(date){
+        return this.getDate(date).toLocaleDateString("en-US", { weekday: 'long'})
     }
 
     static getNextDate(day=0,dateOnly){
@@ -139,11 +139,12 @@ class Time {
         return Time.getDateOnly(Time.getNextDate(1))
     }
     static getFormattedDate(date,showDay=false,dateStyle='medium',showTime=false){
+        console.log("🚀 ~ file: time.js:142 ~ Time ~ getFormattedDate ~ date", date)
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
 
         if (showDay ) {
-            const [month,date,year] = formattedDate.split(/[, ]+/)
-            formattedDate = `${Time.getDay()}, ${date} ${month} ${year}` //Tuesday, 29 Oct, 2022
+            const [month,dateOfMonth,year] = formattedDate.split(/[, ]+/)
+            formattedDate = `${Time.getDay(date)}, ${dateOfMonth} ${month} ${year}` //Tuesday, 29 Oct, 2022
         }
 
         if(showTime){
