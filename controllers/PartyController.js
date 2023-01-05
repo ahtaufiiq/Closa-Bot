@@ -378,7 +378,7 @@ class PartyController{
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
 		const thread = await ChannelController.getThread(channelGoals,goalId)
 		let project = thread.name.split('by')[0]
-		const endPartyDate = LocalData.getData().celebrationDate
+		const endPartyDate = LocalData.getData().deadlineGoal
 		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})
 	}
 
@@ -708,7 +708,7 @@ class PartyController{
 		.eq('cohort',PartyController.getNextCohort())
 
 		if(data.body){
-			const endPartyDate = LocalData.getData().celebrationDate
+			const endPartyDate = LocalData.getData().deadlineGoal
 			const memberPartyRooms = data.body.map(({id,UserId,project})=>{
 				return {
 					UserId,
