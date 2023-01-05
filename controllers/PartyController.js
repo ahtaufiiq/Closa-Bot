@@ -60,7 +60,7 @@ class PartyController{
 	}
 
 	static getFormattedTimeLeftUntilKickoff(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		const kickoffDate = Time.getNextDate(-1,LocalData.getData().kickoffDate)
 		kickoffDate.setHours(20)
 		kickoffDate.setMinutes(0)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
@@ -320,7 +320,7 @@ class PartyController{
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
 			channelGeneral.send(PartyMessage.announceOpenPartyMode(Time.getFormattedDate(Time.getDate(kickoffDate),true)))
 		})
-		const ruleLastDayCooldown = Time.getNextDate(-1,kickoffDate)
+		const ruleLastDayCooldown = Time.getNextDate(-2,kickoffDate)
 		ruleLastDayCooldown.setHours(Time.minus7Hours(20))
 		ruleLastDayCooldown.setMinutes(25)
 		schedule.scheduleJob(ruleLastDayCooldown,async function(){
