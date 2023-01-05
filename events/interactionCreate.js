@@ -154,7 +154,7 @@ module.exports = {
 						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id))
 					}, 1000 * 60 * 15);
 
-					PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id)
+					PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.body?.goalId)
 					break;
 				case "joinPartyMode":{
 					const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)

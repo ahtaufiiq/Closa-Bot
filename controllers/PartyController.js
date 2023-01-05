@@ -281,16 +281,18 @@ class PartyController{
 		}
 	}
 
-	static async followGoalAccountabilityPartner(client,partyId,userId){
+	static async followGoalAccountabilityPartner(client,partyId,userId,msgGoalId){
 		const {body:members} = await supabase.from("MemberPartyRooms")
-			.select("Users(goalId)")
+			.select("UserId,Users(goalId)")
 			.eq('partyId',partyId)
 			.neq('UserId',userId)
 		for (let i = 0; i < members.length; i++) {
 			const member = members[i];
 			const goalId = member.Users.goalId
 			ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
+			ChannelController.addUserToThread(client,CHANNEL_GOALS,msgGoalId,member.UserId)
 		}
+
 	}
 
 	static async removeWaitingRoom(client){
