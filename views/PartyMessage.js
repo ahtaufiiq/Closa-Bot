@@ -35,8 +35,8 @@ ${listPeople}`
 You will be grouped with members up to 4 people`}
             )],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`joinPartyMode`,'Join Party'),
-                MessageComponent.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY")
+                MessageComponent.addButton(`joinPartyMode`,'Join Party').setDisabled(time === "0 m"),
+                MessageComponent.addButton(`leaveWaitingRoom`, "Leave waiting room","SECONDARY").setDisabled(time === '0 m')
             )]
         }
     }
@@ -55,7 +55,6 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
     }
 
     static partyRoom(partyNumber,members,totalMember,leaderId,isFull=false){
-        const {totalExistingMembers,totalTrialMember} = totalMember
         return {
             embeds:[
                 new MessageEmbed()
@@ -63,13 +62,13 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
                 .setTitle(`PARTY #${partyNumber}`)
                 .setDescription("—————————")
                 .addFields(
-                    { name: 'Members:', value: `${members}\n\`${totalExistingMembers}/3 Existing members \`\n\`${totalTrialMember}/1 Free Trial Member\`` },
+                    { name: 'Members:', value: `${members}\n\`${totalMember}/4 Total members\`` },
                 )
             ],
             components:[
                 MessageComponent.createComponent(
-                    isFull ? MessageComponent.addDisabledButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Full","DANGER") : MessageComponent.addButton(`joinPartyRoom_${leaderId}_${partyNumber}`,"Join"),
-                    MessageComponent.addButton(`leavePartyRoom_${leaderId}_${partyNumber}`,"Leave","SECONDARY")
+                    isFull ? MessageComponent.addDisabledButton(`joinPartyRoom_null_${partyNumber}`,"Full","DANGER") : MessageComponent.addButton(`joinPartyRoom_null_${partyNumber}`,"Join"),
+                    MessageComponent.addButton(`leavePartyRoom_null_${partyNumber}`,"Leave","SECONDARY")
                 )
             ]
         }
@@ -247,7 +246,7 @@ Go your party room instead → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_R
 
     static replyPartyIsFull(leftFor){
         return `the party is full. cannot join the party
-The slot left is for ${leftFor} member, please join another party.`
+please join another party.`
     }
 
     static replyCancelJoinParty(){

@@ -252,8 +252,9 @@ class PartyController{
 				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
 			}
 			
-			setTimeout(() => {
-				thread.send(PartyMessage.welcomingPartyRoom(party.id))
+			setTimeout(async () => {
+				await thread.send(PartyMessage.welcomingPartyRoom(party.id))
+				thread.send('————————')
 			}, 1000 * 60 * 5);
 
 			setTimeout(async () => {
@@ -355,8 +356,7 @@ class PartyController{
 		const thread = await ChannelController.getThread(channelGoals,goalId)
 		let project = thread.name.split('by')[0]
 		const endPartyDate = LocalData.getData().celebrationDate
-		const isTrialMember = await MemberController.hasRole(client,UserId,ROLE_TRIAL_MEMBER)
-		return await supabase.from("MemberPartyRooms").insert({project,isTrialMember,partyId,endPartyDate,UserId})
+		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})
 	}
 
 	static async updateMessagePartyRoom(client,msgId,partyNumber){
@@ -368,12 +368,12 @@ class PartyController{
 		.single()
 		.then(async data=>{
 			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
-			const totalMemberParty = PartyController.countTotalMemberParty(members)
-			const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
+			const totalMember = members.length
+			const isFullParty = totalMember === 4
 			msgParty.edit(PartyMessage.partyRoom(
 				partyNumber,
 				PartyController.formatMembersPartyRoom(members),
-				totalMemberParty,
+				totalMember,
 				members?.[0]?.UserId,
 				isFullParty
 			))
@@ -623,22 +623,16 @@ class PartyController{
 		.eq('id',partyNumber)
 		.single()
 		const members = dataParty.body?.MemberPartyRooms
-		const {
-			totalExistingMembers,
-			totalTrialMember
-		} = PartyController.countTotalMemberParty(members)
+		const totalMember = members.length
 		const result = {
 			isFull:false,
 			forMember:null
 		}
-		const isTrialMember = await MemberController.hasRole(client,userId,ROLE_TRIAL_MEMBER)
-		if ((isTrialMember && totalTrialMember === 1)) {
+		if (totalMember === 4) {
 			result.isFull = true
 			result.forMember = "existing"
-		}else if(!isTrialMember && totalExistingMembers === 3){
-			result.isFull = true
-			result.forMember = "free trial"
 		}
+
 		return result
 	}
 
@@ -656,7 +650,6 @@ class PartyController{
 			.delete()		
 			.eq("UserId",userId)
 			.eq('partyId',partyNumber)
-			.single()
 	}
 
 	static async getRecentActiveUserInParty(members,userId){
