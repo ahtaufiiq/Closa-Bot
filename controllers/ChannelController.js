@@ -108,6 +108,25 @@ class ChannelController{
     static getEmojiByName(client,emojiName){
         return client.guilds.cache.get(GUILD_ID).emojis.cache.find(emoji => emoji.name === emojiName)
     }
+
+    static async addMemberPartyToThread(client,channelId,threadId,userId){
+        const dataUser = await supabase.from("MemberPartyRooms")
+			.select('partyId')
+            .eq('UserId',userId)
+            .single()
+
+        const partyId = dataUser.body.partyId
+        
+        const {body:members} = await supabase.from("MemberPartyRooms")
+        .select("UserId")
+        .eq('partyId',partyId)
+        .neq('UserId',userId)
+
+        for (let i = 0; i < members.length; i++) {
+			const memberId = members[i].UserId;
+			ChannelController.addUserToThread(client,channelId,threadId,memberId)
+		}
+    }
 }
 
 
