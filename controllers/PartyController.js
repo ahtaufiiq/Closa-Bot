@@ -295,6 +295,27 @@ class PartyController{
 
 	}
 
+	static async unfollowGoalAccountabilityPartner(client,partyId,userId,msgGoalId){
+		if(!msgGoalId){
+			const dataUser = await supabase.from("Users")
+				.select('goalId')
+				.eq('id',userId)
+				.single()
+			msgGoalId = dataUser.body.goalId
+		}
+		const {body:members} = await supabase.from("MemberPartyRooms")
+			.select("UserId,Users(goalId)")
+			.eq('partyId',partyId)
+			.neq('UserId',userId)
+		for (let i = 0; i < members.length; i++) {
+			const member = members[i];
+			const goalId = member.Users.goalId
+			ChannelController.removeUserFromThread(client,CHANNEL_GOALS,goalId,userId)
+			ChannelController.removeUserFromThread(client,CHANNEL_GOALS,msgGoalId,member.UserId)
+		}
+
+	}
+
 	static async removeWaitingRoom(client){
 		const {kickoffDate} = LocalData.getData()
 		const ruleFirstDayCooldown = Time.getDate(kickoffDate)

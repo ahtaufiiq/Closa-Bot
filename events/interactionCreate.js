@@ -103,7 +103,7 @@ module.exports = {
 					const threadParty = await ChannelController.getThread(interaction.channel,msgId)
 					await PartyController.deleteUserFromParty(interaction.user.id,partyNumber)
 					ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,msgId,interaction.user.id)
-
+					
 					supabase.from("PartyRooms")
 					.select("*,MemberPartyRooms(UserId)")
 					.eq('id',partyNumber)
@@ -119,8 +119,9 @@ module.exports = {
 					})
 					threadParty.send(PartyMessage.userLeaveParty(interaction.user.id))
 					PartyController.updateMessagePartyRoom(interaction.client,msgId,partyNumber)
-					
 					await interaction.editReply(PartyMessage.succesLeaveParty(partyNumber))
+
+					PartyController.unfollowGoalAccountabilityPartner(interaction.client,partyNumber,interaction.user.id)
 					break;
 				case "declineLeaveParty":
 					await interaction.editReply(PartyMessage.declineLeaveParty())
