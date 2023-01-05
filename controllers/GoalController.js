@@ -80,23 +80,21 @@ class GoalController {
 				.eq('id',partyId)
 				.single()
 			const members = dataParty.body?.MemberPartyRooms
-			const {
-				totalExistingMembers,
-				totalTrialMember
-			} = PartyController.countTotalMemberParty(members)
-			const isTrialMember = await MemberController.hasRole(interaction.client,interaction.user.id,ROLE_TRIAL_MEMBER)
+			const totalMember = members.length
 
-			if ((isTrialMember && totalTrialMember === 1) || (!isTrialMember && totalExistingMembers === 3)) {
+
+			if (totalMember === 4) {
 				await interaction.editReply(PartyMessage.replyCannotJoinPartyFullAfterSetGoal(interaction.user.id))
-			}else{
-				const {celebrationDate} = LocalData.getData()
-				supabase.from("MemberPartyRooms")
-					.insert({project,isTrialMember,partyId,endPartyDate:celebrationDate,UserId:interaction.user.id})
-					.then(()=>{
-						PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
-					})
-				await interaction.editReply(PartyMessage.replyImmediatelyJoinParty(interaction.user.id,dataParty.body?.msgId))
+				return
 			}
+
+			const {celebrationDate} = LocalData.getData()
+			supabase.from("MemberPartyRooms")
+				.insert({project,partyId,endPartyDate:celebrationDate,UserId:interaction.user.id})
+				.then((data)=>{
+					PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
+				})
+			await interaction.editReply(PartyMessage.replyImmediatelyJoinParty(interaction.user.id,dataParty.body?.msgId))
 			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
 			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
 			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
@@ -123,7 +121,7 @@ class GoalController {
 			shareProgressAt,
 			role,
 			user:user,
-			deadlineGoal:deadlineGoal,
+			deadlineGoal,
 			value:accountabilityMode
 		}))
 
@@ -309,7 +307,7 @@ class GoalController {
 	}
 
 	static async alreadyHaveGoal(userId){
-		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gt('deadlineGoal',Time.getTodayDateOnly())
+		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gte('deadlineGoal',Time.getTodayDateOnly())
 		return data.body.length !== 0
 	}
 

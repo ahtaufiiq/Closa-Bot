@@ -105,11 +105,11 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
     static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
         let typeAccountability = value.split('-')[0]
         return {
-            content:"**REVIEW YOUR GOAL 📝**\n↓",
+            content:"**REVIEW & SUBMIT YOUR GOAL 📝**\n↓",
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`postGoal_${user.id}_${value}`,typeAccountability === 'party' ? "Submit":"Post & commit","PRIMARY"),
+                    MessageComponent.addButton(`postGoal_${user.id}_${value}`, "🚀 SUBMIT"),
                     MessageComponent.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
                 )
             ]
