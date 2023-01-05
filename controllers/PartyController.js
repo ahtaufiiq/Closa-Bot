@@ -111,8 +111,8 @@ class PartyController{
 	}
 
 	static async createPartyRoom(channelParty,members,partyId){
-		const totalMemberParty = PartyController.countTotalMemberParty(members)
-		const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
+		const totalMemberParty = members.length
+		const isFullParty = totalMemberParty === 4
 		const msgPartyRoom = await channelParty.send(PartyMessage.partyRoom(
 			partyId,
 			PartyController.formatMembersPartyRoom(members),
@@ -481,20 +481,6 @@ class PartyController{
 
 		}
 		return result
-	}
-
-	static countTotalMemberParty(members){
-		let totalExistingMembers = 0
-		let totalTrialMember = 0
-		for (let i = 0; i < members.length; i++) {
-			const member = members[i];
-			if (member.isTrialMember) totalTrialMember++
-			else totalExistingMembers++
-		}
-		return {
-			totalExistingMembers,
-			totalTrialMember
-		}
 	}
 
 	static async disbandParty(client){
