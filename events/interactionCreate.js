@@ -36,7 +36,8 @@ module.exports = {
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
 			
-			const [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
+			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
+			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
 				await interaction.deferReply();
 			}else{
@@ -58,6 +59,7 @@ module.exports = {
 					BoostController.interactionBoostBack(interaction,targetUser,notificationThreadTargetUser)
 					break;
 				case "joinPartyRoom":
+					
 					const dataJoinedParty = await PartyController.dataJoinedParty(interaction.user.id)
 					if (dataJoinedParty) {
 						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.Users.notificationId)
@@ -67,21 +69,18 @@ module.exports = {
 					}
 					const slotParty = await PartyController.checkSlotParty(interaction.client,interaction.user.id,value)
 					if(slotParty.isFull){
-						await interaction.editReply(PartyMessage.replyPartyIsFull(slotParty.forMember))
+						await interaction.editReply(PartyMessage.replyPartyIsFull())
 						return
+					}
+					const isAlreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
+
+					if (isAlreadyHaveGoal) {
+						await interaction.editReply(PartyMessage.confirmationJoinParty(interaction.user.id,value))
+					}else{
+						notificationThreadTargetUser.send(GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
+						await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,notificationThreadTargetUser.id))
 					}
 
-					const dataUser = await supabase.from("Users")
-						.select('goalId,notificationId')
-						.eq('id',interaction.user.id)
-						.single()
-					if (!dataUser.body?.goalId) {
-						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataUser.body.notificationId)
-						notificationThread.send(GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
-						await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,dataUser.body.notificationId))
-						return
-					}
-					await interaction.editReply(PartyMessage.confirmationJoinParty(interaction.user.id,value))
 					break
 				case "leavePartyRoom":
 					const dataMemberParty = await supabase.from("MemberPartyRooms")
