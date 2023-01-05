@@ -60,7 +60,7 @@ class PartyController{
 	}
 
 	static getFormattedTimeLeftUntilKickoff(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
+		const kickoffDate = Time.getNextDate(-1,LocalData.getData().kickoffDate)
 		kickoffDate.setHours(20)
 		kickoffDate.setMinutes(0)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
@@ -111,8 +111,8 @@ class PartyController{
 	}
 
 	static async createPartyRoom(channelParty,members,partyId){
-		const totalMemberParty = PartyController.countTotalMemberParty(members)
-		const isFullParty = totalMemberParty.totalExistingMembers === 3 && totalMemberParty.totalTrialMember === 1
+		const totalMemberParty = members.length
+		const isFullParty = totalMemberParty === 4
 		const msgPartyRoom = await channelParty.send(PartyMessage.partyRoom(
 			partyId,
 			PartyController.formatMembersPartyRoom(members),
@@ -281,16 +281,39 @@ class PartyController{
 		}
 	}
 
-	static async followGoalAccountabilityPartner(client,partyId,userId){
+	static async followGoalAccountabilityPartner(client,partyId,userId,msgGoalId){
 		const {body:members} = await supabase.from("MemberPartyRooms")
-			.select("Users(goalId)")
+			.select("UserId,Users(goalId)")
 			.eq('partyId',partyId)
 			.neq('UserId',userId)
 		for (let i = 0; i < members.length; i++) {
 			const member = members[i];
 			const goalId = member.Users.goalId
 			ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
+			ChannelController.addUserToThread(client,CHANNEL_GOALS,msgGoalId,member.UserId)
 		}
+
+	}
+
+	static async unfollowGoalAccountabilityPartner(client,partyId,userId,msgGoalId){
+		if(!msgGoalId){
+			const dataUser = await supabase.from("Users")
+				.select('goalId')
+				.eq('id',userId)
+				.single()
+			msgGoalId = dataUser.body.goalId
+		}
+		const {body:members} = await supabase.from("MemberPartyRooms")
+			.select("UserId,Users(goalId)")
+			.eq('partyId',partyId)
+			.neq('UserId',userId)
+		for (let i = 0; i < members.length; i++) {
+			const member = members[i];
+			const goalId = member.Users.goalId
+			ChannelController.removeUserFromThread(client,CHANNEL_GOALS,goalId,userId)
+			ChannelController.removeUserFromThread(client,CHANNEL_GOALS,msgGoalId,member.UserId)
+		}
+
 	}
 
 	static async removeWaitingRoom(client){
@@ -320,7 +343,7 @@ class PartyController{
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
 			channelGeneral.send(PartyMessage.announceOpenPartyMode(Time.getFormattedDate(Time.getDate(kickoffDate),true)))
 		})
-		const ruleLastDayCooldown = Time.getNextDate(-1,kickoffDate)
+		const ruleLastDayCooldown = Time.getNextDate(-2,kickoffDate)
 		ruleLastDayCooldown.setHours(Time.minus7Hours(20))
 		ruleLastDayCooldown.setMinutes(25)
 		schedule.scheduleJob(ruleLastDayCooldown,async function(){
@@ -481,20 +504,6 @@ class PartyController{
 
 		}
 		return result
-	}
-
-	static countTotalMemberParty(members){
-		let totalExistingMembers = 0
-		let totalTrialMember = 0
-		for (let i = 0; i < members.length; i++) {
-			const member = members[i];
-			if (member.isTrialMember) totalTrialMember++
-			else totalExistingMembers++
-		}
-		return {
-			totalExistingMembers,
-			totalTrialMember
-		}
 	}
 
 	static async disbandParty(client){

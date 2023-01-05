@@ -73,7 +73,7 @@ class GoalController {
 			const channelGeneral = ChannelController.getChannel(interaction.client,CHANNEL_GENERAL)
 			channelGeneral.send(`**${interaction.user} has joined ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} & set a goal**`)
 		}else if(accountabilityMode.includes('joinParty')){
-			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
+			const msgGoalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
 			const partyId = accountabilityMode.split('joinParty')[1]
 			const dataParty = await supabase.from("PartyRooms")
 				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -99,7 +99,7 @@ class GoalController {
 			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
 			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
 			interaction.message.delete()
-			PartyController.followGoalAccountabilityPartner(interaction.client,partyId,interaction.user.id)
+			PartyController.followGoalAccountabilityPartner(interaction.client,partyId,interaction.user.id,msgGoalId)
 		}else{
 			await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
 			interaction.message.delete()
@@ -159,6 +159,7 @@ class GoalController {
 			})
 			.eq('id',user.id)
 			.then()
+		return msg.id
 	}
 
     static showModalEditGoal(interaction){
