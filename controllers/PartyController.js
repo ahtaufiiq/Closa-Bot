@@ -770,11 +770,13 @@ class PartyController{
 		const [label,partyNumber] = msg.channel.name.split(' ')
 		if(label === "Party" && msg.mentions.users.size > 0){
 			let isDeleteMessage = false
-			for (const [userId] of msg.mentions.users) {
+			for (const [userId,user] of msg.mentions.users) {
+				if(user.bot) continue
 				const isMemberParty = await PartyController.isMemberParty(userId,partyNumber)
 				if (!isMemberParty) {
 					isDeleteMessage = true
 					msg.channel.members.remove(userId)
+					break
 				}
 			}
 			if(isDeleteMessage){
