@@ -138,7 +138,6 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
-				ChannelController.addMemberPartyToThread(msg.client,CHANNEL_TODO,msg.id,msg.author.id)
 				const { data, error } = await supabase
 					.from('Users')
 					.select()
