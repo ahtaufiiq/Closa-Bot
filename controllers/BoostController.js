@@ -68,7 +68,7 @@ class BoostController{
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.eq('onVacation',false)
-					.gte('currentStreak',5)
+					.gte('currentStreak',4)
 					.then(data =>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
