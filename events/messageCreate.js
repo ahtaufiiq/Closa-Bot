@@ -138,6 +138,7 @@ module.exports = {
 so, you can learn or sharing from each others.`)
 					return
 				}
+				PartyController.notifyMemberPartyShareProgress(msg.client,msg)
 				const { data, error } = await supabase
 					.from('Users')
 					.select()
@@ -279,9 +280,6 @@ so, you can learn or sharing from each others.`)
 					console.log(err)
 				})
 						
-				break;
-			case CHANNEL_REFLECTION:
-				ChannelController.createThread(msg,`Reflection by ${msg.author.username}`)
 				break;
 			case CHANNEL_TOPICS:
 				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)	

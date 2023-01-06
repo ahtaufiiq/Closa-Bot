@@ -139,7 +139,6 @@ class Time {
         return Time.getDateOnly(Time.getNextDate(1))
     }
     static getFormattedDate(date,showDay=false,dateStyle='medium',showTime=false){
-        console.log("🚀 ~ file: time.js:142 ~ Time ~ getFormattedDate ~ date", date)
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
 
         if (showDay ) {
