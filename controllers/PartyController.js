@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -12,6 +12,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const { ChannelType, PermissionFlagsBits } = require('discord-api-types/v9');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
+const FormatString = require('../helpers/formatString');
 class PartyController{
 
 	static async interactionSetDefaultReminder(interaction,value){
@@ -785,6 +786,41 @@ class PartyController{
 			}
 		}
 	}
+
+	static async notifyMemberPartyShareProgress(client,msg){
+		const userId = msg.author.id
+        const dataUser = await supabase.from("MemberPartyRooms")
+			.select('PartyRooms(msgId)')
+            .eq('UserId',userId)
+            .gte("endPartyDate",Time.getTodayDateOnly())
+            .single()
+        if(!dataUser.body) return 
+        
+        const msgId = dataUser.body.PartyRooms.msgId
+        
+        const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
+		threadParty.send(`${MessageFormatting.tagUser(userId)} **just posted a progress**
+————
+${FormatString.truncateString(msg.content.split('\n')[0],100)}
+↳ **see post:** ${MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id)}`)
+    }
+
+	static async notifyMemberPartyShareReflection(client,userId,msgIdReflection){
+        const dataUser = await supabase.from("MemberPartyRooms")
+			.select('PartyRooms(msgId)')
+            .eq('UserId',userId)
+            .gte("endPartyDate",Time.getTodayDateOnly())
+            .single()
+        if(!dataUser.body) return 
+        
+        const msgId = dataUser.body.PartyRooms.msgId
+        const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
+		threadParty.send(`${MessageFormatting.tagUser(userId)} **just posted a reflection 📝**
+
+**see post** → ${MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection)}`)
+    }
 }
 
 module.exports = PartyController
