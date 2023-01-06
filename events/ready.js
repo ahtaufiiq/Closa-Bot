@@ -65,7 +65,6 @@ module.exports = {
 		ReminderController.remindPostProgress(client)
 		
 		DailyStreakController.remindMissOneDay(client)
-		DailyStreakController.notifyActivateSafetyDot(client)
 		DailyStreakController.remindAboutToLoseStreak(client)
 
 		CoworkingController.recurringCoworkingSession(client)
