@@ -311,6 +311,7 @@ module.exports = {
 							})
 						]
 					})
+					PartyController.notifyMemberPartyShareReflection(interaction.client,interaction.user.id,msg.id)
 					ChannelController.createThread(msg,`Reflection by ${interaction.user.username}`)
 					const dataPoint = await supabase.from("Users")
 						.select('totalPoint')

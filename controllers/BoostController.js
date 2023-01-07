@@ -46,7 +46,7 @@ class BoostController{
 					.then(data=>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
-								if(!Time.isValidStreak(member.currentStreak,member.lastDone,member.lastSafety)){
+								if(member.lastSafety !== Time.getTodayDateOnly()){
 									const {user} = await MemberController.getMember(client,member.id)
 									channelBoost.send(BoostMessage.notMakingProgress2Days(user))
 								}
@@ -72,7 +72,7 @@ class BoostController{
 					.then(data =>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
-								if(!Time.isValidStreak(member.currentStreak,member.lastDone,member.lastSafety)){
+								if(member.lastSafety !== Time.getTodayDateOnly()){
 									const {user} = await MemberController.getMember(client,member.id)
 									channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
 								}

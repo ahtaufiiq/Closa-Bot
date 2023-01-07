@@ -45,7 +45,7 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
         return {
             embeds:[WeeklyReflectionMessage.embedMessageReflection({highlight,lowlight,actionPlan,note,user})],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`submitReflection_${user.id}`,"Submit"),
+                MessageComponent.addButton(`submitReflection_${user.id}`,"🚀 SUBMIT"),
                 MessageComponent.addButton(`editReflection_${user.id}`,"Edit","SECONDARY"),
             )]
         }
@@ -72,6 +72,9 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
 :coin: **${totalPoint} (+100 points)**`
     }
 
+    static replySubmissionClosed(){
+        return `**The submission has been closed.**`
+    }
 }
 
 module.exports = WeeklyReflectionMessage
