@@ -4,16 +4,17 @@ const WeeklyReflectionMessage = require('../views/WeeklyReflectionMessage');
 const schedule = require('node-schedule');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const { CHANNEL_ANNOUNCEMENT } = require('../helpers/config');
+const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
-		schedule.scheduleJob('30 19 * * 7', async function(){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 7`, async function(){
 			if(!Time.isCooldownPeriod()){
 				const data = LocalData.getData()
 				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
 				const msg = await channelAnnouncement.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
+				ChannelController.createThread(msg,"Weekly Reflection")
 				data.msgIdWeeklyReflection = msg.id
 				LocalData.writeData(data)
 				WeeklyReflectionController.countdownWritingReflection(msg)
@@ -92,15 +93,21 @@ class WeeklyReflectionController {
 
 	static countdownWritingReflection(msg){
 		const countdownReflection = setInterval(async () => {
-			const dataParticipant = await WeeklyReflectionController.getAllParticipant()
-			const participants = dataParticipant.map(participant=>MessageFormatting.tagUser(participant.UserId))
+			WeeklyReflectionController.updateMessageAnnouncement(msg)
 			if(WeeklyReflectionController.getTimeLeft().includes('-')){
 				clearInterval(countdownReflection)
-				msg.edit(WeeklyReflectionMessage.announcement('ended',participants))
-			}else{
-				msg.edit(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft(),participants))
 			}
 		}, 1000 * 60);
+	}
+
+	static async updateMessageAnnouncement(msg){
+		const dataParticipant = await WeeklyReflectionController.getAllParticipant()
+		const participants = dataParticipant.map(participant=>MessageFormatting.tagUser(participant.UserId))
+		if(WeeklyReflectionController.getTimeLeft().includes('-')){
+			msg.edit(WeeklyReflectionMessage.announcement('ended',participants))
+		}else{
+			msg.edit(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft(),participants))
+		}
 	}
 
 	static getTimeLeft(){
