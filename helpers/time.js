@@ -147,7 +147,7 @@ class Time {
         }
 
         if(showTime){
-            formattedDate += ` at ${date.getHours()}.${date.getMinutes()}`
+            formattedDate += ` at ${date.getHours()}.${date.getMinutes() < 10 ? "0":""}${date.getMinutes()}`
         }
         return formattedDate
     }
