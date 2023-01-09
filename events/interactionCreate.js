@@ -67,7 +67,7 @@ module.exports = {
 						await interaction.editReply(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
 						return
 					}
-					const slotParty = await PartyController.checkSlotParty(interaction.client,interaction.user.id,value)
+					const slotParty = await PartyController.checkSlotParty(value)
 					if(slotParty.isFull){
 						await interaction.editReply(PartyMessage.replyPartyIsFull())
 						return

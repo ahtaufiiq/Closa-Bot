@@ -247,22 +247,29 @@ so, you can learn or sharing from each others.`)
 						.update({lastDone:Time.getTodayDateOnly()})
 						.eq('id',msg.author.id)
 						.then()
-					let dailyStreak = data.body.currentStreak
-					let longestStreak = data.body.longestStreak
-					let totalDays = data.body.totalDay
-					let totalPoints = data.body.totalPoint
+					let {
+						currentStreak,
+						longestStreak, 
+						totalDay ,
+						totalPoint, 
+						endLongestStreak
+					} = data.body
 					
-					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
+					if(currentStreak === 7 && endLongestStreak === Time.getTodayDateOnly()){
+						ReferralCodeController.achieveFirstDailyStreak(msg.client,msg.author.id,threadProgress,7)
+					}
+					
+					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
 					if (goalName) {
 						RequestAxios.get('todos/tracker/'+msg.author.id)
 							.then(async progressRecently=>{
 								const avatarUrl = InfoUser.getAvatar(msg.author)
-								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak,totalDays,totalPoints)
+								const buffer = await GenerateImage.tracker(msg.author.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
 								
 
 								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
 								ChannelStreak.send({
-									embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`,
+									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
 									files:[
 										attachment
 									]
@@ -270,7 +277,7 @@ so, you can learn or sharing from each others.`)
 							})
 					}else{
 						ChannelStreak.send({
-							embeds:[DailyStreakMessage.dailyStreak(dailyStreak,msg.author,longestStreak)],content:`${msg.author}`
+							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
 						})
 					}
 					

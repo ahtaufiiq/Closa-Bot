@@ -120,6 +120,45 @@ class ReferralCodeController{
         })
     }
 
+    static async achieveFirstDailyStreak(client,userId,threadProgress,totalStreak=7){
+        const totalNewReferral = 1
+
+        const codes = referralCodes.generate({
+            count:totalNewReferral,
+            charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
+            length:10
+        })
+
+        const values = codes.map(code=>{
+            return {
+                UserId:userId,
+                referralCode:code,
+                expired:Time.getDateOnly(Time.getNextDate(18)),
+                isRedeemed:false,
+            }
+        })
+
+        ReferralCodeController.saveReminderClaimReferral(userId)
+            .then(()=>{
+                ReferralCodeController.remindToClaimReferral(client,userId)
+            })
+        
+        await supabase.from("Referrals")
+            .insert(values)
+
+        const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
+
+        supabase.from("Users")
+        .select('id,notificationId')
+        .eq("id",userId)
+        .single()
+        .then(async data=>{
+            const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
+            notificationThread.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+            threadProgress.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+        })
+    }
+
     static remindToClaimReferral(client,userId){
         if (userId) {
             supabase.from('Reminders')
