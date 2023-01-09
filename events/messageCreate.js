@@ -247,10 +247,17 @@ so, you can learn or sharing from each others.`)
 						.update({lastDone:Time.getTodayDateOnly()})
 						.eq('id',msg.author.id)
 						.then()
-					let dailyStreak = data.body.currentStreak
-					let longestStreak = data.body.longestStreak
-					let totalDays = data.body.totalDay
-					let totalPoints = data.body.totalPoint
+					let {
+						dailyStreak,
+						longestStreak, 
+						totalDays ,
+						totalPoints, 
+						endLongestStreak
+					} = data.body
+					
+					if(dailyStreak === 7 && endLongestStreak === Time.getTodayDateOnly()){
+						ReferralCodeController.achieveFirstDailyStreak(msg.client,msg.author.id,threadProgress,7)
+					}
 					
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,dailyStreak,longestStreak,msg.author)
 					if (goalName) {

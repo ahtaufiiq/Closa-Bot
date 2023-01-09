@@ -178,6 +178,23 @@ Share it to your friends to get 1 month free membership.`
             ] 
         }
     }
+
+    static achieveFirstDailyStreak(newReferral,totalActiveReferral,totalStreak,userId){
+        return {
+            content:`**${newReferral} referral code for you!** :gift: 
+
+Hi ${MessageFormatting.tagUser(userId)} 💠 as an honor of achieving **${totalStreak}-day streak**, you are eligible for ${newReferral} referral code.
+
+If you find the community is valuable, help us spread it to your friends. :smile: 
+One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
+
+**Get 1 month free membership both you and your friends** for every referral code that redeemed. :stonks:`,
+            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+            components: [
+                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))
+            ] 
+            }
+    }
 }
 
 module.exports=ReferralCodeMessage
