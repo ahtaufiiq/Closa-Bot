@@ -43,6 +43,7 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
 
     static reviewReflection({highlight,lowlight,actionPlan,note,user}){
         return {
+            content:`**REVIEW & SUBMIT YOUR REFLECTION** 📝\n—————————————————————`,
             embeds:[WeeklyReflectionMessage.embedMessageReflection({highlight,lowlight,actionPlan,note,user})],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`submitReflection_${user.id}`,"🚀 SUBMIT"),
