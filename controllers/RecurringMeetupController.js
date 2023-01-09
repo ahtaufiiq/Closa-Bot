@@ -321,6 +321,9 @@ class RecurringMeetupController {
 	static async getWeeklyMeetupParty(partyId){
 		const time =  new Date()
 		time.setHours(time.getHours()-1)
+		const result = {
+			body:null
+		}
 		
 		const dataWeeklyMeetup = await supabase.from("Reminders")
 			.select()
@@ -329,9 +332,8 @@ class RecurringMeetupController {
 			.gte('time',time.toUTCString())
 			.order('createdAt',{ascending:false})
 
-		if(dataWeeklyMeetup.body.length === 0) return null
-
-		return dataWeeklyMeetup.body[0]
+		if(dataWeeklyMeetup.body.length > 0) result.body = dataWeeklyMeetup.body[0]
+		return result
 	}
 
 	static async getDataParty(partyId){
@@ -343,12 +345,11 @@ class RecurringMeetupController {
 
 	static async deleteOldWeeklyMeetup(partyId){
 		const time =  new Date()
-		time.setHours(time.getHours()-1)
 		return await supabase.from("Reminders")
 			.delete()
 			.eq('type','weeklyMeetup')
 			.eq('message',partyId)
-			.gte('time',time)
+			.gte('time',time.toUTCString())
 	}
 
 	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
@@ -361,9 +362,8 @@ class RecurringMeetupController {
 			.eq('PartyRoomId',partyId)
 			.eq('UserId',interaction.user.id)
 			.gte('meetupDate',new Date().toUTCString())
-			.single()
 
-		if (!data.body) {
+		if (data.body.length === 0) {
 			await supabase.from("WeeklyMeetups")
 			.insert({
 				meetupDate,
@@ -411,10 +411,9 @@ class RecurringMeetupController {
 			.eq('message',weeklyMeetupId)
 			.eq('UserId',interaction.user.id)
 			.eq('type',"cannotAttendMeetup")
-			.single()
 
 		if(isAcceptAttendance){
-			if(data.body){
+			if(data.body.length > 0){
 				await supabase.from("Reminders")
 				.delete()
 				.eq('message',weeklyMeetupId)

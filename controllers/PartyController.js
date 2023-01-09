@@ -627,7 +627,7 @@ class PartyController{
 		return members
 	}
 
-	static async checkSlotParty(client,userId,partyNumber){
+	static async checkSlotParty(partyNumber){
 		const dataParty = await supabase.from("PartyRooms")
 		.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 		.eq('id',partyNumber)
