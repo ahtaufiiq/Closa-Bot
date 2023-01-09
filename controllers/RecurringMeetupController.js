@@ -46,12 +46,12 @@ class RecurringMeetupController {
 		return voiceChannel.id
 	}
 
-	static async getTotalResponseMemberMeetup(partyId,acceptMeetup=true){
+	static async getTotalResponseMemberMeetup(partyId,isAcceptMeetup=true){
 		const {count} = await supabase.from("WeeklyMeetups")
 			.select('id',{count:'exact'})
 			.eq("PartyRoomId",partyId)
 			.gte('meetupDate',new Date().toUTCString())
-			.eq('isAcceptMeetup',acceptMeetup)
+			.eq('isAcceptMeetup',isAcceptMeetup)
 		return count
 	}
 
@@ -371,7 +371,6 @@ class RecurringMeetupController {
 				UserId:interaction.user.id,
 				PartyRoomId:partyId
 			})
-			.then()
 		}else{
 			await supabase.from("WeeklyMeetups")
 				.update({isAcceptMeetup})
@@ -421,7 +420,7 @@ class RecurringMeetupController {
 				.eq('type',"cannotAttendMeetup")
 			}
 		}else{
-			if (!data.body) {
+			if (data.body.length === 0) {
 				await supabase.from("Reminders")
 				.insert({
 					type:'cannotAttendMeetup',
