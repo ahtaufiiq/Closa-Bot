@@ -41,6 +41,21 @@ Also you can reschedule manually using the button below:`,
         }
     }
 
+    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime){
+        return {
+            content:`**on ${meetupTime}**
+p.s: minimal 2 people accepted the invitation to host virtual meetup.
+
+\`\`Please confirm your attendance\`\``,
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`acceptConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,'Yes'),
+                    MessageComponent.addButton(`declineConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,"No","SECONDARY")
+                )
+            ]
+        }
+    }
+
     static reminderOneDayBeforeMeetup(){
         return `🔔 **A friendly reminder** @here! 
 \`\`Tomorrow\`\` is our virtual meetup session, see you soon everyone!`
@@ -60,21 +75,6 @@ prepare your seat & chill ✨`
         return `Hi ${tagMembers} please confirm your virtual meetup attendance to the message above.`
     }
 
-    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime){
-        return {
-            content:`**on ${meetupTime}**
-p.s: minimal 2 people accepted the invitation to host virtual meetup.
-
-\`\`Please confirm your attendance\`\``,
-            components:[
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`acceptConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,'Yes'),
-                    MessageComponent.addButton(`declineConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,"No","SECONDARY")
-                )
-            ]
-        }
-    }
-
     static cannotSetMeetupAfterCelebrationDay(){
         return "Cannot set more than celebration day."
     }
@@ -92,7 +92,7 @@ p.s: minimal 2 people accepted the invitation to host virtual meetup.
     }
 
     static countdownMeetup(min,channelId){
-        return `\`\`The virtual meetup just started!\`\` @here
+        return `\`\`The virtual meetup ${min===0 ? "ended" : "just started"}!\`\` @here
 
 \`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._

@@ -150,7 +150,7 @@ class PartyController{
 		const data = await supabase.from("Reminders")
 			.select()
 			.eq('type',"reminderScheduleMeetup")
-			.gte('time',new Date().toISOString())
+			.gte('time',new Date().toUTCString())
 		if(data.body.length === 0 ) return
 
 		for (let i = 0; i < data.body.length; i++) {
@@ -200,7 +200,7 @@ class PartyController{
 		const data = await supabase.from("Reminders")
 			.select()
 			.eq('type',"autoRescheduleMeetup")
-			.gte('time',new Date().toISOString())
+			.gte('time',new Date().toUTCString())
 		
 		if(data.body.length === 0 ) return
 		for (let i = 0; i < data.body.length; i++) {
@@ -789,11 +789,8 @@ class PartyController{
 
 	static async notifyMemberPartyShareProgress(client,msg){
 		const userId = msg.author.id
-        const dataUser = await supabase.from("MemberPartyRooms")
-			.select('PartyRooms(msgId)')
-            .eq('UserId',userId)
-            .gte("endPartyDate",Time.getTodayDateOnly())
-            .single()
+        const dataUser = await PartyController.getPartyUser(userId)
+		
         if(!dataUser.body) return 
         
         const msgId = dataUser.body.PartyRooms.msgId
@@ -807,11 +804,7 @@ ${FormatString.truncateString(msg.content.split('\n')[0],100)}
     }
 
 	static async notifyMemberPartyShareReflection(client,userId,msgIdReflection){
-        const dataUser = await supabase.from("MemberPartyRooms")
-			.select('PartyRooms(msgId)')
-            .eq('UserId',userId)
-            .gte("endPartyDate",Time.getTodayDateOnly())
-            .single()
+        const dataUser = await PartyController.getPartyUser(userId)
         if(!dataUser.body) return 
         
         const msgId = dataUser.body.PartyRooms.msgId
@@ -821,6 +814,14 @@ ${FormatString.truncateString(msg.content.split('\n')[0],100)}
 
 **see post** → ${MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection)}`)
     }
+
+	static async getPartyUser(userId){
+		return await supabase.from("MemberPartyRooms")
+			.select('PartyRooms(msgId)')
+            .eq('UserId',userId)
+            .gte("endPartyDate",Time.getTodayDateOnly())
+            .single()
+	}
 }
 
 module.exports = PartyController
