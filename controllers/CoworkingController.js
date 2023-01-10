@@ -19,24 +19,40 @@ class CoworkingController {
             }
         })
 
+        let ruleNotifStartCoworkingMorning = new schedule.RecurrenceRule();
+        ruleNotifStartCoworkingMorning.hour = Time.minus7Hours(7)
+        ruleNotifStartCoworkingMorning.minute = 0
+        schedule.scheduleJob(ruleNotifStartCoworkingMorning,function(){
+            if (!Time.isCooldownPeriod()) {
+                const data = LocalData.getData()
+                CoworkingController.sendReminder10MinutesBeforeStart(client,"Morning",data.morning)
+            }
+        })
+
         let ruleCoworkingSession = new schedule.RecurrenceRule();
         
         ruleCoworkingSession.hour = 22
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
-            CoworkingController.scheduleEvent(client,{
-                name:CoworkingMessage.titleCoworkingNight(),
-                description:CoworkingMessage.descriptionCoworkingNight(),
-                scheduledStartTime:CoworkingController.addOneDay(CoworkingController.getStartTimeNightSession()),
-                scheduledEndTime:CoworkingController.addOneDay(CoworkingController.getEndTimeNightSession()),
-                entityType:"VOICE",
-                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-            })
-            .then(night=>{
+            Promise.all([
+                CoworkingController.createCoworkingEvent('morning','tomorrow'),
+                CoworkingController.createCoworkingEvent('night','tomorrow'),
+            ])
+            .then(([morning,night])=>{
                 const data = LocalData.getData()
                 data.night = night.id
+                data.morning = morning.id
                 LocalData.writeData(data)
             })
+        })
+
+        let ruleStopMorningSession = new schedule.RecurrenceRule();
+        
+        ruleStopMorningSession.hour = Time.minus7Hours(11)
+        ruleStopMorningSession.minute = 30
+        schedule.scheduleJob(ruleStopMorningSession,function(){
+            const data = LocalData.getData()
+            CoworkingController.stopEvent(client ,data.morning)
         })
 
         let ruleStopNightSession = new schedule.RecurrenceRule();
@@ -46,6 +62,23 @@ class CoworkingController {
         schedule.scheduleJob(ruleStopNightSession,function(){
             const data = LocalData.getData()
             CoworkingController.stopEvent(client, data.night)
+        })
+    }
+
+    //startTime = 'now' || 'tomorrow'
+    static async createCoworkingEvent(type='morning',startTime){
+        let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight
+        let description = type === 'morning' ? CoworkingMessage.descriptionCoworkingMorning() : CoworkingMessage.descriptionCoworkingNight()
+        let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession(type,startTime)
+        let scheduledEndTime = CoworkingController.getEndTimeCoworkingSession(type,startTime)
+
+        return await CoworkingController.scheduleEvent(client,{
+            name,
+            description,
+            scheduledStartTime,
+            scheduledEndTime,
+            entityType:"VOICE",
+            channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
         })
     }
 
@@ -63,6 +96,7 @@ class CoworkingController {
         reason?: string;
      * } 
      */
+    
 
     static async scheduleEvent(client,{
         name,
@@ -113,61 +147,72 @@ class CoworkingController {
         return date
     }
 
-    static getStartTimeMorningSession(isStartNow){
+    static getStartTimeCoworkingSession(type='morning',startTime){
         const date = new Date()
-        if (isStartNow) {
-            date.setMinutes(date.getMinutes() + 15)
-            if (date.getTime() > this.getEndTimeMorningSession().getTime()) {
-                date.setMinutes(this.getEndTimeMorningSession().getMinutes()-1)
+        const isStartNow = startTime === 'now'
+        if(type === 'morning'){
+            if (isStartNow) {
+                date.setMinutes(date.getMinutes() + 15)
+                if (date.getTime() > this.getEndTimeMorningSession().getTime()) {
+                    date.setMinutes(this.getEndTimeMorningSession().getMinutes()-1)
+                }
+            }else{
+                date.setHours(Time.minus7Hours(7))
+                date.setMinutes(0)
             }
         }else{
-            date.setHours(Time.minus7Hours(7))
-            date.setMinutes(0)
+            if (isStartNow) {
+                date.setMinutes(date.getMinutes() + 15)
+                if (date.getTime() > this.getEndTimeNightSession().getTime()) {
+                    date.setMinutes(this.getEndTimeNightSession().getMinutes()-1)
+                }
+            }else{
+                date.setHours(Time.minus7Hours(20))
+                date.setMinutes(0)
+            }
         }
+
+        if(startTime === 'tomorrow') CoworkingController.addOneDay(date)
         
         return date
     }
-    static getEndTimeMorningSession(){
+    static getEndTimeCoworkingSession(type ='morning',startTime){
         const date = new Date()
-        date.setHours(Time.minus7Hours(11))
-        date.setMinutes(30)
-        return date
-    }
-    static getStartTimeNightSession(isStartNow){
-        const date = new Date()
-        if (isStartNow) {
-            date.setMinutes(date.getMinutes() + 15)
-            if (date.getTime() > this.getEndTimeNightSession().getTime()) {
-                date.setMinutes(this.getEndTimeNightSession().getMinutes()-1)
-            }
+        if(type==='morning'){
+            date.setHours(Time.minus7Hours(11))
+            date.setMinutes(30)
         }else{
-            date.setHours(Time.minus7Hours(20))
+            date.setHours(Time.minus7Hours(22))
             date.setMinutes(0)
         }
-        return date
-    }
-    static getEndTimeNightSession(){
-        const date = new Date()
-        date.setHours(Time.minus7Hours(22))
-        date.setMinutes(0)
+
+        if(startTime === 'tomorrow') CoworkingController.addOneDay(date)
         return date
     }
 
     static async handleStartCoworkingSession(client){
         const data = LocalData.getData()
-        if(CoworkingController.isRangeNightSession()){
+        if (CoworkingController.isRangeMorningSession()) {
+            const event = await CoworkingController.getDetailEvent(client,data.morning)
+            console.log("🚀 ~ file: CoworkingController.js:197 ~ CoworkingController ~ handleStartCoworkingSession ~ event", event)
+            const isCompleted = event.status === "COMPLETED"
+            let isScheduled = event.status === "SCHEDULED"
+            if (isCompleted) {
+                const event = await CoworkingController.createCoworkingEvent('morning','now')
+                isScheduled = event.status === "SCHEDULED"
+                data.morning = event.id
+                LocalData.writeData(data)
+            }
+            if(isScheduled) {
+                CoworkingController.startEvent(client,data.morning)
+                CoworkingController.sendNotificationStartEvent(client,"Morning",data.morning)
+            }
+        }else if(CoworkingController.isRangeNightSession()){
             const event = await CoworkingController.getDetailEvent(client,data.night)
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
-                const event = await CoworkingController.scheduleEvent(client,{
-                        name:CoworkingMessage.titleCoworkingNight(),
-                        description:CoworkingMessage.descriptionCoworkingNight(),
-                        scheduledStartTime:CoworkingController.getStartTimeNightSession(true),
-                        scheduledEndTime:CoworkingController.getEndTimeNightSession(),
-                        entityType:"VOICE",
-                        channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-                    })
+                const event = await CoworkingController.createCoworkingEvent('night','now')
                     
                 isScheduled = event.status === "SCHEDULED"
                 data.night = event.id
@@ -179,13 +224,14 @@ class CoworkingController {
         }
     }
 
+
     static isRangeMorningSession(){
         const time = new Date().getTime()
-        return time > CoworkingController.getStartTimeMorningSession().getTime() && time < CoworkingController.getEndTimeMorningSession().getTime()
+        return time > CoworkingController.getStartTimeCoworkingSession().getTime() && time < CoworkingController.getEndTimeCoworkingSession().getTime()
     }
     static isRangeNightSession(){
         const time = new Date().getTime()
-        return time >= CoworkingController.getStartTimeNightSession().getTime() && time < CoworkingController.getEndTimeNightSession().getTime()
+        return time >= CoworkingController.getStartTimeCoworkingSession('night').getTime() && time < CoworkingController.getEndTimeCoworkingSession('night').getTime()
     }
 
     static async getAllEvent(client){
@@ -205,16 +251,16 @@ class CoworkingController {
 
     static handleLastUserLeaveEvent(client){
         const data = LocalData.getData()
-        if(this.isRangeNightSession()){
+        if (this.isRangeMorningSession()) {
+            this.stopEvent(client,data.morning)
+            CoworkingController.createCoworkingEvent('morning','now').then((morning) => {
+                const data = LocalData.getData()
+                data.morning = morning.id
+                LocalData.writeData(data)
+            })
+        }else if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
-            CoworkingController.scheduleEvent(client,{
-                name:CoworkingMessage.titleCoworkingNight(),
-                description:CoworkingMessage.descriptionCoworkingNight(),
-                scheduledStartTime:CoworkingController.getStartTimeNightSession(true),
-                scheduledEndTime:CoworkingController.getEndTimeNightSession(),
-                entityType:"VOICE",
-                channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-            }).then((night)=>{
+            CoworkingController.createCoworkingEvent('night','now').then((night)=>{
                 const data = LocalData.getData()
                 data.night = night.id
                 LocalData.writeData(data)
