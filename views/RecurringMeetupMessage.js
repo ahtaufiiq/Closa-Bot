@@ -41,24 +41,31 @@ Also you can reschedule manually using the button below:`,
         }
     }
 
-    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime){
+    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime,linkCalendar){
         return {
-            content:`**on ${meetupTime}**
+            content:`**Reminder** 🔔
+
+Hi @here it's 2 days before the next virtual meetup begin.
+
+**on ${meetupTime} WIB**
 p.s: minimal 2 people accepted the invitation to host virtual meetup.
 
 \`\`Please confirm your attendance\`\``,
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`acceptConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,'Yes'),
-                    MessageComponent.addButton(`declineConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,"No","SECONDARY")
+                    MessageComponent.addButton(`declineConfirmationMeetup_null_${partyId}|${weeklyMeetupId}`,"No","SECONDARY"),
+                    MessageComponent.addLinkButton('Add to calendar',linkCalendar)
                 )
             ]
         }
     }
 
-    static reminderOneDayBeforeMeetup(){
+    static reminderOneDayBeforeMeetup(meetupTime){
         return `🔔 **A friendly reminder** @here! 
-\`\`Tomorrow\`\` is our virtual meetup session, see you soon everyone!`
+\`\`Tomorrow ${meetupTime} WIB\`\` is our virtual meetup session. 
+
+see you soon everyone!`
     }
 
     static reminderOneHourBeforeMeetup(){
