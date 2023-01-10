@@ -8,6 +8,7 @@ const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const GenerateLink = require("../helpers/generateLink");
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
@@ -103,9 +104,23 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime))
+				const linkAddToCalendar = RecurringMeetupController.linkCalendarWeeklySync(partyId,meetupDate)
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar))
 			}
 		})
+	}
+
+	static linkCalendarWeeklySync(partyId,startDate){
+		const endDate = new Date(startDate.valueOf())
+		endDate.setMinutes(endDate.getMinutes()+30)
+		const link = GenerateLink.addToCalendar(
+			'Closa: Weekly check-in ☕️',
+			"Learn more at Closa Weekly Sync (https://closa.notion.site/Weekly-Sync-bb6ea395dc4e4873a182cc3e4ba194fd)",
+			`Temporary voice channel Party ${partyId} (discord)`,
+			startDate,
+			endDate
+		  )
+		return link
 	}
 
 	static showModalRescheduleMeetup(interaction){
@@ -146,7 +161,10 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup())
+				const meetupDate = Time.getDate(time)
+				meetupDate.setDate(meetupDate.getDate()+1)
+				const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
+				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup(meetupTime))
 			}
 		})
 	}
