@@ -72,7 +72,7 @@ module.exports = {
 									if (minutes === 0) {
 										clearInterval(timerMeetup)
 										setTimeout(() => {
-											newMember.channel.delete()
+											if(newMember.channel.id !== CHANNEL_CLOSA_CAFE) newMember.channel.delete()
 											delete meetup[channelId]
 										}, 1000 * 15);
 									}
