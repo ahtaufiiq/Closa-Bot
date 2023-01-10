@@ -18,13 +18,12 @@ module.exports = {
 			subcommand
 				.setName('all')
 				.setDescription('create voice channel for all party'))
-				.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('party')
-				.setDescription('create voice channel for spesific party'))
-				.addStringOption(option => option.setName('party').setDescription('13').setRequired(true))
-				.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+				.setDescription('create voice channel for spesific party')
+				.addStringOption(option => option.setName('party').setDescription('13').setRequired(true)))
+		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		const command = interaction.options.getSubcommand()
 		
