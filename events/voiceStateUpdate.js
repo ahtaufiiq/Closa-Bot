@@ -63,16 +63,19 @@ module.exports = {
 						
 						threadParty.send(RecurringMeetupMessage.countdownMeetup(30,voiceChannelId))
 						.then(async msg=>{
+							console.log('masuk 1');
 								let minutes = 30
 								const timerMeetup = setInterval(() => {
+									console.log('masuk 2');
 									if (minutes > 0) {
 										minutes--
 										msg.edit(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
 									}
 									if (minutes === 0) {
+										console.log('masuk 3');
 										clearInterval(timerMeetup)
-										setTimeout(() => {
-											if(newMember.channel.id !== CHANNEL_CLOSA_CAFE) newMember.channel.delete()
+										setTimeout(async () => {
+											if(voiceChannel?.id !== CHANNEL_CLOSA_CAFE) await voiceChannel.delete()
 											delete meetup[channelId]
 										}, 1000 * 15);
 									}
