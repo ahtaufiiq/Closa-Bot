@@ -8,6 +8,18 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 
 class WeeklyReflectionMessage {
     static announcement(time,participants=[]){
+        const gifAnnouncement = [
+            "https://media.giphy.com/media/nGtOFccLzujug/giphy.gif",
+            "https://media.giphy.com/media/ISOckXUybVfQ4/giphy.gif",
+            "https://media.giphy.com/media/rY6oYt4OaF59C/giphy.gif",
+            "https://media.giphy.com/media/3oKIPuWNRHxeLJGgWk/giphy.gif",
+            "https://media.giphy.com/media/PPxgdzGdl8BJm/giphy.gif",
+            "https://media.giphy.com/media/YqJfljiG0hG7m3NAxK/giphy-downsized-large.gif",
+            "https://media.giphy.com/media/unQ3IJU2RG7DO/giphy.gif",
+            "https://media.giphy.com/media/bPWyTsy2huZji/giphy.gif",
+
+        ]
+        const randomGif = gifAnnouncement[Math.floor(Math.random()*gifAnnouncement.length)]
         return {
             content:`**📝 WEEKLY REFLECTION** 
 
@@ -21,7 +33,12 @@ ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('joinWeeklyReflection',"Join").setDisabled(time==='ended'),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e').setEmoji('💡')
-            )]
+            )],
+            embeds: [
+                new MessageEmbed()
+                .setColor("#00B264")
+                .setImage(randomGif)
+            ]
 
         }
     }
@@ -30,7 +47,7 @@ ${participants.join('\n')}`,
         return `:pencil: **Weekly Reflection**
 
 **Hi @everyone, weekly reflection will be open in 1h on ${MessageFormatting.tagChannel(CHANNEL_ANNOUNCEMENT)}****
-\`\`from 19.30 to 22.30\`\`
+\`\`from 19.30 to 23.30\`\`
 
 **Stay tuned!**`
     }
