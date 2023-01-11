@@ -300,6 +300,10 @@ module.exports = {
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
 					break;
 				case "submitReflection":
+					if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
+						await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+						return interaction.message.delete()
+					}
 					const dataUser = await supabase
 					.from('Users')
 					.select()

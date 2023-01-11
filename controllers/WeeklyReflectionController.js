@@ -50,8 +50,19 @@ class WeeklyReflectionController {
 		}
 	}
 
+	static isRangeWeeklyReflection(){
+		const date = Time.getDate()
+		const isSunday = date.getDay() === 0
+		const beforeEnded = date.getHours() <= 23 && date.getMinutes() <= 30
+		return isSunday && beforeEnded
+	}
+
     static showModalWriteReflection(interaction){
-        if(interaction.customId.includes('writeReflection')){
+		if(interaction.customId.includes('writeReflection')){
+			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
+				interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				return false
+			}
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Reflect on this week 📝")
@@ -68,6 +79,10 @@ class WeeklyReflectionController {
     }
     static showModalEditReflection(interaction){
         if(interaction.customId.includes('editReflection')){
+			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
+				interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				return false
+			}
 			const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
