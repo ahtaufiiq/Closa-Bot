@@ -13,20 +13,24 @@ const { MessageAttachment } = require('discord.js');
 const UserController = require('./UserController');
 class DailyStreakController {
     
-    static achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
-        if (dailyStreak === 7 && dailyStreak === longestStreak) {
-            ChannelReminder.send({content:`Welcome to <@&${ROLE_7STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(7)]})
+    static async achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
+		let data 
+        if (dailyStreak === 7) {
+            data = {content:`Welcome to <@&${ROLE_7STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(7)]}
             MemberController.addRole(bot, author.id, ROLE_7STREAK)
-        }else if (dailyStreak === 30 && dailyStreak === longestStreak) {
-            ChannelReminder.send({content:`Welcome to <@&${ROLE_30STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(30)]})
+        }else if (dailyStreak === 30) {
+            data = {content:`Welcome to <@&${ROLE_30STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(30)]}
             MemberController.addRole(bot, author.id, ROLE_30STREAK)
-        }else if (dailyStreak === 100 && dailyStreak === longestStreak) {
-            ChannelReminder.send({content:`Welcome to <@&${ROLE_100STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(100)]})
+        }else if (dailyStreak === 100) {
+            data = {content:`Welcome to <@&${ROLE_100STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(100)]}
             MemberController.addRole(bot, author.id, ROLE_100STREAK)
-        }else if (dailyStreak === 365 && dailyStreak === longestStreak) {
-            ChannelReminder.send({content:`Welcome to <@&${ROLE_365STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(365)]})
+        }else if (dailyStreak === 365) {
+            data = {content:`Welcome to <@&${ROLE_365STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(365)]}
             MemberController.addRole(bot, author.id, ROLE_365STREAK)
         }
+		
+		const msg = await ChannelReminder.send(data)
+		ChannelController.createThread(msg,`Congrats ${author.username}`)
     }
 
     static remindMissOneDay(client){

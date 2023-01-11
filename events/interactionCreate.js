@@ -297,16 +297,27 @@ module.exports = {
 					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
 					break;
 				case "joinWeeklyReflection":
-					notificationThreadTargetUser.send(WeeklyReflectionMessage.writeReflection(interaction.user.id))
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
 					break;
 				case "submitReflection":
+					const dataUser = await supabase
+					.from('Users')
+					.select()
+					.eq('id',interaction.user.id)
+					.single()
+
+					let projectName = null
+					if (dataUser.body?.goalId) {
+						const channel = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
+						const thread = await ChannelController.getThread(channel,dataUser.body.goalId)
+						projectName = thread.name.split('by')[0]
+					}
 					const channelReflection = ChannelController.getChannel(interaction.client,CHANNEL_REFLECTION)
 					const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
 					const msg = await channelReflection.send({
 						embeds:[
 							WeeklyReflectionMessage.embedMessageReflection({
-								highlight,lowlight,actionPlan,note,
+								projectName,highlight,lowlight,actionPlan,note,
 								user:interaction.user
 							})
 						]

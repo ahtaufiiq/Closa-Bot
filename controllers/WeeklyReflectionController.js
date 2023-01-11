@@ -7,6 +7,7 @@ const ChannelController = require('./ChannelController');
 const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
+const UserController = require('./UserController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 7`, async function(){
@@ -18,6 +19,23 @@ class WeeklyReflectionController {
 				data.msgIdWeeklyReflection = msg.id
 				LocalData.writeData(data)
 				WeeklyReflectionController.countdownWritingReflection(msg)
+
+				UserController.getActiveMembers()
+					.then(async data=>{
+						for (let i = 0; i < data.body.length; i++) {
+							const {id,notificationId} = data.body[i]
+							const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
+							notificationThread.send(WeeklyReflectionMessage.writeReflection(id))
+						}
+					})
+			}
+		});
+	}
+	static async sendReminderReflection(client){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 7`, async function(){
+			if(!Time.isCooldownPeriod()){
+				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
+				channelAnnouncement.send(WeeklyReflectionMessage.reminderReflection())
 			}
 		});
 	}
@@ -38,9 +56,9 @@ class WeeklyReflectionController {
 			.setCustomId(interaction.customId)
 			.setTitle("Reflect on this week 📝")
 			.addComponents(
-				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("SHORT"),
-				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("SHORT"),
-				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("SHORT"),
+				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("LONG"),
+				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("LONG"),
+				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("LONG"),
 				new TextInputComponent().setCustomId('note').setLabel("Additional notes / Key learnings").setPlaceholder("Additional story, notes, or learnings").setStyle('LONG'),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
@@ -55,9 +73,9 @@ class WeeklyReflectionController {
 			.setCustomId(interaction.customId)
 			.setTitle("Reflect on this week 📝")
 			.addComponents(
-				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("SHORT").setDefaultValue(highlight || ''),
-				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("SHORT").setDefaultValue(lowlight || ""),
-				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("SHORT").setDefaultValue(actionPlan || ""),
+				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("LONG").setDefaultValue(highlight || ''),
+				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("LONG").setDefaultValue(lowlight || ""),
+				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("LONG").setDefaultValue(actionPlan || ""),
 				new TextInputComponent().setCustomId('note').setLabel("Additional notes / Key learnings").setPlaceholder("Additional story, notes, or learnings").setStyle('LONG').setDefaultValue(note || ""),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
@@ -112,7 +130,7 @@ class WeeklyReflectionController {
 
 	static getTimeLeft(){
 		const endDate = Time.getDate()
-		endDate.setHours(22)
+		endDate.setHours(23)
 		endDate.setMinutes(30)
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
