@@ -46,9 +46,9 @@ class WeeklyReflectionController {
 			.setCustomId(interaction.customId)
 			.setTitle("Reflect on this week 📝")
 			.addComponents(
-				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("SHORT"),
-				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("SHORT"),
-				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("SHORT"),
+				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("LONG"),
+				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("LONG"),
+				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("LONG"),
 				new TextInputComponent().setCustomId('note').setLabel("Additional notes / Key learnings").setPlaceholder("Additional story, notes, or learnings").setStyle('LONG'),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
@@ -63,9 +63,9 @@ class WeeklyReflectionController {
 			.setCustomId(interaction.customId)
 			.setTitle("Reflect on this week 📝")
 			.addComponents(
-				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("SHORT").setDefaultValue(highlight || ''),
-				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("SHORT").setDefaultValue(lowlight || ""),
-				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("SHORT").setDefaultValue(actionPlan || ""),
+				new TextInputComponent().setCustomId('highlight').setLabel("What went well?").setStyle("LONG").setDefaultValue(highlight || ''),
+				new TextInputComponent().setCustomId('lowlight').setLabel("What didn't go well?").setStyle("LONG").setDefaultValue(lowlight || ""),
+				new TextInputComponent().setCustomId('actionPlan').setLabel("What the next action plan for improvements?").setStyle("LONG").setDefaultValue(actionPlan || ""),
 				new TextInputComponent().setCustomId('note').setLabel("Additional notes / Key learnings").setPlaceholder("Additional story, notes, or learnings").setStyle('LONG').setDefaultValue(note || ""),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
