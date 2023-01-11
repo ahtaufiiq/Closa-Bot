@@ -255,8 +255,8 @@ so, you can learn or sharing from each others.`)
 						endLongestStreak
 					} = data.body
 					
-					if(currentStreak === 7 && endLongestStreak === Time.getTodayDateOnly()){
-						ReferralCodeController.achieveFirstDailyStreak(msg.client,msg.author.id,threadProgress,7)
+					if(endLongestStreak === Time.getTodayDateOnly()){
+						ReferralCodeController.achieveFirstDailyStreak(msg.client,msg.author.id,threadProgress,currentStreak)
 					}
 					
 					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)

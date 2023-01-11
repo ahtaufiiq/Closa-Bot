@@ -121,6 +121,7 @@ class ReferralCodeController{
     }
 
     static async achieveFirstDailyStreak(client,userId,threadProgress,totalStreak=7){
+        if(totalStreak !== 7 && totalStreak !== 30 && totalStreak !== 100 && totalStreak !== 365) return
         const totalNewReferral = 1
 
         const codes = referralCodes.generate({
