@@ -36,7 +36,7 @@ class RecurringMeetupController {
 		
 		const voiceChannel = await guild.channels.create(channelName,{
 			permissionOverwrites,
-			parent:ChannelController.getChannel(client,CATEGORY_CHAT),
+			parent:ChannelController.getChannel(client,CHANNEL_WEEKLY_SCYNC_CATEGORY),
 			type:ChannelType.GuildVoice,
 		})
 		setTimeout(() => {
