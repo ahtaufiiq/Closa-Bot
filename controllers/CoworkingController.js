@@ -35,8 +35,8 @@ class CoworkingController {
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
             Promise.all([
-                CoworkingController.createCoworkingEvent('morning','tomorrow'),
-                CoworkingController.createCoworkingEvent('night','tomorrow'),
+                CoworkingController.createCoworkingEvent(client,'morning','tomorrow'),
+                CoworkingController.createCoworkingEvent(client,'night','tomorrow'),
             ])
             .then(([morning,night])=>{
                 const data = LocalData.getData()
@@ -66,7 +66,7 @@ class CoworkingController {
     }
 
     //startTime = 'now' || 'tomorrow'
-    static async createCoworkingEvent(type='morning',startTime){
+    static async createCoworkingEvent(client,type='morning',startTime){
         let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight
         let description = type === 'morning' ? CoworkingMessage.descriptionCoworkingMorning() : CoworkingMessage.descriptionCoworkingNight()
         let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession(type,startTime)
@@ -198,7 +198,7 @@ class CoworkingController {
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
-                const event = await CoworkingController.createCoworkingEvent('morning','now')
+                const event = await CoworkingController.createCoworkingEvent(client,'morning','now')
                 isScheduled = event.status === "SCHEDULED"
                 data.morning = event.id
                 LocalData.writeData(data)
@@ -212,7 +212,7 @@ class CoworkingController {
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
-                const event = await CoworkingController.createCoworkingEvent('night','now')
+                const event = await CoworkingController.createCoworkingEvent(client,'night','now')
                     
                 isScheduled = event.status === "SCHEDULED"
                 data.night = event.id
@@ -253,14 +253,14 @@ class CoworkingController {
         const data = LocalData.getData()
         if (this.isRangeMorningSession()) {
             this.stopEvent(client,data.morning)
-            CoworkingController.createCoworkingEvent('morning','now').then((morning) => {
+            CoworkingController.createCoworkingEvent(client,'morning','now').then((morning) => {
                 const data = LocalData.getData()
                 data.morning = morning.id
                 LocalData.writeData(data)
             })
         }else if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
-            CoworkingController.createCoworkingEvent('night','now').then((night)=>{
+            CoworkingController.createCoworkingEvent(client,'night','now').then((night)=>{
                 const data = LocalData.getData()
                 data.night = night.id
                 LocalData.writeData(data)
