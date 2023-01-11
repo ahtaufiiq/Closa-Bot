@@ -74,6 +74,7 @@ module.exports = {
 		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
 
+		WeeklyReflectionController.sendReminderReflection(client)
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
 		WeeklyReflectionController.updateAnnouncementReflection(client)
 

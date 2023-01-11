@@ -21,6 +21,14 @@ class WeeklyReflectionController {
 			}
 		});
 	}
+	static async sendReminderReflection(client){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 7`, async function(){
+			if(!Time.isCooldownPeriod()){
+				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
+				channelAnnouncement.send(WeeklyReflectionMessage.reminderReflection())
+			}
+		});
+	}
 
 	static async updateAnnouncementReflection(client){
 		const date = Time.getDate()
