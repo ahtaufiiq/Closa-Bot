@@ -7,6 +7,7 @@ const ChannelController = require('./ChannelController');
 const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
+const UserController = require('./UserController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 7`, async function(){
@@ -18,6 +19,15 @@ class WeeklyReflectionController {
 				data.msgIdWeeklyReflection = msg.id
 				LocalData.writeData(data)
 				WeeklyReflectionController.countdownWritingReflection(msg)
+
+				UserController.getActiveMembers()
+					.then(async data=>{
+						for (let i = 0; i < data.body.length; i++) {
+							const {id,notificationId} = data.body[i]
+							const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
+							notificationThread.send(WeeklyReflectionMessage.writeReflection(id))
+						}
+					})
 			}
 		});
 	}
@@ -120,7 +130,7 @@ class WeeklyReflectionController {
 
 	static getTimeLeft(){
 		const endDate = Time.getDate()
-		endDate.setHours(22)
+		endDate.setHours(23)
 		endDate.setMinutes(30)
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`

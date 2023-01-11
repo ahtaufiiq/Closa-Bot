@@ -297,7 +297,6 @@ module.exports = {
 					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
 					break;
 				case "joinWeeklyReflection":
-					notificationThreadTargetUser.send(WeeklyReflectionMessage.writeReflection(interaction.user.id))
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
 					break;
 				case "submitReflection":
