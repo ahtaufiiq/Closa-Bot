@@ -88,7 +88,7 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
         if(note) reflection.push({name:"Additional Notes / Key learnings",value:FormatString.truncateString( note,1020)})
         return new MessageEmbed()
         .setColor("#ffffff")
-        .setTitle(FormatString.truncateString(`Reflection by ${user.username}`,250))
+        .setTitle(FormatString.truncateString(`📝 Reflection by ${user.username}`,250))
         .setThumbnail(InfoUser.getAvatar(user))
         .addFields(
             ...reflection
