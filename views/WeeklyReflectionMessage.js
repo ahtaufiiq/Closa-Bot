@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_ANNOUNCEMENT } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -23,6 +24,15 @@ ${participants.join('\n')}`,
             )]
 
         }
+    }
+
+    static reminderReflection(){
+        return `:pencil: **Weekly Reflection**
+
+**Hi @everyone, weekly reflection will be open in 1h on ${MessageFormatting.tagChannel(CHANNEL_ANNOUNCEMENT)}****
+\`\`from 19.30 to 22.30\`\`
+
+**Stay tuned!**`
     }
 
 
@@ -52,8 +62,9 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
         }
     }
 
-    static embedMessageReflection({highlight,lowlight,actionPlan,note,user}){
+    static embedMessageReflection({projectName,highlight,lowlight,actionPlan,note,user}){
         const reflection = []
+        if(projectName) reflection.push({name:"Project",value:FormatString.truncateString( projectName,1020)})
         if(highlight) reflection.push({name:"Went well?",value:FormatString.truncateString( highlight,1020)})
         if(lowlight) reflection.push({name:"Didn't go weel?",value:FormatString.truncateString( lowlight,1020)})
         if(actionPlan) reflection.push({name:"Next action plan for improvements",value:FormatString.truncateString( actionPlan,1020)})
