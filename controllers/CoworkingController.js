@@ -67,11 +67,11 @@ class CoworkingController {
 
     //startTime = 'now' || 'tomorrow'
     static async createCoworkingEvent(client,type='morning',startTime){
-        let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight
+        let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight()
         let description = type === 'morning' ? CoworkingMessage.descriptionCoworkingMorning() : CoworkingMessage.descriptionCoworkingNight()
         let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession(type,startTime)
         let scheduledEndTime = CoworkingController.getEndTimeCoworkingSession(type,startTime)
-
+        
         return await CoworkingController.scheduleEvent(client,{
             name,
             description,
@@ -153,8 +153,8 @@ class CoworkingController {
         if(type === 'morning'){
             if (isStartNow) {
                 date.setMinutes(date.getMinutes() + 15)
-                if (date.getTime() > this.getEndTimeMorningSession().getTime()) {
-                    date.setMinutes(this.getEndTimeMorningSession().getMinutes()-1)
+                if (date.getTime() > this.getEndTimeCoworkingSession("morning").getTime()) {
+                    date.setMinutes(this.getEndTimeCoworkingSession("morning").getMinutes()-1)
                 }
             }else{
                 date.setHours(Time.minus7Hours(7))
@@ -163,8 +163,8 @@ class CoworkingController {
         }else{
             if (isStartNow) {
                 date.setMinutes(date.getMinutes() + 15)
-                if (date.getTime() > this.getEndTimeNightSession().getTime()) {
-                    date.setMinutes(this.getEndTimeNightSession().getMinutes()-1)
+                if (date.getTime() > this.getEndTimeCoworkingSession('night').getTime()) {
+                    date.setMinutes(this.getEndTimeCoworkingSession('night').getMinutes()-1)
                 }
             }else{
                 date.setHours(Time.minus7Hours(20))
