@@ -256,10 +256,12 @@ so, you can learn or sharing from each others.`)
 					} = data.body
 					
 					if(endLongestStreak === Time.getTodayDateOnly()){
-						ReferralCodeController.achieveFirstDailyStreak(msg.client,msg.author.id,threadProgress,currentStreak)
+						if(totalStreak === 7 && totalStreak === 30 && totalStreak === 100 && totalStreak === 365) {
+							DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
+							ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author.id,threadProgress,currentStreak)
+						}
 					}
 					
-					DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
 					if (goalName) {
 						RequestAxios.get('todos/tracker/'+msg.author.id)
 							.then(async progressRecently=>{
