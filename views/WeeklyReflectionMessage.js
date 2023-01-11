@@ -20,23 +20,24 @@ class WeeklyReflectionMessage {
 
         ]
         const randomGif = gifAnnouncement[Math.floor(Math.random()*gifAnnouncement.length)]
+        const isEnded = time === 'ended'
         return {
             content:`**📝 WEEKLY REFLECTION** 
 
-> **Let's take a break & do a quick reflection! @everyone ** :red_circle: ${time}
+> **Let's take a break & do a quick reflection! @everyone ** 
 
 \`\`\`fix
 Reward: 100+ points
 \`\`\`
-Participated (${participants.length}):
+Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('joinWeeklyReflection',"Join").setDisabled(time==='ended'),
+                MessageComponent.addButton('joinWeeklyReflection',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e').setEmoji('💡')
             )],
             embeds: [
                 new MessageEmbed()
-                .setColor("#00B264")
+                .setColor(isEnded ? "#888888" : "#00B264")
                 .setImage(randomGif)
             ]
 
