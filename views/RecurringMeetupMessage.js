@@ -110,14 +110,14 @@ Join here → ${MessageFormatting.tagChannel(channelId)}`
 
     static countdownMeetupVoiceChat(min){
         return {
-            content:`Have a good time! @here
-
-\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
+            content:`\`\`⏳\`\` room ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
-\`\`here's the icebreaker questions (if you need it)\`\``,
+Have a good time! @here
+
+\`\`here's the guideline\`\``,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Icebreaker questions","https://closa.notion.site/Icebreaker-Questions-a26d658e90984fb38b37f86d156dcfbe")
+                MessageComponent.addLinkButton("Weekly check-in guideline","https://closa.notion.site/Weekly-check-in-bb6ea395dc4e4873a182cc3e4ba194fd").setEmoji("📝")
             )]
         }
     }
@@ -130,13 +130,48 @@ Waiting for 2 people to start the virtual meetup session.
 Join → ${MessageFormatting.tagChannel(channelId)}`
     }
 
-    static reminderFiveMinutesBeforeEnded(){
-        return `**Reminder**:bell: 
+    static reminderFiveMinutesBeforeEnded(voiceChannelId){
+        return {
+            content:`**Reminder**:bell: 
+**5 minutes before the session end** @here`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`extendTemporaryVoice_null_${voiceChannelId}`,"Extend time").setEmoji("⏲")
+            )]
+        }
+    }
 
-\`5 minutes\` before the party end @here
+    static optionExtendedTime(voiceChannelId){
+        return {
+            content:`**How long do you want to extend the session time?**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`extendSession_null_${voiceChannelId}-5`,"5 min"),
+                MessageComponent.addButton(`extendSession_null_${voiceChannelId}-10`,"10 min"),
+                MessageComponent.addButton(`extendSession_null_${voiceChannelId}-15`,"15 min"),
+                MessageComponent.addButton(`customExtend_null_${voiceChannelId}`,"Custom","SECONDARY").setEmoji("⏲"),
+                MessageComponent.addButton(`cancelExtend`,"Cancel","SECONDARY"),
+            )]
+        }
+    }
+
+    static cancelExtendTime(){
+        return `**Extend time has been canceled**`
+    }
+
+    static replyExtendTime(){
+        return `Success extend time, bot will update countdown`
+    }
+
+    static successExtendTime(extendTime){
+        return `**Added ${extendTime} more minutes ✅**`
+    }
+
+    static reminderTwoMinutesBeforeEnded(){
+        return `**Reminder**:bell: 
+\`2 minutes\` before the session end @here
+
 **Let's end it with a group photo :camera_with_flash: ** 
 
-Feel free to share your moment anywhere :smile:`
+Feel free to share your moment anywhere and tag \`\`@beclosa\`\` :smile:`
     }
 
     static reminderFifteenSecondsBeforeEnded(){
