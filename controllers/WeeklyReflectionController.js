@@ -10,7 +10,7 @@ const LocalData = require('../helpers/LocalData');
 const UserController = require('./UserController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 7`, async function(){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 2`, async function(){
 			if(!Time.isCooldownPeriod()){
 				const data = LocalData.getData()
 				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
@@ -32,7 +32,7 @@ class WeeklyReflectionController {
 		});
 	}
 	static async sendReminderReflection(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 7`, async function(){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 2`, async function(){
 			if(!Time.isCooldownPeriod()){
 				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
 				channelAnnouncement.send(WeeklyReflectionMessage.reminderReflection())
