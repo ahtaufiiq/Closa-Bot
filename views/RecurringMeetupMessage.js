@@ -110,12 +110,12 @@ Join here → ${MessageFormatting.tagChannel(channelId)}`
 
     static countdownMeetupVoiceChat(min){
         return {
-            content:`Have a good time! @here
-
-\`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
+            content:`\`\`⏳\`\` room ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
-\`\`here's the guideline (including icebreaker questions)\`\``,
+Have a good time! @here
+
+\`\`here's the guideline\`\``,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkButton("Weekly check-in guideline","https://closa.notion.site/Weekly-check-in-bb6ea395dc4e4873a182cc3e4ba194fd").setEmoji("📝")
             )]
@@ -167,8 +167,8 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
 
     static reminderTwoMinutesBeforeEnded(){
         return `**Reminder**:bell: 
-
 \`2 minutes\` before the session end @here
+
 **Let's end it with a group photo :camera_with_flash: ** 
 
 Feel free to share your moment anywhere and tag \`\`@beclosa\`\` :smile:`
