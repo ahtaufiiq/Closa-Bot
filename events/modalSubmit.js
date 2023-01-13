@@ -120,7 +120,7 @@ module.exports = {
 				id:modal.message.id
 			})
 			.then()
-			modal.message.delete()
+			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "editGoal"){
 			const deadlineGoal = GoalController.getDeadlineGoal()
 			const role = value.split('-')[1]
@@ -139,7 +139,7 @@ module.exports = {
 				user:modal.user,
 				deadlineGoal:deadlineGoal,
 			}))
-			modal.message.delete()
+			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "useTicketCustomDate"){
 			await modal.deferReply({ephemeral:true})
 			
@@ -207,7 +207,7 @@ The correct format:
 			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink))
 			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
-			modal.message.delete()
+			ChannelController.deleteMessage(modal.message)
 
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
 		}else if(commandButton === "writeReflection" || commandButton === 'editReflection'){
@@ -221,13 +221,13 @@ The correct format:
 				highlight,lowlight,actionPlan,note,
 				user:modal.user
 			}))
-			modal.message.delete()
+			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "customExtend"){
 			await modal.deferReply({ephemeral:true})
 			const extendTime = Number(modal.getTextInputValue('time'));
 			RecurringMeetupController.updateExtendTime(extendTime,value)
 			await modal.editReply(RecurringMeetupMessage.replyExtendTime())
-			modal.message.delete()
+			ChannelController.deleteMessage(modal.message)
 		}
 	},
 };

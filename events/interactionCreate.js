@@ -255,12 +255,12 @@ module.exports = {
 					break;
 				case "customReminder":
 					await interaction.editReply(PartyMessage.replyCustomReminder())
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
 					break;
 				case "noReminder":
 					await interaction.editReply(PartyMessage.replyNoHighlightReminder())
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
 					break;
 				case "claimReferral":
@@ -303,7 +303,7 @@ module.exports = {
 				case "submitReflection":
 					if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
 						await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
-						return interaction.message.delete()
+						return ChannelController.deleteMessage(interaction.message)
 					}
 					const dataUser = await supabase
 					.from('Users')
@@ -340,21 +340,21 @@ module.exports = {
 						.then()
 					WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:targetUserId})
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					break;
 				case "extendTemporaryVoice" :
 					await interaction.editReply(RecurringMeetupMessage.optionExtendedTime(value))
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					break;
 				case "extendSession" :
 					const [voiceChanelId,extendTime] = value.split('-')
 					RecurringMeetupController.updateExtendTime(+extendTime,voiceChanelId)
 					await interaction.editReply(RecurringMeetupMessage.replyExtendTime())
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					break;
 				case "cancelExtend":
 					await interaction.editReply(RecurringMeetupMessage.cancelExtendTime())
-					interaction.message.delete()
+					ChannelController.deleteMessage(interaction.message)
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

@@ -130,6 +130,14 @@ class ChannelController{
 			await ChannelController.addUserToThread(client,channelId,threadId,memberId)
 		}
     }
+
+    static async deleteMessage(msg){
+        try {
+            return await msg.delete()
+        } catch (error) {
+            return error
+        }
+    }
 }
 
 
