@@ -209,6 +209,12 @@ class RecurringMeetupController {
 			.eq('id',voiceChannelId)
 	}
 
+	static async updateTotalExtendTime(voiceChannelId,totalExtendedTime){
+		return await supabase.from("TemporaryVoices")
+			.update({totalExtendedTime})
+			.eq('id',voiceChannelId)
+	}
+
 	static async remindOneHourBeforeMeetup(client,time,partyId){
 		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)

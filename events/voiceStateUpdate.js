@@ -93,6 +93,7 @@ module.exports = {
 									setTimeout(async () => {
 										if(voiceChannel?.id !== CHANNEL_CLOSA_CAFE) await voiceChannel.delete()
 										delete meetup[channelId]
+										RecurringMeetupController.updateTotalExtendTime(voiceChannelId,totalExtendTime)
 									}, 1000 * 15);
 									clearInterval(timerMeetup)
 								}else if(minutes === 2){
