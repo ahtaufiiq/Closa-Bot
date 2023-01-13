@@ -8,6 +8,7 @@ const Time = require('../helpers/time');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
 const ChannelController = require('../controllers/ChannelController');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
+const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 let listFocusRoom = {
 	"737311735308091423":true,
 	"949245624094687283":true,
@@ -60,45 +61,47 @@ module.exports = {
 						.single()
 						const voiceChannelId = dataParty.body.voiceChannelId
 						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
-						
-						threadParty.send(RecurringMeetupMessage.countdownMeetup(30,voiceChannelId))
-						.then(async msg=>{
-							console.log('masuk 1');
-								let minutes = 30
-								const timerMeetup = setInterval(() => {
-									console.log('masuk 2');
-									if (minutes > 0) {
-										minutes--
-										msg.edit(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
-									}
-									if (minutes === 0) {
-										console.log('masuk 3');
-										clearInterval(timerMeetup)
-										setTimeout(async () => {
-											if(voiceChannel?.id !== CHANNEL_CLOSA_CAFE) await voiceChannel.delete()
-											delete meetup[channelId]
-										}, 1000 * 15);
-									}
-								}, 1000 * 60);
-							})
+						let totalExtendTime = 0
+						let minutes = 30
 
-
-						voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(30))
-							.then(async msg=>{
-								let minutes = 30
-								const timerMeetup = setInterval(() => {
-									if (minutes > 0) {
-										minutes--
-										msg.edit(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+						Promise.all([
+							threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId)),
+							voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+						])
+						.then(([msgThreadParty,msgVoiceChat])=>{
+							const timerMeetup = setInterval(async () => {
+								if(minutes <= 5){
+									const temporaryVoice = await supabase.from("TemporaryVoices")
+										.select()
+										.eq('id',voiceChannelId)
+										.single()
+									const extendTime = temporaryVoice.body?.extendTime
+									if(extendTime){
+										minutes += extendTime
+										totalExtendTime += extendTime
+										RecurringMeetupController.resetExtendTime(voiceChannelId)
+										msgVoiceChat.reply(RecurringMeetupMessage.successExtendTime(extendTime))
 									}
-									if (minutes === 0) {
-										voiceChannel.send(RecurringMeetupMessage.reminderFifteenSecondsBeforeEnded())
-										clearInterval(timerMeetup)
-									}else if(minutes === 5){
-										voiceChannel.send(RecurringMeetupMessage.reminderFiveMinutesBeforeEnded())
-									}
-								}, 1000 * 60);
-							})
+								}
+								if (minutes > 0) {
+									minutes--
+									msgThreadParty.edit(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
+									msgVoiceChat.edit(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+								}
+								if (minutes === 0) {
+									voiceChannel.send(RecurringMeetupMessage.reminderFifteenSecondsBeforeEnded())
+									setTimeout(async () => {
+										if(voiceChannel?.id !== CHANNEL_CLOSA_CAFE) await voiceChannel.delete()
+										delete meetup[channelId]
+									}, 1000 * 15);
+									clearInterval(timerMeetup)
+								}else if(minutes === 2){
+									voiceChannel.send(RecurringMeetupMessage.reminderTwoMinutesBeforeEnded())
+								}else if(minutes === 5){
+									voiceChannel.send(RecurringMeetupMessage.reminderFiveMinutesBeforeEnded(voiceChannelId))
+								}
+							}, 1000 * 60);
+						})
 					})
 			}
 		}

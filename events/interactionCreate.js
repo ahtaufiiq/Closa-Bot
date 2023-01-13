@@ -32,13 +32,14 @@ module.exports = {
 			if(GoalController.showModalEditGoal(interaction)) return 
 			if(VacationController.showModalCustomDate(interaction)) return
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
+			if(RecurringMeetupController.showModalExtendTime(interaction)) return
 			if(TestimonialController.showModalSubmitTestimonial(interaction)) return
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
-			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket')) {
+			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice") {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -339,6 +340,20 @@ module.exports = {
 						.then()
 					WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:targetUserId})
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
+					interaction.message.delete()
+					break;
+				case "extendTemporaryVoice" :
+					await interaction.editReply(RecurringMeetupMessage.optionExtendedTime(value))
+					interaction.message.delete()
+					break;
+				case "extendSession" :
+					const [voiceChanelId,extendTime] = value.split('-')
+					RecurringMeetupController.updateExtendTime(+extendTime,voiceChanelId)
+					await interaction.editReply(RecurringMeetupMessage.replyExtendTime())
+					interaction.message.delete()
+					break;
+				case "cancelExtend":
+					await interaction.editReply(RecurringMeetupMessage.cancelExtendTime())
 					interaction.message.delete()
 					break;
 				default:

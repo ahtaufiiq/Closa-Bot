@@ -14,6 +14,7 @@ const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const GoalMessage = require("../views/GoalMessage");
 const PartyMessage = require("../views/PartyMessage");
+const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
 const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
@@ -220,6 +221,12 @@ The correct format:
 				highlight,lowlight,actionPlan,note,
 				user:modal.user
 			}))
+			modal.message.delete()
+		}else if(commandButton === "customExtend"){
+			await modal.deferReply({ephemeral:true})
+			const extendTime = Number(modal.getTextInputValue('time'));
+			RecurringMeetupController.updateExtendTime(extendTime,value)
+			await modal.editReply(RecurringMeetupMessage.replyExtendTime())
 			modal.message.delete()
 		}
 	},

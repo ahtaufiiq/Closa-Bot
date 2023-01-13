@@ -39,6 +39,13 @@ module.exports = {
 						const members = data.body[i].MemberPartyRooms.map(member=>member.UserId)
 						const threadId = data.body[i].msgId
 						const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
+						supabase.from('TemporaryVoices')
+							.insert({
+								id:voiceChannelId,
+								type:'WeeklyMeetup',
+								description:`Party ${partyId}`
+							})
+							.then() 
 						supabase.from('PartyRooms')
 							.update({voiceChannelId})
 							.eq('id',partyId)
@@ -63,6 +70,13 @@ module.exports = {
 					const members = data.body.MemberPartyRooms.map(member=>member.UserId)
 					const threadId = data.body.msgId
 					const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
+					supabase.from('TemporaryVoices')
+							.insert({
+								id:voiceChannelId,
+								type:'WeeklyMeetup',
+								description:`Party ${partyId}`
+							})
+							.then()
 					supabase.from('PartyRooms')
 						.update({voiceChannelId})
 						.eq('id',partyId)

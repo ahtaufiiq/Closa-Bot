@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, ChannelType } = require("discord-api-types/v9");
-const { GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM } = require("../helpers/config");
+const { GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, CHANNEL_WEEKLY_SCYNC_CATEGORY } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const ChannelController = require("./ChannelController");
 const MemberController = require("./MemberController");
@@ -139,6 +139,21 @@ class RecurringMeetupController {
         }
     }
 
+	static showModalExtendTime(interaction){
+        if(interaction.customId.includes('customExtend')){
+            const modal = new Modal()
+                .setCustomId(interaction.customId)
+                .setTitle("⏲ Add session time in minute")
+                .addComponents(
+                    new TextInputComponent().setCustomId('time').setLabel("Extend Time").setPlaceholder("e.g. 30 min (in minute only)").setStyle("SHORT").setRequired(true),
+                )
+			showModal(modal, { client: interaction.client, interaction: interaction});
+            return true
+        }else{
+            return false
+        }
+    }
+
 	static async setReminderOneDayBeforeMeetup(client){
 		const data = await supabase.from("Reminders")
 			.select()
@@ -180,6 +195,18 @@ class RecurringMeetupController {
 			const {time,message:partyId} = data.body[i];
 			RecurringMeetupController.remindOneHourBeforeMeetup(client,time,partyId)
 		}
+	}
+
+	static async updateExtendTime(extendTime,voiceChannelId){
+		return await supabase.from("TemporaryVoices")
+			.update({extendTime})
+			.eq('id',voiceChannelId)
+	}
+
+	static async resetExtendTime(voiceChannelId){
+		return await supabase.from("TemporaryVoices")
+			.update({extendTime:null})
+			.eq('id',voiceChannelId)
 	}
 
 	static async remindOneHourBeforeMeetup(client,time,partyId){
@@ -246,6 +273,13 @@ class RecurringMeetupController {
 					.then(async data=>{
 						const members = data.body.MemberPartyRooms.map(member=>member.UserId)
 						const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(client,`Party ${partyId}`,members)
+						supabase.from('TemporaryVoices')
+							.insert({
+								id:voiceChannelId,
+								type:'WeeklyMeetup',
+								description:`Party ${partyId}`
+							})
+							.then()
 						supabase.from('PartyRooms')
 							.update({voiceChannelId})
 							.eq('id',partyId)
