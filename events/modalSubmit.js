@@ -224,7 +224,7 @@ The correct format:
 			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "customExtend"){
 			await modal.deferReply({ephemeral:true})
-			const extendTime = Number(modal.getTextInputValue('time'));
+			const extendTime = Number(modal.getTextInputValue('time').trim().split(' ')[0]);
 			RecurringMeetupController.updateExtendTime(extendTime,value)
 			await modal.editReply(RecurringMeetupMessage.replyExtendTime())
 			ChannelController.deleteMessage(modal.message)
