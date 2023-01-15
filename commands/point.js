@@ -28,7 +28,7 @@ module.exports = {
 		const avatarUrl = InfoUser.getAvatar(user)
 		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		notificationThread.send({
-			content:`Bonus vibe points for you ${interaction.user}!`,
+			content:`Bonus vibe points for you ${user}!`,
 			embeds:[
 				new MessageEmbed()
 				.setColor("#FEFEFE")
