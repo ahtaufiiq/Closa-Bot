@@ -1,6 +1,7 @@
 const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, CHANNEL_TOPICS, CHANNEL_GOALS, CHANNEL_INTRO, CHANNEL_CELEBRATE, CHANNEL_SESSION_GOAL, CHANNEL_MEMES, CHANNEL_GENERAL, CHANNEL_FORUM } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
+const UserController = require("./UserController");
 
 class PointController{
     static addPoint(UserId,type,minute,channelId){
@@ -74,7 +75,7 @@ class PointController{
                     }
                 }
                 if(key || type === 'cafe' || type === 'boost'){
-                    this.incrementTotalPoints(totalPoint,UserId)
+                    UserController.incrementTotalPoints(totalPoint,UserId)
                 }
             })
     }
@@ -131,23 +132,6 @@ class PointController{
         const diff = end-start
         return Math.floor(Math.random()*diff) + start
     }
-
-    static incrementTotalPoints(increment,UserId){
-        supabase.from("Users")
-            .select('totalPoint')
-            .eq('id',UserId)
-            .single()
-            .then(data=>{
-                supabase.from("Users")
-                    .update({
-                        totalPoint:(data.body?.totalPoint||0) + increment
-                    })
-                    .eq('id',UserId)
-                    .then()
-            })
-    }
-
-
 
     static async validateTimeBoost(senderId,targetUserId){
 		const id = `${senderId}_${targetUserId}`
