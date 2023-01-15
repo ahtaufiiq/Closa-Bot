@@ -21,6 +21,21 @@ class UserController{
 			.select()
 			.gte('endMembership',Time.getTodayDateOnly())
 	}
+
+	static async incrementTotalPoints(increment,UserId){
+        supabase.from("Users")
+            .select('totalPoint')
+            .eq('id',UserId)
+            .single()
+            .then(data=>{
+                supabase.from("Users")
+                    .update({
+                        totalPoint:(data.body?.totalPoint||0) + increment
+                    })
+                    .eq('id',UserId)
+                    .then()
+            })
+    }
 }
 
 module.exports = UserController
