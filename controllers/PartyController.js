@@ -113,7 +113,7 @@ class PartyController{
 
 	static async createPartyRoom(channelParty,members,partyId){
 		const totalMemberParty = members.length
-		const isFullParty = totalMemberParty === 4
+		const isFullParty = totalMemberParty === PartyController.getMaxPartyMember()
 		const msgPartyRoom = await channelParty.send(PartyMessage.partyRoom(
 			partyId,
 			PartyController.formatMembersPartyRoom(members),
@@ -392,7 +392,7 @@ class PartyController{
 		.then(async data=>{
 			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
 			const totalMember = members.length
-			const isFullParty = totalMember === 5
+			const isFullParty = totalMember === PartyController.getMaxPartyMember()
 			msgParty.edit(PartyMessage.partyRoom(
 				partyNumber,
 				PartyController.formatMembersPartyRoom(members),
@@ -493,7 +493,8 @@ class PartyController{
 
 	static formatMembersPartyRoom(members=[]){
 		let result = ''
-		for (let i = 0; i < 5; i++) {
+		const maxMember = PartyController.getMaxPartyMember()
+		for (let i = 0; i < maxMember; i++) {
 			const member = members[i];
 			if (member) {
 				result += `**${MessageFormatting.tagUser(member.UserId)} ${member.isLeader ? "👑":""} — ${member.project}**\n`
@@ -636,12 +637,16 @@ class PartyController{
 			isFull:false,
 			forMember:null
 		}
-		if (totalMember === 4) {
+		if (totalMember === PartyController.getMaxPartyMember()) {
 			result.isFull = true
 			result.forMember = "existing"
 		}
 
 		return result
+	}
+
+	static getMaxPartyMember(){
+		return 5
 	}
 
 	static async dataJoinedParty(userId){
