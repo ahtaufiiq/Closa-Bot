@@ -83,7 +83,7 @@ class GoalController {
 			const totalMember = members.length
 
 
-			if (totalMember === 4) {
+			if (totalMember === PartyController.getMaxPartyMember()) {
 				await interaction.editReply(PartyMessage.replyCannotJoinPartyFullAfterSetGoal(interaction.user.id))
 				return
 			}
