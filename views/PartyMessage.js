@@ -54,7 +54,7 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
         return `⚠️ You've joined the waiting room.`
     }
 
-    static partyRoom(partyNumber,members,totalMember,leaderId,isFull=false){
+    static partyRoom(partyNumber,members,totalMember,isFull=false){
         return {
             embeds:[
                 new MessageEmbed()
@@ -62,7 +62,7 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
                 .setTitle(`PARTY #${partyNumber}`)
                 .setDescription("—————————")
                 .addFields(
-                    { name: 'Members:', value: `${members}\n\`${totalMember}/4 Total members\`` },
+                    { name: 'Members:', value: `${members}\n\`${totalMember}/5 Total members\`` },
                 )
             ],
             components:[

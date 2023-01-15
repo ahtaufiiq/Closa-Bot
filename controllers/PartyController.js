@@ -118,7 +118,6 @@ class PartyController{
 			partyId,
 			PartyController.formatMembersPartyRoom(members),
 			totalMemberParty,
-			members[0].UserId,
 			isFullParty
 		))
 
@@ -235,7 +234,7 @@ class PartyController{
 		
 		for (let i = 0; i < data.body.length; i++) {
 			const party = data.body[i]
-			const members = PartyController.sortMemberByLeader(party.MemberPartyRooms)
+			const members = PartyController.sortMemberByLeader(party?.MemberPartyRooms)
 			
 			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
 			PartyController.saveMessagePartyRoomId(msgPartyRoom.id,party.id)
@@ -393,12 +392,11 @@ class PartyController{
 		.then(async data=>{
 			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
 			const totalMember = members.length
-			const isFullParty = totalMember === 4
+			const isFullParty = totalMember === 5
 			msgParty.edit(PartyMessage.partyRoom(
 				partyNumber,
 				PartyController.formatMembersPartyRoom(members),
 				totalMember,
-				members?.[0]?.UserId,
 				isFullParty
 			))
 		})
@@ -495,7 +493,7 @@ class PartyController{
 
 	static formatMembersPartyRoom(members=[]){
 		let result = ''
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < 5; i++) {
 			const member = members[i];
 			if (member) {
 				result += `**${MessageFormatting.tagUser(member.UserId)} ${member.isLeader ? "👑":""} — ${member.project}**\n`
