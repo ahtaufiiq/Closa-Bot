@@ -277,6 +277,9 @@ module.exports = {
 					await interaction.editReply(VacationMessage.declineBuyVacationTicket())
 					break;
 				case "buyOneVacationTicket":
+					await interaction.editReply(VacationMessage.confirmationBuyOneVacationTicket(interaction.user.id))
+					break;
+				case "confirmBuyOneVacationTicket":
 					await VacationController.interactionBuyOneVacationTicket(interaction)
 					break;
 				case "shopVacation":
