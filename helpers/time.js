@@ -70,7 +70,9 @@ class Time {
 
     static getBeginningOfTheMonth(month=0){
         const todayDate = this.getDate()
-        const beginningMonthDate =  this.getDate(`${todayDate.getFullYear()}-${todayDate.getMonth()+1 + month}-01`)
+        let monthInNumber = todayDate.getMonth()+1 + month
+        if(monthInNumber < 1) monthInNumber += 12
+        const beginningMonthDate =  this.getDate(`${todayDate.getFullYear()}-${monthInNumber}-01`)
         return beginningMonthDate
     }
 
