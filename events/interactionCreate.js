@@ -287,6 +287,7 @@ module.exports = {
 					break;
 				case "cancelBuyTicket":
 					await interaction.editReply(VacationMessage.cancelTransaction())
+					ChannelController.deleteMessage(interaction.message)
 					break;
 				case "continueBuyTicket":
 					await VacationController.interactionShopVacationTicket(interaction)
