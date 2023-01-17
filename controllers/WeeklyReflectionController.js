@@ -51,17 +51,19 @@ class WeeklyReflectionController {
 	}
 
 	static isRangeWeeklyReflection(){
-		return true
 		const date = Time.getDate()
-		const isSunday = date.getDay() === 0
-		const beforeEnded = date.getHours() <= 23 && date.getMinutes() <= 30
+		const isSunday = date.getDay() === 2
+		let beforeEnded = date.getHours() <= 23
+		if(date.getHours() === 23 ){
+			if(date.getMinutes() > 30) beforeEnded = false
+		}
 		return isSunday && beforeEnded
 	}
 
-    static showModalWriteReflection(interaction){
+    static async showModalWriteReflection(interaction){
 		if(interaction.customId.includes('writeReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				await interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
 				return false
 			}
 			const modal = new Modal()
