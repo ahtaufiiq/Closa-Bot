@@ -83,7 +83,7 @@ class WeeklyReflectionController {
     static showModalEditReflection(interaction){
         if(interaction.customId.includes('editReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
 				return false
 			}
 			const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
