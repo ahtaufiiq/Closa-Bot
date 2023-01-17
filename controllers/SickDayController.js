@@ -100,7 +100,7 @@ class SickDayController{
             .then(async progressRecently=>{
                 const avatarUrl = InfoUser.getAvatar(interaction.user)
 
-                const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
+                const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,false,0,true,true)
                 const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
                 channelStreak.send(SickDayMessage.shareStreak(interaction.user.id,attachment,0,totalTicket===1))
             })
@@ -144,7 +144,7 @@ class SickDayController{
                 .then(async progressRecently=>{
                     const avatarUrl = InfoUser.getAvatar(user)
 
-                    const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,sickLeft)
+                    const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,false,sickLeft,false,true)
                     const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
                     channelStreak.send(SickDayMessage.shareStreak(user.id,attachment,sickLeft))
                 })

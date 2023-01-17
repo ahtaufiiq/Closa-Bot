@@ -3,7 +3,7 @@ const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false){
+    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
@@ -11,7 +11,7 @@ class GenerateImage{
         const canvas = createCanvas(1078,1167)
 
         const context = canvas.getContext('2d')
-        const additionalStreak = isVacation ? '_vacation' :longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
+        const additionalStreak = isVacation ? '_vacation' : isSick ? "_sick" :longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
  
         const template = await loadImage(`./assets/images/template${additionalStreak}.png`)
         context.drawImage(template,0,0)
@@ -19,7 +19,7 @@ class GenerateImage{
         context.font = "600 56px Inter";
         context.fillText(name, 75 , 102 + 50);
         context.font = "600 48px Inter";
-        const maxCharGoal = isVacation ?(vacationLeft === 0 ? 25 : 23) : 37
+        const maxCharGoal = (isVacation || isSick) ?(vacationLeft === 0 ? 25 : 23) : 37
         context.fillText(FormatString.truncateString(goalName,maxCharGoal), 75 , 363 + 34);
 
 
@@ -36,7 +36,7 @@ class GenerateImage{
         context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
         
 
-        if(isVacation){
+        if(isVacation || isSick){
             context.fillStyle = "#888888"; 
             context.font = "500 40px Inter";
             context.textAlign = 'end'
@@ -84,7 +84,6 @@ class GenerateImage{
             startDate.setDate(startDate.getDate()+1)
             counter ++
             column++
-
            
         }
         
