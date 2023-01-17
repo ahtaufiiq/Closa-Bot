@@ -60,10 +60,11 @@ class WeeklyReflectionController {
 		return isSunday && beforeEnded
 	}
 
-    static async showModalWriteReflection(interaction){
+    static showModalWriteReflection(interaction){
+		console.log('masuk');
 		if(interaction.customId.includes('writeReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				await interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
+				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
 				return false
 			}
 			const modal = new Modal()
