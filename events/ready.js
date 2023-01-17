@@ -13,6 +13,7 @@ const GoalController = require('../controllers/GoalController');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const VacationController = require('../controllers/VacationController');
 const WeeklyReflectionController = require('../controllers/WeeklyReflectionController');
+const SickDayController = require('../controllers/SickDayController');
 
 
 module.exports = {
@@ -27,6 +28,9 @@ module.exports = {
 		// if(CLIENT_ID === "948546574550695936") return
 		VacationController.activateVacationTicket(client)
 		VacationController.notifyVacationEnded(client)
+
+		SickDayController.activateSickTicket(client)
+		SickDayController.notifySickEnded(client)
 
 		TimelineController.updateTimeline(client)
 		TimelineController.sendNotifBeforeCelebration(client)

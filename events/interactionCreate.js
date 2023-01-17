@@ -21,6 +21,7 @@ const VacationController = require("../controllers/VacationController");
 const TestimonialController = require("../controllers/TestimonialController");
 const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
+const SickDayController = require("../controllers/SickDayController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -359,6 +360,15 @@ module.exports = {
 				case "cancelExtend":
 					await interaction.editReply(RecurringMeetupMessage.cancelExtendTime())
 					ChannelController.deleteMessage(interaction.message)
+					break;
+				case "shopSickTicket":
+					SickDayController.interactionShopSickTicket(interaction)
+					break;
+				case "totalSickDay":
+					SickDayController.interactionOptionSickTicket(interaction,value)
+					break;
+				case "buySickTicket":
+					SickDayController.interactionBuySickTicket(interaction,value)
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
