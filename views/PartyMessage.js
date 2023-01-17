@@ -84,7 +84,7 @@ Click :bell: **interested** to get notified when the event started.`,
     }
 
     static remind30MinutesBeforeKickoff(eventId){
-        return `Hi @here!
+        return `Hi @everyone!
 30 minutes before our kick-off day 🚀
 
 Prepare yourself :success:
@@ -239,7 +239,7 @@ Go your party room instead → ${MessageFormatting.linkToMessage(CHANNEL_PARTY_R
     }
     static userLeaveParty(userId){
         return {
-            content:"@here",
+            content:"@everyone",
             embeds:[MessageComponent.embedMessage({description:`${MessageFormatting.tagUser(userId)} just left party`})]
         }
     }
@@ -259,7 +259,7 @@ Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
     }
 
     static welcomingPartyRoom(partyId){
-       return `**Welcome to Party #${partyId}**! @here
+       return `**Welcome to Party #${partyId}**! @everyone
 **Let's introduce yourself and connect with each other :raised_hands:**
 
 **What you can do inside this party?**
@@ -342,23 +342,23 @@ Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
     }
 
     static remindPartyWillEnded2Days(){
-        return ":bell: **Reminder**: The party will be ended in 2 days. @here"
+        return ":bell: **Reminder**: The party will be ended in 2 days. @everyone"
     }
 
     static remindPartyWillEndedToday(){
-        return ":bell: **Reminder**: The party will be ended today at 22.00 WIB @here"
+        return ":bell: **Reminder**: The party will be ended today at 22.00 WIB @everyone"
     }
 
     static remindPartyWillEnded30Minutes(){
-        return ":bell: **Reminder**: The party will be ended in 30 minutes @here"
+        return ":bell: **Reminder**: The party will be ended in 30 minutes @everyone"
     }
 
     static remindPartyWillEnded5Minutes(){
-        return ":bell: **Reminder**: The party will be ended in 5 minutes, Let's have the last minutes chat @here 💬"
+        return ":bell: **Reminder**: The party will be ended in 5 minutes, Let's have the last minutes chat @everyone 💬"
     }
 
     static remindPartyWillEndedNow(){
-        return "See you on next journey 👊 @here"
+        return "See you on next journey 👊 @everyone"
     }
 
     static partyReminder(inactiveUserId,activeUserId){

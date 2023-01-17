@@ -16,7 +16,7 @@ notes:
 • Then the room will automatically deleted by bot*. 
 • if majority people answer no then the meetup will be rescheduled.
 
-**Confirm** @here`,
+**Confirm** @everyone`,
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Accept'),
@@ -45,7 +45,7 @@ Also you can reschedule manually using the button below:`,
         return {
             content:`**Reminder** 🔔
 
-Hi @here it's 2 days before the next virtual meetup begin.
+Hi @everyone it's 2 days before the next virtual meetup begin.
 
 **on ${meetupTime} WIB**
 p.s: minimal 2 people accepted the invitation to host virtual meetup.
@@ -62,7 +62,7 @@ p.s: minimal 2 people accepted the invitation to host virtual meetup.
     }
 
     static reminderOneDayBeforeMeetup(meetupTime){
-        return `🔔 **A friendly reminder** @here! 
+        return `🔔 **A friendly reminder** @everyone! 
 \`\`Tomorrow ${meetupTime} WIB\`\` is our virtual meetup session. 
 
 see you soon everyone!`
@@ -70,11 +70,11 @@ see you soon everyone!`
 
     static reminderOneHourBeforeMeetup(){
         return `Today is the day! 
-\`\`1h\`\` before the virtual meetup begin @here`
+\`\`1h\`\` before the virtual meetup begin @everyone`
     }
 
     static reminderTenMinBeforeMeetup(){
-        return `\`\`10 min\`\` before the party meetup session begin! @here 
+        return `\`\`10 min\`\` before the party meetup session begin! @everyone 
 prepare your seat & chill ✨`
     }
 
@@ -99,7 +99,7 @@ prepare your seat & chill ✨`
     }
 
     static countdownMeetup(min,channelId){
-        return `\`\`The virtual meetup ${min===0 ? "ended" : "just started"}!\`\` @here
+        return `\`\`The virtual meetup ${min===0 ? "ended" : "just started"}!\`\` @everyone
 
 \`\`⏳\`\`the room will be ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
@@ -113,7 +113,7 @@ Join here → ${MessageFormatting.tagChannel(channelId)}`
             content:`\`\`⏳\`\` room ended in → **${min} min** ${min===0 ? "(ended)":'🔴 **LIVE**'}
 \`\`📜\`\` _turn on video to have a proper conversation._
 
-Have a good time! @here
+Have a good time! @everyone
 
 \`\`here's the guideline\`\``,
             components:[MessageComponent.createComponent(
@@ -123,7 +123,7 @@ Have a good time! @here
     }
 
     static remindUserJoinMeetupSession(channelId){
-        return `Hi @here the virtual meetup room is ready.
+        return `Hi @everyone the virtual meetup room is ready.
 
 Waiting for 2 people to start the virtual meetup session.
 
@@ -133,7 +133,7 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
     static reminderFiveMinutesBeforeEnded(voiceChannelId){
         return {
             content:`**Reminder**:bell: 
-**5 minutes before the session end** @here`,
+**5 minutes before the session end** @everyone`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`extendTemporaryVoice_null_${voiceChannelId}`,"Extend time").setEmoji("⏲")
             )]
@@ -167,7 +167,7 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
 
     static reminderTwoMinutesBeforeEnded(){
         return `**Reminder**:bell: 
-\`2 minutes\` before the session end @here
+\`2 minutes\` before the session end @everyone
 
 **Let's end it with a group photo :camera_with_flash: ** 
 
@@ -175,7 +175,7 @@ Feel free to share your moment anywhere and tag \`\`@beclosa\`\` :smile:`
     }
 
     static reminderFifteenSecondsBeforeEnded(){
-        return `**15s** before the voice room ended @here
+        return `**15s** before the voice room ended @everyone
 
 That's a wrap! 🙌 
 Thank you everyone~`
