@@ -51,6 +51,7 @@ class WeeklyReflectionController {
 	}
 
 	static isRangeWeeklyReflection(){
+		return true
 		const date = Time.getDate()
 		const isSunday = date.getDay() === 0
 		const beforeEnded = date.getHours() <= 23 && date.getMinutes() <= 30
