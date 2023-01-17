@@ -53,7 +53,7 @@ class SickDayController{
             goalName = thread.name.split('by')[0]
         }
         const startDate = Time.getTodayDateOnly()
-        const endDate = Time.getDateOnly(Time.getNextDate(totalTicket,startDate))
+        const endDate = Time.getDateOnly(Time.getNextDate(totalTicket-1,startDate))
         const totalPriceTicket = SickDayController.calculatePriceSickTicket(totalTicket)
         const dataSickTicket = await SickDayController.checkSickTicket(interaction.user.id,startDate,endDate)
 
@@ -108,7 +108,7 @@ class SickDayController{
             UserController.updateOnVacation(true,interaction.user.id)
             SickDayController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             const startDateFormatted = Time.getFormattedDate(Time.getDate(startDate))
-            const endDateFormatted = Time.getFormattedDate(Time.getDate(endDate))
+            const endDateFormatted = Time.getFormattedDate(Time.getNextDate(totalTicket,startDate))
             await interaction.editReply(SickDayMessage.successBuySickDayTicket(interaction.user.id,pointLeft,startDateFormatted,endDateFormatted))
         }
     }
