@@ -42,7 +42,7 @@ class WeeklyReflectionController {
 
 	static async updateAnnouncementReflection(client){
 		const date = Time.getDate()
-		if(!Time.isCooldownPeriod && date.getDay() === 0 && date.getHours() >= 19){
+		if(!Time.isCooldownPeriod && date.getDay() === 2 && date.getHours() >= 19){
 			const {msgIdWeeklyReflection} = LocalData.getData()
 			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
 			const msg = await ChannelController.getMessage(channelAnnouncement,msgIdWeeklyReflection)
@@ -61,7 +61,6 @@ class WeeklyReflectionController {
 	}
 
     static showModalWriteReflection(interaction){
-		console.log('masuk');
 		if(interaction.customId.includes('writeReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
 				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
