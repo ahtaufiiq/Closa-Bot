@@ -16,6 +16,12 @@ class UserController{
 		.then()
 	}
 
+	static async updatePoint(pointLeft,userId){
+        return await supabase.from("Users")
+            .update({totalPoint:pointLeft})
+            .eq('id',userId)
+    }
+
 	static async getActiveMembers(){
 		return await supabase.from("Users")
 			.select()

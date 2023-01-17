@@ -68,7 +68,7 @@ But don't worry—you are not losing your #🔥streak :v:
 • Or buy a vacation ticket if you want to take a break today.`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('buyOneVacationTicket','Buy 1 vacation ticket',`🏖`),
-                MessageComponent.addButton('declineBuyVacationTicket',"I'll make progress today","SECONDARY"),
+                MessageComponent.addButton('shopSickTicket',"🤢 Set as a sick day","SECONDARY"),
                 MessageComponent.addLinkButton("Learn more ↗","https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"),
             )]
         }
@@ -83,7 +83,7 @@ But don't worry—you are not losing your #🔥streak :v:
 • or you can buy a vacation ticket for today.`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('buyOneVacationTicket','Buy 1 vacation ticket',`🏖`),
-                MessageComponent.addButton('declineBuyVacationTicket',"I'll make progress today","SECONDARY"),
+                MessageComponent.addButton('shopSickTicket',"🤢 Set as a sick day","SECONDARY"),
                 MessageComponent.addLinkButton("Learn more ↗","https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"),
             )]
         }

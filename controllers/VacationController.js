@@ -90,7 +90,7 @@ class VacationController{
                 await DailyStreakController.addSafetyDot(interaction.user.id,missedDate)
             }
             const pointLeft = totalPoint - 500
-            VacationController.updatePoint(pointLeft,interaction.user.id)
+            UserController.updatePoint(pointLeft,interaction.user.id)
             const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
 
             UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
@@ -164,7 +164,7 @@ class VacationController{
                     .then()
 
                 const pointLeft = totalPoint - 500
-                VacationController.updatePoint(pointLeft,interaction.user.id)
+                UserController.updatePoint(pointLeft,interaction.user.id)
                 if(startDate === Time.getTodayDateOnly()){
                     const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
                     if (Time.onlyMissOneDay(lastDone)) {
@@ -313,12 +313,6 @@ class VacationController{
 		})
     }
 
-    static async updatePoint(pointLeft,userId){
-        return await supabase.from("Users")
-            .update({totalPoint:pointLeft})
-            .eq('id',userId)
-    }
-
     static getVacationLeft(endVacationDate){
         const todayDate = Time.getDate(Time.getTodayDateOnly())
         const endDate = Time.getDate(endVacationDate)
@@ -366,24 +360,12 @@ class VacationController{
         msg.edit(VacationMessage.initShopVacation(totalTicket))
     }
 
-    static async getActiveVacationTicket(userId,dateOnly){
-       return await supabase.from("VacationTickets")
-            .select()
-            .gte('endDate',dateOnly)
-            .lte('startDate',dateOnly)
-            .eq("UserId",userId)
-            .limit(1)
-            .single()
-    }
-
     static async getAllActiveVacationTicket(dateOnly){
        return await supabase.from("VacationTickets")
             .select('*,Users(id,name,goalId,longestStreak,totalDay,totalPoint,lastDone)')
             .gte('endDate',dateOnly)
             .lte('startDate',dateOnly)
     }
-
-
 
     static async isHaveEnoughPoint(userId,totalPrice){
         const totalPointUser = await VacationController.getTotalPoint(userId)

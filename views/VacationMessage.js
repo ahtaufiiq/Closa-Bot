@@ -124,6 +124,16 @@ To get vibe points you can contribute to community by doing certain activities.`
         }
     }
 
+    static confirmationBuyOneVacationTicket(userId){
+        return {
+            content:`Hi ${MessageFormatting.tagUser(userId)}, are you sure to buy 1 vacation ticket for 500 points?`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`confirmBuyOneVacationTicket_${userId}`,"Yes"),
+                MessageComponent.addButton('cancelBuyTicket',"Nevermind","SECONDARY")
+            )]
+        }
+    }
+
     static confirmationWhenToUseTicket(userId,totalTicket){
         return {
             content:"**Please confirm when do you want to use the ticket?**",
