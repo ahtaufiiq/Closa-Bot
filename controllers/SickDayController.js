@@ -99,10 +99,10 @@ class SickDayController{
             RequestAxios.get('todos/tracker/'+interaction.user.id)
             .then(async progressRecently=>{
                 const avatarUrl = InfoUser.getAvatar(interaction.user)
-
+                const sickTicketLeft = totalTicket - 1
                 const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,false,0,true,true)
                 const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
-                channelStreak.send(SickDayMessage.shareStreak(interaction.user.id,attachment,0,totalTicket===1))
+                channelStreak.send(SickDayMessage.shareStreak(interaction.user.id,attachment,sickTicketLeft,totalTicket===1))
             })
 
             UserController.updateOnVacation(true,interaction.user.id)
