@@ -411,7 +411,7 @@ class RecurringMeetupController {
 		const time =  new Date()
 		return await supabase.from("Reminders")
 			.delete()
-			.eq('type','weeklyMeetup')
+			.like('type', '%Meetup')
 			.eq('message',partyId)
 			.gte('time',time.toUTCString())
 	}
