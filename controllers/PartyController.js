@@ -252,8 +252,9 @@ class PartyController{
 				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
 			}
 			
+			let tagPartyMembers = PartyController.formatTagPartyMembers(members)
 			setTimeout(async () => {
-				await thread.send(PartyMessage.welcomingPartyRoom(party.id))
+				await thread.send(PartyMessage.welcomingPartyRoom(party.id,tagPartyMembers))
 				thread.send('————————')
 			}, 1000 * 60 * 5);
 
@@ -268,7 +269,7 @@ class PartyController{
 					})
 				PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
 
-				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id))
+				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id,tagPartyMembers))
 				
 				supabase.from("PartyRooms")
 					.update({meetupMessageId:msgPartyRoom.id})
@@ -832,6 +833,10 @@ class PartyController{
 		.single()
 	}
 
+	static formatTagPartyMembers(members){
+		if(!members || members?.length === 0) return '@everyone'
+		else return members.map(member=>MessageFormatting.tagUser(member.UserId))
+	}
 }
 
 module.exports = PartyController

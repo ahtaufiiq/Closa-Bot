@@ -2,7 +2,7 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class RecurringMeetupMessage {
-    static askToScheduleRecurringMeetup(formattedDate,meetupDate,partyId){
+    static askToScheduleRecurringMeetup(formattedDate,meetupDate,partyId,tagPartyMembers){
         return {
             content:`**Attend your first virtual party meetup!:wave: **
 Your first meetup will be held next week on **${formattedDate} at 21.00 WIB :calendar_spiral: **
@@ -16,7 +16,7 @@ notes:
 • Then the room will automatically deleted by bot*. 
 • if majority people answer no then the meetup will be rescheduled.
 
-**Confirm** @everyone`,
+**Confirm** ${tagPartyMembers}`,
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Accept'),
@@ -41,11 +41,11 @@ Also you can reschedule manually using the button below:`,
         }
     }
 
-    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime,linkCalendar){
+    static confirmationTwoDaysBeforeMeetup(partyId,weeklyMeetupId,meetupTime,linkCalendar,tagPartyMembers){
         return {
             content:`**Reminder** 🔔
 
-Hi @everyone it's 2 days before the next virtual meetup begin.
+Hi ${tagPartyMembers} it's 2 days before the next virtual meetup begin.
 
 **on ${meetupTime} WIB**
 p.s: minimal 2 people accepted the invitation to host virtual meetup.
@@ -61,20 +61,20 @@ p.s: minimal 2 people accepted the invitation to host virtual meetup.
         }
     }
 
-    static reminderOneDayBeforeMeetup(meetupTime){
-        return `🔔 **A friendly reminder** @everyone! 
+    static reminderOneDayBeforeMeetup(meetupTime,tagPartyMembers){
+        return `🔔 **A friendly reminder** ${tagPartyMembers}! 
 \`\`Tomorrow ${meetupTime} WIB\`\` is our virtual meetup session. 
 
 see you soon everyone!`
     }
 
-    static reminderOneHourBeforeMeetup(){
+    static reminderOneHourBeforeMeetup(tagPartyMembers){
         return `Today is the day! 
-\`\`1h\`\` before the virtual meetup begin @everyone`
+\`\`1h\`\` before the virtual meetup begin ${tagPartyMembers}`
     }
 
-    static reminderTenMinBeforeMeetup(){
-        return `\`\`10 min\`\` before the party meetup session begin! @everyone 
+    static reminderTenMinBeforeMeetup(tagPartyMembers){
+        return `\`\`10 min\`\` before the party meetup session begin! ${tagPartyMembers}
 prepare your seat & chill ✨`
     }
 
@@ -122,8 +122,8 @@ Have a good time! @everyone
         }
     }
 
-    static remindUserJoinMeetupSession(channelId){
-        return `Hi @everyone the virtual meetup room is ready.
+    static remindUserJoinMeetupSession(channelId,tagPartyMembers){
+        return `Hi ${tagPartyMembers} the virtual meetup room is ready.
 
 Waiting for 2 people to start the virtual meetup session.
 

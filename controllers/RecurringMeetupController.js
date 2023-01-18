@@ -105,9 +105,9 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = PartyController.tagPartyMembers()
+				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				const linkAddToCalendar = RecurringMeetupController.linkCalendarWeeklySync(partyId,meetupDate)
-				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar))
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar,tagPartyMembers))
 			}
 		})
 	}
@@ -178,10 +178,11 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				const meetupDate = Time.getDate(time)
 				meetupDate.setDate(meetupDate.getDate()+1)
 				const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
-				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup(meetupTime))
+				threadParty.send(RecurringMeetupMessage.reminderOneDayBeforeMeetup(meetupTime,tagPartyMembers))
 			}
 		})
 	}
@@ -226,7 +227,8 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup())
+				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup(tagPartyMembers))
 			}
 		})
 	}
@@ -251,7 +253,8 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup())
+				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup(tagPartyMembers))
 			}
 		})
 	}
@@ -325,7 +328,8 @@ class RecurringMeetupController {
 					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId,partyId)
 				}
 				const voiceChannelId = dataParty.body.voiceChannelId
-				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
+				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 			}
 		})
 	}

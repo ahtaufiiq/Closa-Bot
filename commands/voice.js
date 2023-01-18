@@ -10,6 +10,7 @@ const ChannelController = require('../controllers/ChannelController');
 const LocalData = require('../helpers/LocalData');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
+const PartyController = require('../controllers/PartyController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('voice')
@@ -50,9 +51,9 @@ module.exports = {
 							.update({voiceChannelId})
 							.eq('id',partyId)
 							.then()
-						
+						const tagPartyMembers = PartyController.formatTagPartyMembers(data.body[i].MemberPartyRooms)
 						const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
-						threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
+						threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 					}
 				})
 			await interaction.reply(`All voice channels have been created`)			
@@ -81,9 +82,9 @@ module.exports = {
 						.update({voiceChannelId})
 						.eq('id',partyId)
 						.then()
-					
+					const tagPartyMembers = PartyController.formatTagPartyMembers(data.body.MemberPartyRooms)
 					const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
-					threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId))
+					threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 				})
 			await interaction.reply(`Voice channels Party ${partyId} have been created`)	
 		}
