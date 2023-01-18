@@ -9,6 +9,7 @@ const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateLink = require("../helpers/GenerateLink");
+const PartyController = require("./PartyController");
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
@@ -104,6 +105,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+				const tagPartyMembers = PartyController.tagPartyMembers()
 				const linkAddToCalendar = RecurringMeetupController.linkCalendarWeeklySync(partyId,meetupDate)
 				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar))
 			}
@@ -396,7 +398,7 @@ class RecurringMeetupController {
 
 	static async getDataParty(partyId){
 		return await supabase.from("PartyRooms")
-			.select()
+			.select(`*,MemberPartyRooms(UserId)`)
 			.eq('id',partyId)
 			.single()
 	}

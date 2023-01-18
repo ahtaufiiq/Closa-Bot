@@ -792,30 +792,27 @@ class PartyController{
 
 	static async notifyMemberPartyShareProgress(client,msg){
 		const userId = msg.author.id
-        const dataUser = await PartyController.getPartyUser(userId)
+        const dataUser = await PartyController.getDataMember(userId)
 		
         if(!dataUser.body) return 
         
         const msgId = dataUser.body.PartyRooms.msgId
+        const project = dataUser.body.project
         
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
-		threadParty.send(`${MessageFormatting.tagUser(userId)} **just posted a progress**
-————
-${FormatString.truncateString(msg.content.split('\n')[0],100)}
-↳ **see post:** ${MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id)}`)
+		threadParty.send(PartyMessage.notifyMemberShareProgress(userId,msg,project))
     }
 
 	static async notifyMemberPartyShareReflection(client,userId,msgIdReflection){
-        const dataUser = await PartyController.getPartyUser(userId)
+        const dataUser = await PartyController.getDataMember(userId)
         if(!dataUser.body) return 
         
         const msgId = dataUser.body.PartyRooms.msgId
+        const project = dataUser.body.project
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
-		threadParty.send(`${MessageFormatting.tagUser(userId)} **just posted a reflection 📝**
-
-**see post** → ${MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection)}`)
+		threadParty.send(PartyMessage.notifyMemberShareReflection(userId,msgIdReflection,project))
     }
 
 	static async getPartyUser(userId){
@@ -825,6 +822,16 @@ ${FormatString.truncateString(msg.content.split('\n')[0],100)}
             .gte("endPartyDate",Time.getTodayDateOnly())
             .single()
 	}
+
+	static async getDataMember(userId){
+		return await supabase.from("MemberPartyRooms")
+		.select("project,PartyRooms(msgId)")
+		.gte("endPartyDate",Time.getTodayDateOnly())
+		.eq('UserId',userId)
+		.not('project','is',null)
+		.single()
+	}
+
 }
 
 module.exports = PartyController

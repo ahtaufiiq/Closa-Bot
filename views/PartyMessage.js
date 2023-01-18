@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_REFLECTION } = require("../helpers/config")
+const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -258,8 +259,8 @@ please join another party.`
 Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
     }
 
-    static welcomingPartyRoom(partyId){
-       return `**Welcome to Party #${partyId}**! @everyone
+    static welcomingPartyRoom(partyId,tagPartyMembers){
+       return `**Welcome to Party #${partyId}**! ${tagPartyMembers}
 **Let's introduce yourself and connect with each other :raised_hands:**
 
 **What you can do inside this party?**
@@ -367,6 +368,33 @@ bacause you haven't update your #✅progress in the past two days.
 
 ${MessageFormatting.tagUser(activeUserId)} please check how your partner doing.
 let's support each other to make progress 🙌`
+    }
+
+    static notifyMemberShareProgress(userId,msg,project){
+        return {
+			content:`${MessageFormatting.tagUser(userId)} **just posted a progress**`,
+			embeds:[
+				new MessageEmbed()
+					.setColor('#ffffff')
+					.setTitle("See full post →")
+					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
+					.setDescription(FormatString.truncateString(msg.content.split('\n')[0],100))
+					.setFooter({text:project})
+			]
+		}
+    }
+
+    static notifyMemberShareReflection(userId,msgIdReflection,project){
+        return {
+			content:`${MessageFormatting.tagUser(userId)} **just posted a reflection 📝**`,
+			embeds:[
+				new MessageEmbed()
+					.setColor('#ffffff')
+					.setTitle("See reflection →")
+					.setURL(MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection))
+					.setFooter({text:project})
+			]
+		}
     }
 }
 
