@@ -608,10 +608,6 @@ class PartyController{
 		return kickoffDate
 	}
 
-	static getTimeShareProgress(shareProgressAt){
-		return shareProgressAt.split(" ")[0]
-	}
-
 	static async getUsersJoinedParty(){
 		const data = await supabase.from("JoinParties")
 			.select()

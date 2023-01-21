@@ -46,15 +46,11 @@ class GoalController {
         return false
     }
 
-    static async interactionPostGoal(interaction,value){
-		const project = interaction.message.embeds[0].title
-		const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
-		const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
-		const [accountabilityMode,role,goalCategory] = value.split('-')
+    static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,accountabilityMode,role,goalCategory}){
 
 		PartyController.setProgressReminder(interaction,shareProgressAt)
 		
-		if(PartyController.isPartyMode(value)){
+		if(accountabilityMode === 'party'){
 			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
 			const kickoffEventId = LocalData.getData().kickoffEventId
 			const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
@@ -98,11 +94,11 @@ class GoalController {
 			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
 			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
 			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
-			interaction.message.delete()
+			ChannelController.deleteMessage(interaction.message)
 			PartyController.followGoalAccountabilityPartner(interaction.client,partyId,interaction.user.id,msgGoalId)
 		}else{
 			await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
-			interaction.message.delete()
+			ChannelController.deleteMessage(interaction.message)
 			
 			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
 		}
@@ -122,7 +118,7 @@ class GoalController {
 			role,
 			user:user,
 			deadlineGoal,
-			value:accountabilityMode
+			value:`${accountabilityMode}-${role}`
 		}))
 
 		const updatedData = await supabase.from("Goals")
@@ -166,7 +162,10 @@ class GoalController {
         if(interaction.customId.includes('editGoal')){
 			const project = interaction.message.embeds[0].title
 			const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
-			const shareProgressAt = PartyController.getTimeShareProgress(descriptionShareProgress)
+			const [commandButton,userId] = interaction.customId.split('_')
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else goal.`})
+
+			const shareProgressAt = Time.getTimeFromText(descriptionShareProgress)
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
@@ -182,9 +181,10 @@ class GoalController {
         return false
     }
 
-	static async saveDataUnsubmittedGoal({id,role,goalCategory,project,goal,about,shareProgressAt,isPartyMode,UserId}){
+	static async updateDataGoal({id,project,goal,about,shareProgressAt}){
 		return await supabase.from('Goals')
-			.insert({id,role,goalCategory,project,goal,about,shareProgressAt,isPartyMode,UserId})
+			.update({project,goal,about,shareProgressAt})
+			.eq('id',id)
 	}
 
 	static async generateAllUserGoalFromWaitingRoom(client){
@@ -230,9 +230,9 @@ class GoalController {
 				about,
 				shareProgressAt,
 				role,
+				deadlineGoal,
 				user:user,
-				deadlineGoal:deadlineGoal,
-				value:'party'
+				value:`party-${role}`
 			}))
 		})
 	}
@@ -242,7 +242,9 @@ class GoalController {
 		const user = await MemberController.getMember(client,data.UserId)
 		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
 		const {role,project,goal,about,shareProgressAt,deadlineGoal,isPartyMode} = data
-		existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,role,deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},user:user,value:isPartyMode ? 'party':'solo'}))
+		const value = `${isPartyMode ? 'party':'solo'}-${role}`
+
+		existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,role,deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},user:user,value}))
 	}
 
 	static async updateAllActiveGoal(client){
