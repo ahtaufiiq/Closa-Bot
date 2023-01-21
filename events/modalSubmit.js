@@ -110,6 +110,7 @@ module.exports = {
 			const about = modal.getTextInputValue('about');
 			const shareProgressAt = Time.getTimeFromText(modal.getTextInputValue('shareProgressAt'))
 			await modal.deferReply({ephemeral:true})
+			
 			await modal.message.edit(GoalMessage.postGoal({
 				project,goal,about,shareProgressAt,role,user:modal.user,deadlineGoal,value
 			}))
@@ -117,7 +118,9 @@ module.exports = {
 				id:modal.message.id,
 				project,goal,about,shareProgressAt
 			})
-			await modal.editReply(`${modal.user} edited the goal`)
+			await modal.editReply(`${modal.user} goal has been updated`)
+			const thread = await ChannelController.getThread(modal.message.channel,modal.message.id)
+			thread.send(`${modal.user} edited the goal`)
 		}else if(commandButton === "useTicketCustomDate"){
 			await modal.deferReply({ephemeral:true})
 			
