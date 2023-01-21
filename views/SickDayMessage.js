@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")

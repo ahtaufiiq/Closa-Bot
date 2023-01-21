@@ -45,10 +45,6 @@ module.exports = {
 
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
-			case CHANNEL_GOALS:
-				const threadGoal = await GoalController.createThreadGoal()
-				GoalController.updateGoalId(threadGoal.id,msg.author.id)
-				break;
 			case CHANNEL_SESSION_GOAL:
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 

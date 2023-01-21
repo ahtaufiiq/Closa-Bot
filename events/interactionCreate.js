@@ -238,9 +238,6 @@ module.exports = {
 						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
 					}
 					break;
-				case "postGoal":
-					GoalController.interactionPostGoal(interaction,value)
-					break;
 				case "roleDeveloper":
 					GoalController.interactionPickRole(interaction,'Developer',value)
 					break;

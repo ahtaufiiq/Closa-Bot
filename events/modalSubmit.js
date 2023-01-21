@@ -90,7 +90,6 @@ module.exports = {
 			}
 			
 		}else if(commandButton === "writeGoal"){
-			const deadlineGoal = GoalController.getDeadlineGoal()
 			const [accountabilityMode,role,goalCategory] = value.split('-')
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
@@ -98,28 +97,10 @@ module.exports = {
 			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
 
 			await modal.deferReply()
-			await modal.editReply(GoalMessage.reviewYourGoal({
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				role,
-				value,
-				user:modal.user,
-				deadlineGoal:deadlineGoal,
-			}))
-			GoalController.saveDataUnsubmittedGoal({
-				role,
-				goalCategory,
-				about,
-				shareProgressAt,
-				goal,
-				project,
-				isPartyMode:accountabilityMode === 'solo' ? false : true,
-				UserId:modal.user.id,
-				id:modal.message.id
+
+			await GoalController.interactionPostGoal(modal,{
+				goal,about,project,shareProgressAt,accountabilityMode,role,goalCategory
 			})
-			.then()
 			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "editGoal"){
 			const deadlineGoal = GoalController.getDeadlineGoal()
@@ -127,19 +108,19 @@ module.exports = {
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
-			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
-			await modal.deferReply()
-			await modal.editReply(GoalMessage.reviewYourGoal({
-				project,
-				goal,
-				about,
-				shareProgressAt,
-				role,
-				value,
-				user:modal.user,
-				deadlineGoal:deadlineGoal,
+			const shareProgressAt = Time.getTimeFromText(modal.getTextInputValue('shareProgressAt'))
+			await modal.deferReply({ephemeral:true})
+			
+			await modal.message.edit(GoalMessage.postGoal({
+				project,goal,about,shareProgressAt,role,user:modal.user,deadlineGoal,value
 			}))
-			ChannelController.deleteMessage(modal.message)
+			GoalController.updateDataGoal({
+				id:modal.message.id,
+				project,goal,about,shareProgressAt
+			})
+			await modal.editReply(`${modal.user} goal has been updated`)
+			const thread = await ChannelController.getThread(modal.message.channel,modal.message.id)
+			thread.send(`${modal.user} edited the goal`)
 		}else if(commandButton === "useTicketCustomDate"){
 			await modal.deferReply({ephemeral:true})
 			
