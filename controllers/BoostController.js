@@ -42,6 +42,7 @@ class BoostController{
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
 					.eq('onVacation',false)
+					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-2)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
