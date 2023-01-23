@@ -142,10 +142,10 @@ class Time {
     }
     static getFormattedDate(date,showDay=false,dateStyle='medium',showTime=false){
         let formattedDate = date.toLocaleDateString("en-US", { dateStyle}) //Apr 26, 2022
-
+        let day = date.toLocaleDateString("en-US", { weekday: 'long'})
         if (showDay ) {
             const [month,dateOfMonth,year] = formattedDate.split(/[, ]+/)
-            formattedDate = `${Time.getDay(date)}, ${dateOfMonth} ${month} ${year}` //Tuesday, 29 Oct, 2022
+            formattedDate = `${day}, ${dateOfMonth} ${month} ${year}` //Tuesday, 29 Oct, 2022
         }
 
         if(showTime){
