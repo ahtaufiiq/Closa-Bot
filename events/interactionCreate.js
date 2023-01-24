@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { CHANNEL_PARTY_MODE, ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION } = require("../helpers/config");
+const { CHANNEL_PARTY_MODE, ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -22,6 +22,7 @@ const TestimonialController = require("../controllers/TestimonialController");
 const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
 const SickDayController = require("../controllers/SickDayController");
+const TestimonialMessage = require("../views/TestimonialMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -366,6 +367,15 @@ module.exports = {
 					break;
 				case "buySickTicket":
 					SickDayController.interactionBuySickTicket(interaction,value)
+					break;
+				case "postTestimonial":
+					const testimonialLink = interaction.message.content.split('\n')[1]
+					const testimonialUser = interaction.message.mentions.users.first()
+					interaction.message.edit(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
+					const channelTestimonial = ChannelController.getChannel(interaction.client,CHANNEL_TESTIMONIAL)
+					const msgTestimonial = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
+					ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+					await interaction.editReply("Testimonial has been posted")
 					break;
 				default:
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

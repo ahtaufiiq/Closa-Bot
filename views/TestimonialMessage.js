@@ -12,7 +12,7 @@ Help us spread the word about closa :pleading_face:
 
 **__How to participate?__**
 1. Write us your testimonial (on twitter, instagram, or linkedin)
-2. Don't forget to tag us @beclosa
+2. Don't forget to tag us @beclosa (make sure your profile is public)
 3. Submit your testimonial's link here
 
 __**The reward for helping us spreading the word :gift:**__
@@ -32,9 +32,18 @@ Your submission is under our review, we'll get back to you soon.
 Thank you for participating!`
     }
 
-    static newTestimonialUser(userId,testimonialLink){
-        return `New testimonial from ${MessageFormatting.tagUser(userId)}
-${testimonialLink}`
+    static newTestimonialUser(userId,testimonialLink,isShowButton=false){
+        const components = []
+        if(isShowButton) {
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton('postTestimonial','Post')
+            ))
+        }
+        return {
+            content:`🤩 new testimonial from ${MessageFormatting.tagUser(userId)}
+${testimonialLink}`,
+            components
+        }
     }
 }
 
