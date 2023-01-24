@@ -254,7 +254,7 @@ so, you can learn or sharing from each others.`)
 					if(endLongestStreak === Time.getTodayDateOnly()){
 						if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
 							DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
-							ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author.id,threadProgress,currentStreak)
+							ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author,currentStreak)
 						}
 					}
 					

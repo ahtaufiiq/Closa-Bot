@@ -123,7 +123,8 @@ class ReferralCodeController{
         })
     }
 
-    static async giftMilestoneDailyStreak(client,userId,threadProgress,totalStreak=7){
+    static async giftMilestoneDailyStreak(client,user,threadProgress,totalStreak=7){
+        const userId = user.id
         const totalNewReferral = 1
 
         const codes = referralCodes.generate({
@@ -131,12 +132,12 @@ class ReferralCodeController{
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
-
+        const expiredDate = Time.getNextDate(14)
         const values = codes.map(code=>{
             return {
                 UserId:userId,
                 referralCode:code,
-                expired:Time.getDateOnly(Time.getNextDate(18)),
+                expired:Time.getDateOnly(expiredDate),
                 isRedeemed:false,
             }
         })
@@ -158,7 +159,8 @@ class ReferralCodeController{
         .then(async data=>{
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
             notificationThread.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
-            threadProgress.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+            user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+                .catch(err=>console.log("Cannot send message to user"))
         })
     }
 
