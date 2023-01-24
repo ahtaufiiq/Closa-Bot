@@ -123,7 +123,7 @@ class ReferralCodeController{
         })
     }
 
-    static async giftMilestoneDailyStreak(client,user,threadProgress,totalStreak=7){
+    static async giftMilestoneDailyStreak(client,user,totalStreak=7){
         const userId = user.id
         const totalNewReferral = 1
 
