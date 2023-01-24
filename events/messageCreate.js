@@ -173,7 +173,7 @@ so, you can learn or sharing from each others.`)
 				const threadProgress = await ChannelController.createThread(msg,titleProgress)
 				
 				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author.id,threadProgress)
+					ReferralCodeController.generateReferral(msg.client,msg.author)
 				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
