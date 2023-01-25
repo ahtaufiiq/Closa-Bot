@@ -4,7 +4,7 @@ const WeeklyReflectionMessage = require('../views/WeeklyReflectionMessage');
 const schedule = require('node-schedule');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION } = require('../helpers/config');
+const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION, CHANNEL_GENERAL } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 const UserController = require('./UserController');
@@ -34,8 +34,8 @@ class WeeklyReflectionController {
 	static async sendReminderReflection(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 2`, async function(){
 			if(!Time.isCooldownPeriod()){
-				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-				channelAnnouncement.send(WeeklyReflectionMessage.reminderReflection())
+				const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+				channelGeneral.send(WeeklyReflectionMessage.reminderReflection())
 			}
 		});
 	}
