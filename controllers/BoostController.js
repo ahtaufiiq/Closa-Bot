@@ -7,6 +7,7 @@ const BoostMessage = require("../views/BoostMessage");
 const MemberController = require("./MemberController");
 const PointController = require("./PointController");
 const DailyReport = require("./DailyReport");
+const LocalData = require("../helpers/LocalData");
 class BoostController{
     static remindBoostInactiveMember(client){
         const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
@@ -18,6 +19,7 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
+					.neq('lastSafety',Time.getTodayDateOnly())
 					.eq('onVacation',false)
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
@@ -41,16 +43,14 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
+					.neq('lastSafety',Time.getTodayDateOnly())
 					.eq('onVacation',false)
-					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-2)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
-								if(member.lastSafety !== Time.getTodayDateOnly()){
-									const {user} = await MemberController.getMember(client,member.id)
-									channelBoost.send(BoostMessage.notMakingProgress2Days(user))
-								}
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.notMakingProgress2Days(user))
 							})
 						}
 					})
@@ -68,15 +68,14 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+					.neq('lastSafety',Time.getTodayDateOnly())
 					.eq('onVacation',false)
 					.gte('currentStreak',4)
 					.then(data =>{
 						if (data.body.length > 0) {
 							data.body.forEach(async member=>{
-								if(member.lastSafety !== Time.getTodayDateOnly()){
-									const {user} = await MemberController.getMember(client,member.id)
-									channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
-								}
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
 							})
 						}
 					})
@@ -163,6 +162,47 @@ class BoostController{
 			.then()
 
 		return totalBoost
+	}
+
+	static resetChannelBoost(client){
+		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
+		let ruleResetBoost = new schedule.RecurrenceRule();
+		ruleResetBoost.hour = Time.minus7Hours(23)
+		ruleResetBoost.minute = 59
+		schedule.scheduleJob(ruleResetBoost,function(){
+			supabase.from("Users")
+				.select()
+				.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
+				.eq('onVacation',false)
+				.gte('currentStreak',4)
+				.then(data =>{
+					if (data.body.length > 0) {
+						data.body.forEach(async member=>{
+							if(member.lastSafety !== Time.getTodayDateOnly()){
+								const {user} = await MemberController.getMember(client,member.id)
+								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
+							}
+						})
+					}
+				})
+		})
+	}
+
+	static getTotalBoostToday(){
+		const {totalBoost} = LocalData.getData()
+		return totalBoost
+	}
+
+	static incrementTotalBoostToday(num){
+		const data = LocalData.getData()
+		data.totalBoost = BoostController.getTotalBoostToday() + num
+		LocalData.writeData(data)
+	}
+
+	static resetTotalBoostToday(num){
+		const data = LocalData.getData()
+		data.totalBoost = 0
+		LocalData.writeData(data)
 	}
 }
 
