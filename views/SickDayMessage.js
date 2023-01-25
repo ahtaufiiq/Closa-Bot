@@ -1,5 +1,6 @@
 const { MessageEmbed } = require("discord.js")
 const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
+const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
@@ -62,7 +63,7 @@ Points left: **${pointLeft} :coin:**`)
             "https://media.giphy.com/media/l1J9urAfGd3grKV6E/giphy.gif",
             "https://media.giphy.com/media/3o7aDgf134NzaaHI8o/giphy-downsized-large.gif",
         ]
-        const randomGif = endedSickDayGif[Math.floor(Math.random()*endedSickDayGif.length)]
+        const randomGif = getRandomValue(endedSickDayGif)
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough rest day!
 It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,

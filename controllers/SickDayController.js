@@ -14,6 +14,7 @@ const MemberController = require('./MemberController');
 const UserController = require('./UserController');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const SickDayMessage = require('../views/SickDayMessage');
+const getRandomValue = require('../helpers/getRandomValue');
 
 class SickDayController{
 
@@ -162,7 +163,7 @@ class SickDayController{
             "https://media.giphy.com/media/BfID0O1Qwzf8I/giphy.gif",
         ]
 
-        const randomGif = sickGifs[Math.floor(Math.random()*sickGifs.length)]
+        const randomGif = getRandomValue(sickGifs)
         const channelProgress = ChannelController.getChannel(client,CHANNEL_TODO)
         const tagUsers = users.map(user=>MessageFormatting.tagUser(user.id))
         const msg = await channelProgress.send(SickDayMessage.shareProgress(tagUsers.join(' '),randomGif))

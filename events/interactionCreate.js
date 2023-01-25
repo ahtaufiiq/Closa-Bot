@@ -36,6 +36,7 @@ module.exports = {
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 			if(RecurringMeetupController.showModalExtendTime(interaction)) return
 			if(TestimonialController.showModalSubmitTestimonial(interaction)) return
+			if(TestimonialController.showModalCustomReply(interaction)) return
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
 			
@@ -303,48 +304,6 @@ module.exports = {
 				case "joinWeeklyReflection":
 					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
 					break;
-				case "submitReflection":
-					if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-						await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
-						return ChannelController.deleteMessage(interaction.message)
-					}
-					const dataUser = await supabase
-					.from('Users')
-					.select()
-					.eq('id',interaction.user.id)
-					.single()
-
-					let projectName = null
-					if (dataUser.body?.goalId) {
-						const channel = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-						const thread = await ChannelController.getThread(channel,dataUser.body.goalId)
-						projectName = thread.name.split('by')[0]
-					}
-					const channelReflection = ChannelController.getChannel(interaction.client,CHANNEL_REFLECTION)
-					const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
-					const msg = await channelReflection.send({
-						embeds:[
-							WeeklyReflectionMessage.embedMessageReflection({
-								projectName,highlight,lowlight,actionPlan,note,
-								user:interaction.user
-							})
-						]
-					})
-					PartyController.notifyMemberPartyShareReflection(interaction.client,interaction.user.id,msg.id)
-					ChannelController.createThread(msg,`Reflection by ${interaction.user.username}`)
-					const dataPoint = await supabase.from("Users")
-						.select('totalPoint')
-						.eq('id',targetUserId)
-						.single()
-					const totalPoint = Number(dataPoint.body.totalPoint) + 100
-					supabase.from("Users")
-						.update({totalPoint})
-						.eq('id',targetUserId)
-						.then()
-					WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:targetUserId})
-					await interaction.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
-					ChannelController.deleteMessage(interaction.message)
-					break;
 				case "extendTemporaryVoice" :
 					await interaction.editReply(RecurringMeetupMessage.optionExtendedTime(value))
 					ChannelController.deleteMessage(interaction.message)
@@ -369,11 +328,13 @@ module.exports = {
 					SickDayController.interactionBuySickTicket(interaction,value)
 					break;
 				case "postTestimonial":
-					const testimonialLink = interaction.message.content.split('\n')[1]
+					interaction.message.edit({
+						content:interaction.message.content,
+						components:[]
+					})
 					const testimonialUser = interaction.message.mentions.users.first()
-					interaction.message.edit(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
 					const channelTestimonial = ChannelController.getChannel(interaction.client,CHANNEL_TESTIMONIAL)
-					const msgTestimonial = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
+					const msgTestimonial = await channelTestimonial.send(interaction.message.content)
 					ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
 					await interaction.editReply("Testimonial has been posted")
 					break;

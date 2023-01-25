@@ -1,6 +1,7 @@
 const { MessageEmbed } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_CELEBRATE, CHANNEL_PARTY_MODE } = require("../helpers/config")
+const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
@@ -13,7 +14,7 @@ class TimelineStatusMessage{
             "https://media.giphy.com/media/RzQwk7l0zQnfAbSpCw/giphy.gif",
             "https://media.giphy.com/media/IoMkSXKHQIDVm/giphy.gif",
         ]
-        const randomGif = celebrationGIF[Math.floor(Math.random()*celebrationGIF.length)]
+        const randomGif = getRandomValue(celebrationGIF)
         const message = dayLeft === 1 ? "tomorrow is our celebration day! 🎉" : `it's ${dayLeft} days before celebration day! 🎉`
         return {
             content:`Hi <@${userId}>, ${message}
@@ -62,7 +63,7 @@ Thank you for reading, have a great day!
             "https://media.giphy.com/media/RzQwk7l0zQnfAbSpCw/giphy.gif",
             "https://media.giphy.com/media/IoMkSXKHQIDVm/giphy.gif",
         ]
-        const randomGif = celebrationGIF[Math.floor(Math.random()*celebrationGIF.length)]
+        const randomGif = getRandomValue(celebrationGIF)
         return {
             content:`**Hi ${MessageFormatting.tagUser(userId)}, closa's next kick-off day will start in 2 days ✌️**
 

@@ -74,7 +74,6 @@ module.exports = {
 		CoworkingController.recurringCoworkingSession(client)
 
 		BoostController.remindBoostInactiveMember(client)
-		BoostController.remindBoostNotMakingProgress3Days(client)
 		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
 

@@ -7,7 +7,8 @@ const RecurringMeetupController = require("../controllers/RecurringMeetupControl
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE } = require("../helpers/config");
+const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -185,30 +186,80 @@ The correct format:
 			await modal.deferReply()
 			const testimonialLink = modal.getTextInputValue('link');
 			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
-			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink,true))
+			const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,testimonialLink,true))
 			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
 			ChannelController.deleteMessage(modal.message)
 
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
-		}else if(commandButton === "writeReflection" || commandButton === 'editReflection'){
+		}else if(commandButton === "writeReflection" ){
 			await modal.deferReply()
 			const highlight = modal.getTextInputValue('highlight');
 			const lowlight = modal.getTextInputValue('lowlight');
 			const actionPlan = modal.getTextInputValue('actionPlan');
 			const note = modal.getTextInputValue('note');
 
-			await modal.editReply(WeeklyReflectionMessage.reviewReflection({
-				highlight,lowlight,actionPlan,note,
+			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
+				await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				return ChannelController.deleteMessage(interaction.message)
+			}
+			const dataUser = await supabase
+			.from('Users')
+			.select()
+			.eq('id',modal.user.id)
+			.single()
+
+			let projectName = '-'
+			if (dataUser.body?.goalId) {
+				const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
+				const thread = await ChannelController.getThread(channel,dataUser.body.goalId)
+				projectName = thread.name.split('by')[0]
+			}
+			const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
+			const msg = await channelReflection.send(WeeklyReflectionMessage.postReflection({
+				projectName,highlight,lowlight,actionPlan,note,
 				user:modal.user
 			}))
+			PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+			ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
+			const dataPoint = await supabase.from("Users")
+				.select('totalPoint')
+				.eq('id',modal.user.id)
+				.single()
+			const totalPoint = Number(dataPoint.body.totalPoint) + 100
+			supabase.from("Users")
+				.update({totalPoint})
+				.eq('id',modal.user.id)
+				.then()
+			WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:modal.user.id})
+			await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
 			ChannelController.deleteMessage(modal.message)
+		}else if(commandButton === 'editReflection'){
+			await modal.deferReply({ephemeral:true})
+			const highlight = modal.getTextInputValue('highlight');
+			const lowlight = modal.getTextInputValue('lowlight');
+			const actionPlan = modal.getTextInputValue('actionPlan');
+			const note = modal.getTextInputValue('note');
+			const projectName = value
+
+			modal.message.edit(WeeklyReflectionMessage.postReflection({
+				projectName,highlight,lowlight,actionPlan,note,user:modal.user
+			}))
+			await modal.editReply(`${modal.user} reflection has been updated`)
 		}else if(commandButton === "customExtend"){
 			await modal.deferReply({ephemeral:true})
 			const extendTime = Number(modal.getTextInputValue('time').trim().split(' ')[0]);
 			RecurringMeetupController.updateExtendTime(extendTime,value)
 			await modal.editReply(RecurringMeetupMessage.replyExtendTime())
 			ChannelController.deleteMessage(modal.message)
+		}else if(commandButton === 'customReplyTestimonial'){
+			await modal.deferReply({ephemeral:true})
+			const testimonialLink = `http${modal.message.content.split('http')[1]}`
+			const testimonialUser = modal.message.mentions.users.first()
+			const reply = modal.getTextInputValue('reply');
+
+			modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
+			modal.editReply('change custom reply')
 		}
 	},
 };

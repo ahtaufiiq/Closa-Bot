@@ -4,7 +4,7 @@ const WeeklyReflectionMessage = require('../views/WeeklyReflectionMessage');
 const schedule = require('node-schedule');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION } = require('../helpers/config');
+const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION, CHANNEL_GENERAL } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 const UserController = require('./UserController');
@@ -34,8 +34,8 @@ class WeeklyReflectionController {
 	static async sendReminderReflection(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 2`, async function(){
 			if(!Time.isCooldownPeriod()){
-				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-				channelAnnouncement.send(WeeklyReflectionMessage.reminderReflection())
+				const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+				channelGeneral.send(WeeklyReflectionMessage.reminderReflection())
 			}
 		});
 	}
@@ -64,7 +64,7 @@ class WeeklyReflectionController {
 		if(interaction.customId.includes('writeReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
 				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
-				return false
+				return true
 			}
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
@@ -81,11 +81,11 @@ class WeeklyReflectionController {
         return false
     }
     static showModalEditReflection(interaction){
-        if(interaction.customId.includes('editReflection')){
-			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
-				return false
-			}
+		const [commandButton,userId] = interaction.customId.split('_')
+
+        if(commandButton === 'editReflection'){
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else reflection.`})
+
 			const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
@@ -120,7 +120,7 @@ class WeeklyReflectionController {
 		message.embeds[0].fields.forEach(field => {
 			const {name,value} = field
 			if(name === "Went well?") data.highlight = value
-			if(name === "Didn't go weel?") data.lowlight = value
+			if(name === "Didn't go well?") data.lowlight = value
 			if(name === "Next action plan for improvements") data.actionPlan = value
 			if(name === "Additional Notes / Key learnings") data.note = value
 		});

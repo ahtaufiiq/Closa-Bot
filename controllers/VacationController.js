@@ -14,6 +14,7 @@ const DailyStreakController = require("./DailyStreakController");
 const MemberController = require('./MemberController');
 const UserController = require('./UserController');
 const MessageFormatting = require('../helpers/MessageFormatting');
+const getRandomValue = require('../helpers/getRandomValue');
 
 class VacationController{
     static async getMaxHoldVacationTicket(userId){
@@ -263,7 +264,7 @@ class VacationController{
             "https://media.giphy.com/media/KD2SBgMMWCkLCxC32Z/giphy.gif",
         ]
 
-        const randomGif = vacationGifs[Math.floor(Math.random()*vacationGifs.length)]
+        const randomGif = getRandomValue(vacationGifs)
         const channelProgress = ChannelController.getChannel(client,CHANNEL_TODO)
         const tagUsers = users.map(user=>MessageFormatting.tagUser(user.id))
         const msg = await channelProgress.send(VacationMessage.vacationModeOn(tagUsers.join(' '),randomGif))
