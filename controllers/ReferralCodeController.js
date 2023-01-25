@@ -75,7 +75,8 @@ class ReferralCodeController{
             interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
         }
     }
-    static async generateReferral(client,userId,threadProgress){
+    static async generateReferral(client,user,threadProgress){
+        const userId = user.id
         const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
         if (!isGenerateNewReferral) return
 
@@ -90,12 +91,12 @@ class ReferralCodeController{
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
-
+        const expiredDate = Time.getNextDate(14)
         const values = codes.map(code=>{
             return {
                 UserId:userId,
                 referralCode:code,
-                expired:Time.getDateOnly(Time.getNextDate(18)),
+                expired:Time.getDateOnly(expiredDate),
                 isRedeemed:false,
             }
         })
@@ -115,12 +116,15 @@ class ReferralCodeController{
         .then(async data=>{
             const isAdditionalReferral = totalActiveReferral === 1
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
-            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral)) 
-            threadProgress.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral)) 
+            const formattedExpiredDate = Time.getFormattedDate(expiredDate)
+            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral,formattedExpiredDate)) 
+            user.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral,formattedExpiredDate))
+                .catch(err=>console.log("Cannot send message to user"))
         })
     }
 
-    static async giftMilestoneDailyStreak(client,userId,threadProgress,totalStreak=7){
+    static async giftMilestoneDailyStreak(client,user,totalStreak=7){
+        const userId = user.id
         const totalNewReferral = 1
 
         const codes = referralCodes.generate({
@@ -128,12 +132,12 @@ class ReferralCodeController{
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
-
+        const expiredDate = Time.getNextDate(14)
         const values = codes.map(code=>{
             return {
                 UserId:userId,
                 referralCode:code,
-                expired:Time.getDateOnly(Time.getNextDate(18)),
+                expired:Time.getDateOnly(expiredDate),
                 isRedeemed:false,
             }
         })
@@ -155,7 +159,8 @@ class ReferralCodeController{
         .then(async data=>{
             const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
             notificationThread.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
-            threadProgress.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+            user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+                .catch(err=>console.log("Cannot send message to user"))
         })
     }
 
@@ -197,8 +202,8 @@ class ReferralCodeController{
     }
 
     static async saveReminderClaimReferral(userId){
-        const reminder5Days = Time.getNextDate(13)
-        const reminder2Days = Time.getNextDate(16)
+        const reminder5Days = Time.getNextDate(9)
+        const reminder2Days = Time.getNextDate(2)
 
         reminder5Days.setHours(Time.minus7Hours(8))
         reminder5Days.setMinutes(15)

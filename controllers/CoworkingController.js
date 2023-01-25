@@ -194,7 +194,6 @@ class CoworkingController {
         const data = LocalData.getData()
         if (CoworkingController.isRangeMorningSession()) {
             const event = await CoworkingController.getDetailEvent(client,data.morning)
-            console.log("🚀 ~ file: CoworkingController.js:197 ~ CoworkingController ~ handleStartCoworkingSession ~ event", event)
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
@@ -223,7 +222,6 @@ class CoworkingController {
             }
         }
     }
-
 
     static isRangeMorningSession(){
         const time = new Date().getTime()

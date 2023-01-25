@@ -1,4 +1,4 @@
-const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT } = require("../helpers/config")
+const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT, CHANNEL_CLOSA_CAFE } = require("../helpers/config")
 const LocalData = require("../helpers/LocalData.js")
 const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
@@ -141,7 +141,8 @@ class TimelineController{
         date.setDate(date.getDate()-5)
         date.setHours(Time.minus7Hours(8))
         date.setMinutes(0)
-        schedule.scheduleJob(date,function() {
+        schedule.scheduleJob(date,async function() {
+            TimelineController.createCelebrationEvent(client)
             supabase.from("Users")
             .select('id,notificationId')
             .gte('endMembership',Time.getDateOnly(Time.getDate()))
@@ -155,6 +156,50 @@ class TimelineController{
             })
         })
     }
+
+    static async createCelebrationEvent(client){
+        const startCelebrationDate = Time.getDate(LocalData.getData().celebrationDate)
+		startCelebrationDate.setHours(Time.minus7Hours(20))
+		startCelebrationDate.setMinutes(0)
+
+        const endCelebrationDate = Time.getDate(LocalData.getData().celebrationDate)
+		endCelebrationDate.setHours(Time.minus7Hours(21))
+		endCelebrationDate.setMinutes(30)
+        const celebrationEvent = await ChannelController.scheduleEvent(client,{
+            name:"Celebration Day 🥳🎉",
+            description:`**(Mandatory event).**
+Prepare 10 slides to tell your project story. Feel free to get creative with your own format!
+
+Deck Guidelines & inspo → https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40
+
+**Agenda:**
+19.50 — Open Gate
+20.00 — Event Started, select 1 lucky person.
+20.05 — Main Stage for 1 Lucky Person
+20.20 — Group Sharing Session.
+21.15 — Celebrate together: Post & Share your project.
+21.20 — Closing, Announcement, etc.
+21.30 — Ended
+
+**Goal of Celebration day**
+The goal is to share a story about your progress & celebrate our progress together.
+I hope you hit your goal before the celebration event started and try your best
+
+**Rules:**
+• Don't be late, and respect everyone's time.
+• Open your camera during the session.
+• Be kind.`,
+            scheduledStartTime:startCelebrationDate,
+            scheduledEndTime:endCelebrationDate,
+            entityType:"VOICE",
+            channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+        })
+        const data = LocalData.getData()
+        data.celebrationEventId = celebrationEvent.id
+        LocalData.writeData(data)
+
+        return celebrationEvent.id
+	}
 }
 
 module.exports = TimelineController

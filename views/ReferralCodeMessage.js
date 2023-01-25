@@ -35,7 +35,7 @@ class ReferralCodeMessage{
             ] 
         }
     }
-    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral){
+    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral,expiredDate){
         const totalActiveReferral = (totalNewReferral === 1 && isAdditionalReferral) ? 2 : totalNewReferral
         return { 
             content:`**${totalNewReferral} ${isAdditionalReferral?"more ":""}referral code for you!** :gift: 
@@ -45,7 +45,9 @@ If you find the community is valuable, help us spread it to your friends that yo
 
 One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
 
-**Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}` , 
+**Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}
+
+the referral code *valid until *${expiredDate}*` , 
             files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
             components: [
                 MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))

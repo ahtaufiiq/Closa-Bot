@@ -7,7 +7,7 @@ const RecurringMeetupController = require("../controllers/RecurringMeetupControl
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_TESTIMONIAL, CHANNEL_REFLECTION } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -184,8 +184,8 @@ The correct format:
 		}else if(commandButton === "submitTestimonial"){
 			await modal.deferReply()
 			const testimonialLink = modal.getTextInputValue('link');
-			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL)
-			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink))
+			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
+			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink,true))
 			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
 			ChannelController.deleteMessage(modal.message)
