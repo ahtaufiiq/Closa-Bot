@@ -1,5 +1,6 @@
 const { MessageEmbed } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK } = require("../helpers/config")
+const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
@@ -194,7 +195,7 @@ Points left: **${pointLeft} :coin:**`)
             "https://media.giphy.com/media/l1J9urAfGd3grKV6E/giphy.gif",
             "https://media.giphy.com/media/3o7aDgf134NzaaHI8o/giphy-downsized-large.gif",
         ]
-        const randomGif = endedVacationGif[Math.floor(Math.random()*endedVacationGif.length)]
+        const randomGif = getRandomValue(endedVacationGif)
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough vacation day!
 It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,

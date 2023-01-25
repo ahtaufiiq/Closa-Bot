@@ -1,6 +1,7 @@
 const { MessageEmbed } = require("discord.js")
 const { CHANNEL_ANNOUNCEMENT } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
+const getRandomValue = require("../helpers/getRandomValue")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -8,7 +9,7 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 
 class WeeklyReflectionMessage {
     static announcement(time,participants=[]){
-        const gifAnnouncement = [
+        const announcementGIF = [
             "https://media.giphy.com/media/nGtOFccLzujug/giphy.gif",
             "https://media.giphy.com/media/ISOckXUybVfQ4/giphy.gif",
             "https://media.giphy.com/media/rY6oYt4OaF59C/giphy.gif",
@@ -19,7 +20,7 @@ class WeeklyReflectionMessage {
             "https://media.giphy.com/media/bPWyTsy2huZji/giphy.gif",
 
         ]
-        const randomGif = gifAnnouncement[Math.floor(Math.random()*gifAnnouncement.length)]
+        const randomGif = getRandomValue(announcementGIF)
         const isEnded = time === 'ended'
         return {
             content:`**📝 WEEKLY REFLECTION** 
