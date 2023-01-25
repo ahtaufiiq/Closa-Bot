@@ -120,7 +120,7 @@ class WeeklyReflectionController {
 		message.embeds[0].fields.forEach(field => {
 			const {name,value} = field
 			if(name === "Went well?") data.highlight = value
-			if(name === "Didn't go weel?") data.lowlight = value
+			if(name === "Didn't go well?") data.lowlight = value
 			if(name === "Next action plan for improvements") data.actionPlan = value
 			if(name === "Additional Notes / Key learnings") data.note = value
 		});

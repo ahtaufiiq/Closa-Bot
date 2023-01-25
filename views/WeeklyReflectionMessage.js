@@ -84,7 +84,7 @@ We've sent the submission form here → ${MessageFormatting.linkToInsideThread(n
         const reflection = []
         if(projectName) reflection.push({name:"Project",value:FormatString.truncateString( projectName,1020)})
         if(highlight) reflection.push({name:"Went well?",value:FormatString.truncateString( highlight,1020)})
-        if(lowlight) reflection.push({name:"Didn't go weel?",value:FormatString.truncateString( lowlight,1020)})
+        if(lowlight) reflection.push({name:"Didn't go well?",value:FormatString.truncateString( lowlight,1020)})
         if(actionPlan) reflection.push({name:"Next action plan for improvements",value:FormatString.truncateString( actionPlan,1020)})
         if(note) reflection.push({name:"Additional Notes / Key learnings",value:FormatString.truncateString( note,1020)})
         return new MessageEmbed()
