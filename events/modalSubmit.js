@@ -235,7 +235,7 @@ The correct format:
 			await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
 			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === 'editReflection'){
-			await modal.deferReply()
+			await modal.deferReply({ephemeral:true})
 			const highlight = modal.getTextInputValue('highlight');
 			const lowlight = modal.getTextInputValue('lowlight');
 			const actionPlan = modal.getTextInputValue('actionPlan');
