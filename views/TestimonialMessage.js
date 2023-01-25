@@ -1,3 +1,4 @@
+const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
@@ -32,19 +33,40 @@ Your submission is under our review, we'll get back to you soon.
 Thank you for participating!`
     }
 
-    static newTestimonialUser(userId,testimonialLink,isShowButton=false){
+    static reviewTestimonial(userId,testimonialLink,reply){
+        return `New testimonial from ${MessageFormatting.tagUser(userId)}
+${reply}
+
+→ ${testimonialLink}`
+    }
+
+    static postTestimonialUser(userId,testimonialLink,isShowButton=false){
+        const copywritingReply = [
+            "Thank you for your support ❤️",
+            "Your support means so much to us ❤️",
+            "Really appreciate your token of kindness 💙",
+            "Thanks for your thoughtful review 🌟",
+            "Thank you for supporting our mission ❤️",
+            "Your supportive words means so much. Thank you ✨",
+        ]
+        
         const components = []
         if(isShowButton) {
             components.push(MessageComponent.createComponent(
-                MessageComponent.addButton('postTestimonial','Post')
+                MessageComponent.addButton('postTestimonial','Post'),
+                MessageComponent.addButton('customReplyTestimonial','Custom Reply',"SECONDARY")
             ))
         }
         return {
-            content:`🤩 new testimonial from ${MessageFormatting.tagUser(userId)}
-${testimonialLink}`,
+            content:`New testimonial from ${MessageFormatting.tagUser(userId)}
+${getRandomValue(copywritingReply)}
+
+→ ${testimonialLink}`,
             components
         }
     }
+
+
 }
 
 module.exports = TestimonialMessage

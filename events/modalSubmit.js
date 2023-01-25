@@ -186,7 +186,7 @@ The correct format:
 			await modal.deferReply()
 			const testimonialLink = modal.getTextInputValue('link');
 			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
-			const msg = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(modal.user.id,testimonialLink,true))
+			const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,testimonialLink,true))
 			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
 			ChannelController.deleteMessage(modal.message)
@@ -252,6 +252,14 @@ The correct format:
 			RecurringMeetupController.updateExtendTime(extendTime,value)
 			await modal.editReply(RecurringMeetupMessage.replyExtendTime())
 			ChannelController.deleteMessage(modal.message)
+		}else if(commandButton === 'customReplyTestimonial'){
+			await modal.deferReply({ephemeral:true})
+			const testimonialLink = `http${modal.message.content.split('http')[1]}`
+			const testimonialUser = modal.message.mentions.users.first()
+			const reply = modal.getTextInputValue('reply');
+
+			modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
+			modal.editReply('change custom reply')
 		}
 	},
 };

@@ -36,6 +36,7 @@ module.exports = {
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 			if(RecurringMeetupController.showModalExtendTime(interaction)) return
 			if(TestimonialController.showModalSubmitTestimonial(interaction)) return
+			if(TestimonialController.showModalCustomReply(interaction)) return
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
 			
@@ -327,11 +328,13 @@ module.exports = {
 					SickDayController.interactionBuySickTicket(interaction,value)
 					break;
 				case "postTestimonial":
-					const testimonialLink = interaction.message.content.split('\n')[1]
+					interaction.message.edit({
+						content:interaction.message.content,
+						components:[]
+					})
 					const testimonialUser = interaction.message.mentions.users.first()
-					interaction.message.edit(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
 					const channelTestimonial = ChannelController.getChannel(interaction.client,CHANNEL_TESTIMONIAL)
-					const msgTestimonial = await channelTestimonial.send(TestimonialMessage.newTestimonialUser(testimonialUser.id,testimonialLink))
+					const msgTestimonial = await channelTestimonial.send(interaction.message.content)
 					ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
 					await interaction.editReply("Testimonial has been posted")
 					break;

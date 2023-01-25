@@ -18,6 +18,21 @@ class TestimonialController{
         }
     }
 
+    static showModalCustomReply(interaction){
+        if(interaction.customId === "customReplyTestimonial"){
+            const modal = new Modal()
+            .setCustomId(interaction.customId)
+            .setTitle("Testimonial Reply")
+            .addComponents(
+                new TextInputComponent().setCustomId('reply').setLabel("Reply").setStyle("LONG").setRequired(true),
+            )
+            showModal(modal, { client: interaction.client, interaction: interaction});
+            return true
+        }else{
+            return false
+        }
+    }
+
     static addTestimonialUser(UserId,testimonialLink){
         supabase.from("Testimonials")
             .insert({UserId,testimonialLink})
