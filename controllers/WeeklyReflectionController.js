@@ -84,10 +84,6 @@ class WeeklyReflectionController {
 		const [commandButton,userId] = interaction.customId.split('_')
 
         if(commandButton === 'editReflection'){
-			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.reply({ephemeral:true,content:WeeklyReflectionMessage.replySubmissionClosed()})
-				return false
-			}
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else reflection.`})
 
 			const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
