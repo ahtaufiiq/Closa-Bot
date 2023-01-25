@@ -81,11 +81,15 @@ class WeeklyReflectionController {
         return false
     }
     static showModalEditReflection(interaction){
-        if(interaction.customId.includes('editReflection')){
+		const [commandButton,userId] = interaction.customId.split('_')
+
+        if(commandButton === 'editReflection'){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
+				interaction.reply({ephemeral:true,content:WeeklyReflectionMessage.replySubmissionClosed()})
 				return false
 			}
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else reflection.`})
+
 			const {highlight,lowlight,actionPlan,note} = WeeklyReflectionController.getDataReflectionFromMessage(interaction.message)
 			const modal = new Modal()
 			.setCustomId(interaction.customId)

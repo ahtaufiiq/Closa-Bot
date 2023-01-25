@@ -69,13 +69,11 @@ ${participants.join('\n')}`,
 We've sent the submission form here → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
 
-    static reviewReflection({highlight,lowlight,actionPlan,note,user}){
+    static postReflection({projectName,highlight,lowlight,actionPlan,note,user}){
         return {
-            content:`**REVIEW & SUBMIT YOUR REFLECTION** 📝\n—————————————————————`,
-            embeds:[WeeklyReflectionMessage.embedMessageReflection({highlight,lowlight,actionPlan,note,user})],
+            embeds:[WeeklyReflectionMessage.embedMessageReflection({projectName,highlight,lowlight,actionPlan,note,user})],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`submitReflection_${user.id}`,"🚀 SUBMIT"),
-                MessageComponent.addButton(`editReflection_${user.id}`,"Edit","SECONDARY"),
+                MessageComponent.addButton(`editReflection_${user.id}_${projectName}`,"Edit","SECONDARY")
             )]
         }
     }
