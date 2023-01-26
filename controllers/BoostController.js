@@ -25,7 +25,7 @@ class BoostController{
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 
 				if (data.body.length > 0) {
-					BoostController.incrementTotalBoost(data.body.length)
+					BoostController.incrementTotalBoostLocal(data.body.length)
 					data.body.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
 						channelBoost.send(BoostMessage.notMakingProgress2Days(user))
@@ -40,7 +40,7 @@ class BoostController{
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
-							BoostController.incrementTotalBoost(data.body.length)
+							BoostController.incrementTotalBoostLocal(data.body.length)
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
 								channelBoost.send(BoostMessage.notActive5Days(user))
@@ -66,7 +66,7 @@ class BoostController{
 					.gte('currentStreak',4)
 					.then(data =>{
 						if (data.body.length > 0) {
-							BoostController.incrementTotalBoost(data.body.length)
+							BoostController.incrementTotalBoostLocal(data.body.length)
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
 								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
@@ -175,7 +175,7 @@ class BoostController{
 		return totalBoost
 	}
 
-	static incrementTotalBoost(num){
+	static incrementTotalBoostLocal(num){
 		const data = LocalData.getData()
 		data.totalBoost = BoostController.getTotalBoost() + num
 		LocalData.writeData(data)
