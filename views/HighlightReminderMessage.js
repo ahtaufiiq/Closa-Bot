@@ -1,9 +1,17 @@
 const { MessageEmbed } = require("discord.js")
+const ReminderController = require("../controllers/ReminderController")
 const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
+const MessageComponent = require("../helpers/MessageComponent")
 
 class HighlightReminderMessage{
     static highlightReminder(userId){
-        return `Hi <@${userId}>, let's start your day and do what matters by writing your <#${CHANNEL_HIGHLIGHT}> today`
+        return {
+            content:`Hi <@${userId}>, let's start your day and do what matters by writing your <#${CHANNEL_HIGHLIGHT}> today`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('🗓 Add to calendar: highlight reminder ↗',ReminderController.linkCalendarSetHighlight())
+            )]
+
+        }
     }
 
     static wrongFormat(author){

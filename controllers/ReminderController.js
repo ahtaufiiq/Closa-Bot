@@ -4,6 +4,9 @@ const Time = require("../helpers/time");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
+const MessageFormatting = require("../helpers/MessageFormatting");
+const { CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require("../helpers/config");
+const GenerateLink = require("../helpers/GenerateLink");
 
 class ReminderController{
     static remindPostProgress(client){
@@ -100,6 +103,40 @@ class ReminderController{
 				}
 			})
     }
+
+	static linkCalendarSetHighlight(){
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate()+1)
+		const endDate = new Date(startDate.valueOf())
+		endDate.setHours(endDate.getHours()+1)
+		const link = GenerateLink.addToCalendar(
+			'Closa: Set Highlight 🔆',
+			MessageFormatting.linkToChannel(CHANNEL_HIGHLIGHT),
+			`PRO TIPS 💡
+• Set as a recurring event to Daily 
+• click location as a shortcut to #🔆highlight channel.`,
+			startDate,
+			endDate
+		  )
+		return link
+	}
+
+	static linkCalendarShareProgress(){
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate()+1)
+		const endDate = new Date(startDate.valueOf())
+		endDate.setHours(endDate.getHours()+1)
+		const link = GenerateLink.addToCalendar(
+			'Closa: Share Progress ✅',
+			MessageFormatting.linkToChannel(CHANNEL_TODO),
+			`PRO TIPS 💡
+• Set as a recurring event to Daily 
+• click location as a shortcut to #✅progress channel.`,
+			startDate,
+			endDate
+		  )
+		return link
+	}
 	
 }
 

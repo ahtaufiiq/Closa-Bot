@@ -6,6 +6,8 @@ const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const ChannelController = require('../controllers/ChannelController');
+const MessageComponent = require('../helpers/MessageComponent');
+const ReminderController = require('../controllers/ReminderController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -78,7 +80,12 @@ module.exports = {
 						})
 				}
 				
-				await interaction.reply(`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`)			
+				await interaction.reply({
+					content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`,
+					components:[MessageComponent.createComponent(
+						MessageComponent.addLinkButton('🗓 Add to calendar: highlight reminder ↗',ReminderController.linkCalendarSetHighlight())
+					)]
+				})			
 
 				break;
 			case 'progress':
@@ -112,7 +119,12 @@ module.exports = {
 							})
 						})
 				}
-					await interaction.reply(`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`)			
+					await interaction.reply({
+						content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`,
+						components:[MessageComponent.createComponent(
+							MessageComponent.addLinkButton('🗓 Add to calendar: progress reminder ↗',ReminderController.linkCalendarShareProgress())
+						)]
+					})			
 				break;
 			default:
 				break;

@@ -1,10 +1,17 @@
 const { MessageEmbed } = require("discord.js")
+const ReminderController = require("../controllers/ReminderController")
 const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_SOLO_MODE, CHANNEL_PARTY_MODE } = require("../helpers/config")
+const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class TodoReminderMessage{
     static progressReminder(userId){
-        return `Hi <@${userId}>, how is your progress today? don't forget to share it on <#${CHANNEL_TODO}> channel!`
+        return {
+            content:`Hi <@${userId}>, how is your progress today? don't forget to share it on <#${CHANNEL_TODO}> channel!`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('🗓 Add to calendar: progress reminder ↗',ReminderController.linkCalendarShareProgress())
+            )]
+        }
     }
 
     static warningNeverSetGoal(userId){
