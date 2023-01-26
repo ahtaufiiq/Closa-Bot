@@ -4,6 +4,7 @@ const Time = require("../helpers/time");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
+const MessageFormatting = require("../helpers/MessageFormatting");
 
 class ReminderController{
     static remindPostProgress(client){
@@ -100,7 +101,6 @@ class ReminderController{
 				}
 			})
     }
-	
 }
 
 module.exports = ReminderController

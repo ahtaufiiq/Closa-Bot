@@ -8,26 +8,6 @@ const ChannelController = require('./ChannelController');
 
 class CoworkingController {
     static recurringCoworkingSession(client){
-        let ruleNotifStartCoworkingNight = new schedule.RecurrenceRule();
-        
-        ruleNotifStartCoworkingNight.hour = Time.minus7Hours(19)
-        ruleNotifStartCoworkingNight.minute = 50
-        schedule.scheduleJob(ruleNotifStartCoworkingNight,function(){
-            if (!Time.isCooldownPeriod()) {
-                const data = LocalData.getData()
-                CoworkingController.sendReminder10MinutesBeforeStart(client,"Night",data.night)
-            }
-        })
-
-        let ruleNotifStartCoworkingMorning = new schedule.RecurrenceRule();
-        ruleNotifStartCoworkingMorning.hour = Time.minus7Hours(7)
-        ruleNotifStartCoworkingMorning.minute = 0
-        schedule.scheduleJob(ruleNotifStartCoworkingMorning,function(){
-            if (!Time.isCooldownPeriod()) {
-                const data = LocalData.getData()
-                CoworkingController.sendReminder10MinutesBeforeStart(client,"Morning",data.morning)
-            }
-        })
 
         let ruleCoworkingSession = new schedule.RecurrenceRule();
         
@@ -265,27 +245,7 @@ class CoworkingController {
             })
         }
     }
-    static async sendReminder10MinutesBeforeStart(client, type,eventId){
-        const roleId = type === "Morning" ? ROLE_MORNING_CLUB : ROLE_NIGHT_CLUB
-        const members = await client.guilds.cache.get(GUILD_ID).members.fetch()
-        members.forEach(member=>{
-            if (!member.user.bot) {
-                member.roles.cache.forEach(role=>{
-                    if (role.id === roleId) {
-                        supabase.from("Users")
-                            .select('id,notificationId')
-                            .eq('id',member.id)
-                            .single()
-                            .then(async data => {
-                                const notificationId = data.body.notificationId
-                                const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
-                                notificationThread.send(CoworkingMessage.remind10MinutesBeforeStart(member.id,eventId))
-                            })
-                    }
-                })
-            }
-        })
-    }
+
     static async sendNotificationStartEvent(client, type,eventId){
         const roleId = type === "Morning" ? ROLE_MORNING_CLUB : ROLE_NIGHT_CLUB
         const members = await client.guilds.cache.get(GUILD_ID).members.fetch()

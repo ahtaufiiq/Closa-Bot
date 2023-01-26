@@ -17,6 +17,10 @@ class MessageFormatting{
         return `https://discord.com/events/${GUILD_ID}/${eventId}`
     }
 
+    static linkToChannel(channelId){
+        return `https://discord.com/events/${GUILD_ID}/${channelId}`
+    }
+
     static linkToInsideThread(msgId){
         return `https://discord.com/channels/${GUILD_ID}/${msgId}`
     }

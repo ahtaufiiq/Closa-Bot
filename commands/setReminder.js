@@ -6,6 +6,8 @@ const Time = require('../helpers/time');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const ChannelController = require('../controllers/ChannelController');
+const MessageComponent = require('../helpers/MessageComponent');
+const ReminderController = require('../controllers/ReminderController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -44,16 +46,17 @@ module.exports = {
 			.select()
 			.eq('id',userId)
 			.single()
+
+		const [hours,minutes] = time.split(/[.:]/)
+		
 		switch (command) {
 			case 'highlight':
-
 				if (data.reminderHighlight !== time) {
 					supabase.from("Users")
 						.update({reminderHighlight:time})
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 							let ruleReminderHighlight = new schedule.RecurrenceRule();
 							ruleReminderHighlight.hour = Time.minus7Hours(hours)
 							ruleReminderHighlight.minute = minutes
@@ -78,7 +81,12 @@ module.exports = {
 						})
 				}
 				
-				await interaction.reply(`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`)			
+				await interaction.reply({
+					content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`,
+					components:[MessageComponent.createComponent(
+						HighlightReminderMessage.buttonAddToCalendarSetHighlight(hours,minutes)
+					)]
+				})			
 
 				break;
 			case 'progress':
@@ -88,7 +96,6 @@ module.exports = {
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 							let ruleReminderProgress = new schedule.RecurrenceRule();
 							ruleReminderProgress.hour = Time.minus7Hours(hours)
 							ruleReminderProgress.minute = minutes
@@ -112,7 +119,12 @@ module.exports = {
 							})
 						})
 				}
-					await interaction.reply(`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`)			
+					await interaction.reply({
+						content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`,
+						components:[MessageComponent.createComponent(
+							TodoReminderMessage.buttonAddToCalendarShareProgress(hours,minutes)
+						)]
+					})			
 				break;
 			default:
 				break;
