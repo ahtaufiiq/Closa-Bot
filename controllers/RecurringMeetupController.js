@@ -496,7 +496,7 @@ class RecurringMeetupController {
 			}
 		}
 		
-		if(isAcceptAttendance) interaction.editReply(`**${interaction.user} will attend the virtual meetup :white_check_mark: **`)
+		if(isAcceptAttendance) interaction.editReply(`**${interaction.user} will attend the virtual meetup ✅**`)
 		else interaction.editReply(`**${interaction.user} can't attend the virtual meetup ❌**`)
 		
 		RecurringMeetupController.getTotalResponseCannotAttend(weeklyMeetupId)
