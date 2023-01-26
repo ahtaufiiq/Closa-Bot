@@ -46,16 +46,17 @@ module.exports = {
 			.select()
 			.eq('id',userId)
 			.single()
+
+		const [hours,minutes] = time.split(/[.:]/)
+		
 		switch (command) {
 			case 'highlight':
-
 				if (data.reminderHighlight !== time) {
 					supabase.from("Users")
 						.update({reminderHighlight:time})
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 							let ruleReminderHighlight = new schedule.RecurrenceRule();
 							ruleReminderHighlight.hour = Time.minus7Hours(hours)
 							ruleReminderHighlight.minute = minutes
@@ -83,7 +84,7 @@ module.exports = {
 				await interaction.reply({
 					content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`,
 					components:[MessageComponent.createComponent(
-						MessageComponent.addLinkButton('🗓 Add to calendar: highlight reminder ↗',ReminderController.linkCalendarSetHighlight())
+						HighlightReminderMessage.buttonAddToCalendarSetHighlight(hours,minutes)
 					)]
 				})			
 
@@ -95,7 +96,6 @@ module.exports = {
 						.eq('id',userId)
 						.single()
 						.then(async ({data:user})=>{
-							const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 							let ruleReminderProgress = new schedule.RecurrenceRule();
 							ruleReminderProgress.hour = Time.minus7Hours(hours)
 							ruleReminderProgress.minute = minutes
@@ -122,7 +122,7 @@ module.exports = {
 					await interaction.reply({
 						content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_TODO}> at ${time} every day.`,
 						components:[MessageComponent.createComponent(
-							MessageComponent.addLinkButton('🗓 Add to calendar: progress reminder ↗',ReminderController.linkCalendarShareProgress())
+							TodoReminderMessage.buttonAddToCalendarShareProgress(hours,minutes)
 						)]
 					})			
 				break;
