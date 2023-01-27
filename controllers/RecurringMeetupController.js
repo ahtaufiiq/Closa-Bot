@@ -324,7 +324,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getDate(newWeeklyMeetup.body?.time))){
+				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getNextDate(7))){
 					const nextMeetupDate = new Date()
 					nextMeetupDate.setDate(nextMeetupDate.getDate() + 7)
 					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId,partyId)
