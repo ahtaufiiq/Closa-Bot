@@ -20,8 +20,8 @@ class BoostController{
 				const data = await supabase.from("Users")
 					.select()
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
-					.neq('lastSafety',Time.getTodayDateOnly())
 					.eq('onVacation',false)
+					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 
 				if (data.body.length > 0) {
@@ -35,8 +35,8 @@ class BoostController{
 				supabase.from("Users")
 					.select()
 					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
-					.neq('lastSafety',Time.getTodayDateOnly())
 					.eq('onVacation',false)
+					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
 					.then(data=>{
 						if (data.body.length > 0) {
