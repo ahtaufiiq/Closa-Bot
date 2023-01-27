@@ -43,9 +43,9 @@ class PaymentController{
                 .then(async data=>{
                     if (data.body) {
                         data.body.forEach(dataUser=>{
-                            PaymentController.sendMembershipReminder(client,dataUser)
                             const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
                             channelStatus.send(`💳 **Membership ended today for** ${MessageFormatting.tagUser(dataUser.id)}`)
+                            PaymentController.sendMembershipReminder(client,dataUser)
                         })
                     }
                 })

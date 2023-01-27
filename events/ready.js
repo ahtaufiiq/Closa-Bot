@@ -76,6 +76,7 @@ module.exports = {
 		BoostController.remindBoostInactiveMember(client)
 		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
+		BoostController.resetChannelBoost(client)
 
 		WeeklyReflectionController.sendReminderReflection(client)
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
