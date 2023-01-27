@@ -29,7 +29,7 @@ class ReminderController{
 									if (user.reminderProgress !== data.reminderProgress) {
 										scheduleReminderProgress.cancel()
 									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
-										const {id:userId,notificationId} = data.id;
+										const {id:userId,notificationId} = data;
 										ChannelController.sendToNotification(
 											client,
 											TodoReminderMessage.progressReminder(userId),
@@ -73,7 +73,7 @@ class ReminderController{
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
-											const {id:userId,notificationId} = data.id;
+											const {id:userId,notificationId} = data;
 											ChannelController.sendToNotification(
 												client,
 												HighlightReminderMessage.highlightReminder(userId),
