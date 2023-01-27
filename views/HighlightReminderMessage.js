@@ -1,5 +1,3 @@
-const { MessageEmbed } = require("discord.js")
-const ReminderController = require("../controllers/ReminderController")
 const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
 const GenerateLink = require("../helpers/GenerateLink")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -17,10 +15,10 @@ class HighlightReminderMessage{
     }
 
     static buttonAddToCalendarSetHighlight(hours,minutes){
-		const startDate = new Date()
+		const startDate = Time.getDate()
 		startDate.setDate(startDate.getDate()+1)
         
-        if(hours) startDate.setHours(Time.minus7Hours(hours))
+        if(hours) startDate.setHours(hours)
         if(minutes) startDate.setMinutes(minutes)
 
 		const endDate = new Date(startDate.valueOf())

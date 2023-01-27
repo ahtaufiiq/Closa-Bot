@@ -1,5 +1,3 @@
-const { MessageEmbed } = require("discord.js")
-const ReminderController = require("../controllers/ReminderController")
 const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_SOLO_MODE, CHANNEL_PARTY_MODE } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -16,10 +14,10 @@ class TodoReminderMessage{
     }
 
     static buttonAddToCalendarShareProgress(hours,minutes){
-		const startDate = new Date()
+		const startDate = Time.getDate()
 		startDate.setDate(startDate.getDate()+1)
 
-        if(hours) startDate.setHours(Time.minus7Hours(hours))
+        if(hours) startDate.setHours(hours)
         if(minutes) startDate.setMinutes(minutes)
         
 		const endDate = new Date(startDate.valueOf())
