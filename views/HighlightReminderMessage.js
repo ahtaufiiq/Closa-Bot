@@ -18,7 +18,7 @@ class HighlightReminderMessage{
 		const startDate = Time.getDate()
 		startDate.setDate(startDate.getDate()+1)
         
-        if(hours) startDate.setHours(hours)
+        if(hours) startDate.setHours(Time.minus7Hours(hours))
         if(minutes) startDate.setMinutes(minutes)
 
 		const endDate = new Date(startDate.valueOf())
