@@ -8,8 +8,9 @@
   },
   "dependencies": {
     "@discordjs/rest": "^0.3.0",
-    "@sentry/node": "^6.19.1",
-    "@sentry/tracing": "^6.19.1",
+    "@sentry/node": "^6.19.7",
+    "@sentry/profiling-node": "^0.0.13",
+    "@sentry/tracing": "^6.19.7",
     "@supabase/supabase-js": "^1.30.7",
     "axios": "^0.26.0",
     "canvas": "^2.9.1",

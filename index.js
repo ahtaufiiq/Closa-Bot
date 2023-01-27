@@ -3,7 +3,7 @@ const fs = require('fs')
 const { TOKEN, SENTRY_DSN} = require('./helpers/config');
 const Sentry = require('@sentry/node')
 const Tracing = require('@sentry/tracing')
-
+const {ProfilingIntegration} = require('@sentry/profiling-node')
 const client = new Client({ 
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.GUILD_SCHEDULED_EVENTS],
 	partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
@@ -22,11 +22,15 @@ for (const file of commandFiles) {
 
 Sentry.init({
 	dsn: SENTRY_DSN,
-  
+    integrations: [
+		// add profiling integration
+		new ProfilingIntegration()
+	  ],
 	// Set tracesSampleRate to 1.0 to capture 100%
 	// of transactions for performance monitoring.
 	// We recommend adjusting this value in production
 	tracesSampleRate: 1.0,
+	profilesSampleRate: 1.0,
   });
   
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
