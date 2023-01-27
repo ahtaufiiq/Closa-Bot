@@ -265,8 +265,12 @@ class CoworkingController {
                             .single()
                             .then(async data => {
                                 const notificationId = data.body.notificationId
-                                const notificationThread = await ChannelController.getNotificationThread(client,member.id,notificationId)
-                                notificationThread.send(CoworkingMessage.notifCoworkingStarted(type,data.body.id,eventId))
+                                ChannelController.sendToNotification(
+                                    client,
+                                    CoworkingMessage.notifCoworkingStarted(type,data.body.id,eventId),
+                                    member.id,
+                                    notificationId
+                                )
                             })
                     }
                 })

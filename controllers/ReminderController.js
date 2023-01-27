@@ -4,7 +4,6 @@ const Time = require("../helpers/time");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
-const MessageFormatting = require("../helpers/MessageFormatting");
 
 class ReminderController{
     static remindPostProgress(client){
@@ -30,9 +29,13 @@ class ReminderController{
 									if (user.reminderProgress !== data.reminderProgress) {
 										scheduleReminderProgress.cancel()
 									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
-										const userId = data.id;
-										const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
-										notificationThread.send(TodoReminderMessage.progressReminder(userId))
+										const {id:userId,notificationId} = data.id;
+										ChannelController.sendToNotification(
+											client,
+											TodoReminderMessage.progressReminder(userId),
+											userId,
+											notificationId
+										)
 									}
 								}
 							})
@@ -70,9 +73,13 @@ class ReminderController{
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
-											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(client,data.id,data.notificationId)
-											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+											const {id:userId,notificationId} = data.id;
+											ChannelController.sendToNotification(
+												client,
+												HighlightReminderMessage.highlightReminder(userId),
+												userId,
+												notificationId
+											)
 										}
 									}
 								})
@@ -94,8 +101,12 @@ class ReminderController{
 				if(data.body){
 					data.body.forEach(reminder=>{
 						schedule.scheduleJob(reminder.time,async function() {
-							const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-							notificationThread.send(`Hi <@${reminder.UserId}> reminder: ${reminder.message} `)
+							ChannelController.sendToNotification(
+								client,
+								HighlightReminderMessage.remindHighlightUser(reminder.UserId,reminder.message),
+								reminder.UserId,
+								reminder.Users.notificationId
+							)
 						})
 					})
 				}

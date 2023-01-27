@@ -70,9 +70,13 @@ module.exports = {
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
-											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
-											notificationThread.send(HighlightReminderMessage.highlightReminder(userId))
+											const {id:userId,notificationId} = data;
+											ChannelController.sendToNotification(
+												interaction.client,
+												HighlightReminderMessage.highlightReminder(userId),
+												userId,
+												notificationId
+											)
 										}
 									}
 								})
@@ -109,9 +113,13 @@ module.exports = {
 										if (user.reminderProgress !== data.reminderProgress) {
 											scheduleReminderProgress.cancel()
 										}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
-											const userId = data.id;
-											const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
-											notificationThread.send(TodoReminderMessage.progressReminder(userId))
+											const {id:userId,notificationId} = data;
+											ChannelController.sendToNotification(
+												interaction.client,
+												TodoReminderMessage.progressReminder(userId),
+												userId,
+												notificationId
+											)
 										}
 									}
 								})

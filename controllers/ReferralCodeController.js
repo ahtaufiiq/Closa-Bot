@@ -115,10 +115,15 @@ class ReferralCodeController{
         .single()
         .then(async data=>{
             const isAdditionalReferral = totalActiveReferral === 1
-            const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
+            const {id:userId,notificationId} = data.body
             const formattedExpiredDate = Time.getFormattedDate(expiredDate)
-            notificationThread.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral,formattedExpiredDate)) 
-            user.send(ReferralCodeMessage.sendReferralCode(data.body.id,totalNewReferral,isAdditionalReferral,formattedExpiredDate))
+            ChannelController.sendToNotification(
+                client,
+                ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate),
+                userId,
+                notificationId
+            )
+            user.send(ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate))
                 .catch(err=>console.log("Cannot send message to user"))
         })
     }
@@ -152,22 +157,19 @@ class ReferralCodeController{
 
         const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
 
-        supabase.from("Users")
-        .select('id,notificationId')
-        .eq("id",userId)
-        .single()
-        .then(async data=>{
-            const notificationThread = await ChannelController.getNotificationThread(client,data.body.id,data.body.notificationId)
-            notificationThread.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
-            user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
-                .catch(err=>console.log("Cannot send message to user"))
-        })
+        ChannelController.sendToNotification(
+            client,
+            ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId),
+            userId,
+        )
+        user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+            .catch(err=>console.log("Cannot send message to user"))
     }
 
     static remindToClaimReferral(client,userId){
         if (userId) {
             supabase.from('Reminders')
-                .select('*,Users(notificationId)')
+                .select(',Users(notificationId)')
                 .eq('type',"claimReferral")
                 .eq('UserId',userId)
                 .gte('time',new Date().toUTCString())
@@ -176,15 +178,19 @@ class ReferralCodeController{
                         data.body.forEach(async reminder=>{
                             schedule.scheduleJob(reminder.time,async function() {
                                 const type = reminder.message === '5 days' ? 5 : 2
-                                const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-                                notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                                ChannelController.sendToNotification(
+                                    client,
+                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type),
+                                    userId,
+                                    reminder.Users.notificationId
+                                )
                             })
                         })
                     }
                 })
         }else{
             supabase.from('Reminders')
-                .select('*,Users(notificationId)')
+                .select('time,message,UserId,Users(notificationId)')
                 .eq('type',"claimReferral")
                 .gte('time',new Date().toUTCString())
                 .then(data=>{
@@ -192,8 +198,12 @@ class ReferralCodeController{
                         data.body.forEach(async reminder=>{
                             schedule.scheduleJob(reminder.time,async function() {
                                 const type = reminder.message === '5 days' ? 5 : 2
-                                const notificationThread = await ChannelController.getNotificationThread(client,reminder.UserId,reminder.Users.notificationId)
-                                notificationThread.send(ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type))
+                                ChannelController.sendToNotification(
+                                    client,
+                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type),
+                                    reminder.UserId,
+                                    reminder.Users.notificationId
+                                )
                             })
                         })
                     }

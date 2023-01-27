@@ -23,6 +23,7 @@ const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
 const SickDayController = require("../controllers/SickDayController");
 const TestimonialMessage = require("../views/TestimonialMessage");
+const UserController = require("../controllers/UserController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -53,21 +54,23 @@ module.exports = {
 				return	
 			}
 			
-			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "boostInactiveMember":
-					BoostController.interactionBoostInactiveMember(interaction,targetUser,notificationThreadTargetUser)
+					BoostController.interactionBoostInactiveMember(interaction,targetUser)
 					break;
 				case "boostBack":
-					BoostController.interactionBoostBack(interaction,targetUser,notificationThreadTargetUser)
+					BoostController.interactionBoostBack(interaction,targetUser)
 					break;
 				case "joinPartyRoom":
-					
 					const dataJoinedParty = await PartyController.dataJoinedParty(interaction.user.id)
 					if (dataJoinedParty) {
-						const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,dataJoinedParty.Users.notificationId)
-						notificationThread.send(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
+						ChannelController.sendToNotification(
+							interaction.client,
+							PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId),
+							interaction.user.id,
+							dataJoinedParty.Users.notificationId
+						)
 						await interaction.editReply(PartyMessage.alreadyJoinPartyRoom(interaction.user.id,dataJoinedParty.PartyRooms.msgId))
 						return
 					}
@@ -81,8 +84,13 @@ module.exports = {
 					if (isAlreadyHaveGoal) {
 						await interaction.editReply(PartyMessage.confirmationJoinParty(interaction.user.id,value))
 					}else{
-						notificationThreadTargetUser.send(GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`))
-						await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,notificationThreadTargetUser.id))
+						ChannelController.sendToNotification(
+							interaction.client,
+							GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`),
+							targetUserId
+						)
+						const notificationId = await UserController.getNotificationId(targetUserId)
+						await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,notificationId))
 					}
 
 					break
@@ -153,10 +161,19 @@ module.exports = {
 					
 					PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,value)
 					await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
-					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id,notificationId)
-					notificationThread.send(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
+					ChannelController.sendToNotification(
+						interaction.client,
+						PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId),
+						interaction.user.id,
+						notificationId
+					)
 					setTimeout(() => {
-						notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id))
+						ChannelController.sendToNotification(
+							interaction.client,
+							PartyMessage.reminderSetHighlightAfterJoinParty(interaction.user.id),
+							interaction.user.id,
+							notificationId
+						)
 					}, 1000 * 60 * 15);
 
 					PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.body?.goalId)
@@ -174,8 +191,13 @@ module.exports = {
 						if (data.body) {
 							await interaction.editReply(PartyMessage.alreadyJoinWaitingRoom())
 						}else{
-							notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId))
-							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationThreadTargetUser.id))
+							ChannelController.sendToNotification(
+								interaction.client,
+								GoalMessage.pickYourRole(targetUserId),
+								targetUserId
+							)
+							const notificationId = await UserController.getNotificationId(targetUserId)
+							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationId))
 							await supabase.from("JoinParties")
 								.insert({
 									UserId:interaction.user.id,
@@ -206,7 +228,11 @@ module.exports = {
 					interaction.editReply("Success leave party")
 					break;
 				case "continueReplaceGoal":
-					notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId,value))
+					ChannelController.sendToNotification(
+						interaction.client,
+						GoalMessage.pickYourRole(targetUserId,value),
+						targetUserId
+					)
 					if (PartyController.isPartyMode(value)) {
 						const data = await supabase.from('JoinParties')
 						.select()
@@ -216,7 +242,8 @@ module.exports = {
 						if (data.body) {
 							await interaction.editReply(PartyMessage.replyAlreadyJoinWaitingRoom())
 						}else{
-							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationThreadTargetUser.id))
+							const notificationId = await UserController.getNotificationId(targetUserId)
+							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationId))
 							await supabase.from("JoinParties")
 								.insert({
 									UserId:interaction.user.id,
@@ -225,7 +252,8 @@ module.exports = {
 							PartyController.updateMessageWaitingRoom(interaction.client)
 						}
 					}else{
-						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
+						const notificationId = await UserController.getNotificationId(targetUserId)
+						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationId))
 					}
 					break;
 				case "cancelReplaceGoal":
@@ -236,8 +264,13 @@ module.exports = {
 					if (alreadyHaveGoal) {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
 					}else{
-						notificationThreadTargetUser.send(GoalMessage.pickYourRole(targetUserId,'solo'))
-						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationThreadTargetUser.id))
+						ChannelController.sendToNotification(
+							interaction.client,
+							GoalMessage.pickYourRole(targetUserId,'solo'),
+							targetUserId
+						)
+						const notificationId = await UserController.getNotificationId(targetUserId)
+						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationId))
 					}
 					break;
 				case "roleDeveloper":
@@ -251,17 +284,29 @@ module.exports = {
 					break;
 				case "defaultReminder":
 					await PartyController.interactionSetDefaultReminder(interaction,value)
-					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
+					ChannelController.sendToNotification(
+						interaction.client,
+						PartyMessage.endOfOnboarding(),
+						targetUserId
+					)
 					break;
 				case "customReminder":
 					await interaction.editReply(PartyMessage.replyCustomReminder())
 					ChannelController.deleteMessage(interaction.message)
-					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
+					ChannelController.sendToNotification(
+						interaction.client,
+						PartyMessage.endOfOnboarding(),
+						targetUserId
+					)
 					break;
 				case "noReminder":
 					await interaction.editReply(PartyMessage.replyNoHighlightReminder())
 					ChannelController.deleteMessage(interaction.message)
-					notificationThreadTargetUser.send(PartyMessage.endOfOnboarding())
+					ChannelController.sendToNotification(
+						interaction.client,
+						PartyMessage.endOfOnboarding(),
+						targetUserId
+					)
 					break;
 				case "claimReferral":
 					ReferralCodeController.interactionClaimReferral(interaction,targetUserId)
@@ -301,8 +346,9 @@ module.exports = {
 				case "useTicketTomorrow":
 					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
 					break;
-				case "joinWeeklyReflection":
-					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationThreadTargetUser.id))
+				case "joinWeeklyReflection":{}
+					const notificationIdTargetUser = await UserController.getNotificationId(targetUserId)
+					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationIdTargetUser))
 					break;
 				case "extendTemporaryVoice" :
 					await interaction.editReply(RecurringMeetupMessage.optionExtendedTime(value))
@@ -357,12 +403,15 @@ module.exports = {
 				await interaction.deferReply();
 			}
 			
-			const notificationThreadTargetUser = await ChannelController.getNotificationThread(interaction.client,targetUserId)
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
 				case "inactiveReply":
-					notificationThreadTargetUser.send(BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu))
+					ChannelController.sendToNotification(
+						interaction.client,
+						BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
+						targetUserId
+					)
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 				case "goalCategory":

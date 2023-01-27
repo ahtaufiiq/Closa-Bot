@@ -13,6 +13,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const BoostMessage = require('../views/BoostMessage');
+const PaymentMessage = require('../views/PaymentMessage');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 
 module.exports = {
@@ -33,11 +34,14 @@ module.exports = {
 
 		try {
 			await interaction.editReply(`✅ Successfully extend membership until ${formattedDate} for ${user}`)
-			const threadNotification = await ChannelController.getNotificationThread(interaction.client,user.id)
 			await supabase.from("Users")
 			.update({endMembership})
 			.eq('id',user.id)
-			await threadNotification.send(`Your closa membership status active until ${formattedDate}`)
+			await ChannelController.sendToNotification(
+				interaction.client,
+				PaymentMessage.successExtendMembership(formattedDate),
+				user.id
+			)
 			
 			const channelPayment = ChannelController.getChannel(interaction.client,CHANNEL_PAYMENT)
 			const msg = await ChannelController.getMessage(channelPayment,interaction.channelId)

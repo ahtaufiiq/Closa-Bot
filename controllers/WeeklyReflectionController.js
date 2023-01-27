@@ -23,9 +23,13 @@ class WeeklyReflectionController {
 				UserController.getActiveMembers()
 					.then(async data=>{
 						for (let i = 0; i < data.body.length; i++) {
-							const {id,notificationId} = data.body[i]
-							const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
-							notificationThread.send(WeeklyReflectionMessage.writeReflection(id))
+							const {id:userId,notificationId} = data.body[i]
+							ChannelController.sendToNotification(
+								client,
+								WeeklyReflectionMessage.writeReflection(userId),
+								userId,
+								notificationId
+							)
 						}
 					})
 			}

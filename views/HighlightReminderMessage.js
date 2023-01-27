@@ -42,8 +42,8 @@ class HighlightReminderMessage{
 For example: 🔆 read 25 page of book **at 19.00**`
     }
 
-    static remindHighlightUser(author,task){
-        return `Hi ${author} reminder: ${task} `
+    static remindHighlightUser(userId,task){
+        return `Hi ${MessageFormatting.tagUser(userId)} reminder: ${task} `
     }
 
     static successScheduled(highlight){

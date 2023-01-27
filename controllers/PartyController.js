@@ -105,8 +105,8 @@ class PartyController{
 	static sendReminderSetHighlightAfterJoinParty(client,members){
 		setTimeout(() => {
 			members.forEach(async member=>{
-				const notificationThread = await ChannelController.getNotificationThread(client,member.UserId)
-				notificationThread.send(PartyMessage.reminderSetHighlightAfterJoinParty(member.UserId))
+				const {UserId} =  member
+				ChannelController.sendToNotification(client,PartyMessage.reminderSetHighlightAfterJoinParty(UserId),UserId)
 			})
 		}, 1000 * 60 * 15);
 	}
@@ -432,13 +432,12 @@ class PartyController{
 							.eq('id',data.body.id)
 							.then()
 						const {reminderHighlight,notificationId}= data.body.Users
-						const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
-						if(reminderHighlight){
-							notificationThread.send(PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight))
-						}else{
-							notificationThread.send(PartyMessage.settingReminderHighlight(userId))
-						}
-												
+						ChannelController.sendToNotification(
+							client,
+							reminderHighlight ? PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight) : PartyMessage.settingReminderHighlight(userId),
+							userId,
+							notificationId
+						)
 				}
 			})
 	}
@@ -470,10 +469,13 @@ class PartyController{
 								if (user.reminderProgress !== data.reminderProgress) {
 									scheduleReminderProgress.cancel()
 								}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10)) {
-									const userId = data.id;
-									const notificationThread = await ChannelController.getNotificationThread(interaction.client,data.id,data.notificationId)
-									notificationThread.send(TodoReminderMessage.progressReminder(userId))
-
+									const {id:userId,notificationId} = data;
+									ChannelController.sendToNotification(
+										interaction.client,
+										TodoReminderMessage.progressReminder(userId),
+										userId,
+										notificationId
+									)
 								}
 							}
 						})
@@ -761,8 +763,11 @@ class PartyController{
 			if (!isMemberParty) {
 				msg.delete()
 				msg.channel.members.remove(msg.author.id)
-				const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-				notificationThread.send(PartyMessage.replyOutsiderMemberCannotChat())
+				ChannelController.sendToNotification(
+					msg.client,
+					PartyMessage.replyOutsiderMemberCannotChat(),
+					msg.author.id
+				)
 			}
 		}
 	}

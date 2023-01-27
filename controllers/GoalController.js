@@ -53,8 +53,11 @@ class GoalController {
 		if(accountabilityMode === 'party'){
 			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
 			const kickoffEventId = LocalData.getData().kickoffEventId
-			const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
-			notificationThread.send(MessageFormatting.linkToEvent(kickoffEventId))
+			ChannelController.sendToNotification(
+				interaction.client,
+				MessageFormatting.linkToEvent(kickoffEventId),
+				interaction.user.id
+			)
 
 			await interaction.editReply(PartyMessage.remindUserAttendKicoff(interaction.user.id,kickoffDate,kickoffEventId))
 			interaction.message.delete()
@@ -278,9 +281,15 @@ class GoalController {
 				.then(data=>{
 					if(data.body){
 						data.body.forEach(async member=>{
-							const notificationThread = await ChannelController.getNotificationThread(client,member.UserId)
-							notificationThread.send(GoalMessage.remindToWriteGoal(member.UserId))
-							notificationThread.send(GoalMessage.pickYourRole(member.UserId,'party'))
+							const {UserId} = member
+							ChannelController.sendToNotification(
+								client,
+								[
+									GoalMessage.remindToWriteGoal(UserId),
+									GoalMessage.pickYourRole(UserId,'party')
+								],
+								UserId,
+							)
 						})
 					}
 				})

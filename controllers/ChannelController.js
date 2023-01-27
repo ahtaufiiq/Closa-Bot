@@ -138,6 +138,17 @@ class ChannelController{
             return error
         }
     }
+
+    static async sendToNotification(client,messageContent,userId,notificationId){
+        const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+        if(Array.isArray(messageContent)){
+            messageContent.forEach(msg=>{
+                notificationThread.send(msg)
+            })
+        }else{
+            return await notificationThread.send(messageContent)
+        }
+    }
 }
 
 
