@@ -15,7 +15,7 @@ class HighlightReminderMessage{
     }
 
     static buttonAddToCalendarSetHighlight(hours,minutes){
-		const startDate = Time.getDate()
+		const startDate = new Date()
 		startDate.setDate(startDate.getDate()+1)
         
         if(hours) startDate.setHours(Time.minus7Hours(hours))
