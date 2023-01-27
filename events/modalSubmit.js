@@ -55,11 +55,17 @@ module.exports = {
 					MembershipController.updateMembership(1,response.ownedBy)
 				])
 				.then(async ([endMembershipNewUser,endMembershipReferrer])=>{
-					const notificationThreadNewUser = await ChannelController.getNotificationThread(modal.client,modal.user.id)
-					notificationThreadNewUser.send(ReferralCodeMessage.successRedeemReferral(endMembershipNewUser))
+					ChannelController.sendToNotification(
+						modal.client,
+						ReferralCodeMessage.successRedeemReferral(endMembershipNewUser),
+						modal.user.id
+					)
 
-					const notificationThreadReferrer = await ChannelController.getNotificationThread(modal.client,response.ownedBy)
-					notificationThreadReferrer.send(ReferralCodeMessage.successRedeemYourReferral(referralCode,endMembershipReferrer,modal.user))
+					ChannelController.sendToNotification(
+						modal.client,
+						ReferralCodeMessage.successRedeemYourReferral(referralCode,endMembershipReferrer,modal.user),
+						response.ownedBy
+					)
 
 					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
 					const referrer = await MemberController.getMember(modal.client,response.ownedBy)

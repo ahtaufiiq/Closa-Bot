@@ -59,12 +59,16 @@ class PaymentController{
                 .then(async data=>{
                     if (data.body) {
                         data.body.forEach(async dataUser=>{
-                            const {id,endMembership,notificationId} = dataUser
-                            const user = await MemberController.getMember(client,id)
-                            const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
-                            user.send(PaymentMessage.remindMembershipLateOneDay(id))
+                            const {id:userId,endMembership,notificationId} = dataUser
+                            const user = await MemberController.getMember(client,userId)
+                            ChannelController.sendToNotification(
+                                client,
+                                PaymentMessage.remindMembershipLateOneDay(userId),
+                                userId,
+                                notificationId
+                            )
+                            user.send(PaymentMessage.remindMembershipLateOneDay(userId))
                                 .catch(err=>console.log("Cannot send message to user"))
-                            notificationThread.send(PaymentMessage.remindMembershipLateOneDay(id))
                         })
                     }
                 })
@@ -72,12 +76,16 @@ class PaymentController{
                 .then(async data=>{
                     if (data.body) {
                         data.body.forEach(async dataUser=>{
-                            const {id,endMembership,notificationId} = dataUser
-                            const user = await MemberController.getMember(client,id)
-                            const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
-                            user.send(PaymentMessage.remindMembershipLateThreeDay(id))
+                            const {id:userId,endMembership,notificationId} = dataUser
+                            const user = await MemberController.getMember(client,userId)
+                            ChannelController.sendToNotification(
+                                client,
+                                PaymentMessage.remindMembershipLateThreeDay(userId),
+                                userId,
+                                notificationId
+                            )
+                            user.send(PaymentMessage.remindMembershipLateThreeDay(userId))
                                 .catch(err=>console.log("Cannot send message to user"))
-                            notificationThread.send(PaymentMessage.remindMembershipLateThreeDay(id))
                         })
                     }
                 })
@@ -91,25 +99,30 @@ class PaymentController{
                 .then(async data=>{
                     if (data.body) {
                         data.body.forEach(async dataUser=>{
-                            const {id,endMembership,notificationId} = dataUser
-                            const user = await MemberController.getMember(client,id)
-                            user.send(PaymentMessage.remindJoinNextCohort(id))
+                            const {id:userId,endMembership,notificationId} = dataUser
+                            const user = await MemberController.getMember(client,userId)
+                            user.send(PaymentMessage.remindJoinNextCohort(userId))
                                 .catch(err=>console.log("Cannot send message to user"))
-                            MemberController.removeRole(client,id,ROLE_NEW_MEMBER)
-                            MemberController.removeRole(client,id,ROLE_MEMBER)
+                            MemberController.removeRole(client,userId,ROLE_NEW_MEMBER)
+                            MemberController.removeRole(client,userId,ROLE_MEMBER)
                         })
                     }
                 })
         })
     }
     static async sendMembershipReminder(client,dataUser,dayLeft=0){
-        const {id,endMembership,notificationId} = dataUser
-        const user = await MemberController.getMember(client,id)
-        const notificationThread = await ChannelController.getNotificationThread(client,id,notificationId)
+        const {id:userId,endMembership,notificationId} = dataUser
+        const user = await MemberController.getMember(client,userId)
         const endMembershipDate = Time.getFormattedDate(Time.getDate(endMembership))
-        user.send(PaymentMessage.remindEndedMembership(id,endMembershipDate,dayLeft))
+
+        ChannelController.sendToNotification(
+            client,
+            PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft),
+            userId,
+            notificationId
+        )
+        user.send(PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft))
             .catch(err=>console.log("Cannot send message to user"))
-        notificationThread.send(PaymentMessage.remindEndedMembership(id,endMembershipDate,dayLeft))
     }
     static sendEmailReminder(members,dayLeft=0){
         const endedMembership = Time.getFormattedDate(Time.getNextDate(dayLeft))

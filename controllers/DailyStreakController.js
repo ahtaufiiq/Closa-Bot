@@ -47,8 +47,13 @@ class DailyStreakController {
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
-								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-								notificationThread.send(DailyStreakMessage.missYesterdayProgress(member.id))
+								const {id:userId,notificationId} =  member
+								ChannelController.sendToNotification(
+									client,
+									DailyStreakMessage.missYesterdayProgress(userId),
+									userId,
+									notificationId
+								)
 							})
 						}
 				})
@@ -114,8 +119,13 @@ class DailyStreakController {
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
-								const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-								notificationThread.send(DailyStreakMessage.remindUserAboutToLoseStreak(member.id))
+								const {id:userId,notificationId} = member
+								ChannelController.sendToNotification(
+									client,
+									DailyStreakMessage.remindUserAboutToLoseStreak(userId),
+									userId,
+									notificationId
+								)
 							})
 						}
 				})

@@ -30,9 +30,8 @@ module.exports = {
 			await DailyReport.activeMember(interaction.client,interaction.user.id)
 			PointController.addPoint(interaction.user.id,'boost')
 		}
-		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
-		notificationThread.send(BoostMessage.sendBoost(user,interaction.user,totalBoost,message))
+		ChannelController.sendToNotification(interaction.client,BoostMessage.sendBoost(user,interaction.user,totalBoost,message),user.id)
 
 		await interaction.editReply(BoostMessage.successSendMessage(user))
 	},

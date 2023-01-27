@@ -105,21 +105,31 @@ module.exports = {
 							.update({lastHighlight})
 							.eq('id',msg.author.id)
 							.single()
-							
-						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data.body.notificationId)
-						notificationThread.send(HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1].trim()))
+						
+						ChannelController.sendToNotification(
+							msg.client,
+							HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1].trim()),
+							msg.author.id,
+							data.body.notificationId
+						)
 
 						schedule.scheduleJob(date,async function () {
-							notificationThread.send(HighlightReminderMessage.remindHighlightUser(msg.author,msg.content))
+							ChannelController.sendToNotification(
+								msg.client,
+								HighlightReminderMessage.remindHighlightUser(msg.author.id,msg.content),
+								msg.author.id,
+								data.body.notificationId
+							)
 						})
-							
-
 						
 						PartyController.sendNotifToSetHighlight(msg.client,msg.author.id)
 					}else{
 						msg.delete()
-						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-						notificationThread.send(HighlightReminderMessage.wrongFormat(msg.author))
+						ChannelController.sendToNotification(
+							msg.client,
+							HighlightReminderMessage.wrongFormat(msg.author),
+							msg.author.id
+						)
 					}
 				}
 				
@@ -128,10 +138,13 @@ module.exports = {
 			case CHANNEL_TODO:
 				if(msg.content.length < 50 && msg.attachments.size === 0){
 					msg.delete()
-					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-					notificationThread.send(`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
+					ChannelController.sendToNotification(
+						msg.client,
+					`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
 
-so, you can learn or sharing from each others.`)
+so, you can learn or sharing from each others.`,
+						msg.author.id
+					)
 					return
 				}
 				PartyController.notifyMemberPartyShareProgress(msg.client,msg)
@@ -161,8 +174,12 @@ so, you can learn or sharing from each others.`)
 						files
 					})
 				}else{
-					const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,data?.notificationId)
-					notificationThread.send(TodoReminderMessage.warningNeverSetGoal(msg.author.id))
+					ChannelController.sendToNotification(
+						msg.client,
+						TodoReminderMessage.warningNeverSetGoal(msg.author.id),
+						msg.author.id,
+						data?.notificationId
+					)
 					msg.delete()
 					return
 				}

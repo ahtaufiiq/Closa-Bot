@@ -101,6 +101,9 @@ learn more → <#${CHANNEL_REGISTRATION}>`
         ]
     }
 
+    static successExtendMembership(formattedDate){
+        return `Your closa membership status active until ${formattedDate}`
+    }
     
 }
 

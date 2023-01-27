@@ -1,4 +1,4 @@
-const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT, CHANNEL_CLOSA_CAFE } = require("../helpers/config")
+const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT, CHANNEL_CLOSA_CAFE, CHANNEL_GENERAL } = require("../helpers/config")
 const LocalData = require("../helpers/LocalData.js")
 const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
@@ -83,17 +83,8 @@ class TimelineController{
         date.setHours(Time.minus7Hours(20))
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
-            supabase.from("Users")
-            .select('id,notificationId')
-            .gte('endMembership',Time.getDateOnly(Time.getDate()))
-            .then(data=>{
-                if (data.body.length > 0) {
-                    data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-                        notificationThread.send(TimelineStatusMessage.notificationBeforeKickoffDay(member.id))
-                    })
-                }
-            })
+            const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+            channelGeneral.send(TimelineStatusMessage.notificationBeforeKickoffDay())
         })
     }
     static sendNotifShareStoryCelebrationDay(client){
@@ -108,8 +99,13 @@ class TimelineController{
             .then(data=>{
                 if (data.body.length > 0) {
                     data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-                        notificationThread.send(TimelineStatusMessage.notificationShareStory(member.id))
+                        const {id:userId,notificationId} = member
+                        ChannelController.sendToNotification(
+                            client,
+                            TimelineStatusMessage.notificationShareStory(userId),
+                            userId,
+                            notificationId
+                        )
                     })
                 }
             })
@@ -122,17 +118,9 @@ class TimelineController{
         date.setHours(Time.minus7Hours(8))
         date.setMinutes(0)
         schedule.scheduleJob(date,function() {
-            supabase.from("Users")
-            .select('id,notificationId')
-            .gte('endMembership',Time.getDateOnly(Time.getDate()))
-            .then(data=>{
-                if (data.body.length > 0) {
-                    data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-                        notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id))
-                    })
-                }
-            })
+            const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+            channelGeneral.send(TimelineStatusMessage.notificationBeforeCelebrationDay())
+
         })
     }
     static sendNotif5DaysBeforeCelebration(client){
@@ -143,17 +131,8 @@ class TimelineController{
         date.setMinutes(0)
         schedule.scheduleJob(date,async function() {
             TimelineController.createCelebrationEvent(client)
-            supabase.from("Users")
-            .select('id,notificationId')
-            .gte('endMembership',Time.getDateOnly(Time.getDate()))
-            .then(data=>{
-                if (data.body.length > 0) {
-                    data.body.forEach(async member=>{
-                        const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-                        notificationThread.send(TimelineStatusMessage.notificationBeforeCelebrationDay(member.id,5))
-                    })
-                }
-            })
+            const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+            channelGeneral.send(TimelineStatusMessage.notificationBeforeCelebrationDay(5))
         })
     }
 

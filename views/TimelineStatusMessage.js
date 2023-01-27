@@ -6,7 +6,7 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class TimelineStatusMessage{
-    static notificationBeforeCelebrationDay(userId,dayLeft = 1){
+    static notificationBeforeCelebrationDay(dayLeft = 1){
         const celebrationGIF = [
             "https://media.giphy.com/media/oF5oUYTOhvFnO/giphy.gif",
             "https://media.giphy.com/media/FlWgXEtj5aM5G/giphy.gif",
@@ -17,7 +17,7 @@ class TimelineStatusMessage{
         const randomGif = getRandomValue(celebrationGIF)
         const message = dayLeft === 1 ? "tomorrow is our celebration day! 🎉" : `it's ${dayLeft} days before celebration day! 🎉`
         return {
-            content:`Hi <@${userId}>, ${message}
+            content:`Hi @everyone, ${message}
 Let's prepare your 10 slides story format before our celebration day.`,
             components: [
                 MessageComponent.createComponent(
@@ -55,7 +55,7 @@ Thank you for reading, have a great day!
 \`\`\`
 2. Submit to ${MessageFormatting.tagChannel(CHANNEL_CELEBRATE)}`
     }
-    static notificationBeforeKickoffDay(userId){
+    static notificationBeforeKickoffDay(){
         const celebrationGIF = [
             "https://media.giphy.com/media/oF5oUYTOhvFnO/giphy.gif",
             "https://media.giphy.com/media/FlWgXEtj5aM5G/giphy.gif",
@@ -65,7 +65,7 @@ Thank you for reading, have a great day!
         ]
         const randomGif = getRandomValue(celebrationGIF)
         return {
-            content:`**Hi ${MessageFormatting.tagUser(userId)}, closa's next kick-off day will start in 2 days ✌️**
+            content:`**Hi @everyone, closa's next kick-off day will start in 2 days ✌️**
 
 Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}`,
             embeds: [

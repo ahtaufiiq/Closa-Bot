@@ -192,8 +192,11 @@ class SickDayController{
                 .select()
                 .eq('endDate',Time.getDateOnly(Time.getNextDate(-1)))
             dataSickTicket.body.forEach(async sickTicket=>{
-                const threadNotification = await ChannelController.getNotificationThread(client,sickTicket.UserId)
-                threadNotification.send(SickDayMessage.sickDayEnded(sickTicket.UserId))
+                ChannelController.sendToNotification(
+                    client,
+                    SickDayMessage.sickDayEnded(sickTicket.UserId),
+                    sickTicket.UserId
+                )
                 UserController.updateOnVacation(false,sickTicket.UserId)
             })
 		})

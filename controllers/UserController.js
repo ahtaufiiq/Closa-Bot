@@ -28,6 +28,13 @@ class UserController{
 			.gte('endMembership',Time.getTodayDateOnly())
 	}
 
+	static async getNotificationId(userId){
+		return await supabase.from("Users")
+			.select('notificationId')
+			.eq('id',userId)
+			.single()
+	}
+
 	static async incrementTotalPoints(increment,UserId){
         supabase.from("Users")
             .select('totalPoint')

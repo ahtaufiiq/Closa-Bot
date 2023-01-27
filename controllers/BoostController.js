@@ -86,23 +86,30 @@ class BoostController{
 				.then(data=>{
 					if (data.body.length > 0) {
 						data.body.forEach(async member=>{
-							const notificationThread = await ChannelController.getNotificationThread(client,member.id,member.notificationId)
-							notificationThread.send(BoostMessage.remindToBoost(member.id))
+							const {id:userId,notificationId} = member
+							ChannelController.sendToNotification(
+								client,
+								BoostMessage.remindToBoost(userId),
+								userId,
+								notificationId
+							)
 						})
 					}
 				})
 		})
 	}
 
-	static async interactionBoostBack(interaction,targetUser,notificationThread){
-		
-		
+	static async interactionBoostBack(interaction,targetUser){
 		await DailyReport.activeMember(interaction.client,interaction.user.id)
 		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
 		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {
 			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
-			notificationThread.send(BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost))
+			ChannelController.sendToNotification(
+				interaction.client,
+				BoostMessage.boostBack(targetUser.user,interaction.user,totalBoost),
+				targetUser.user.id
+			)
 			await interaction.editReply(BoostMessage.successBoostBack(targetUser.user))
 		}else{
 			await interaction.editReply(BoostMessage.warningSpamBoost())
@@ -110,13 +117,17 @@ class BoostController{
 
 	}
 
-	static async interactionBoostInactiveMember(interaction,targetUser,notificationThread){
+	static async interactionBoostInactiveMember(interaction,targetUser){
 		await DailyReport.activeMember(interaction.client,interaction.user.id)
 		const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(interaction.user.id,targetUser.user.id)
 		if(isIncrementPoint) PointController.addPoint(interaction.user.id,'boost')
 		if (isMoreThanOneMinute) {
 			const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,targetUser.user.id)
-			notificationThread.send(BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost))
+			ChannelController.sendToNotification(
+				interaction.client,
+				BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost),
+				targetUser.user.id
+			)
 			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
 		}else {
 			await interaction.editReply(BoostMessage.warningSpamBoost())
@@ -165,8 +176,10 @@ class BoostController{
 		ruleResetBoost.minute = 59
 		schedule.scheduleJob(ruleResetBoost,function(){
 			const totalBoost = BoostController.getTotalBoost()
-			channelBoost.bulkDelete(totalBoost,true)
-			BoostController.resetTotalBoost()
+			if(totalBoost > 0){
+				channelBoost.bulkDelete(totalBoost,true)
+				BoostController.resetTotalBoost()
+			}
 		})
 	}
 

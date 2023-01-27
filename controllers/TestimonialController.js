@@ -42,8 +42,12 @@ class TestimonialController{
     static async askToWriteTestimonial(msg,notificationId){
         const isAlreadySubmitTestimonial = await TestimonialController.alreadySubmitTestimonial(msg.author.id)
         if(!isAlreadySubmitTestimonial){
-            const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id,notificationId)
-            notificationThread.send(TestimonialMessage.howToShareTestimonial(msg.author.id))
+            ChannelController.sendToNotification(
+                msg.client,
+                TestimonialMessage.howToShareTestimonial(msg.author.id),
+                msg.author.id,
+                notificationId
+            )
         }
     }
 

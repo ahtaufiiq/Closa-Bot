@@ -4,6 +4,7 @@ const { MessageEmbed } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const UserController = require('../controllers/UserController');
 const InfoUser = require('../helpers/InfoUser');
+const PointMessage = require('../views/PointMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -25,21 +26,12 @@ module.exports = {
 
 		UserController.incrementTotalPoints(amount,user.id)
 		
-		const avatarUrl = InfoUser.getAvatar(user)
-		const notificationThread = await ChannelController.getNotificationThread(interaction.client,user.id)
-		notificationThread.send({
-			content:`Bonus vibe points for you ${user}!`,
-			embeds:[
-				new MessageEmbed()
-				.setColor("#FEFEFE")
-				.setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
-				.setDescription(message)
-				.setAuthor({name:`+${amount} POINTS`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif "})
-				.setFooter({text:`${user.username}`, iconURL:avatarUrl})
-				
-			]
-		})
-
+		
+		ChannelController.sendToNotification(
+			interaction.client,
+			PointMessage.successAddPoint(user,message,amount),
+			user.id
+		)
 		await interaction.editReply(`add ${amount} point to ${user}`)
 	},
 };
