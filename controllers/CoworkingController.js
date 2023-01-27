@@ -14,16 +14,18 @@ class CoworkingController {
         ruleCoworkingSession.hour = 22
         ruleCoworkingSession.minute = 0
         schedule.scheduleJob(ruleCoworkingSession,function(){
-            Promise.all([
-                CoworkingController.createCoworkingEvent(client,'morning','tomorrow'),
-                CoworkingController.createCoworkingEvent(client,'night','tomorrow'),
-            ])
-            .then(([morning,night])=>{
-                const data = LocalData.getData()
-                data.night = night.id
-                data.morning = morning.id
-                LocalData.writeData(data)
-            })
+            if(CoworkingController.isNotTuesday()){
+                Promise.all([
+                    CoworkingController.createCoworkingEvent(client,'morning','tomorrow'),
+                    CoworkingController.createCoworkingEvent(client,'night','tomorrow'),
+                ])
+                .then(([morning,night])=>{
+                    const data = LocalData.getData()
+                    data.night = night.id
+                    data.morning = morning.id
+                    LocalData.writeData(data)
+                })
+            }
         })
 
         let ruleStopMorningSession = new schedule.RecurrenceRule();
@@ -203,13 +205,17 @@ class CoworkingController {
         }
     }
 
+    static isNotTuesday(){
+        return Time.getDay() !== "Tuesday"
+    }
+
     static isRangeMorningSession(){
         const time = new Date().getTime()
-        return time > CoworkingController.getStartTimeCoworkingSession().getTime() && time < CoworkingController.getEndTimeCoworkingSession().getTime()
+        return time > CoworkingController.getStartTimeCoworkingSession().getTime() && time < CoworkingController.getEndTimeCoworkingSession().getTime() && CoworkingController.isNotTuesday()
     }
     static isRangeNightSession(){
         const time = new Date().getTime()
-        return time >= CoworkingController.getStartTimeCoworkingSession('night').getTime() && time < CoworkingController.getEndTimeCoworkingSession('night').getTime()
+        return time >= CoworkingController.getStartTimeCoworkingSession('night').getTime() && time < CoworkingController.getEndTimeCoworkingSession('night').getTime() && CoworkingController.isNotTuesday()
     }
 
     static async getAllEvent(client){
