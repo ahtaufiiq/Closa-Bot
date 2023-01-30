@@ -60,7 +60,8 @@ the referral code *valid until *${expiredDate}*` ,
 \`\`\`
 ${referralCodes}
 \`\`\`
-Your friends can redeem it via https://closa.me/referral` 
+Your friends can redeem it via https://closa.me/referral
+*p.s: existing members can't redeem referral code. the code is for newcomers*` 
         const dataReferral = []
         const referrals = referralCodes.split('\n')
         referrals.forEach(referral=>{
@@ -141,8 +142,15 @@ ${referralCode}`,
         return "Referral code only can be use once for each user."
     }
     static cannotRedeemByExistingMember(){
-        return `Existing member can't redeem referral code. 
-We'll send you referral code once a month based on your activities.`
+        return {
+            content:`:warning: **can't redeem the referral code for existing members** 
+↳ you're detected as existing members that have joined the community previously
+
+\`\`To get your access back, please renew your membership status\`\``,
+            components: [MessageComponent.createComponent(
+                MessageComponent.addLinkButton("Renew membership","https://tally.so/r/wbRa2w")
+            )]
+        }
     }
     static cannotRedeemOwnCode(){
         return `Can't redeem your own code. 
