@@ -514,7 +514,7 @@ class PartyController{
 
 		const {celebrationDate} = LocalData.getData()
 		const disbandPartyDate = Time.getDate(celebrationDate)
-		disbandPartyDate.setHours(22)
+		disbandPartyDate.setHours(Time.minus7Hours(22))
 		disbandPartyDate.setMinutes(0)
 
 		const twoDaysBeforeDisbandParty = Time.getDate(disbandPartyDate.valueOf())
@@ -572,7 +572,6 @@ class PartyController{
 					const party = partyRooms[i];
 					party.thread.send(PartyMessage.remindPartyWillEndedNow())
 					setTimeout(() => {
-						party.thread.delete()
 						party.msg.delete()
 					}, 1000 * 15);
 				}
