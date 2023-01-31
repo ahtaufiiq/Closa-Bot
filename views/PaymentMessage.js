@@ -89,7 +89,7 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     static buttonLinkExtendMembership(label="Extend membership"){
         return [
             MessageComponent.createComponent(
-                MessageComponent.addLinkButton(label,"https://tally.so/r/wbRa2w")
+                MessageComponent.addLinkButton(label,"https://tally.so/r/wbRa2w").setEmoji('💳')
             )
         ]
     }

@@ -74,7 +74,9 @@ module.exports = {
 						MemberController.getTotalMember(),
 						ReferralCodeController.getTotalInvited(response.ownedBy)
 					])
-					channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
+					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
+					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
+
 					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				})
 				

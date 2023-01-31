@@ -148,7 +148,7 @@ ${referralCode}`,
 
 \`\`To get your access back, please renew your membership status\`\``,
             components: [MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Renew membership","https://tally.so/r/wbRa2w")
+                MessageComponent.addLinkButton("Renew membership","https://tally.so/r/wbRa2w").setEmoji('💳')
             )]
         }
     }
