@@ -308,7 +308,7 @@ so, you can learn or sharing from each others.`,
 				break;
 			case CHANNEL_CELEBRATE:
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
-					ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)
+					ChannelController.createThread(msg,`${msg.author.username} celebration 🎉`)
 				}	
 				const dataUser = await supabase
 									.from('Users')
