@@ -198,7 +198,7 @@ class GoalController {
 		schedule.scheduleJob(ruleKickoff,async function(){
 			const data = await supabase.from("JoinParties")
 			.select()
-			.eq('cohort',PartyController.getNextCohort())
+			.eq('cohort',PartyController.getThisCohort())
 			.not('goal','is',null)
 			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
 				const {user} = await MemberController.getMember(client,UserId)
@@ -211,14 +211,14 @@ class GoalController {
 
 		const data = await supabase.from("JoinParties")
 		.select()
-		.eq('cohort',PartyController.getNextCohort())
+		.eq('cohort',PartyController.getThisCohort())
 		.order('role')
 		.order('goalCategory')
 		.order('shareProgressAt')
 		.not('goal','is',null)
 		const channelBot = ChannelController.getChannel(client,CHANNEL_BOT)
-		const msg = await channelBot.send(`Cohort ${PartyController.getNextCohort()}`)
-		const thread = await ChannelController.createThread(msg,`Cohort ${PartyController.getNextCohort()}`)
+		const msg = await channelBot.send(`Cohort ${PartyController.getThisCohort()}`)
+		const thread = await ChannelController.createThread(msg,`Cohort ${PartyController.getThisCohort()}`)
 		const deadlineGoal = GoalController.getDeadlineGoal()
 		let roleChannel =''
 		data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
@@ -276,7 +276,7 @@ class GoalController {
         schedule.scheduleJob(remindBeforeKickoff,function() {
 			supabase.from("JoinParties")
 				.select("UserId")
-				.eq('cohort',PartyController.getNextCohort())
+				.eq('cohort',PartyController.getThisCohort())
 				.eq('alreadySetGoal',false)
 				.then(data=>{
 					if(data.body){

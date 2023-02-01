@@ -690,6 +690,10 @@ class PartyController{
 		return LocalData.getData().cohort + 1
 	}
 
+	static getThisCohort(){
+		return LocalData.getData().cohort + 1
+	}
+
 	static isPartyMode(value){
 		const accountabilityMode = value.split('-')[0]
 		return accountabilityMode === 'party'
@@ -707,7 +711,7 @@ class PartyController{
 	static async saveDataJoinPartyToMemberPartyRoom(){
 		const data = await supabase.from("JoinParties")
 		.select("id,UserId,project")
-		.eq('cohort',PartyController.getNextCohort())
+		.eq('cohort',PartyController.getThisCohort())
 
 		if(data.body){
 			const endPartyDate = LocalData.getData().deadlineGoal
