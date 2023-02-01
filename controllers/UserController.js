@@ -29,10 +29,11 @@ class UserController{
 	}
 
 	static async getNotificationId(userId){
-		return await supabase.from("Users")
+		const data = await supabase.from("Users")
 			.select('notificationId')
 			.eq('id',userId)
 			.single()
+		return data.body.notificationId
 	}
 
 	static async incrementTotalPoints(increment,UserId){
