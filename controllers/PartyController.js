@@ -320,8 +320,8 @@ class PartyController{
 	static async removeWaitingRoom(client){
 		const {kickoffDate} = LocalData.getData()
 		const ruleFirstDayCooldown = Time.getDate(kickoffDate)
-		ruleFirstDayCooldown.setHours(Time.minus7Hours(21))
-		ruleFirstDayCooldown.setMinutes(0)
+		ruleFirstDayCooldown.setHours(Time.minus7Hours(23))
+		ruleFirstDayCooldown.setMinutes(59)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
 			const {msgIdContentWaitingRoom,msgIdCountdownWaitingRoom} = LocalData.getData()
 			const channelPartyMode = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
