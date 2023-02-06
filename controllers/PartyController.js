@@ -52,18 +52,18 @@ class PartyController{
 	}
 
 	static isRangePartyMode(){
-		const kickoffDate = Time.getDate(LocalData.getData().kickoffDate)
-		kickoffDate.setHours(20)
-		kickoffDate.setMinutes(0)
-		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
+		const waitingRoomDate = Time.getNextDate(-1,LocalData.getData().kickoffDate)
+		waitingRoomDate.setHours(23)
+		waitingRoomDate.setMinutes(59)
+		const diffTime = Time.getDiffTime(Time.getDate(),waitingRoomDate)
 
 		return diffTime >= 0 && diffTime <= (60 * 24 * 7)
 	}
 
 	static getFormattedTimeLeftUntilKickoff(){
 		const kickoffDate = Time.getNextDate(-1,LocalData.getData().kickoffDate)
-		kickoffDate.setHours(20)
-		kickoffDate.setMinutes(0)
+		kickoffDate.setHours(23)
+		kickoffDate.setMinutes(59)
 		const diffTime = Time.getDiffTime(Time.getDate(),kickoffDate)
 		return Time.convertTime(diffTime,'short')
 	}
@@ -342,7 +342,7 @@ class PartyController{
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(20))
 		ruleFirstDayCooldown.setMinutes(25)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
-			channelGeneral.send(PartyMessage.announceOpenPartyMode(Time.getFormattedDate(Time.getDate(kickoffDate),true)))
+			channelGeneral.send(PartyMessage.announceOpenPartyMode(Time.getFormattedDate(Time.getNextDate(-1,kickoffDate),true)))
 		})
 		const ruleLastDayCooldown = Time.getNextDate(-2,kickoffDate)
 		ruleLastDayCooldown.setHours(Time.minus7Hours(20))
