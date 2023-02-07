@@ -31,6 +31,7 @@ module.exports = {
 
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
+			if(PartyController.showModalCustomReminder(interaction)) return
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
 			if(VacationController.showModalCustomDate(interaction)) return
@@ -284,15 +285,6 @@ module.exports = {
 					break;
 				case "defaultReminder":
 					await PartyController.interactionSetDefaultReminder(interaction,value)
-					ChannelController.sendToNotification(
-						interaction.client,
-						PartyMessage.endOfOnboarding(),
-						targetUserId
-					)
-					break;
-				case "customReminder":
-					await interaction.editReply(PartyMessage.replyCustomReminder())
-					ChannelController.deleteMessage(interaction.message)
 					ChannelController.sendToNotification(
 						interaction.client,
 						PartyMessage.endOfOnboarding(),

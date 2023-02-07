@@ -21,6 +21,7 @@ const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const GoalController = require("../controllers/GoalController");
 const TestimonialController = require("../controllers/TestimonialController");
+const GoalMessage = require("../views/GoalMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -147,7 +148,7 @@ so, you can learn or sharing from each others.`,
 					)
 					return
 				}
-				PartyController.notifyMemberPartyShareProgress(msg.client,msg)
+				
 				const { data, error } = await supabase
 					.from('Users')
 					.select()
@@ -169,10 +170,11 @@ so, you can learn or sharing from each others.`,
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
-					thread.send({
-						content:msg.content,
-						files
-					})
+					let {totalDay,lastDone} = data
+					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
+					thread.send(
+						GoalMessage.shareProgress(msg,files,totalDay)
+					)
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,

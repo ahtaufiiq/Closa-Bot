@@ -15,6 +15,23 @@ const RecurringMeetupController = require('./RecurringMeetupController');
 const FormatString = require('../helpers/formatString');
 class PartyController{
 
+	static showModalCustomReminder(interaction){
+		const [commandButton,userId] = interaction.customId.split('_')
+        if(commandButton === 'customReminder'){
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else reminder.`})
+
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set highlight reminder")
+			.addComponents(
+				new TextInputComponent().setCustomId('time').setLabel("Set time").setPlaceholder("e.g: 10.00 ").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
+
 	static async interactionSetDefaultReminder(interaction,value){
 		if (!value) {
 			supabase.from("Users")
@@ -319,7 +336,7 @@ class PartyController{
 
 	static async removeWaitingRoom(client){
 		const {kickoffDate} = LocalData.getData()
-		const ruleFirstDayCooldown = Time.getDate(kickoffDate)
+		const ruleFirstDayCooldown = Time.getNextDate(-1,kickoffDate)
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(23))
 		ruleFirstDayCooldown.setMinutes(59)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){

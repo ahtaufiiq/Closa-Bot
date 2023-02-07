@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_TODO } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -143,6 +144,21 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             { name: "Role", value:FormatString.truncateString( role,1020) },
             { name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
         )
+    }
+
+    static shareProgress(msg,files,totalDay){
+        const avatarUrl = InfoUser.getAvatar(msg.author)
+        return {
+			content:msg.content,
+			embeds:[
+				new MessageEmbed()
+					.setColor('#ffffff')
+					.setTitle("↳ Reply or React on timeline 💬")
+					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
+					.setFooter({text:`by ${msg.author.username} — DAY ${totalDay}`,iconURL:avatarUrl})
+			],
+            files
+		}
     }
 }
 
