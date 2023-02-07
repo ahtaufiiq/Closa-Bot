@@ -18,7 +18,7 @@ class PartyController{
 	static showModalCustomReminder(interaction){
 		const [commandButton,userId] = interaction.customId.split('_')
         if(commandButton === 'customReminder'){
-			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't submit someone else reminder.`})
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else reminder.`})
 
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
