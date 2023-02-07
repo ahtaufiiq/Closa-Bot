@@ -63,7 +63,7 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
                 .setTitle(`PARTY #${partyNumber}`)
                 .setDescription("—————————")
                 .addFields(
-                    { name: 'Members:', value: `${members}\n\`${totalMember}/5 Total members\`` },
+                    { name: 'Members:', value: `${members}\n\`${totalMember}/4 Total members\`` },
                 )
             ],
             components:[
