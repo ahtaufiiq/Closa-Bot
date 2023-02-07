@@ -145,8 +145,8 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
         )
     }
 
-    static shareProgress(user,msg,files,totalDay){
-        const avatarUrl = InfoUser.getAvatar(user)
+    static shareProgress(msg,files,totalDay){
+        const avatarUrl = InfoUser.getAvatar(msg.author)
         return {
 			content:msg.content,
 			embeds:[
@@ -154,7 +154,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
 					.setColor('#ffffff')
 					.setTitle("💬 Reply or react on timeline →")
 					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
-					.setFooter({text:`by ${user.username} — DAY ${totalDay}`,iconURL:avatarUrl})
+					.setFooter({text:`by ${msg.author.username} — DAY ${totalDay}`,iconURL:avatarUrl})
 			],
             files
 		}
