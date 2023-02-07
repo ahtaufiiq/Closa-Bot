@@ -171,7 +171,7 @@ so, you can learn or sharing from each others.`,
 					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
 					thread.send(
-						GoalMessage.shareProgress(msg,files,data.body.totalDay)
+						GoalMessage.shareProgress(msg,files,data.totalDay)
 					)
 				}else{
 					ChannelController.sendToNotification(
