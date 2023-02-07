@@ -144,6 +144,21 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             { name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
         )
     }
+
+    static shareProgress(user,msg,files,totalDay){
+        const avatarUrl = InfoUser.getAvatar(user)
+        return {
+			content:msg.content,
+			embeds:[
+				new MessageEmbed()
+					.setColor('#ffffff')
+					.setTitle("💬 Reply or react on timeline →")
+					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
+					.setFooter({text:`by ${user.username} — DAY ${totalDay}`,iconURL:avatarUrl})
+			],
+            files
+		}
+    }
 }
 
 module.exports = GoalMessage
