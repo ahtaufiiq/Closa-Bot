@@ -19,6 +19,8 @@ const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
 const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
+const schedule = require('node-schedule');
+const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -268,6 +270,58 @@ The correct format:
 
 			modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
 			modal.editReply('change custom reply')
+		}else if(commandButton === 'customReminder'){
+			await modal.deferReply()
+			const time = modal.getTextInputValue('time');
+			const patternTime = /\d+[.:]\d+/
+			if (!patternTime.test(time)) {
+					await modal.editReply(`Incorrect format, try:
+/remind highlight 06.30
+(for example) - use 24h format`)
+				return	
+			}
+
+			const {data} = await supabase.from("Users")
+				.select()
+				.eq('id',targetUserId)
+				.single()
+
+			const [hours,minutes] = time.split(/[.:]/)
+			if (data.reminderHighlight !== time) {
+				supabase.from("Users")
+					.update({reminderHighlight:time})
+					.eq('id',targetUserId)
+					.single()
+					.then(async ({data:user})=>{
+						let ruleReminderHighlight = new schedule.RecurrenceRule();
+						ruleReminderHighlight.hour = Time.minus7Hours(hours)
+						ruleReminderHighlight.minute = minutes
+						const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
+							supabase.from('Users')
+							.select()
+							.eq('id',user.id)
+							.single()
+							.then(async ({data})=>{
+								if (data) {
+									if (user.reminderHighlight !== data.reminderHighlight) {
+										scheduleReminderHighlight.cancel()
+									}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
+										const {id:userId,notificationId} = data;
+										ChannelController.sendToNotification(
+											interaction.client,
+											HighlightReminderMessage.highlightReminder(userId),
+											userId,
+											notificationId
+										)
+									}
+								}
+							})
+						
+						})
+					})
+			}
+			await modal.editReply(PartyMessage.endOfOnboarding())
+			ChannelController.deleteMessage(modal.message)
 		}
 	},
 };
