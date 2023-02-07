@@ -170,8 +170,10 @@ so, you can learn or sharing from each others.`,
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
+					let {totalDay,lastDone} = data
+					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
 					thread.send(
-						GoalMessage.shareProgress(msg,files,data.totalDay)
+						GoalMessage.shareProgress(msg,files,totalDay)
 					)
 				}else{
 					ChannelController.sendToNotification(
