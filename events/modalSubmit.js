@@ -275,8 +275,7 @@ The correct format:
 			const time = modal.getTextInputValue('time');
 			const patternTime = /\d+[.:]\d+/
 			if (!patternTime.test(time)) {
-					await modal.editReply(`Incorrect format, try:
-/remind highlight 06.30
+					await modal.editReply(`Incorrect format, try: 6.30
 (for example) - use 24h format`)
 				return	
 			}
