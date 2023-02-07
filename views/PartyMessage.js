@@ -136,7 +136,7 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
-                    MessageComponent.addButton(`customReminder_${userId}`,"Let me custom my own reminder","PRIMARY"),
+                    MessageComponent.addButton(`customReminder_${userId}`,"Custom Reminder","SECONDARY").setEmoji('⏰'),
                     MessageComponent.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]
