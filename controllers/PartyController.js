@@ -661,7 +661,7 @@ class PartyController{
 	}
 
 	static getMaxPartyMember(){
-		return 5
+		return 4
 	}
 
 	static async dataJoinedParty(userId){
@@ -708,7 +708,7 @@ class PartyController{
 	}
 
 	static getThisCohort(){
-		return LocalData.getData().cohort + 1
+		return LocalData.getData().cohort 
 	}
 
 	static isPartyMode(value){
@@ -729,6 +729,7 @@ class PartyController{
 		const data = await supabase.from("JoinParties")
 		.select("id,UserId,project")
 		.eq('cohort',PartyController.getThisCohort())
+		console.log("🚀 ~ file: PartyController.js:732 ~ PartyController ~ saveDataJoinPartyToMemberPartyRoom ~ data", data)
 
 		if(data.body){
 			const endPartyDate = LocalData.getData().deadlineGoal
@@ -740,6 +741,7 @@ class PartyController{
 					JoinPartyId:id,
 				}
 			})
+			console.log("🚀 ~ file: PartyController.js:744 ~ PartyController ~ memberPartyRooms ~ memberPartyRooms", memberPartyRooms)
 			await supabase.from("MemberPartyRooms")
 				.insert(memberPartyRooms)
 		}
