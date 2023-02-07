@@ -153,7 +153,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
 			embeds:[
 				new MessageEmbed()
 					.setColor('#ffffff')
-					.setTitle("↳ Reply or React on timeline 💬")
+					.setTitle("↳ Reply or React on timeline ›")
 					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
 					.setFooter({text:`by ${msg.author.username} — DAY ${totalDay}`,iconURL:avatarUrl})
 			],
