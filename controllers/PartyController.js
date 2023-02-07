@@ -24,7 +24,7 @@ class PartyController{
 			.setCustomId(interaction.customId)
 			.setTitle("Set highlight reminder")
 			.addComponents(
-				new TextInputComponent().setCustomId('time').setLabel("Set time").setDefaultValue(project).setPlaceholder("e.g: 10.00 ").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('time').setLabel("Set time").setPlaceholder("e.g: 10.00 ").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
 			return true
