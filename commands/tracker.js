@@ -34,7 +34,7 @@ module.exports = {
 			RequestAxios.get('todos/tracker/'+user.id)
 			.then(async progressRecently=>{
 				const avatarUrl = InfoUser.getAvatar(user)
-				const buffer = await GenerateImage.tracker(user.username,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
+				const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
 				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
 				await interaction.editReply({
 					files:[

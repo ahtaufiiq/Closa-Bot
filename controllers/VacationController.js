@@ -101,7 +101,7 @@ class VacationController{
             .then(async progressRecently=>{
                 const avatarUrl = InfoUser.getAvatar(interaction.user)
 
-                const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
+                const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
                 const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
                 channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,0,true))
             })
@@ -183,7 +183,7 @@ class VacationController{
                             const vacationTicketLeft = totalTicket - 1
                             const isBuyOneVacation = totalTicket === 1
             
-                            const buffer = await GenerateImage.tracker(interaction.user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,vacationTicketLeft,isBuyOneVacation)
+                            const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,vacationTicketLeft,isBuyOneVacation)
                             const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
                             channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,vacationTicketLeft,isBuyOneVacation))
                         })
@@ -236,7 +236,7 @@ class VacationController{
                 .then(async progressRecently=>{
                     const avatarUrl = InfoUser.getAvatar(user)
 
-                    const buffer = await GenerateImage.tracker(user.username,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,vacationLeft)
+                    const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,vacationLeft)
                     const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
                     channelStreak.send(VacationMessage.onVacationMode(user.id,attachment,vacationLeft))
                 })

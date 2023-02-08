@@ -50,6 +50,14 @@ class UserController{
                     .then()
             })
     }
+
+	static getNameFromUserDiscord(user){
+		const data = {
+			"659411113825402902":'saftrn'
+		}
+		if(data[user.id]) return data[user.id]
+		else return user.username
+	}
 }
 
 module.exports = UserController
