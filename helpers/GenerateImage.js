@@ -1,6 +1,7 @@
 const {createCanvas,loadImage,registerFont} = require('canvas')
 const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
+const InfoUser = require('./InfoUser')
 const Time = require('./time')
 class GenerateImage{
     static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
@@ -170,6 +171,36 @@ class GenerateImage{
         context.fillText(expired, 1155 , 108);
 
           
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+
+    static async streakBadge(totalStreak,user){
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        
+        const canvas = createCanvas(1440,1920)
+
+        const context = canvas.getContext('2d')
+ 
+        const template = await loadImage(`./assets/images/${totalStreak}_streak_badge.png`)
+        context.drawImage(template,0,0)
+        context.fillStyle = "#161F26"; 
+        context.font = "600 42px Archivo";
+        context.fillText(user.username, 300 , 1786);
+
+		const avatarUrl = InfoUser.getAvatar(user)
+        const photoUser = await loadImage(avatarUrl)
+
+        const rectWidth = 83;
+        const rectHeight = 83.5;
+        const rectX = 186.5;
+        const rectY = 1730.8;
+        const cornerRadius = 30;
+        
+        this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
+        context.clip()
+        context.drawImage(photoUser,rectX,rectY,rectWidth,rectHeight)
+        
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }

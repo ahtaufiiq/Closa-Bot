@@ -82,9 +82,7 @@ class SickDayController{
 
             supabase.from("Reminders")
                 .insert(listSickTicket)
-                .then(data=>{
-                    console.log(data);
-                })
+                .then()
             if (Time.onlyMissOneDay(lastDone)) {
                 const missedDate = Time.getNextDate(-1)
                 missedDate.setHours(8)
@@ -221,7 +219,6 @@ class SickDayController{
             .eq("UserId",userId)
             .eq('type','sick')
             .order('message',{ascending:true})
-        console.log("🚀 ~ file: SickDayController.js:220 ~ SickDayController ~ checkSickTicket ~ data", data,startDate,endDate)
 
         if (data.body.length > 0) {
             result.isAlreadyHaveSickTicket = true

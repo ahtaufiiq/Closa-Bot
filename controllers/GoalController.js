@@ -51,6 +51,7 @@ class GoalController {
 		PartyController.setProgressReminder(interaction,shareProgressAt)
 		
 		if(accountabilityMode === 'party'){
+			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
 			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
 			const kickoffEventId = LocalData.getData().kickoffEventId
 			ChannelController.sendToNotification(

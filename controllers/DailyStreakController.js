@@ -28,9 +28,13 @@ class DailyStreakController {
             data = {content:`Welcome to <@&${ROLE_365STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(365)]}
             MemberController.addRole(bot, author.id, ROLE_365STREAK)
         }
+
+		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
+		const attachment = new MessageAttachment(buffer,`streak_badge_${author.username}.png`)
+		data.files = [attachment]
 		
 		const msg = await ChannelReminder.send(data)
-		ChannelController.createThread(msg,`Congrats ${author.username}`)
+		ChannelController.createThread(msg,`Congrats ${author.username}!`)
     }
 
     static remindMissOneDay(client){

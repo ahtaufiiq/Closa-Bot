@@ -52,7 +52,8 @@ You can check the badge on your profile.`
 
     static notifyDailyStreak(total){
         return MessageComponent.embedMessage({
-            description:`In honor of your consistency to do what matters every day. You just got 🔥 ${total}x day streak badge!
+            description:`In honor of your consistency to do what matters every day. 
+You just got ${total}x day streak badge! 🔥
 Now you have fire animation every time you keep the streak. 👀
 You can check the badge on your profile.`
         },"#fefefe")

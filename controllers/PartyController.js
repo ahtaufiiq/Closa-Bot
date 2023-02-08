@@ -729,7 +729,6 @@ class PartyController{
 		const data = await supabase.from("JoinParties")
 		.select("id,UserId,project")
 		.eq('cohort',PartyController.getThisCohort())
-		console.log("🚀 ~ file: PartyController.js:732 ~ PartyController ~ saveDataJoinPartyToMemberPartyRoom ~ data", data)
 
 		if(data.body){
 			const endPartyDate = LocalData.getData().deadlineGoal
@@ -741,7 +740,6 @@ class PartyController{
 					JoinPartyId:id,
 				}
 			})
-			console.log("🚀 ~ file: PartyController.js:744 ~ PartyController ~ memberPartyRooms ~ memberPartyRooms", memberPartyRooms)
 			await supabase.from("MemberPartyRooms")
 				.insert(memberPartyRooms)
 		}
