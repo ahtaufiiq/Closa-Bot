@@ -58,13 +58,13 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "followGoal":
-					if(interaction.user.id === targetUserId) return interaction.editReply(`You can't follow your own goal.`)
+					if(interaction.user.id === targetUserId) return interaction.editReply(`**You can't follow your own goal.**`)
 					const thread = await ChannelController.getThread(ChannelController.getChannel(interaction.client,CHANNEL_GOALS),interaction.message.id)
 					const threadMembers = await thread.members.fetch()
-					if(threadMembers.get(interaction.user.id)) return interaction.editReply(`You already followed ${value}’s goal.`)
-					
-					thread.send(`**${interaction.user} followed your goal**`)
-					interaction.editReply(`You've successfully followed ${value}’s goal.`)
+					if(threadMembers.get(interaction.user.id)) return interaction.editReply(`**You already followed ${value}’s goal.**`)
+
+					thread.send(`**${interaction.user} followed this project**`)
+					interaction.editReply(`**You've successfully followed ${value}’s goal.**`)
 					break;
 				case "boostInactiveMember":
 					BoostController.interactionBoostInactiveMember(interaction,targetUser)
