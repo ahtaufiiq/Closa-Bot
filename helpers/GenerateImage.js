@@ -176,7 +176,7 @@ class GenerateImage{
     }
 
     static async streakBadge(totalStreak,user){
-        registerFont('./assets/fonts/Archivo-Semibold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
         
         const canvas = createCanvas(1440,1920)
 
@@ -186,7 +186,7 @@ class GenerateImage{
         context.drawImage(template,0,0)
         context.fillStyle = "#161F26"; 
         context.font = "600 42px Archivo";
-        context.fillText('apri', 300 , 1786);
+        context.fillText(user.username, 300 , 1786);
 
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
