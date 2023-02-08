@@ -454,7 +454,10 @@ class RecurringMeetupController {
 				if (totalUser === 2) {
 					if(isAcceptMeetup) {
 						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
-						RecurringMeetupController.notifyMeetupSchedule(interaction.client,interaction.message.channelId,meetupDate)
+						const meetupSchedule = Time.getDate(meetupDateOnly)
+						meetupSchedule.setHours(21)
+						meetupSchedule.setMinutes(0)
+						RecurringMeetupController.notifyMeetupSchedule(interaction.client,interaction.message.channelId,meetupSchedule)
 					}else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
 				}
 			})
