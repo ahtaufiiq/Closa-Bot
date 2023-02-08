@@ -30,7 +30,7 @@ class DailyStreakController {
         }
 
 		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
-		const attachment = new MessageAttachment(buffer,`streak_badge_${msg.author.username}.png`)
+		const attachment = new MessageAttachment(buffer,`streak_badge_${author.username}.png`)
 		data.files = [attachment]
 		
 		const msg = await ChannelReminder.send(data)
