@@ -57,6 +57,11 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "followGoal":
+					if(interaction.user.id === targetUserId) return interaction.editReply(`You can't follow your own goal.`)
+					ChannelController.addUserToThread(interaction.client,CHANNEL_GOALS,interaction.message.id,interaction.user.id)
+					interaction.editReply(`You've successfully followed ${value}’s goal.`)
+					break;
 				case "boostInactiveMember":
 					BoostController.interactionBoostInactiveMember(interaction,targetUser)
 					break;

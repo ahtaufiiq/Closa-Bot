@@ -123,7 +123,8 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
             content:`${user} just started a new project 🔥`,
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
             components: [MessageComponent.createComponent(
-                MessageComponent.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY")
+                MessageComponent.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
+                MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow Goal"),
             )]
         }
     }
