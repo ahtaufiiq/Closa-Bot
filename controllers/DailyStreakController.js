@@ -34,7 +34,7 @@ class DailyStreakController {
 		data.files = [attachment]
 		
 		const msg = await ChannelReminder.send(data)
-		ChannelController.createThread(msg,`Congrats ${author.username}`)
+		ChannelController.createThread(msg,`Congrats ${author.username}!`)
     }
 
     static remindMissOneDay(client){
