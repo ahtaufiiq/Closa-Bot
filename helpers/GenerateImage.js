@@ -1,10 +1,11 @@
 const {createCanvas,loadImage,registerFont} = require('canvas')
+const UserController = require('../controllers/UserController')
 const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const InfoUser = require('./InfoUser')
 const Time = require('./time')
 class GenerateImage{
-    static async tracker(name,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
+    static async tracker(user,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
@@ -18,6 +19,7 @@ class GenerateImage{
         context.drawImage(template,0,0)
         context.fillStyle = "#2B2B2B"; 
         context.font = "600 56px Inter";
+        const name = UserController.getNameFromUserDiscord(user)
         context.fillText(name, 75 , 102 + 50);
         context.font = "600 48px Inter";
         const maxCharGoal = (isVacation || isSick) ?(vacationLeft === 0 ? 25 : 23) : 37
@@ -186,7 +188,8 @@ class GenerateImage{
         context.drawImage(template,0,0)
         context.fillStyle = "#161F26"; 
         context.font = "600 42px Archivo";
-        context.fillText(user.username, 300 , 1786);
+        const username = UserController.getNameFromUserDiscord(user)
+        context.fillText(username, 300 , 1786);
 
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
