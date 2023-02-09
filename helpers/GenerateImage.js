@@ -207,6 +207,51 @@ class GenerateImage{
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
+
+    static async referralCover(totalReferral,user,isDarkMode=true){
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/BaiJamjuree-Medium.ttf',{family:'BaiJamjuree',weight:500})
+        
+        const canvas = createCanvas(1440,1440)
+
+        const context = canvas.getContext('2d')
+        context.fillStyle = "#F6F8FA"; 
+ 
+        if(totalReferral > 1){
+            const template = await loadImage(`./assets/images/referral_cover_template${isDarkMode ? "":"_white"}.png`)
+            context.drawImage(template,0,0)
+            context.font = "500 48px BaiJamjuree";
+            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1033 , 222.5);
+
+        }else{
+            const template = await loadImage(`./assets/images/referral_cover_oneInvite${isDarkMode ? "":"_white"}.png`) 
+            context.drawImage(template,0,0)
+        }
+
+        
+        if(!isDarkMode) context.fillStyle = "#2B2B2B"
+
+        context.textAlign = 'center'
+        context.font = "600 42px Archivo";
+        const username = UserController.getNameFromUserDiscord(user)
+        context.fillText(username, 721 , 1330);
+
+		const avatarUrl = InfoUser.getAvatar(user)
+        const photoUser = await loadImage(avatarUrl)
+
+        const rectWidth = 121;
+        const rectHeight = 123.5;
+        const rectX = 660;
+        const rectY = 1141;
+        const cornerRadius = 43;
+        
+        this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
+        context.clip()
+        context.drawImage(photoUser,rectX,rectY,rectWidth,rectHeight)
+        
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
 }
 
 module.exports = GenerateImage

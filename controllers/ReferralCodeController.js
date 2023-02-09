@@ -8,6 +8,7 @@ const LocalData = require("../helpers/LocalData.js");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateImage = require("../helpers/GenerateImage");
 const { MessageAttachment } = require("discord.js");
+const MemberController = require("./MemberController");
 class ReferralCodeController{
     static showModalRedeem(interaction){
         if(interaction.customId === 'redeem'){
@@ -75,7 +76,30 @@ class ReferralCodeController{
             interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
         }
     }
-    static async generateReferral(client,user,threadProgress){
+
+    static async interactionGenerateReferralCover(interaction,targetUserId){
+        if (interaction.user.id !== targetUserId) {
+            await interaction.editReply("⚠️ Can't claim other people's referrals")
+            return
+        }
+
+        const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(interaction.user.id)
+        
+        if (totalReferralCode > 0) {
+            const files = []
+            const [coverBlack,coverWhite] = await Promise.all([
+                GenerateImage.referralCover(totalReferralCode,interaction.user),
+                GenerateImage.referralCover(totalReferralCode,interaction.user,false)
+            ])
+            files.push(new MessageAttachment(coverBlack,`referral_cover_${interaction.user.username}.png`))
+            files.push(new MessageAttachment(coverWhite,`referral_coverWhite_${interaction.user.username}.png`))
+            interaction.editReply(ReferralCodeMessage.successGenerateReferralCover(files))
+        }else{
+            interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
+        }
+    }
+
+    static async generateReferral(client,user){
         const userId = user.id
         const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
         if (!isGenerateNewReferral) return
@@ -117,13 +141,15 @@ class ReferralCodeController{
             const isAdditionalReferral = totalActiveReferral === 1
             const {id:userId,notificationId} = data.body
             const formattedExpiredDate = Time.getFormattedDate(expiredDate)
+            const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+            const files = [new MessageAttachment(bufferReferralCover,`referral_cover_${user.username}.png`)]
             ChannelController.sendToNotification(
                 client,
-                ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate),
+                ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate,files),
                 userId,
                 notificationId
             )
-            user.send(ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate))
+            user.send(ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate,files))
                 .catch(err=>console.log("Cannot send message to user"))
         })
     }
@@ -156,20 +182,21 @@ class ReferralCodeController{
             .insert(values)
 
         const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
-
+        const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+        const files = [new MessageAttachment(bufferReferralCover,`referral_cover_${user.username}.png`)]
         ChannelController.sendToNotification(
             client,
-            ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId),
+            ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalStreak,userId,files),
             userId,
         )
-        user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalActiveReferral,totalStreak,userId)) 
+        user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalStreak,userId,files)) 
             .catch(err=>console.log("Cannot send message to user"))
     }
 
     static remindToClaimReferral(client,userId){
         if (userId) {
             supabase.from('Reminders')
-                .select(',Users(notificationId)')
+                .select('UserId,Users(notificationId)')
                 .eq('type',"claimReferral")
                 .eq('UserId',userId)
                 .gte('time',new Date().toUTCString())
@@ -178,9 +205,13 @@ class ReferralCodeController{
                         data.body.forEach(async reminder=>{
                             schedule.scheduleJob(reminder.time,async function() {
                                 const type = reminder.message === '5 days' ? 5 : 2
+                                const {user} = await MemberController.getMember(client,userId)
+                                const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
+                                const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+                                const files = [new MessageAttachment(bufferReferralCover,`referral_cover_${user.username}.png`)]
                                 ChannelController.sendToNotification(
                                     client,
-                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type),
+                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,files,type),
                                     userId,
                                     reminder.Users.notificationId
                                 )
@@ -198,9 +229,13 @@ class ReferralCodeController{
                         data.body.forEach(async reminder=>{
                             schedule.scheduleJob(reminder.time,async function() {
                                 const type = reminder.message === '5 days' ? 5 : 2
+                                const {user} = await MemberController.getMember(client,reminder.UserId)
+                                const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(reminder.UserId)
+                                const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+                                const files = [new MessageAttachment(bufferReferralCover,`referral_cover_${user.username}.png`)]
                                 ChannelController.sendToNotification(
                                     client,
-                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,type),
+                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,files,type),
                                     reminder.UserId,
                                     reminder.Users.notificationId
                                 )

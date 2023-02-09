@@ -24,19 +24,19 @@ class ReferralCodeMessage{
         }
     }
 
-    static reminderClaimReferral(userId,day=5){
+    static reminderClaimReferral(userId,files,day=5){
         return { 
             content:`Hi <@${userId}> your referral code will be expired in ${day} days. ` , 
-            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+            files,
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY")
+                    MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY"),
+                    MessageComponent.addButton(`generateReferralCover_${userId}`,'Generate Invites Cover',"SECONDARY").setEmoji('✨'),
                 )
             ] 
         }
     }
-    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral,expiredDate){
-        const totalActiveReferral = (totalNewReferral === 1 && isAdditionalReferral) ? 2 : totalNewReferral
+    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral,expiredDate,files){
         return { 
             content:`**${totalNewReferral} ${isAdditionalReferral?"more ":""}referral code for you!** :gift: 
 
@@ -47,10 +47,12 @@ One of the reason we’re able to sustainably provide better experience for our 
 
 **Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}
 
-the referral code *valid until *${expiredDate}*` , 
-            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+the referral code *valid until ${expiredDate}*
+
+Share to your network or friends using the cover image below 💌: ` , 
+            files,
             components: [
-                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))
+                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim`,"🎁","PRIMARY"))
             ] 
         }
     }
@@ -73,7 +75,8 @@ Your friends can redeem it via https://closa.me/referral
         return { 
             content, 
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY"),
+                MessageComponent.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY").setEmoji('💌'),
+                MessageComponent.addButton(`generateReferralCover_${userId}`,'Generate Invites Cover',"SECONDARY").setEmoji('✨'),
                 MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
@@ -189,7 +192,7 @@ Share it to your friends to get 1 month free membership.`
         }
     }
 
-    static achieveFirstDailyStreak(newReferral,totalActiveReferral,totalStreak,userId){
+    static achieveFirstDailyStreak(newReferral,totalStreak,userId,files){
         return {
             content:`**${newReferral} referral code for you!** :gift: 
 
@@ -199,11 +202,18 @@ If you find the community is valuable, help us spread it to your friends. :smile
 One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
 
 **Get 1 month free membership both you and your friends** for every referral code that redeemed. :stonks:`,
-            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+            files,
             components: [
-                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim ${totalActiveReferral} referral code`,"🎁","PRIMARY"))
+                MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim`,"🎁","PRIMARY"))
             ] 
             }
+    }
+
+    static successGenerateReferralCover(files){
+        return {
+            content:`**💌 Share to your friends or network using invites cover below:**`,
+            files
+        }
     }
 }
 
