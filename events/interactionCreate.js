@@ -315,6 +315,9 @@ module.exports = {
 				case "generateReferral":
 					ReferralCodeController.interactionGenerateReferral(interaction,targetUserId)
 					break;
+				case "generateReferralCover":
+					ReferralCodeController.interactionGenerateReferralCover(interaction,targetUserId)
+					break;
 				case "remindJoinNextCohort":
 					PaymentController.setReminderJoinNextCohort(interaction.client,targetUserId)
 					await interaction.editReply(PaymentMessage.replySetReminderJoinNextCohort())
