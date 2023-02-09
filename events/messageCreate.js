@@ -270,17 +270,6 @@ so, you can learn or sharing from each others.`,
 						endLongestStreak
 					} = data.body
 					
-					if(endLongestStreak === Time.getTodayDateOnly()){
-						if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-							DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
-							ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author,currentStreak)
-						}
-					}else {
-						if(currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-							DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
-						}
-					}
-					
 					if (goalName) {
 						RequestAxios.get('todos/tracker/'+msg.author.id)
 							.then(async progressRecently=>{
@@ -289,12 +278,23 @@ so, you can learn or sharing from each others.`,
 								
 
 								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
-								ChannelStreak.send({
+								await ChannelStreak.send({
 									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
 									files:[
 										attachment
 									]
 								})
+								
+								if(endLongestStreak === Time.getTodayDateOnly()){
+									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
+										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
+										ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author,currentStreak)
+									}
+								}else {
+									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
+										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
+									}
+								}
 							})
 					}else{
 						ChannelStreak.send({
