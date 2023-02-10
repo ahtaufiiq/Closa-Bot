@@ -31,7 +31,7 @@ class ReferralCodeMessage{
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY"),
-                    MessageComponent.addButton(`generateReferralCover_${userId}`,'Generate Invites Cover',"SECONDARY").setEmoji('✨'),
+                    MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
                 )
             ] 
         }
@@ -75,8 +75,8 @@ Your friends can redeem it via https://closa.me/referral
         return { 
             content, 
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateReferral_${userId}`,'Generate Ticket',"PRIMARY").setEmoji('💌'),
-                MessageComponent.addButton(`generateReferralCover_${userId}`,'Generate Invites Cover',"SECONDARY").setEmoji('✨'),
+                MessageComponent.addButton(`generateReferral_${userId}`,'Ticket',"PRIMARY").setEmoji('💌'),
+                MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
                 MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
