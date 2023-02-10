@@ -239,10 +239,10 @@ class GenerateImage{
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
 
-        const rectWidth = 121;
-        const rectHeight = 123.5;
-        const rectX = 660;
-        const rectY = 1141;
+        const rectWidth = 124.6;
+        const rectHeight = 124;
+        const rectX = 657.6;
+        const rectY = 1140.9;
         const cornerRadius = 43;
         
         this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
