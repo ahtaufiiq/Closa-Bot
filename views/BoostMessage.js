@@ -1,4 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
+const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -8,8 +9,8 @@ class BoostMessage{
     static boostBack(user,sender,totalBoost){
         return { 
             content:`**Hi ${user} someone just boosted you back **` , 
-            embeds: [MessageComponent.embedMessage({
-                title:`Boosted you ${totalBoost}x 🚀`,
+            embeds: [BoostMessage.embedMessageBoost({
+                totalBoost,
                 user:sender
             })]
         }
@@ -26,16 +27,14 @@ class BoostMessage{
     static sendBoost(user,sender,totalBoost,message){
         return { 
             content:`Hi ${user} someone just boosted you ` , 
-            embeds: [MessageComponent.embedMessage({
-                title: message,
-                description: `Boosted you ${totalBoost}x 🚀`,
-                user: sender
+            embeds: [BoostMessage.embedMessageBoost({
+                message,
+                user:sender,
+                totalBoost
             })], 
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${sender.id}`,'🚀 Personal Boost')
-                ),
-                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${sender.id}`,'🚀 Personal Boost'),
                     MessageComponent.addButton(`boostBack_${sender.id}`,'⚡️ Quick Boost',"SECONDARY")
                 )
             ] 
@@ -46,10 +45,10 @@ class BoostMessage{
         
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
-            embeds: [MessageComponent.embedMessage({
-                title: `Let's start tiny & get back on track!`,
-                description: `Boosted you ${totalBoost}x 🚀`,
-                user: sender
+            embeds: [BoostMessage.embedMessageBoost({
+                message:`Let's start tiny & get back on track!`,
+                user:sender,
+                totalBoost
             })], 
             components: [
                 MessageComponent.createComponent(
@@ -91,9 +90,7 @@ it looks like ${user} is not making progress for 2 days.**` ,
             })], 
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
-                ),
-                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
                     MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
                 )
             ] 
@@ -110,9 +107,7 @@ it looks like ${user} is not making progress for 2 days.**` ,
             })], 
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
-                ),
-                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
                     MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
                 )
             ] 
@@ -130,9 +125,7 @@ it's almost a week our friend ${user} not making progress` ,
             })], 
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
-                ),
-                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
                     MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
                 )
             ] 
@@ -169,6 +162,18 @@ type the command below here:
     }
     static warningReplyYourself(){
         return "⚠️ Can't reply to yourself. Boost other instead."
+    }
+
+    static embedMessageBoost({message,user,totalBoost},color="#00B264"){
+        const msg = new MessageEmbed()
+            .setColor(color)
+            .setFooter({iconURL:InfoUser.getAvatar(user),text:`${user.username} — boosted ${totalBoost}x 🚀`})
+
+        if(message){
+            msg.setTitle(FormatString.truncateString(message,252)||"")
+        }
+
+        return msg
     }
 
 }
