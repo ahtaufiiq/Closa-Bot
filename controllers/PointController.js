@@ -124,6 +124,9 @@ class PointController{
             case 'boost':
                 finalPoint = PointController.randomNumber(1,10)
                 break;
+            case 'personalBoost':
+                finalPoint = PointController.randomNumber(1,25)
+                break;
         }
         return finalPoint
     }

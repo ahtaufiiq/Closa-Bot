@@ -498,9 +498,10 @@ class RecurringMeetupController {
 				})
 			}
 		}
+		await interaction.deleteReply()
 		
-		if(isAcceptAttendance) interaction.editReply(`**${interaction.user} will attend the virtual meetup ✅**`)
-		else interaction.editReply(`**${interaction.user} can't attend the virtual meetup ❌**`)
+		if(isAcceptAttendance) interaction.channel.send(`**${interaction.user} will attend the virtual meetup ✅**`)
+		else interaction.channel.send(`**${interaction.user} can't attend the virtual meetup ❌**`)
 		
 		RecurringMeetupController.getTotalResponseCannotAttend(weeklyMeetupId)
 			.then(async totalUser=>{

@@ -41,6 +41,7 @@ module.exports = {
 			if(TestimonialController.showModalCustomReply(interaction)) return
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
+			if(BoostController.showModalPersonalBoost(interaction)) return
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
@@ -65,6 +66,9 @@ module.exports = {
 
 					thread.send(`**${interaction.user} followed this project**`)
 					interaction.editReply(`**You've successfully followed ${value}’s goal.**`)
+					break;
+				case "personalBoost":
+					BoostController.interactionBoostInactiveMember(interaction,targetUser)
 					break;
 				case "boostInactiveMember":
 					BoostController.interactionBoostInactiveMember(interaction,targetUser)
@@ -403,7 +407,7 @@ module.exports = {
 				}
 			}else if(commandMenu === 'buyVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else{
+			}else if(commandMenu !== 'inactiveReply'){
 				await interaction.deferReply();
 			}
 			
@@ -411,12 +415,16 @@ module.exports = {
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
 				case "inactiveReply":
-					ChannelController.sendToNotification(
-						interaction.client,
-						BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
-						targetUserId
-					)
-					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
+					if(valueMenu === 'personalBoost'){
+						BoostController.showModalPersonalBoost(interaction)
+					}else{
+						ChannelController.sendToNotification(
+							interaction.client,
+							BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
+							targetUserId
+						)
+						await interaction.reply(BoostMessage.successSendMessage(targetUser.user))
+					}
 					break;
 				case "goalCategory":
 					GoalController.interactionPickGoalCategory(interaction,valueMenu)
