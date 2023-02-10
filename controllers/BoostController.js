@@ -1,4 +1,5 @@
 const { CHANNEL_BOOST } = require("../helpers/config");
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const ChannelController = require("./ChannelController");
 const schedule = require('node-schedule');
 const Time = require("../helpers/time");
@@ -9,6 +10,23 @@ const PointController = require("./PointController");
 const DailyReport = require("./DailyReport");
 const LocalData = require("../helpers/LocalData");
 class BoostController{
+
+	static showModalPersonalBoost(interaction){
+		const [commandButton,userId] = interaction.customId.split('_')
+        if(commandButton === 'personalBoost' || commandButton === 'inactiveReply'){
+			if(interaction.user.id === userId) return interaction.reply({ephemeral:true,content:BoostMessage.warningBoostYourself()})
+
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("📝 Send message")
+			.addComponents(
+				new TextInputComponent().setCustomId('message').setLabel("Message").setPlaceholder("Boost with personal message...").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
 
     static async remindBoostInactiveMember(client){
         const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)

@@ -25,18 +25,18 @@ class BoostMessage{
 
     static sendBoost(user,sender,totalBoost,message){
         return { 
-            content:`**Hi ${user} someone just boosted you **` , 
+            content:`Hi ${user} someone just boosted you ` , 
             embeds: [MessageComponent.embedMessage({
-                titel: `Boosted you ${totalBoost}x 🚀`,
-                description: message,
+                title: message,
+                description: `Boosted you ${totalBoost}x 🚀`,
                 user: sender
             })], 
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(
-                        `boostBack_${sender.id}`,
-                        '🚀  Boost!'
-                    )
+                    MessageComponent.addButton(`personalBoost_${sender.id}`,'🚀 Personal Boost')
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`boostBack_${sender.id}`,'⚡️ Quick Boost',"SECONDARY")
                 )
             ] 
         }
@@ -47,8 +47,8 @@ class BoostMessage{
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
             embeds: [MessageComponent.embedMessage({
-                title: `Boosted you ${totalBoost}x 🚀`,
-                description: `Let's start tiny & get back on track!`,
+                title: `Let's start tiny & get back on track!`,
+                description: `Boosted you ${totalBoost}x 🚀`,
                 user: sender
             })], 
             components: [
@@ -68,6 +68,10 @@ class BoostMessage{
                             {
                                 label:'I still need to take a break, but thanks!',
                                 value:'I still need to take a break, but thanks!'
+                            },
+                            {
+                                label:'💬 Write personal reply..',
+                                value:`personalBoost`
                             }
                         ]
                     )
@@ -85,7 +89,14 @@ it looks like ${user} is not making progress for 2 days.**` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
+                )
+            ] 
         }
     }
     static aboutToLoseStreak(user,currentStreak){
@@ -97,7 +108,14 @@ it looks like ${user} is not making progress for 2 days.**` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
+                )
+            ] 
         }
     }
 
@@ -110,7 +128,14 @@ it's almost a week our friend ${user} not making progress` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [MessageComponent.createComponent(MessageComponent.addButton(`boostInactiveMember_${user.id}`,'🚀  Boost!'))] 
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost')
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
+                )
+            ] 
         }
     }
 

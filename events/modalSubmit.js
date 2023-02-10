@@ -21,6 +21,10 @@ const TestimonialMessage = require("../views/TestimonialMessage");
 const WeeklyReflectionMessage = require("../views/WeeklyReflectionMessage");
 const schedule = require('node-schedule');
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
+const PointController = require("../controllers/PointController");
+const BoostMessage = require("../views/BoostMessage");
+const DailyReport = require("../controllers/DailyReport");
+const BoostController = require("../controllers/BoostController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -321,6 +325,21 @@ The correct format:
 			}
 			await modal.editReply(PartyMessage.endOfOnboarding())
 			ChannelController.deleteMessage(modal.message)
+		}else if(commandButton === 'personalBoost' || commandButton === 'inactiveReply'){
+			await modal.deferReply({ephemeral:true});
+			const message = modal.getTextInputValue('message');
+			const {user} = await MemberController.getMember(modal.client,targetUserId)
+
+			const {isMoreThanOneMinute,isIncrementPoint} = await PointController.validateTimeBoost(modal.user.id,targetUserId)
+			if(!isMoreThanOneMinute) return await modal.editReply(BoostMessage.warningSpamBoost())
+			if(isIncrementPoint) {
+				await DailyReport.activeMember(modal.client,modal.user.id)
+				PointController.addPoint(modal.user.id,'personalBoost')
+			}
+			const totalBoost = await BoostController.incrementTotalBoost(modal.user.id,user.id)
+			ChannelController.sendToNotification(modal.client,BoostMessage.sendBoost(user,modal.user,totalBoost,message),user.id)
+
+			await modal.editReply(BoostMessage.successSendMessage(user))
 		}
 	},
 };
