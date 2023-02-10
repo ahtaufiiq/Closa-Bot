@@ -37,6 +37,7 @@ module.exports = {
     CHANNEL_ANNOUNCEMENT: process.env.CHANNEL_ANNOUNCEMENT,
     CHANNEL_BOT: process.env.CHANNEL_BOT,
     CHANNEL_SHOP: process.env.CHANNEL_SHOP,
+    COMMAND_BOOST: process.env.COMMAND_BOOST,
     CATEGORY_CHAT: process.env.CATEGORY_CHAT,
     ROLE_7STREAK: process.env.ROLE_7STREAK,
     ROLE_30STREAK: process.env.ROLE_30STREAK,
