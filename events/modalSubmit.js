@@ -337,7 +337,7 @@ The correct format:
 				PointController.addPoint(modal.user.id,'personalBoost')
 			}
 			const totalBoost = await BoostController.incrementTotalBoost(modal.user.id,user.id)
-			ChannelController.sendToNotification(modal.client,BoostMessage.sendBoost(user,modal.user,totalBoost,message),user.id)
+			ChannelController.sendToNotification(modal.client,BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),user.id)
 
 			await modal.editReply(BoostMessage.successSendMessage(user))
 		}

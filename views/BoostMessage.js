@@ -41,12 +41,12 @@ class BoostMessage{
         }
     }
 
-    static sendBoostToInactiveMember(inactiveUser,sender,totalBoost){
+    static sendBoostToInactiveMember(inactiveUser,sender,totalBoost,message=`Let's start tiny & get back on track!`){
         
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
             embeds: [BoostMessage.embedMessageBoost({
-                message:`Let's start tiny & get back on track!`,
+                message,
                 user:sender,
                 totalBoost
             })], 
