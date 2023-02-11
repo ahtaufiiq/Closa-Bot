@@ -418,12 +418,13 @@ module.exports = {
 					if(valueMenu === 'personalBoost'){
 						BoostController.showModalPersonalBoost(interaction)
 					}else{
+                                                await interaction.deferReply({ephemeral:true});
 						ChannelController.sendToNotification(
 							interaction.client,
 							BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
 							targetUserId
 						)
-						await interaction.reply(BoostMessage.successSendMessage(targetUser.user))
+						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					}
 					break;
 				case "goalCategory":
