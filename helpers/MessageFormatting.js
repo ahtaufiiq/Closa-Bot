@@ -1,4 +1,4 @@
-const { GUILD_ID } = require("./config")
+const { GUILD_ID, COMMAND_BOOST } = require("./config")
 
 class MessageFormatting{
     static tagUser(userId){
@@ -11,6 +11,12 @@ class MessageFormatting{
 
     static tagRole(roleId){
         return `<@&${roleId}>`
+    }
+
+    static slashCommand(){
+        return {
+            boost:`</boost:${COMMAND_BOOST}>`,
+        }
     }
 
     static linkToEvent(eventId){

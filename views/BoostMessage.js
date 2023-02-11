@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu } = require("discord.js")
+const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -41,12 +41,12 @@ class BoostMessage{
         }
     }
 
-    static sendBoostToInactiveMember(inactiveUser,sender,totalBoost){
+    static sendBoostToInactiveMember(inactiveUser,sender,totalBoost,message=`Let's start tiny & get back on track!`){
         
         return { 
             content:`**Hi ${inactiveUser} someone sent you a boost.  ${MessageFormatting.customEmoji().success}**` , 
             embeds: [BoostMessage.embedMessageBoost({
-                message:`Let's start tiny & get back on track!`,
+                message,
                 user:sender,
                 totalBoost
             })], 
@@ -133,9 +133,15 @@ it's almost a week our friend ${user} not making progress` ,
     }
 
     static remindToBoost(userId){
-        return `Hi <@${userId}>, let's start the week by sending someone boost!
-type the command below here:
-\`\`\`/boost @User [your message]\`\`\``
+        return {
+            content:`Hi <@${userId}>, let's boost your friends to start the week!
+
+type:
+${MessageFormatting.slashCommand().boost}
+
+example:`,
+            files:[new MessageAttachment('./assets/images/how_to_boost.png','how_to_boost.png')]
+        }
     }
     static successSendBoost(user){
         return MessageComponent.embedMessage({
