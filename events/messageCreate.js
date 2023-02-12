@@ -201,10 +201,9 @@ so, you can learn or sharing from each others.`,
 						.insert({
 							attachments,
 							description:msg.content,
-							UserId:msg.author.id,
-							id:msg.id
+							UserId:msg.author.id
 						}).then()
-						
+
 					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
