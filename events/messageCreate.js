@@ -197,20 +197,18 @@ so, you can learn or sharing from each others.`,
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then((data) => {
-					if (data.length > 0) {
-						RequestAxios.post('todos', {
+					supabase.from("Todos")
+						.insert({
 							attachments,
 							description:msg.content,
-							UserId:msg.author.id
-						})
+							UserId:msg.author.id,
+							id:msg.id
+						}).then()
+						
+					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
 						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
-						RequestAxios.post('todos', {
-					 		attachments,
-							description:msg.content,
-							UserId:msg.author.id
-						})
 					}
 					
 					return supabase.from("Users")
