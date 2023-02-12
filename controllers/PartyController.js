@@ -7,12 +7,9 @@ const PartyMessage = require('../views/PartyMessage');
 const ChannelController = require('./ChannelController');
 const schedule = require('node-schedule');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
-const MemberController = require('./MemberController');
 const MessageFormatting = require('../helpers/MessageFormatting');
-const { ChannelType, PermissionFlagsBits } = require('discord-api-types/v9');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
-const FormatString = require('../helpers/formatString');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -812,18 +809,16 @@ class PartyController{
 		}
 	}
 
-	static async notifyMemberPartyShareProgress(client,msg){
-		const userId = msg.author.id
+	static async shareToPartyRoom(client,userId,message){
         const dataUser = await PartyController.getDataMember(userId)
 		
         if(!dataUser.body) return 
         
         const msgId = dataUser.body.PartyRooms.msgId
-        const project = dataUser.body.project
         
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
-		threadParty.send(PartyMessage.notifyMemberShareProgress(userId,msg,project))
+		threadParty.send(message)
     }
 
 	static async notifyMemberPartyShareReflection(client,userId,msgIdReflection){

@@ -396,6 +396,14 @@ let's support each other to make progress 🙌`
 			]
 		}
     }
+
+    static shareAchievementBadge(user,streak,files){
+        return {
+            content:`**Congrats ${user} on achieving ${streak} day streak! **
+**Let's celebrate together @everyone 🥳🎉**`,
+            files
+        }
+    }
 }
 
 module.exports = PartyMessage

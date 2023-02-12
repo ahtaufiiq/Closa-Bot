@@ -11,22 +11,24 @@ const InfoUser = require('../helpers/InfoUser');
 const GenerateImage = require('../helpers/GenerateImage');
 const { MessageAttachment } = require('discord.js');
 const UserController = require('./UserController');
+const PartyController = require('./PartyController');
+const PartyMessage = require('../views/PartyMessage');
 class DailyStreakController {
     
-    static async achieveDailyStreak(bot,ChannelReminder,dailyStreak,longestStreak,author){
+    static async achieveDailyStreak(client,ChannelReminder,dailyStreak,author){
 		let data 
         if (dailyStreak === 7) {
             data = {content:`Welcome to <@&${ROLE_7STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(7)]}
-            MemberController.addRole(bot, author.id, ROLE_7STREAK)
+            MemberController.addRole(client, author.id, ROLE_7STREAK)
         }else if (dailyStreak === 30) {
             data = {content:`Welcome to <@&${ROLE_30STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(30)]}
-            MemberController.addRole(bot, author.id, ROLE_30STREAK)
+            MemberController.addRole(client, author.id, ROLE_30STREAK)
         }else if (dailyStreak === 100) {
             data = {content:`Welcome to <@&${ROLE_100STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(100)]}
-            MemberController.addRole(bot, author.id, ROLE_100STREAK)
+            MemberController.addRole(client, author.id, ROLE_100STREAK)
         }else if (dailyStreak === 365) {
             data = {content:`Welcome to <@&${ROLE_365STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(365)]}
-            MemberController.addRole(bot, author.id, ROLE_365STREAK)
+            MemberController.addRole(client, author.id, ROLE_365STREAK)
         }
 
 		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
@@ -35,6 +37,8 @@ class DailyStreakController {
 		
 		const msg = await ChannelReminder.send(data)
 		ChannelController.createThread(msg,`Congrats ${author.username}!`)
+
+		PartyController.shareToPartyRoom(client,author.id,PartyMessage.shareAchievementBadge(author,dailyStreak,[attachment]))
     }
 
     static remindMissOneDay(client){
