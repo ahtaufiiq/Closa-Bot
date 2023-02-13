@@ -166,15 +166,17 @@ so, you can learn or sharing from each others.`,
 				})
 
 				let goalName = ''
+				let msgGoalId
 				if (data?.goalId) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
 					let {totalDay,lastDone} = data
 					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
-					thread.send(
+					const msgGoal = await thread.send(
 						GoalMessage.shareProgress(msg,files,totalDay)
 					)
+					msgGoalId = msgGoal.id
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
@@ -189,7 +191,7 @@ so, you can learn or sharing from each others.`,
 				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
-				const threadProgress = await ChannelController.createThread(msg,titleProgress)
+				ChannelController.createThread(msg,titleProgress)
 				
 				if(ReferralCodeController.isTimeToGenerateReferral()){
 					ReferralCodeController.generateReferral(msg.client,msg.author)
@@ -200,8 +202,10 @@ so, you can learn or sharing from each others.`,
 					supabase.from("Todos")
 						.insert({
 							attachments,
+							msgGoalId,
 							description:msg.content,
-							UserId:msg.author.id
+							UserId:msg.author.id,
+							msgProgressId:msg.id,
 						}).then()
 
 					if (data.length > 0) {
