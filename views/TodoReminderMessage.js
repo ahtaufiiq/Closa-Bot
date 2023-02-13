@@ -31,7 +31,7 @@ class TodoReminderMessage{
 			startDate,
 			endDate
 		  )
-        return MessageComponent.addLinkButton('Add to calendar: progress reminder',link).setEmoji('🗓')
+        return MessageComponent.addLinkButton('Add to calendar',link).setEmoji('🗓')
 	}
 
     static warningNeverSetGoal(userId){

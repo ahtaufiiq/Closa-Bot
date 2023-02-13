@@ -33,7 +33,7 @@ class HighlightReminderMessage{
 			endDate
 		  )
 
-        return MessageComponent.addLinkButton('Add to calendar: highlight reminder',link).setEmoji('🗓')
+        return MessageComponent.addLinkButton('Add to calendar',link).setEmoji('🗓')
 	}
 
 

@@ -166,15 +166,17 @@ so, you can learn or sharing from each others.`,
 				})
 
 				let goalName = ''
+				let msgGoalId
 				if (data?.goalId) {
 					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
 					const thread = await channel.threads.fetch(data.goalId);
 					goalName = thread.name.split('by')[0]
 					let {totalDay,lastDone} = data
 					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
-					thread.send(
+					const msgGoal = await thread.send(
 						GoalMessage.shareProgress(msg,files,totalDay)
 					)
+					msgGoalId = msgGoal.id
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
@@ -189,7 +191,7 @@ so, you can learn or sharing from each others.`,
 				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
-				const threadProgress = await ChannelController.createThread(msg,titleProgress)
+				ChannelController.createThread(msg,titleProgress)
 				
 				if(ReferralCodeController.isTimeToGenerateReferral()){
 					ReferralCodeController.generateReferral(msg.client,msg.author)
@@ -197,20 +199,19 @@ so, you can learn or sharing from each others.`,
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then((data) => {
-					if (data.length > 0) {
-						RequestAxios.post('todos', {
+					supabase.from("Todos")
+						.insert({
 							attachments,
+							msgGoalId,
 							description:msg.content,
-							UserId:msg.author.id
-						})
+							UserId:msg.author.id,
+							msgProgressId:msg.id,
+						}).then()
+
+					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
 						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
-						RequestAxios.post('todos', {
-					 		attachments,
-							description:msg.content,
-							UserId:msg.author.id
-						})
 					}
 					
 					return supabase.from("Users")
@@ -287,12 +288,12 @@ so, you can learn or sharing from each others.`,
 								
 								if(endLongestStreak === Time.getTodayDateOnly()){
 									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
+										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,msg.author)
 										ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author,currentStreak)
 									}
 								}else {
 									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,longestStreak,msg.author)
+										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,msg.author)
 									}
 								}
 							})
