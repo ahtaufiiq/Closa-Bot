@@ -224,16 +224,18 @@ The correct format:
 			.single()
 
 			let projectName = '-'
+			let threadGoal 
 			if (dataUser.body?.goalId) {
 				const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
-				const thread = await ChannelController.getThread(channel,dataUser.body.goalId)
-				projectName = thread.name.split('by')[0]
+				threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+				projectName = threadGoal.name.split('by')[0]
 			}
 			const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
 			const msg = await channelReflection.send(WeeklyReflectionMessage.postReflection({
 				projectName,highlight,lowlight,actionPlan,note,
 				user:modal.user
 			}))
+			threadGoal.send(PartyMessage.notifyMemberShareReflection(modal.user.id,msg.id,projectName))
 			PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 			ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
 			const dataPoint = await supabase.from("Users")
