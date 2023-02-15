@@ -153,6 +153,10 @@ class Time {
         }
         return formattedDate
     }
+
+    static getTimeOnly(date){
+        return `${date.getHours()}.${date.getMinutes() < 10 ? "0":""}${date.getMinutes()}`
+    }
     
     static isVacationMode(date) {
         const todayDate = Time.getDate()

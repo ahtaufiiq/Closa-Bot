@@ -15,6 +15,7 @@ const MemberController = require('./MemberController');
 const UserController = require('./UserController');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const getRandomValue = require('../helpers/getRandomValue');
+const PartyController = require('./PartyController');
 
 class VacationController{
     static async getMaxHoldVacationTicket(userId){
@@ -85,11 +86,7 @@ class VacationController{
                     totalTicket: 1
                 })
                 .then()
-            if (Time.onlyMissOneDay(lastDone)) {
-                const missedDate = Time.getNextDate(-1)
-                missedDate.setHours(8)
-                await DailyStreakController.addSafetyDot(interaction.user.id,missedDate)
-            }
+            VacationController.addSafetyDotIfMissOnce(interaction.user.id,lastDone)
             const pointLeft = totalPoint - 500
             UserController.updatePoint(pointLeft,interaction.user.id)
             const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
@@ -107,6 +104,7 @@ class VacationController{
             })
 
             UserController.updateOnVacation(true,interaction.user.id)
+            PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
             VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             const todayDate = Time.getFormattedDate(Time.getDate())
             const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
@@ -168,13 +166,10 @@ class VacationController{
                 UserController.updatePoint(pointLeft,interaction.user.id)
                 if(startDate === Time.getTodayDateOnly()){
                     const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
-                    if (Time.onlyMissOneDay(lastDone)) {
-                        const missedDate = Time.getNextDate(-1)
-                        missedDate.setHours(8)
-                        await DailyStreakController.addSafetyDot(interaction.user.id,missedDate)
-                    }
+                    VacationController.addSafetyDotIfMissOnce(interaction.user.id,lastDone)
                     UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
+                    PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
                     VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
                     RequestAxios.get('todos/tracker/'+interaction.user.id)
                         .then(async progressRecently=>{
@@ -201,6 +196,14 @@ class VacationController{
         }
     }
 
+    static async addSafetyDotIfMissOnce(userId,lastDone){
+        if (Time.onlyMissOneDay(lastDone)) {
+            const missedDate = Time.getNextDate(-1)
+            missedDate.setHours(8)
+            await DailyStreakController.addSafetyDot(userId,missedDate)
+        }
+    }
+
     static async activateVacationTicket(client){
         let ruleActivateVacation = new schedule.RecurrenceRule();
 		ruleActivateVacation.hour = Time.minus7Hours(8)
@@ -213,6 +216,7 @@ class VacationController{
             for (let i = 0; i < data.body.length; i++) {
                 const vacation = data.body[i];
                 const userId = vacation.UserId
+                PartyController.updateDataProgressRecap(userId,'vacation')
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = vacation.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
                 const {user} = await MemberController.getMember(client,userId)
@@ -224,11 +228,7 @@ class VacationController{
                     const thread = await ChannelController.getThread(channelGoal,goalId)
                     goalName = thread.name.split('by')[0]
                 }
-                if (Time.onlyMissOneDay(lastDone)) {
-                    const missedDate = Time.getNextDate(-1)
-                    missedDate.setHours(8)
-                    await DailyStreakController.addSafetyDot(userId,missedDate)
-                }
+                VacationController.addSafetyDotIfMissOnce(userId,lastDone)
                 UserController.updateLastSafety(Time.getTodayDateOnly(),userId)
                 await DailyStreakController.addSafetyDot(userId,new Date())
                 

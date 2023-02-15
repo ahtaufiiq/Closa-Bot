@@ -49,6 +49,8 @@ module.exports = {
 
 		PartyController.setReminderScheduleMeetup(client)
 		PartyController.setReminderAutoRescheduleMeetup(client)
+		PartyController.generateTemplateProgressRecap()
+		PartyController.sendProgressRecap(client)
 
 		RecurringMeetupController.setReminderTwoDayBeforeMeetup(client)
 		RecurringMeetupController.setReminderOneDayBeforeMeetup(client)

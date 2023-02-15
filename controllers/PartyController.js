@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION, MY_ID } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -10,6 +10,8 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
+const { MessageEmbed } = require('discord.js');
+const MemberController = require('./MemberController');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -853,6 +855,140 @@ class PartyController{
 		if(!members || members?.length === 0) return '@everyone'
 		else return members.map(member=>MessageFormatting.tagUser(member.UserId))
 	}
+
+	static generateTemplateProgressRecap(){
+		const ruleGenerateProgressRecap = new schedule.RecurrenceRule();
+        ruleGenerateProgressRecap.hour = Time.minus7Hours(23)
+        ruleGenerateProgressRecap.minute = 55
+		schedule.scheduleJob(ruleGenerateProgressRecap,async function(){
+			const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
+
+			const data = await supabase.from('PartyRooms')
+				.select("id,msgId,MemberPartyRooms(UserId,Users(lastDone))")
+				.gte('disbandDate',tomorrowDate)
+
+			if(data.body.length === 0) return
+
+			const insertData = []
+			data.body.forEach(party=>{
+				const {id,msgId,MemberPartyRooms} = party
+				const partyMember = {}
+				MemberPartyRooms.forEach((member)=>{
+					const UserId = member.UserId
+					const lastDone = member.Users.lastDone
+					partyMember[UserId] = {type:'skip',lastDone}
+				})
+				insertData.push({
+					PartyRoomId:id,
+					msgIdParty:msgId,
+					progressMember:partyMember,
+					date:tomorrowDate
+				})
+			})
+			supabase.from("PartyProgressRecaps")
+				.insert(insertData)
+				.then()
+		})
+	}
+
+	static async updateDataProgressRecap(userId,type,data){
+		const dataUser = await supabase.from("MemberPartyRooms")
+			.select()
+			.gte("endPartyDate",Time.getTodayDateOnly())
+			.eq('UserId',userId)
+			.single()
+
+		if(!dataUser.body) return
+
+		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
+			.select()
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getTodayDateOnly())
+			.single()
+		if(!dataPartyRecap.body) return
+
+		const {progressMember} = dataPartyRecap.body
+		if(type === 'progress'){
+			progressMember[userId] = data
+		}else{
+			progressMember[userId].type = type
+		}
+
+		supabase.from("PartyProgressRecaps")
+			.update({progressMember})
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getTodayDateOnly())
+			.then()
+	}
+
+	static async sendProgressRecap(client){
+		const ruleSendProgressRecap = new schedule.RecurrenceRule();
+        ruleSendProgressRecap.hour = 0
+        ruleSendProgressRecap.minute = 0
+		schedule.scheduleJob(ruleSendProgressRecap,async function(){
+			const dataPartyRecap = await supabase.from("PartyProgressRecaps")
+				.select()
+				.eq('date',Time.getDateOnly(Time.getNextDate(-1)))
+			if(dataPartyRecap.body.length === 0) return
+	
+			const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+	
+			dataPartyRecap.body.forEach(async party=>{
+				const {id,date,progressMember,msgIdParty} = party
+				const progressMembers = []
+				const noProgressMembers = []
+				
+				for (const UserId in progressMember) {
+					const {
+						type,lastDone,avatarURL,username,time,msgId,msgContent
+					} = progressMember[UserId]
+	
+					switch (type) {
+						case 'progress':
+							progressMembers.push(PartyMessage.shareProgress(
+								username,avatarURL,time,msgContent,msgId
+							))
+							break;
+						case 'skip':
+							const totalSkipDay = PartyController.getTotalSkipDay(lastDone,date)
+							if(totalSkipDay === 1) noProgressMembers.push(`🫡${MessageFormatting.tagUser(UserId)} miss once`)
+							else noProgressMembers.push(`🫥${MessageFormatting.tagUser(UserId)} no progress (${totalSkipDay}x)`)
+							break;
+						case 'vacation':
+							noProgressMembers.push(`🏖️${MessageFormatting.tagUser(UserId)} on vacation`)
+							break;
+						case 'sick':
+							noProgressMembers.push(`🤢${MessageFormatting.tagUser(UserId)} on sick leave`)
+							break;
+					}
+				}
+				const threadParty = await ChannelController.getThread(channelPartyRoom,msgIdParty)
+				await threadParty.send(PartyMessage.headlineProgressRecap(id))
+				
+				if(progressMembers.length > 0){
+					await threadParty.send({
+						embeds:progressMembers
+					})
+				}
+				if(noProgressMembers.length > 0){
+					await threadParty.send({
+						content:`\`\`\`friends that need your support\n...\`\`\``,
+						embeds:[
+							new MessageEmbed()
+								.setColor('#ffffff')
+								.setDescription(noProgressMembers.join('\n\n'))
+						]
+					})
+	
+				}
+			})
+		})
+	}
+
+	static getTotalSkipDay(lastDone,date){
+		return Time.getDiffDay(Time.getDate(lastDone),Time.getDate(date))
+	}
+
 }
 
 module.exports = PartyController
