@@ -950,7 +950,9 @@ class PartyController{
 							))
 							break;
 						case 'skip':
-							noProgressMembers.push(`🫥${MessageFormatting.tagUser(UserId)} no progress (${PartyController.getTotalSkipDay(lastDone,date)}x)`)
+							const totalSkipDay = PartyController.getTotalSkipDay(lastDone,date)
+							if(totalSkipDay === 1) noProgressMembers.push(`🫡${MessageFormatting.tagUser(UserId)} miss once`)
+							else noProgressMembers.push(`🫥${MessageFormatting.tagUser(UserId)} no progress (${totalSkipDay}x)`)
 							break;
 						case 'vacation':
 							noProgressMembers.push(`🏖️${MessageFormatting.tagUser(UserId)} on vacation`)
