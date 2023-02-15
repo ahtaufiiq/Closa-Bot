@@ -192,6 +192,15 @@ so, you can learn or sharing from each others.`,
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
 				ChannelController.createThread(msg,titleProgress)
+
+				PartyController.updateDataProgressRecap(msg.author.id,'progress',{
+					avatarURL:msg.author.displayAvatarURL(),
+					username:msg.author.username,
+					msgId:msg.id,
+					msgContent:msg.content.split('\n')[0],
+					time:Time.getTimeOnly(Time.getDate()),
+					type:"progress"
+				})
 				
 				if(ReferralCodeController.isTimeToGenerateReferral()){
 					ReferralCodeController.generateReferral(msg.client,msg.author)

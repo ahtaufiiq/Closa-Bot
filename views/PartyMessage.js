@@ -370,20 +370,6 @@ ${MessageFormatting.tagUser(activeUserId)} please check how your partner doing.
 let's support each other to make progress 🙌`
     }
 
-    static notifyMemberShareProgress(userId,msg,project){
-        return {
-			content:`${MessageFormatting.tagUser(userId)} **just posted a progress**`,
-			embeds:[
-				new MessageEmbed()
-					.setColor('#ffffff')
-					.setTitle("See full post →")
-					.setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msg.id))
-					.setDescription(FormatString.truncateString(msg.content.split('\n')[0],100))
-					.setFooter({text:project})
-			]
-		}
-    }
-
     static notifyMemberShareReflection(userId,msgIdReflection,project){
         return {
 			content:`${MessageFormatting.tagUser(userId)} **just posted a reflection 📝**`,
@@ -404,6 +390,22 @@ let's support each other to make progress 🙌`
             files
         }
     }
+
+    static headlineProgressRecap(partyNumber){
+        return `:eight_spoked_asterisk: **Hi Party ${partyNumber}, here's progress recap from yesterday** @everyone
+\`\`\`${Time.getFormattedDate(Time.getNextDate(-1))}
+...\`\`\``
+    }
+
+    static shareProgress(username,avatarUrl,time,msgContent,msgId){
+        return new MessageEmbed()
+            .setColor('#ffffff')
+            .setTitle("see on timeline ›")
+            .setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msgId))
+            .setDescription(FormatString.truncateString(msgContent.split('\n')[0],100))
+            .setFooter({iconURL:avatarUrl,text:`${username} · Yesterday at ${time} WIB`})
+    }
+
 }
 
 module.exports = PartyMessage

@@ -64,7 +64,7 @@ You can check the badge on your profile.`
             content:`Hi ${MessageFormatting.tagUser(userId)} **yesterday you forgot to update your ${MessageFormatting.tagChannel(CHANNEL_TODO)}.**
 But don't worry—you are not losing your #🔥streak :v:
 
-\`\`To keep you streak you can:\`\`
+\`\`To keep your streak you can:\`\`
 • Continue post your progress today.
 • Or buy a vacation ticket if you want to take a break today.`,
             components:[MessageComponent.createComponent(
