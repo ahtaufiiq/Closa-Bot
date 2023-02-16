@@ -393,8 +393,8 @@ let's support each other to make progress 🙌`
 
     static headlineProgressRecap(partyNumber){
         return `:eight_spoked_asterisk: **Hi Party ${partyNumber}, here's progress recap from yesterday** @everyone
-\`\`\`${Time.getFormattedDate(Time.getNextDate(-1))}
-...\`\`\``
+**${Time.getFormattedDate(Time.getNextDate(-1))}
+...**`
     }
 
     static shareProgress(username,avatarUrl,time,msgContent,msgId){

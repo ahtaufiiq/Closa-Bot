@@ -934,7 +934,7 @@ class PartyController{
 			const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 	
 			dataPartyRecap.body.forEach(async party=>{
-				const {id,date,progressMember,msgIdParty} = party
+				const {id,date,progressMember,PartyRoomId,msgIdParty} = party
 				const progressMembers = []
 				const noProgressMembers = []
 				
@@ -963,7 +963,7 @@ class PartyController{
 					}
 				}
 				const threadParty = await ChannelController.getThread(channelPartyRoom,msgIdParty)
-				await threadParty.send(PartyMessage.headlineProgressRecap(id))
+				await threadParty.send(PartyMessage.headlineProgressRecap(PartyRoomId))
 				
 				if(progressMembers.length > 0){
 					await threadParty.send({
