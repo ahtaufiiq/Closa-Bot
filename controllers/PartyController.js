@@ -856,11 +856,14 @@ class PartyController{
 		else return members.map(member=>MessageFormatting.tagUser(member.UserId))
 	}
 
-	static generateTemplateProgressRecap(){
+	static async generateTemplateProgressRecap(){
 		const ruleGenerateProgressRecap = new schedule.RecurrenceRule();
         ruleGenerateProgressRecap.hour = Time.minus7Hours(23)
         ruleGenerateProgressRecap.minute = 55
 		schedule.scheduleJob(ruleGenerateProgressRecap,async function(){
+			const {celebrationDate} = LocalData.getData()
+			const startCohortDate = Time.getDateOnly(Time.getNextDate(-28,celebrationDate))
+
 			const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
 
 			const data = await supabase.from('PartyRooms')
@@ -875,7 +878,10 @@ class PartyController{
 				const partyMember = {}
 				MemberPartyRooms.forEach((member)=>{
 					const UserId = member.UserId
-					const lastDone = member.Users.lastDone
+					let lastDone = member.Users.lastDone
+					if(!lastDone || lastDone < startCohortDate){
+						lastDone = startCohortDate
+					}
 					partyMember[UserId] = {type:'skip',lastDone}
 				})
 				insertData.push({
