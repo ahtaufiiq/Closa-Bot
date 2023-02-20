@@ -867,7 +867,7 @@ class PartyController{
 			const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
 
 			const data = await supabase.from('PartyRooms')
-				.select("id,msgId,MemberPartyRooms(UserId,Users(lastDone))")
+				.select("id,msgId,MemberPartyRooms(UserId,Users(lastDone,lastSafety))")
 				.gte('disbandDate',tomorrowDate)
 
 			if(data.body.length === 0) return
@@ -879,6 +879,7 @@ class PartyController{
 				MemberPartyRooms.forEach((member)=>{
 					const UserId = member.UserId
 					let lastDone = member.Users.lastDone
+					if(member.Users.lastSafety > lastDone) lastDone = member.Users.lastSafety
 					if(!lastDone || lastDone < startCohortDate){
 						lastDone = startCohortDate
 					}
