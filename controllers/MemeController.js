@@ -11,7 +11,7 @@ class MemeController {
     static async submitMeme(msg){
         let memeUrl = ''
         for (const [_,value] of msg.attachments) {
-            memeUrl = value.attachment
+            memeUrl = value.attachment.split('cdn.discordapp.com').join('media.discordapp.net')
             break
         }
 
