@@ -24,6 +24,8 @@ const WeeklyReflectionController = require("../controllers/WeeklyReflectionContr
 const SickDayController = require("../controllers/SickDayController");
 const TestimonialMessage = require("../views/TestimonialMessage");
 const UserController = require("../controllers/UserController");
+const MemeContestMessage = require("../views/MemeContestMessage");
+const MemeController = require("../controllers/MemeController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -58,6 +60,39 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "upvoteMeme":
+					const notificationThread = await ChannelController.getNotificationThread(interaction.client,targetUserId)
+					if(interaction.user.id === targetUserId) {
+						notificationThread.send(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
+						return interaction.editReply(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
+					}
+
+					const totalUpvoteToday = await MemeController.totalUpvoteToday(interaction.user.id)
+					if(totalUpvoteToday === 5){
+						notificationThread.send(MemeContestMessage.upvoteLimit())
+						return interaction.editReply(MemeContestMessage.upvoteLimit())
+					}
+
+					supabase.from('UpvoteMemes')
+						.insert({
+							id:`${value}_${interaction.user.id}`,
+							upvoteDate:Time.getTodayDateOnly(),
+							UserId:interaction.user.id,
+							MemeId:Number(value),
+						})
+						.single()
+						.then(data => {
+							let message
+							if(data?.error?.code === '23505'){
+								message = MemeContestMessage.alreadyUpvoteMeme()
+							}else{
+								message = MemeContestMessage.upvoteSuccess(5 - totalUpvoteToday - 1)
+							}
+							notificationThread.send(message)
+							return interaction.editReply(message)
+						})
+					
+					break;
 				case "followGoal":
 					if(interaction.user.id === targetUserId) return interaction.editReply(`**You can't follow your own goal.**`)
 					const thread = await ChannelController.getThread(ChannelController.getChannel(interaction.client,CHANNEL_GOALS),interaction.message.id)
