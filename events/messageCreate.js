@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { MessageAttachment } = require("discord.js");
+const { MessageAttachment, MessageEmbed } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -22,6 +22,11 @@ const TodoReminderMessage = require("../views/TodoReminderMessage");
 const GoalController = require("../controllers/GoalController");
 const TestimonialController = require("../controllers/TestimonialController");
 const GoalMessage = require("../views/GoalMessage");
+const LocalData = require("../helpers/LocalData");
+const MemeContestMessage = require("../views/MemeContestMessage");
+const MessageComponent = require("../helpers/MessageComponent");
+const UserController = require("../controllers/UserController");
+const MemeController = require("../controllers/MemeController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -352,6 +357,25 @@ so, you can learn or sharing from each others.`,
 				break;
 			case CHANNEL_INTRO:
 				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
+				break;
+			case CHANNEL_MEMES:
+				const {isMemeContest} = LocalData.getData()
+				if(isMemeContest){
+					msg.delete()
+					if(msg.attachments.size === 0) {
+						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
+						notificationThread.send(MemeContestMessage.invalidSubmissionFormat())
+					}else{
+						const totalSubmitToday = await MemeController.totalSubmitToday(msg.author.id)
+						if(totalSubmitToday === 5){
+							const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
+							return notificationThread.send(MemeContestMessage.submissionLimit(msg.author))
+						}else{
+							MemeController.submitMeme(msg)
+							MemeController.addVibePoints(msg.client,msg.author)
+						}
+					}
+				}
 				break;
 			case CHANNEL_PAYMENT:
 				if (msg.content[0] === 'v') {
