@@ -61,7 +61,7 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "upvoteMeme":
-					const notificationThread = await ChannelController.getNotificationThread(interaction.client,targetUserId)
+					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
 					if(interaction.user.id === targetUserId) {
 						notificationThread.send(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
 						return interaction.editReply(MemeContestMessage.cannotVoteOwnMeme(interaction.user))

@@ -20,7 +20,8 @@ Can't upvote the same meme twice`
     static upvoteSuccess(upvoteLeft){
         return `**Upvoted ⬆️**
 
-${upvoteLeft} daily upvote left`
+${upvoteLeft} daily upvote left
+${upvoteLeft === 0 ? "come back again tomorrow 🤌" : ""}`
     }
     static upvoteLimit(){
         return `**⚠️You've reached the daily upvote limit (5/5).**`
