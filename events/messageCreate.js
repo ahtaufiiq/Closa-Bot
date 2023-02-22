@@ -364,7 +364,7 @@ so, you can learn or sharing from each others.`,
 					msg.delete()
 					if(msg.attachments.size === 0) {
 						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-						notificationThread.send(MemeContestMessage.invalidSubmissionFormat())
+						notificationThread.send(MemeContestMessage.invalidSubmissionFormat(msg.author))
 					}else{
 						const totalSubmitToday = await MemeController.totalSubmitToday(msg.author.id)
 						if(totalSubmitToday === 5){
