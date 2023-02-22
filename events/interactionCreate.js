@@ -61,7 +61,7 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "upvoteMeme":
-					const notificationThread = await ChannelController.getNotificationThread(interaction.client,targetUserId)
+					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
 					if(interaction.user.id === targetUserId) {
 						notificationThread.send(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
 						return interaction.editReply(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
@@ -69,8 +69,8 @@ module.exports = {
 
 					const totalUpvoteToday = await MemeController.totalUpvoteToday(interaction.user.id)
 					if(totalUpvoteToday === 5){
-						notificationThread.send(MemeContestMessage.upvoteLimit())
-						return interaction.editReply(MemeContestMessage.upvoteLimit())
+						notificationThread.send(MemeContestMessage.upvoteLimit(interaction.user))
+						return interaction.editReply(MemeContestMessage.upvoteLimit(interaction.user))
 					}
 
 					supabase.from('UpvoteMemes')
@@ -84,9 +84,9 @@ module.exports = {
 						.then(data => {
 							let message
 							if(data?.error?.code === '23505'){
-								message = MemeContestMessage.alreadyUpvoteMeme()
+								message = MemeContestMessage.alreadyUpvoteMeme(interaction.user)
 							}else{
-								message = MemeContestMessage.upvoteSuccess(5 - totalUpvoteToday - 1)
+								message = MemeContestMessage.upvoteSuccess(5 - totalUpvoteToday - 1,interaction.user)
 							}
 							notificationThread.send(message)
 							return interaction.editReply(message)

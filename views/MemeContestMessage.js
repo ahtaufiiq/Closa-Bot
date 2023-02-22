@@ -2,9 +2,9 @@ const { CHANNEL_MEMES } = require("../helpers/config")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class MemeContestMessage{
-    static invalidSubmissionFormat(){
+    static invalidSubmissionFormat(user){
         return `**⚠️ Invalid submission format.**
-You should submit only using image or image with text caption`
+You should submit only using image or image with text caption ${user}`
     }
 
     static submissionLimit(user){
@@ -12,18 +12,19 @@ You should submit only using image or image with text caption`
 Back again tomorrow with your fresh memes 🤌**`
     }
 
-    static alreadyUpvoteMeme(){
+    static alreadyUpvoteMeme(user){
         return `**⚠️ You've upvoted this meme previously**
-Can't upvote the same meme twice`
+Can't upvote the same meme twice ${user}`
     }
 
-    static upvoteSuccess(upvoteLeft){
+    static upvoteSuccess(upvoteLeft,user){
         return `**Upvoted ⬆️**
 
-${upvoteLeft} daily upvote left`
+${upvoteLeft} daily upvote left ${user}
+${upvoteLeft === 0 ? "come back again tomorrow 🤌" : ""}`
     }
-    static upvoteLimit(){
-        return `**⚠️You've reached the daily upvote limit (5/5).**`
+    static upvoteLimit(user){
+        return `**⚠️You've reached the daily upvote limit (5/5).** ${user}`
     }
 
     static cannotVoteOwnMeme(user){
