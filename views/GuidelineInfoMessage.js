@@ -12,6 +12,7 @@ class GuidelineInfoMessage {
             MessageComponent.addLinkButton("Extend membership",'https://tally.so/r/wbRa2w').setEmoji('💳'),
         )
         return {
+            content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! please follow the guideline below to begin`,
             embeds:[
                 new MessageEmbed()
                     .setColor('fafafb')
