@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js")
+const { CHANNEL_GUIDELINE } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
@@ -19,7 +20,7 @@ class GuidelineInfoMessage {
                     .setThumbnail('https://pbs.twimg.com/profile_images/1497990921874403329/qLmIBav9_400x400.jpg')
                     .setTitle("🗒 Closa Guidelines ")
                     .setDescription(`**New to Closa? **
-Start here → #guidelines
+Start here → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}
 
 **Command Guides** 
 try to type "/" to see what bot can do for you.
