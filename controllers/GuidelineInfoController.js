@@ -19,6 +19,11 @@ class GuidelineInfoController {
 		GuidelineInfoController.addNewData(userId,msgGuideline.id)
     }
 
+    static async resetDataTotalNotification(UserId){
+        return await supabase.from("GuidelineInfos")
+            .update({totalNotification:0})
+            .eq('UserId',UserId)
+    }
     static async updateDataShowTestimonial(UserId,showSubmitTestimonial=false){
         return await supabase.from("GuidelineInfos")
             .update({showSubmitTestimonial})
@@ -72,11 +77,11 @@ class GuidelineInfoController {
     }
 
     static async deleteNotification(thread,totalNotification){
+        if(totalNotification <= 0) return
+
         await thread.bulkDelete(totalNotification <= 100 ? totalNotification : 100)
         totalNotification -= 100
-        if(totalNotification > 0){
-            GuidelineInfoController.deleteNotification(thread,totalNotification)
-        }
+        if(totalNotification > 0) GuidelineInfoController.deleteNotification(thread,totalNotification)
     }
 
     static async updateMessagGuideline(client,UserId){
@@ -98,7 +103,7 @@ class GuidelineInfoController {
                 const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
                 
                 GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
-    
+                GuidelineInfoController.resetDataTotalNotification(id)
                 const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
                 msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveReferral,showSubmitTestimonial))
             })
