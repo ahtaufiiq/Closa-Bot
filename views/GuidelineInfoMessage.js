@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js")
-const { CHANNEL_GUIDELINE } = require("../helpers/config")
+const { CHANNEL_GUIDELINE, CHANNEL_COMMAND } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
@@ -23,7 +23,7 @@ class GuidelineInfoMessage {
 Start here → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}
 
 **Command Guides** 
-try to type "/" to see what bot can do for you.
+try to type "/" to see what bot can do for you on channel: ${MessageFormatting.tagChannel(CHANNEL_COMMAND)}
 
 **Official links**
 Website → https://closa.me
