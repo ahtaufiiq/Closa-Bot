@@ -13,7 +13,7 @@ Help us spread the word about closa :pleading_face:`,
                     
 **__How to participate?__**
 1. Write us your testimonial (on twitter, instagram, or linkedin)
-2. Don't forget to tag us @beclosa (make sure your profile is public)
+2. Don't forget to tag us @joinclosa (make sure your profile is public)
 3. Submit your testimonial's link here
 
 __**The reward for helping us spreading the word :gift:**__

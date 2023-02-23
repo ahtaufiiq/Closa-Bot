@@ -27,8 +27,8 @@ try to type "/" to see what bot can do for you on channel: ${MessageFormatting.t
 
 **Official links**
 Website → https://closa.me
-Twitter → https://twitter.com/beclosa
-Instagram → https://twitter.com/beclosa
+Twitter → https://twitter.com/joinclosa
+Instagram → https://twitter.com/joinclosa
 Newsletter → https://closa.substack.com
 
 **Membership Status**
