@@ -29,9 +29,7 @@ module.exports = {
 		
 		
 		ChannelController.getChannel(interaction.client,CHANNEL_GENERAL).send(
-			interaction.client,
-			PointMessage.successAddPoint(user,message,amount),
-			user.id
+			PointMessage.successAddPoint(user,message,amount)
 		)
 		await interaction.editReply(`add ${amount} point to ${user}`)
 	},
