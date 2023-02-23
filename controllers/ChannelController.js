@@ -145,7 +145,13 @@ class ChannelController{
             messageContent.forEach(msg=>{
                 notificationThread.send(msg)
             })
+            supabase
+                .rpc('incrementTotalNotification', { x: messageContent.length, row_id: userId })
+                .then()
         }else{
+            supabase
+                .rpc('incrementTotalNotification', { x: 1, row_id: userId })
+                .then()
             return await notificationThread.send(messageContent)
         }
     }

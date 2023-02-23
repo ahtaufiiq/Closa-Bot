@@ -14,6 +14,7 @@ const RecurringMeetupController = require('../controllers/RecurringMeetupControl
 const VacationController = require('../controllers/VacationController');
 const WeeklyReflectionController = require('../controllers/WeeklyReflectionController');
 const SickDayController = require('../controllers/SickDayController');
+const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 
 
 module.exports = {
@@ -23,6 +24,9 @@ module.exports = {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
+
+		GuidelineInfoController.updateAllGuideline(client)
+
 		PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 		// if(CLIENT_ID === "948546574550695936") return

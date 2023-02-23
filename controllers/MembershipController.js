@@ -10,11 +10,10 @@ class MembershipController{
         const initialDate = data.body.endMembership < Time.getTodayDateOnly() ? Time.getTodayDateOnly() : data.body.endMembership
         const endMembership = Time.getEndMembership(totalMonth,initialDate)
 
-        supabase.from("Users")
+        await supabase.from("Users")
             .update({endMembership})
             .eq('id',userId)
             .single()
-            .then()
         
         const formattedDate = Time.getFormattedDate(Time.getDate(endMembership))
         return formattedDate
