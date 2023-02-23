@@ -2,9 +2,12 @@ const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Defin
 const supabase = require('../helpers/supabaseClient');
 const TestimonialMessage = require('../views/TestimonialMessage');
 const ChannelController = require('./ChannelController');
+const GuidelineInfoController = require('./GuidelineInfoController');
 class TestimonialController{
     static showModalSubmitTestimonial(interaction){
-        if(interaction.customId.includes("submitTestimonial")){
+        const [commandButton,userId] = interaction.customId.split('_')
+        if(commandButton === "submitTestimonial" || commandButton === 'submitTestimonialGuideline'){
+            if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't submit someone else testimonial.`})
             const modal = new Modal()
             .setCustomId(interaction.customId)
             .setTitle("🔗 Submit Testimonial Link")
@@ -42,6 +45,8 @@ class TestimonialController{
     static async askToWriteTestimonial(msg,notificationId){
         const isAlreadySubmitTestimonial = await TestimonialController.alreadySubmitTestimonial(msg.author.id)
         if(!isAlreadySubmitTestimonial){
+            await GuidelineInfoController.updateDataShowTestimonial(msg.author.id,true)
+            GuidelineInfoController.updateMessagGuideline(msg.client,msg.author.id)
             ChannelController.sendToNotification(
                 msg.client,
                 TestimonialMessage.howToShareTestimonial(msg.author.id),

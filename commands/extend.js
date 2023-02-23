@@ -3,6 +3,7 @@ const { PermissionFlagsBits } = require('discord-api-types/v9');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
 const DailyReport = require('../controllers/DailyReport');
+const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 const MemberController = require('../controllers/MemberController');
 const PointController = require('../controllers/PointController');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
@@ -37,6 +38,8 @@ module.exports = {
 			await supabase.from("Users")
 			.update({endMembership})
 			.eq('id',user.id)
+
+			GuidelineInfoController.updateMessagGuideline(interaction.client,user.id)
 			await ChannelController.sendToNotification(
 				interaction.client,
 				PaymentMessage.successExtendMembership(formattedDate),

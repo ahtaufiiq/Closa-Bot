@@ -25,6 +25,7 @@ const PointController = require("../controllers/PointController");
 const BoostMessage = require("../views/BoostMessage");
 const DailyReport = require("../controllers/DailyReport");
 const BoostController = require("../controllers/BoostController");
+const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -61,6 +62,8 @@ module.exports = {
 					MembershipController.updateMembership(1,response.ownedBy)
 				])
 				.then(async ([endMembershipNewUser,endMembershipReferrer])=>{
+					GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
+					GuidelineInfoController.updateMessagGuideline(modal.client,response.ownedBy)
 					ChannelController.sendToNotification(
 						modal.client,
 						ReferralCodeMessage.successRedeemReferral(endMembershipNewUser),
@@ -196,15 +199,17 @@ The correct format:
 			RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
 			await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅`)
 
-		}else if(commandButton === "submitTestimonial"){
-			await modal.deferReply()
+		}else if(commandButton.includes("submitTestimonial")){
+			if(commandButton === 'submitTestimonialGuideline') await modal.deferReply({ephemeral:true})
+			else await modal.deferReply()
 			const testimonialLink = modal.getTextInputValue('link');
 			const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
 			const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,testimonialLink,true))
 			await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
-			ChannelController.deleteMessage(modal.message)
-
+			if(commandButton === 'submitTestimonial') ChannelController.deleteMessage(modal.message)
+			await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
+			GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
 		}else if(commandButton === "writeReflection" ){
 			await modal.deferReply()
