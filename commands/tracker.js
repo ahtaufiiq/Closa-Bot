@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageAttachment } = require('discord.js');
 const RequestAxios = require('../helpers/axios');
-const { GUILD_ID, CHANNEL_GOALS } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_GOALS, CHANNEL_STREAK, CHANNEL_GENERAL, CHANNEL_COMMAND } = require('../helpers/config');
 const GenerateImage = require('../helpers/GenerateImage');
 const InfoUser = require('../helpers/InfoUser');
 const supabase = require('../helpers/supabaseClient');
@@ -12,7 +12,10 @@ module.exports = {
 		.setDescription('check your habit of current goal')
 		.addUserOption(option => option.setName('user').setDescription('The user')),
 	async execute(interaction) {
-		await interaction.deferReply();
+		const channelId = interaction.channel.id
+		if(channelId === CHANNEL_STREAK || channelId === CHANNEL_GENERAL || channelId === CHANNEL_COMMAND) await interaction.deferReply();
+		else await interaction.deferReply({ephemeral:true})
+		
 		const taggedUser = interaction.options.getUser('user')
 		
 		
