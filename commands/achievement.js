@@ -45,7 +45,7 @@ Keep your streak earn the badge.`)
 			
 			await interaction.editReply({
 				content:`**🏅 Here's your achievements badge:**
-Feel free to share & tag us at \`\`@beclosa\`\`to get featured & celebrate together 🎉`,
+Feel free to share & tag us at \`\`@joinclosa\`\`to get featured & celebrate together 🎉`,
 				files
 			})
 		}

@@ -17,7 +17,7 @@ class ReferralCodeMessage{
                     MessageComponent.addButton("redeem","Enter Code","PRIMARY"),
                     MessageComponent.addLinkButton(
                         'Find on twitter',
-                        "https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode"
+                        "https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode"
                     )
                 )
             ] 
@@ -86,7 +86,7 @@ Your friends can redeem it via https://closa.me/referral
         return `I'm on day ${totalDay} of my passion projects so far.
 Closa has helped me to stay consistent on it 😄
 
-I want to share my @beclosa referral code: 
+I want to share my @joinclosa referral code: 
 
 ${referralCodes.join("\n")}
 
@@ -164,7 +164,7 @@ Share it to your friends to get 1 month free membership.`
             content:"⚠️ Invalid referral code",
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
                 )
             ] 
         }
@@ -174,7 +174,7 @@ Share it to your friends to get 1 month free membership.`
             content:"⚠️ This code already redeemed before. Use other code.",
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
                 )
             ] 
         }
@@ -186,7 +186,7 @@ Share it to your friends to get 1 month free membership.`
             content:"This referral code has expired.",
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40beclosa+%23closacode")
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
                 )
             ] 
         }

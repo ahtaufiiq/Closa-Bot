@@ -171,7 +171,7 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
 
 **Let's end it with a group photo :camera_with_flash: ** 
 
-Feel free to share your moment anywhere and tag \`\`@beclosa\`\` :smile:`
+Feel free to share your moment anywhere and tag \`\`@joinclosa\`\` :smile:`
     }
 
     static reminderFifteenSecondsBeforeEnded(){

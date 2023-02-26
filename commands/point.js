@@ -3,6 +3,7 @@ const { PermissionFlagsBits } = require('discord-api-types/v9');
 const { MessageEmbed } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const UserController = require('../controllers/UserController');
+const { CHANNEL_GENERAL } = require('../helpers/config');
 const InfoUser = require('../helpers/InfoUser');
 const PointMessage = require('../views/PointMessage');
 
@@ -27,10 +28,8 @@ module.exports = {
 		UserController.incrementTotalPoints(amount,user.id)
 		
 		
-		ChannelController.sendToNotification(
-			interaction.client,
-			PointMessage.successAddPoint(user,message,amount),
-			user.id
+		ChannelController.getChannel(interaction.client,CHANNEL_GENERAL).send(
+			PointMessage.successAddPoint(user,message,amount)
 		)
 		await interaction.editReply(`add ${amount} point to ${user}`)
 	},
