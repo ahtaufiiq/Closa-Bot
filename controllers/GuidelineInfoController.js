@@ -96,9 +96,11 @@ class GuidelineInfoController {
 		ruleUpdateAllGuideline.hour = Time.minus7Hours(0)
 		ruleUpdateAllGuideline.minute = 1
 		schedule.scheduleJob(ruleUpdateAllGuideline,async function(){
-            const dataUser = await UserController.getActiveMembers('id,notificationId')
+            const dataUser = await supabase.from("GuidelineInfos")
+                .select('*,Users(id,notificationId)')
+                .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
-            dataUser.body.forEach(async ({id,notificationId})=>{
+            dataUser.body.forEach(async ({Users:{id,notificationId}})=>{
                 const {isHaveReferral,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId} = await GuidelineInfoController.getData(id)
                 const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
                 

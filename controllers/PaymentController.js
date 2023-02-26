@@ -115,6 +115,8 @@ class PaymentController{
         const user = await MemberController.getMember(client,userId)
         const endMembershipDate = Time.getFormattedDate(Time.getDate(endMembership))
 
+        if(!user) return
+
         ChannelController.sendToNotification(
             client,
             PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft),
