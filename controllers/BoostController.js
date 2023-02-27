@@ -46,7 +46,13 @@ class BoostController{
 					BoostController.incrementTotalBoostLocal(data.body.length)
 					data.body.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
-						channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+						const msg = await channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+						supabase.from("Reminders")
+							.insert({
+								message:msg.id,
+								UserId:member.id,
+								type:'boost'
+							}).then()
 					})
 				}
 
@@ -61,7 +67,13 @@ class BoostController{
 							BoostController.incrementTotalBoostLocal(data.body.length)
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
-								channelBoost.send(BoostMessage.notActive5Days(user))
+								const msg = await channelBoost.send(BoostMessage.notActive5Days(user))
+								supabase.from("Reminders")
+									.insert({
+										message:msg.id,
+										UserId:member.id,
+										type:'boost'
+									}).then()
 							})
 						}
 					})
@@ -87,13 +99,18 @@ class BoostController{
 							BoostController.incrementTotalBoostLocal(data.body.length)
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
-								channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
+								const msg = await channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
+								supabase.from("Reminders")
+									.insert({
+										message:msg.id,
+										UserId:member.id,
+										type:'boost'
+									}).then()
 							})
 						}
 					})
 			}
 		})
-		
 	}
 
 	static remindEveryMonday(client){
@@ -216,6 +233,24 @@ class BoostController{
 		const data = LocalData.getData()
 		data.totalBoost = 0
 		LocalData.writeData(data)
+	}
+
+	static async deleteBoostMessage(client,userId){
+		const dataBoost = await supabase.from("Reminders")
+			.select("id,message")
+			.eq('type','boost')
+			.eq("UserId",userId)
+			.gte('createdAt',new Date(Time.getTodayDateOnly()).toUTCString())
+		if(dataBoost.body?.length <= 0) return
+
+		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
+		dataBoost.body.forEach(async boost=>{
+			const msg = await ChannelController.getMessage(channelBoost,boost.message)
+			msg.delete()
+			await supabase.from('Reminders')
+				.delete()
+				.eq('id',boost.id)
+		})
 	}
 }
 
