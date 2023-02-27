@@ -48,19 +48,9 @@ class UserController{
 		return data.body.notificationId
 	}
 
-	static async incrementTotalPoints(increment,UserId){
-        supabase.from("Users")
-            .select('totalPoint')
-            .eq('id',UserId)
-            .single()
-            .then(data=>{
-                supabase.from("Users")
-                    .update({
-                        totalPoint:(data.body?.totalPoint||0) + increment
-                    })
-                    .eq('id',UserId)
-                    .then()
-            })
+	static async incrementTotalPoints(increment,id_user){
+		return await supabase
+			.rpc('incrementTotalPoint', { increment, id_user })
     }
 
 	static getNameFromUserDiscord(user){
