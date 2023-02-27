@@ -907,6 +907,28 @@ class PartyController{
 
 		if(!dataUser.body) return
 
+		const date = Time.getDate()
+		if(date.getHours() === 23){
+			if(date.getMinutes() >= 55){
+				supabase.from("PartyProgressRecaps")
+					.select()
+					.eq("PartyRoomId",dataUser.body.partyId)
+					.eq('date',Time.getTomorrowDateOnly())
+					.single()
+					.then(data=>{
+						if(data.body){
+							const {progressMember} = data.body
+							progressMember[userId].lastDone = Time.getTodayDateOnly()
+							supabase.from("PartyProgressRecaps")
+							.update({progressMember})
+							.eq("PartyRoomId",dataUser.body.partyId)
+							.eq('date',Time.getTomorrowDateOnly())
+							.then()
+						}
+					})
+			}
+		}
+
 		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
 			.select()
 			.eq("PartyRoomId",dataUser.body.partyId)
