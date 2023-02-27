@@ -27,6 +27,7 @@ const MemeContestMessage = require("../views/MemeContestMessage");
 const MessageComponent = require("../helpers/MessageComponent");
 const UserController = require("../controllers/UserController");
 const MemeController = require("../controllers/MemeController");
+const BoostController = require("../controllers/BoostController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -153,6 +154,7 @@ so, you can learn or sharing from each others.`,
 					)
 					return
 				}
+				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 				
 				const { data, error } = await supabase
 					.from('Users')
