@@ -56,12 +56,12 @@ class WeeklyReflectionController {
 
 	static isRangeWeeklyReflection(){
 		const date = Time.getDate()
-		const isSunday = date.getDay() === 2
+		const isTuesday = date.getDay() === 2
 		let beforeEnded = date.getHours() <= 23
 		if(date.getHours() === 23 ){
 			if(date.getMinutes() > 30) beforeEnded = false
 		}
-		return isSunday && beforeEnded
+		return isTuesday && beforeEnded
 	}
 
     static showModalWriteReflection(interaction){

@@ -15,6 +15,7 @@ const VacationController = require('../controllers/VacationController');
 const WeeklyReflectionController = require('../controllers/WeeklyReflectionController');
 const SickDayController = require('../controllers/SickDayController');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
+const CelebrationController = require('../controllers/CelebrationController');
 
 
 module.exports = {
@@ -86,6 +87,9 @@ module.exports = {
 		WeeklyReflectionController.sendReminderReflection(client)
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
 		WeeklyReflectionController.updateAnnouncementReflection(client)
+
+		CelebrationController.sendAnnouncementCelebration(client)
+		CelebrationController.updateAnnouncementCelebration(client)
 
 		DailyReport.inactiveMember(client)
 

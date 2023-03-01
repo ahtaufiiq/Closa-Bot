@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -26,6 +26,9 @@ const BoostMessage = require("../views/BoostMessage");
 const DailyReport = require("../controllers/DailyReport");
 const BoostController = require("../controllers/BoostController");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const CelebrationController = require("../controllers/CelebrationController");
+const CelebrationMessage = require("../views/CelebrationMessage");
+const UserController = require("../controllers/UserController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -212,7 +215,9 @@ The correct format:
 			GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
 		}else if(commandButton === "writeReflection" ){
-			await modal.deferReply()
+			await modal.deferReply({
+				ephemeral: modal.channel.id === CHANNEL_ANNOUNCEMENT
+			})
 			const highlight = modal.getTextInputValue('highlight');
 			const lowlight = modal.getTextInputValue('lowlight');
 			const actionPlan = modal.getTextInputValue('actionPlan');
@@ -254,7 +259,7 @@ The correct format:
 				.then()
 			WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:modal.user.id})
 			await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
-			ChannelController.deleteMessage(modal.message)
+			if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === 'editReflection'){
 			await modal.deferReply({ephemeral:true})
 			const highlight = modal.getTextInputValue('highlight');
@@ -267,7 +272,67 @@ The correct format:
 				projectName,highlight,lowlight,actionPlan,note,user:modal.user
 			}))
 			await modal.editReply(`${modal.user} reflection has been updated`)
-		}else if(commandButton === "customExtend"){
+		}else if(commandButton === "writeCelebration" ){
+				await modal.deferReply({
+					ephemeral: modal.channel.id === CHANNEL_ANNOUNCEMENT
+				})
+				const story = modal.getTextInputValue('story');
+				const linkProject = modal.getTextInputValue('linkProject');
+				const linkDeck = modal.getTextInputValue('linkDeck');
+
+				let metatagImage 
+
+				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
+				if(!metatagImage && linkProject && linkProject.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
+	
+				if(!CelebrationController.isRangeCelebration()) {
+					await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+					return ChannelController.deleteMessage(interaction.message)
+				}
+				const dataUser = await supabase
+				.from('Users')
+				.select()
+				.eq('id',modal.user.id)
+				.single()
+	
+				let projectName = '-'
+				let threadGoal 
+				if (dataUser.body?.goalId) {
+					const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
+					threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+					projectName = threadGoal.name.split('by')[0]
+				}
+				const channelCelebration = ChannelController.getChannel(modal.client,CHANNEL_CELEBRATE)
+				const msg = await channelCelebration.send(CelebrationMessage.postCelebration({
+					projectName,story,linkProject,linkDeck,metatagImage,
+					user:modal.user
+				}))
+				threadGoal.send(PartyMessage.notifyMemberShareCelebration(modal.user.id,msg.id,projectName))
+				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`)
+
+				UserController.incrementTotalPoints(300,modal.user.id)
+				CelebrationController.addCelebration({story,linkProject,linkDeck,UserId:modal.user.id})
+
+				await modal.editReply(CelebrationMessage.replySuccessSubmitCelebration(300))
+				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
+			}else if(commandButton === 'editCelebration'){
+				await modal.deferReply({ephemeral:true})
+				const story = modal.getTextInputValue('story');
+				const linkProject = modal.getTextInputValue('linkProject');
+				const linkDeck = modal.getTextInputValue('linkDeck');
+				const projectName = value
+
+				let metatagImage 
+
+				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkDeck)
+				if(!metatagImage && linkProject && linkProject.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
+	
+				modal.message.edit(CelebrationMessage.postCelebration({
+					projectName,story,linkProject,linkDeck,metatagImage,user:modal.user
+				}))
+				await modal.editReply(`${modal.user} celebration has been updated`)
+			}else if(commandButton === "customExtend"){
 			await modal.deferReply({ephemeral:true})
 			const extendTime = Number(modal.getTextInputValue('time').trim().split(' ')[0]);
 			RecurringMeetupController.updateExtendTime(extendTime,value)

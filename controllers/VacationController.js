@@ -142,11 +142,14 @@ class VacationController{
 
                 const listVacationTicket = []
                 for (let i = 0; i < totalTicket; i++) {
-                    listVacationTicket.push({
-                        type:'vacation',
-                        UserId:interaction.user.id,
-                        message:Time.getDateOnly(Time.getNextDate(i,startDate))
-                    })
+                    const date = Time.getDateOnly(Time.getNextDate(i,startDate))
+                    if(date !== Time.getTodayDateOnly()){
+                        listVacationTicket.push({
+                            type:'vacation',
+                            UserId:interaction.user.id,
+                            message: date
+                        })
+                    }
                 }
 
                 supabase.from("Reminders")

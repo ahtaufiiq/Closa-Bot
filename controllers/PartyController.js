@@ -834,6 +834,17 @@ class PartyController{
 		threadParty.send(PartyMessage.notifyMemberShareReflection(userId,msgIdReflection,project))
     }
 
+	static async notifyMemberPartyShareCelebration(client,userId,msgIdCelebration){
+        const dataUser = await PartyController.getDataMember(userId)
+        if(!dataUser.body) return 
+        
+        const msgId = dataUser.body.PartyRooms.msgId
+        const project = dataUser.body.project
+        const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
+		threadParty.send(PartyMessage.notifyMemberShareCelebration(userId,msgIdCelebration,project))
+    }
+
 	static async getPartyUser(userId){
 		return await supabase.from("MemberPartyRooms")
 			.select('PartyRooms(msgId)')

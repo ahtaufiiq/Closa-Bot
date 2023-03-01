@@ -74,11 +74,14 @@ class SickDayController{
                 .then()
             const listSickTicket = []
             for (let i = 0; i < totalTicket; i++) {
-                listSickTicket.push({
-                    type:'sick',
-                    UserId:interaction.user.id,
-                    message:Time.getDateOnly(Time.getNextDate(i,startDate))
-                })
+                const date = Time.getDateOnly(Time.getNextDate(i,startDate))
+                if(date !== Time.getTodayDateOnly()){
+                    listSickTicket.push({
+                        type:'sick',
+                        UserId:interaction.user.id,
+                        message: date
+                    })
+                }
             }
 
             supabase.from("Reminders")

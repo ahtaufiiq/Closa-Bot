@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_REFLECTION } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_REFLECTION, CHANNEL_CELEBRATE } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -378,6 +378,19 @@ let's support each other to make progress 🙌`
 					.setColor('#ffffff')
 					.setTitle("See reflection →")
 					.setURL(MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection))
+					.setFooter({text:project})
+			]
+		}
+    }
+
+    static notifyMemberShareCelebration(userId,msgIdCelebration,project){
+        return {
+			content:`${MessageFormatting.tagUser(userId)} **just posted a celebration 🎉**`,
+			embeds:[
+				new MessageEmbed()
+					.setColor('#ffffff')
+					.setTitle("See celebration →")
+					.setURL(MessageFormatting.linkToMessage(CHANNEL_CELEBRATE,msgIdCelebration))
 					.setFooter({text:project})
 			]
 		}
