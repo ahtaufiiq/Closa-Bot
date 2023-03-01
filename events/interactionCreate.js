@@ -26,6 +26,7 @@ const TestimonialMessage = require("../views/TestimonialMessage");
 const UserController = require("../controllers/UserController");
 const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
+const CelebrationController = require("../controllers/CelebrationController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -43,6 +44,8 @@ module.exports = {
 			if(TestimonialController.showModalCustomReply(interaction)) return
 			if(WeeklyReflectionController.showModalWriteReflection(interaction)) return
 			if(WeeklyReflectionController.showModalEditReflection(interaction)) return
+			if(CelebrationController.showModalWriteCelebration(interaction)) return
+			if(CelebrationController.showModalEditCelebration(interaction)) return
 			if(BoostController.showModalPersonalBoost(interaction)) return
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
@@ -388,10 +391,6 @@ module.exports = {
 					break;
 				case "useTicketTomorrow":
 					await VacationController.interactionBuyTicketViaShop(interaction,Number(value),Time.getTomorrowDateOnly())
-					break;
-				case "joinWeeklyReflection":{}
-					const notificationIdTargetUser = await UserController.getNotificationId(targetUserId)
-					await interaction.editReply(WeeklyReflectionMessage.replySuccessJoinReflection(notificationIdTargetUser))
 					break;
 				case "extendTemporaryVoice" :
 					await interaction.editReply(RecurringMeetupMessage.optionExtendedTime(value))

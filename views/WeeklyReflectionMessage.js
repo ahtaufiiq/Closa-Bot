@@ -33,7 +33,7 @@ Reward: 100+ points
 Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('joinWeeklyReflection',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
+                MessageComponent.addButton('writeReflection',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e').setEmoji('💡')
             )],
             embeds: [
@@ -48,7 +48,7 @@ ${participants.join('\n')}`,
     static reminderReflection(){
         return `:pencil: **Weekly Reflection**
 
-**Hi @everyone, weekly reflection will be open in 1h on ${MessageFormatting.tagChannel(CHANNEL_ANNOUNCEMENT)}****
+**Hi @everyone, weekly reflection will be open in 1h on ${MessageFormatting.tagChannel(CHANNEL_ANNOUNCEMENT)}**
 \`\`from 19.30 to 23.30\`\`
 
 **Stay tuned!**`
@@ -63,11 +63,6 @@ ${participants.join('\n')}`,
                 MessageComponent.addEmojiButton('writeReflection','Write reflection','📝')
             )]
         }
-    }
-
-    static replySuccessJoinReflection(notificationId){
-        return `**Next, check your notification :bell:**
-We've sent the submission form here → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
 
     static postReflection({projectName,highlight,lowlight,actionPlan,note,user}){
