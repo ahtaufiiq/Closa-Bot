@@ -6,7 +6,7 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 class GuidelineInfoMessage {
     static guideline(userId,membership,isHaveReferral,showButtonTestimonial){
         const buttons = []
-        if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Referral Code','🎁',"PRIMARY"))
+        if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Refer Friends','🎁',"PRIMARY"))
         if(showButtonTestimonial) buttons.push(MessageComponent.addEmojiButton(`submitTestimonialGuideline_${userId}`,'Testimonial','💌'))
         buttons.push(
             MessageComponent.addLinkButton("Community playbook",'https://closa.notion.site/Closa-f3937e68c57e46c4b028b69e8f1412b2').setEmoji('📒'),
