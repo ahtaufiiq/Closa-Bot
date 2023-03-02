@@ -42,7 +42,7 @@ module.exports = {
 			embeds:[
 				new MessageEmbed()
 				.setColor("#ffffff")
-				.setTitle("See goal →")
+				.setTitle("See goal & latest progress →")
 				.setURL(MessageFormatting.linkToInsideThread(id))
 				.setThumbnail(InfoUser.getAvatar(user))
 				.addFields(
