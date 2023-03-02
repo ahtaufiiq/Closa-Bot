@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { PermissionFlagsBits } = require('discord-api-types/v9');
 const { MessageEmbed } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const { CHANNEL_MEMES } = require('../helpers/config');
@@ -18,7 +19,8 @@ module.exports = {
 			subcommand
 				.setName('end')
 				.setDescription('set end meme contest')
-				.addStringOption(option => option.setName('message').setDescription("message"))),
+				.addStringOption(option => option.setName('message').setDescription("message")))
+		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true});
 		const message = interaction.options.getString('message') || ""
