@@ -67,6 +67,7 @@ ${participants.join('\n')}`,
 
     static postReflection({projectName,highlight,lowlight,actionPlan,note,user}){
         return {
+            content:`Reflection by ${user}`,
             embeds:[WeeklyReflectionMessage.embedMessageReflection({projectName,highlight,lowlight,actionPlan,note,user})],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`editReflection_${user.id}_${projectName}`,"Edit","SECONDARY")

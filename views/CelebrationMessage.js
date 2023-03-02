@@ -55,6 +55,7 @@ ${participants.join('\n')}`,
 
     static postCelebration({projectName,story,linkProject,linkDeck,metatagImage,user}){
         return {
+            content:`Celebration by ${user}`,
             embeds:[CelebrationMessage.embedMessageCelebration({projectName,story,linkProject,linkDeck,metatagImage,user})],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`editCelebration_${user.id}_${projectName}`,"Edit","SECONDARY")
