@@ -50,7 +50,9 @@ module.exports = {
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
-			if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" && commandButton !== 'buyOneVacationTicket') {
+			if(commandButton === 'buyOneVacationTicket'){
+				await interaction.deferReply({ephemeral:true});
+			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice") {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
