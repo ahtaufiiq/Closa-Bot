@@ -91,10 +91,10 @@ ${participants.join('\n')}`,
         )
     }
 
-    static replySuccessSubmitReflection(totalPoint){
+    static replySuccessSubmitReflection(totalPoint,incrementPoint){
         return `Your reflection notes has been submitted! :white_check_mark:
 
-:coin: **${totalPoint} (+100 points)**`
+:coin: **${totalPoint} (+${incrementPoint} points)**`
     }
 
     static replySubmissionClosed(){

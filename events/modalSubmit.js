@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -29,6 +29,8 @@ const GuidelineInfoController = require("../controllers/GuidelineInfoController"
 const CelebrationController = require("../controllers/CelebrationController");
 const CelebrationMessage = require("../views/CelebrationMessage");
 const UserController = require("../controllers/UserController");
+const IntroMessage = require("../views/IntroMessage");
+const IntroController = require("../controllers/IntroController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -248,17 +250,13 @@ The correct format:
 			threadGoal.send(PartyMessage.notifyMemberShareReflection(modal.user.id,msg.id,projectName))
 			PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 			ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
-			const dataPoint = await supabase.from("Users")
-				.select('totalPoint')
-				.eq('id',modal.user.id)
-				.single()
-			const totalPoint = Number(dataPoint.body.totalPoint) + 100
-			supabase.from("Users")
-				.update({totalPoint})
-				.eq('id',modal.user.id)
-				.then()
+			
+			const incrementPoint = PointController.calculatePoint('reflection')
+			await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
+			const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
+			const totalPoint = dataPoint.body?.totalPoint
 			WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:modal.user.id})
-			await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint))
+			await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint,incrementPoint))
 			if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === 'editReflection'){
 			await modal.deferReply({ephemeral:true})
@@ -311,10 +309,13 @@ The correct format:
 				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`)
 
-				UserController.incrementTotalPoints(300,modal.user.id)
+				const incrementPoint = PointController.calculatePoint('celebration')
+				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
+				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
+				const totalPoint = dataPoint.body?.totalPoint
 				CelebrationController.addCelebration({story,linkProject,linkDeck,UserId:modal.user.id})
 
-				await modal.editReply(CelebrationMessage.replySuccessSubmitCelebration(300))
+				await modal.editReply(CelebrationMessage.replySuccessSubmitCelebration(totalPoint,incrementPoint))
 				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'editCelebration'){
 				await modal.deferReply({ephemeral:true})
@@ -332,6 +333,51 @@ The correct format:
 					projectName,story,linkProject,linkDeck,metatagImage,user:modal.user
 				}))
 				await modal.editReply(`${modal.user} celebration has been updated`)
+			}else if(commandButton === "writeIntro" ){
+				await modal.deferReply({ephemeral: true})
+				const name = modal.getTextInputValue('name');
+				const about = modal.getTextInputValue('about');
+				const expertise = modal.getTextInputValue('expertise');
+				const needHelp = modal.getTextInputValue('needHelp');
+				const social = modal.getTextInputValue('social');
+				
+				const channelIntro = ChannelController.getChannel(modal.client,CHANNEL_INTRO)
+				const msg = await channelIntro.send(IntroMessage.postIntro({
+					name,about,expertise,needHelp,social,
+					user:modal.user
+				}))
+				ChannelController.createThread(msg,`Welcome ${modal.user.username}`)
+				const incrementPoint = PointController.calculatePoint('intro')
+				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
+				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
+				const totalPoint = dataPoint.body?.totalPoint
+				IntroController.addIntro({
+					name,about,expertise,needHelp,social,
+					id:msg.id,
+					UserId:modal.user.id,
+				})
+
+				GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
+
+				await modal.editReply(IntroMessage.replySuccessSubmitIntro(totalPoint,incrementPoint))
+			}else if(commandButton === 'editIntro'){
+				await modal.deferReply({ephemeral:true})
+				const name = modal.getTextInputValue('name');
+				const about = modal.getTextInputValue('about');
+				const expertise = modal.getTextInputValue('expertise');
+				const needHelp = modal.getTextInputValue('needHelp');
+				const social = modal.getTextInputValue('social');
+
+				modal.message.edit(IntroMessage.postIntro({
+					name,about,expertise,needHelp,social,
+					user:modal.user
+				}))
+				IntroController.editIntro({
+					name,about,expertise,needHelp,social,
+					id:modal.message.id,
+					UserId:modal.user.id,
+				})
+				await modal.editReply(`${modal.user} intro has been updated`)
 			}else if(commandButton === "customExtend"){
 			await modal.deferReply({ephemeral:true})
 			const extendTime = Number(modal.getTextInputValue('time').trim().split(' ')[0]);

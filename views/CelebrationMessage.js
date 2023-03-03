@@ -63,30 +63,12 @@ ${participants.join('\n')}`,
         }
     }
 
-    static labelModal(){
-        return {
-            'project':"My latest project",
-            'story':'Story about my project',
-            'linkProject':'Link to my project (optional)',
-            'linkDeck':'Link to celebration slides'
-        }
-    }
-
-    static titleField(){
-        return {
-            'project':"My latest project",
-            'story':'Story about my project',
-            'linkProject':'Link to my project',
-            'linkDeck':'Celebration Slides'
-        }
-    }
-
     static embedMessageCelebration({projectName,story,linkProject,linkDeck,metatagImage,user}){
         const celebration = []
-        if(projectName) celebration.push({name:CelebrationMessage.titleField().project,value:FormatString.truncateString( projectName,1020)})
-        if(story) celebration.push({name:CelebrationMessage.titleField().story,value:FormatString.truncateString( story,1020)})
-        if(linkProject) celebration.push({name:CelebrationMessage.titleField().linkProject,value:FormatString.truncateString( linkProject,1020)})
-        if(linkDeck) celebration.push({name:CelebrationMessage.titleField().linkDeck,value:FormatString.truncateString( linkDeck,1020)})
+        if(projectName) celebration.push({name:CelebrationMessage.titleField.project,value:FormatString.truncateString( projectName,1020)})
+        if(story) celebration.push({name:CelebrationMessage.titleField.story,value:FormatString.truncateString( story,1020)})
+        if(linkProject) celebration.push({name:CelebrationMessage.titleField.linkProject,value:FormatString.truncateString( linkProject,1020)})
+        if(linkDeck) celebration.push({name:CelebrationMessage.titleField.linkDeck,value:FormatString.truncateString( linkDeck,1020)})
         return new MessageEmbed()
         .setColor("#ffffff")
         .setTitle(FormatString.truncateString(`🎉 Celebration by ${user.username}`,250))
@@ -97,14 +79,28 @@ ${participants.join('\n')}`,
         )
     }
 
-    static replySuccessSubmitCelebration(totalPoint){
+    static replySuccessSubmitCelebration(totalPoint,incrementPoint){
         return `Your celebration has been submitted! :white_check_mark:
 
-:coin: **${totalPoint} (+300 points)**`
+:coin: **${totalPoint} (+${incrementPoint} points)**`
     }
 
     static replySubmissionClosed(){
         return `**The submission has been closed.**`
+    }
+
+    static labelModal = {
+        'project':"My latest project",
+        'story':'Story about my project',
+        'linkProject':'Link to my project (optional)',
+        'linkDeck':'Link to celebration slides'
+    }
+
+    static titleField = {
+            'project':"My latest project",
+            'story':'Story about my project',
+            'linkProject':'Link to my project',
+            'linkDeck':'Celebration Slides'
     }
 }
 

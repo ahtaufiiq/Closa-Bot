@@ -4,8 +4,9 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class GuidelineInfoMessage {
-    static guideline(userId,membership,isHaveReferral,showButtonTestimonial){
+    static guideline(userId,membership,isHaveProfile,isHaveReferral,showButtonTestimonial){
         const buttons = []
+        if(!isHaveProfile) buttons.push(MessageComponent.addEmojiButton(`writeIntro_${userId}`,'Make an intro','👋'))
         if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Refer Friends','🎁',"PRIMARY"))
         if(showButtonTestimonial) buttons.push(MessageComponent.addEmojiButton(`submitTestimonialGuideline_${userId}`,'Testimonial','💌'))
         buttons.push(
