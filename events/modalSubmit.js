@@ -351,7 +351,7 @@ The correct format:
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
 				const totalPoint = dataPoint.body?.totalPoint
-				IntroController.addIntro({
+				await IntroController.addIntro({
 					name,about,expertise,needHelp,social,
 					id:msg.id,
 					UserId:modal.user.id,
