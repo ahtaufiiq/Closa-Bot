@@ -69,7 +69,7 @@ class ReferralCodeController{
                 files.push(attachment)
             }
             interaction.editReply({
-                content:'**Share this referral ticket to your friends.**',
+                content:`**Share this referral ticket to your friends.**\nalso feel free to tag \`\`@joinclosa\`\`, we will help you spread your referral.`,
                 files
             })
         }else{

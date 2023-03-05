@@ -211,7 +211,7 @@ One of the reason we’re able to sustainably provide better experience for our 
 
     static successGenerateReferralCover(files){
         return {
-            content:`**💌 Share to your friends or network using invites cover below:**`,
+            content:`**💌 Share to your friends or network using invites cover below:**\nalso feel free to tag \`\`@joinclosa\`\`, we will help you spread your referral.`,
             files
         }
     }
