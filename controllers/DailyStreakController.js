@@ -120,17 +120,17 @@ class DailyStreakController {
 		schedule.scheduleJob(ruleReminderAboutToLoseStreak,function(){
 			if (!Time.isCooldownPeriod()) {
 				supabase.from("Users")
-					.select('id,name,notificationId')
+					.select('id,name,currentStreak,notificationId')
 					.gte('currentStreak',2)
 					.eq('onVacation',false)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
-								const {id:userId,notificationId} = member
+								const {id:userId,notificationId,currentStreak} = member
 								ChannelController.sendToNotification(
 									client,
-									DailyStreakMessage.remindUserAboutToLoseStreak(userId),
+									DailyStreakMessage.remindUserAboutToLoseStreak(userId,currentStreak),
 									userId,
 									notificationId
 								)

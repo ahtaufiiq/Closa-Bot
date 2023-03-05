@@ -75,13 +75,10 @@ But don't worry—you are not losing your #🔥streak :v:
         }
     }
 
-    static remindUserAboutToLoseStreak(userId){
+    static remindUserAboutToLoseStreak(userId,currentStreak){
         return {
-            content:`**Hi ${MessageFormatting.tagUser(userId)} this is a final call. You are about to lose your #🔥streak 🙏**
-
-\`\`To keep your streak you can:\`\`
-• Start tiny and post your progress today.
-• or you can buy a vacation ticket for today.`,
+            content:`**Your ${currentStreak}-day streak is in danger! ${MessageFormatting.tagUser(userId)}**
+Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it alive.`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('buyOneVacationTicket','Buy 1 vacation ticket',`🏖`),
                 MessageComponent.addButton('shopSickTicket',"🤢 Set as a sick day","SECONDARY"),
