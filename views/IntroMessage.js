@@ -6,7 +6,7 @@ const MessageComponent = require("../helpers/MessageComponent")
 class IntroMessage {
     static postIntro({name,about,expertise,needHelp,social,user}){
         return {
-            content:`Welcome ${user}`,
+            content:`Welcome ${user}!`,
             embeds:[IntroMessage.embedMessageIntro({name,about,expertise,needHelp,social,user})],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`editIntro_${user.id}`,"Edit","SECONDARY")

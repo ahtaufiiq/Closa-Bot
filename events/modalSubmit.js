@@ -346,7 +346,7 @@ The correct format:
 					name,about,expertise,needHelp,social,
 					user:modal.user
 				}))
-				ChannelController.createThread(msg,`Welcome ${modal.user.username}`)
+				ChannelController.createThread(msg,`Welcome ${modal.user.username}!`)
 				const incrementPoint = PointController.calculatePoint('intro')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
