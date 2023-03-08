@@ -39,6 +39,8 @@ module.exports = {
 			.limit(1)
 			.single()
 
+			if(!dataUser.body) return interaction.editReply("this member haven't made an intro")
+
 			const {id,name,about,expertise,needHelp,social} = dataUser.body
 			
 			interaction.editReply({
