@@ -67,6 +67,8 @@ module.exports = {
 			.limit(1)
 			.single()
 
+			if(!dataUser.body) return interaction.editReply("this member haven't made an goal")
+
 			const {id,role,goal,about,deadlineGoal} = dataUser.body
 			const formattedDate = Time.getFormattedDate(Time.getDate(deadlineGoal))
 			const dayLeft = Time.getDiffDay(Time.getDate(Time.getTodayDateOnly()),Time.getDate(deadlineGoal))
