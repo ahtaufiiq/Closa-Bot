@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION, MY_ID } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION, MY_ID } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -48,7 +48,7 @@ class PartyController{
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
 		ruleFirstDayCooldown.setMinutes(30)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
-			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+			const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 			const [usersJoinedParty,totalUserHaveNotSetGoal] = await Promise.all([PartyController.getUsersJoinedParty(),await PartyController.getTotalUserHaveNotSetGoal()])
 			
 			const data = LocalData.getData()
@@ -86,14 +86,14 @@ class PartyController{
 
 	static async updateMessageWaitingRoom(client){
 		const data = LocalData.getData()
-		const channelPartyMode = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+		const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		
 		if(data.msgIdCountdownWaitingRoom && PartyController.isRangePartyMode()){
 			const [usersJoinedParty,totalUserHaveNotSetGoal] = await Promise.all([PartyController.getUsersJoinedParty(),await PartyController.getTotalUserHaveNotSetGoal()])
-			const msgContentWaitingRoom = await ChannelController.getMessage(channelPartyMode,data.msgIdContentWaitingRoom)
+			const msgContentWaitingRoom = await ChannelController.getMessage(channelPartyRoom,data.msgIdContentWaitingRoom)
 			msgContentWaitingRoom.edit(PartyMessage.contentWaitingRoom(totalUserHaveNotSetGoal,PartyController.formatUsersJoinedParty(usersJoinedParty)))
 
-			const msgCountdownWaitingRoom = await ChannelController.getMessage(channelPartyMode,data.msgIdCountdownWaitingRoom)
+			const msgCountdownWaitingRoom = await ChannelController.getMessage(channelPartyRoom,data.msgIdCountdownWaitingRoom)
 			PartyController.countdownWaitingRoom(msgCountdownWaitingRoom)
 		}
 	}
@@ -340,10 +340,10 @@ class PartyController{
 		ruleFirstDayCooldown.setMinutes(59)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
 			const {msgIdContentWaitingRoom,msgIdCountdownWaitingRoom} = LocalData.getData()
-			const channelPartyMode = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
-			const msgContent = await ChannelController.getMessage(channelPartyMode,msgIdContentWaitingRoom)
+			const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
+			const msgContent = await ChannelController.getMessage(channelPartyRoom,msgIdContentWaitingRoom)
 			msgContent.edit(`**Find accountability partner by joining available party room** → ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}`)
-			ChannelController.getMessage(channelPartyMode,msgIdCountdownWaitingRoom)
+			ChannelController.getMessage(channelPartyRoom,msgIdCountdownWaitingRoom)
 				.then(msg=>{
 					msg.delete()
 				})
@@ -596,7 +596,7 @@ class PartyController{
 	}
 
 	static async getMessageWaitingRoom(client){
-		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_MODE)
+		const channelParty = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const msg = await ChannelController.getMessage(channelParty,LocalData.getData().msgIdContentWaitingRoom)
 		return msg
 	}

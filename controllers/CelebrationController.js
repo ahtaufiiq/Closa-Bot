@@ -17,28 +17,26 @@ class CelebrationController {
         date.setHours(Time.minus7Hours(21))
         date.setMinutes(0)
 		schedule.scheduleJob(date, async function(){
-			if(!Time.isCooldownPeriod()){
-				const data = LocalData.getData()
-				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-				const msg = await channelAnnouncement.send(CelebrationMessage.announcement(CelebrationController.getTimeLeft()))
-				ChannelController.createThread(msg,"Celebration")
-				data.msgIdCelebration = msg.id
-				LocalData.writeData(data)
-				CelebrationController.countdownWritingCelebration(msg)
+			const data = LocalData.getData()
+			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
+			const msg = await channelAnnouncement.send(CelebrationMessage.announcement(CelebrationController.getTimeLeft()))
+			ChannelController.createThread(msg,"Celebration")
+			data.msgIdCelebration = msg.id
+			LocalData.writeData(data)
+			CelebrationController.countdownWritingCelebration(msg)
 
-				UserController.getActiveMembers('id,notificationId')
-					.then(async data=>{
-						for (let i = 0; i < data.body.length; i++) {
-							const {id:userId,notificationId} = data.body[i]
-							ChannelController.sendToNotification(
-								client,
-								CelebrationMessage.writeCelebration(userId),
-								userId,
-								notificationId
-							)
-						}
-					})
-			}
+			UserController.getActiveMembers('id,notificationId')
+				.then(async data=>{
+					for (let i = 0; i < data.body.length; i++) {
+						const {id:userId,notificationId} = data.body[i]
+						ChannelController.sendToNotification(
+							client,
+							CelebrationMessage.writeCelebration(userId),
+							userId,
+							notificationId
+						)
+					}
+			})
 		});
 	}
 
@@ -156,7 +154,7 @@ class CelebrationController {
 	static getTimeLeft(){
 		const {celebrationDate} = LocalData.getData()
         const endDate = Time.getNextDate(1,celebrationDate)
-        endDate.setHours(Time.minus7Hours(23))
+        endDate.setHours(23)
         endDate.setMinutes(59)
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`

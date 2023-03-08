@@ -1,11 +1,19 @@
 const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
-const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_MODE, CHANNEL_GENERAL, CHANNEL_REFLECTION, CHANNEL_CELEBRATE } = require("../helpers/config")
+const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_REFLECTION, CHANNEL_CELEBRATE } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 class PartyMessage {
+    static initAccountabilityMode(){
+        return { 
+            content:`**Select your accountability mode:**` , 
+            components: [
+                MessageComponent.createComponent(MessageComponent.addButton("joinPartyMode","Party Mode").setEmoji('🥳'),MessageComponent.addButton("startSoloMode","Solo Mode").setEmoji('🫡')),
+            ] 
+        }
+    }
     static initSoloMode(){
         return { 
             content:`${MessageFormatting.customEmoji().thumbsupkid} **Solo mode**
@@ -304,14 +312,14 @@ Continue to the next step here → ${MessageFormatting.linkToInsideThread(notifi
     static announceOpenPartyMode(date){
         return `Hi @everyone! The **PARTY MODE** for our next cohort is open now!  :green_circle:
 
-Go to ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} to join group accountability group  before our next cohort begin.
+Go to ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)} to join group accountability group  before our next cohort begin.
 \`\`Open until ${date} at 20.30\`\``
     }
 
     static reminderOpenPartyMode(){
         return `Hi @everyone! if you want to have accountability group for our next cohort.
 
-→ join ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}
+→ join ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}
 
 \`\`Open until Tomorrow at 20.30\`\` (but better join now).`
     }

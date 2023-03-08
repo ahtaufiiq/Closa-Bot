@@ -1,4 +1,4 @@
-const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_SOLO_MODE, CHANNEL_PARTY_MODE } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const GenerateLink = require("../helpers/GenerateLink")
@@ -40,8 +40,7 @@ class TodoReminderMessage{
 Hi ${MessageFormatting.tagUser(userId)}, you haven't set your project ${MessageFormatting.tagChannel(CHANNEL_GOALS)} yet.
 
 Please \`\`select\`\` your accountability mode first to continue to the next step
-${MessageFormatting.tagChannel(CHANNEL_SOLO_MODE)} — *do your passion project alone.*
-${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)} — *build alongside with other.*`
+${MessageFormatting.tagChannel(CHANNEL_ACOUNTABILITY_MODE)}`
     }
 }
 

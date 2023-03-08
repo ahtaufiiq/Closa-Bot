@@ -1,6 +1,6 @@
 const { MessageEmbed } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
-const { CHANNEL_CELEBRATE, CHANNEL_PARTY_MODE } = require("../helpers/config")
+const { CHANNEL_CELEBRATE, CHANNEL_PARTY_ROOM } = require("../helpers/config")
 const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -67,7 +67,7 @@ Thank you for reading, have a great day!
         return {
             content:`**Hi @everyone, closa's next kick-off day will start in 2 days ✌️**
 
-Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_MODE)}`,
+Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}`,
             embeds: [
                 new MessageEmbed()
                 .setColor("#00B264")
