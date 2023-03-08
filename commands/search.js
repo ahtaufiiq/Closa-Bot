@@ -9,6 +9,7 @@ const InfoUser = require('../helpers/InfoUser');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
+const IntroMessage = require('../views/IntroMessage');
 const PointMessage = require('../views/PointMessage');
 
 module.exports = {
@@ -19,6 +20,11 @@ module.exports = {
 			subcommand
 				.setName('goal')
 				.setDescription("Search goal & latest update from a user")
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('profile')
+				.setDescription("Search profile of closa members")
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))),
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true})
@@ -26,32 +32,61 @@ module.exports = {
 		const taggedUser = interaction.options.getUser('user')
 		const user = taggedUser? taggedUser : interaction.user
 
-		const dataUser = await supabase.from('Goals')
+		if(command === 'profile'){
+			const dataUser = await supabase.from('Intros')
+			.select()
+			.eq('UserId',user.id)
+			.limit(1)
+			.single()
+
+			const {id,name,about,expertise,needHelp,social} = dataUser.body
+			
+			interaction.editReply({
+				embeds:[
+					new MessageEmbed()
+					.setColor("#ffffff")
+					.setTitle(`See ${name.split(',')[0]} profile's →`)
+					.setURL(MessageFormatting.linkToInsideThread(id))
+					.setThumbnail(InfoUser.getAvatar(user))
+					.addFields(
+						{name:IntroMessage.titleField.name,value:FormatString.truncateString( name,1020)},
+						{name:IntroMessage.titleField.about,value:FormatString.truncateString( about,1020)},
+						{name:IntroMessage.titleField.expertise,value:FormatString.truncateString( expertise,1020)},
+						{name:IntroMessage.titleField.needHelp,value:FormatString.truncateString( needHelp,1020)},
+						{name:IntroMessage.titleField.social,value:FormatString.truncateString( social,1020)},
+					)
+				]
+			})
+		}else if(command === 'goal'){
+			const dataUser = await supabase.from('Goals')
 			.select("id,goal,about,role,deadlineGoal")
 			.eq('UserId',user.id)
 			.order('deadlineGoal',{ascending:false})
 			.limit(1)
 			.single()
 
-		const {id,role,goal,about,deadlineGoal} = dataUser.body
-		const formattedDate = Time.getFormattedDate(Time.getDate(deadlineGoal))
-		const dayLeft = Time.getDiffDay(Time.getDate(Time.getTodayDateOnly()),Time.getDate(deadlineGoal))
-		let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
+			const {id,role,goal,about,deadlineGoal} = dataUser.body
+			const formattedDate = Time.getFormattedDate(Time.getDate(deadlineGoal))
+			const dayLeft = Time.getDiffDay(Time.getDate(Time.getTodayDateOnly()),Time.getDate(deadlineGoal))
+			let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
+			
+			interaction.editReply({
+				embeds:[
+					new MessageEmbed()
+					.setColor("#ffffff")
+					.setTitle("See goal & latest progress →")
+					.setURL(MessageFormatting.linkToInsideThread(id))
+					.setThumbnail(InfoUser.getAvatar(user))
+					.addFields(
+						{ name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
+						{ name: 'About project', value:FormatString.truncateString( about,1020) },
+						{ name: "Role", value:FormatString.truncateString( role,1020) },
+						{ name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
+					)	
+				]
+			})
+		}
+
 		
-		interaction.editReply({
-			embeds:[
-				new MessageEmbed()
-				.setColor("#ffffff")
-				.setTitle("See goal & latest progress →")
-				.setURL(MessageFormatting.linkToInsideThread(id))
-				.setThumbnail(InfoUser.getAvatar(user))
-				.addFields(
-					{ name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
-					{ name: 'About project', value:FormatString.truncateString( about,1020) },
-					{ name: "Role", value:FormatString.truncateString( role,1020) },
-					{ name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
-				)	
-			]
-		})
 	},
 };
