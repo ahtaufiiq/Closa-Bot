@@ -9,6 +9,7 @@ class PartyMessage {
     static initAccountabilityMode(){
         return { 
             content:`**Select your accountability mode:**` , 
+            files:["https://cdn.discordapp.com/attachments/954303982812151818/1082998117567311992/Set-goal_5.png"],
             components: [
                 MessageComponent.createComponent(MessageComponent.addButton("joinPartyMode","Party Mode").setEmoji('🥳'),MessageComponent.addButton("startSoloMode","Solo Mode").setEmoji('🫡')),
             ] 
