@@ -101,15 +101,6 @@ class PointController{
                     case CHANNEL_HIGHLIGHT:
                         finalPoint = PointController.randomNumber(10,50)
                         break;
-                    case CHANNEL_INTRO:
-                        finalPoint = PointController.randomNumber(50,100)
-                        break;
-                    case CHANNEL_CELEBRATE:
-                        finalPoint = PointController.randomNumber(100,300)
-                        break;
-                    case CHANNEL_GOALS:
-                        finalPoint = PointController.randomNumber(100,300)
-                        break;
                 }
                 break;
             case 'GUILD_PUBLIC_THREAD':
@@ -120,6 +111,15 @@ class PointController{
                 break
             case 'goal':
                 finalPoint = PointController.randomNumber(100,300)
+                break
+            case 'celebration':
+                finalPoint = PointController.randomNumber(100,300)
+                break
+            case 'intro':
+                finalPoint = PointController.randomNumber(100,150)
+                break
+            case 'reflection':
+                finalPoint = PointController.randomNumber(100,150)
                 break
             case 'boost':
                 finalPoint = PointController.randomNumber(1,10)

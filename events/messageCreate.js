@@ -357,9 +357,6 @@ so, you can learn or sharing from each others.`,
 				}
 				TestimonialController.askToWriteTestimonial(msg,dataUser.body.notificationId)
 				break;
-			case CHANNEL_INTRO:
-				ChannelController.createThread(msg,`Welcome ${msg.author.username}`)
-				break;
 			case CHANNEL_MEMES:
 				const {isMemeContest} = LocalData.getData()
 				if(isMemeContest){

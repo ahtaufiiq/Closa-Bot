@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { CHANNEL_PARTY_MODE, ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL } = require("../helpers/config");
+const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -27,6 +27,7 @@ const UserController = require("../controllers/UserController");
 const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
 const CelebrationController = require("../controllers/CelebrationController");
+const IntroController = require("../controllers/IntroController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -47,6 +48,8 @@ module.exports = {
 			if(CelebrationController.showModalWriteCelebration(interaction)) return
 			if(CelebrationController.showModalEditCelebration(interaction)) return
 			if(BoostController.showModalPersonalBoost(interaction)) return
+			if(IntroController.showModalWriteIntro(interaction)) return
+			if(IntroController.showModalEditIntro(interaction)) return
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
