@@ -314,7 +314,7 @@ The correct format:
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
 				const totalPoint = dataPoint.body?.totalPoint
 				CelebrationController.addCelebration({story,linkProject,linkDeck,UserId:modal.user.id})
-
+				TestimonialController.askToWriteTestimonial(msg,dataUser.body.notificationId)
 				await modal.editReply(CelebrationMessage.replySuccessSubmitCelebration(totalPoint,incrementPoint))
 				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'editCelebration'){

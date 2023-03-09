@@ -96,6 +96,23 @@ it looks like ${user} is not making progress for 2 days.**` ,
             ] 
         }
     }
+
+    static notMakingProgress10Days(user){
+        return { 
+            content:`**IT'S TIME TO BOOST YOUR FRIEND!**` , 
+            embeds: [MessageComponent.embedMessage({
+                description: `${user} (no progress 10x) 😭 `,
+                user
+            })], 
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
+                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
+                )
+            ] 
+        }
+    }
+
     static aboutToLoseStreak(user,currentStreak){
         return { 
             content:`**${user} is about to lose ${currentStreak} streak!** 

@@ -58,6 +58,28 @@ class BoostController{
 
 				supabase.from("Users")
 					.select()
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-11)))
+					.eq('onVacation',false)
+					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
+					.gte('endMembership',Time.getDateOnly(Time.getDate()))
+					.then(data=>{
+						if(data.body.length > 0){
+							BoostController.incrementTotalBoostLocal(data.body.length)
+							data.body.forEach(async member=>{
+								const {user} = await MemberController.getMember(client,member.id)
+								const msg = await channelBoost.send(BoostMessage.notMakingProgress10Days(user))
+								supabase.from("Reminders")
+									.insert({
+										message:msg.id,
+										UserId:member.id,
+										type:'boost'
+									}).then()
+							})
+						}
+					})
+
+				supabase.from("Users")
+					.select()
 					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
 					.eq('onVacation',false)
 					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
