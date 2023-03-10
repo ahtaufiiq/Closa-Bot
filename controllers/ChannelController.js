@@ -1,4 +1,5 @@
 const { PermissionFlagsBits } = require("discord-api-types/v9");
+const { WebhookClient } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
@@ -154,6 +155,11 @@ class ChannelController{
                 .then()
             return await notificationThread.send(messageContent)
         }
+    }
+
+    static sendError(error,data='error'){
+        const webhookClient = new WebhookClient({ url:"https://discord.com/api/webhooks/953519981629419540/5PQwLXEB-Xxh5nuwOANNRUdddt1UTqsCay-TRRVocN-_lV6mXSoSI7KkZX7xiC8PDh1E" });
+        webhookClient.send(`${data}: ${error}`)
     }
 }
 
