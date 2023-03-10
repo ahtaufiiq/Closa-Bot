@@ -42,15 +42,15 @@ class TestimonialController{
             .then()
     }
 
-    static async askToWriteTestimonial(msg,notificationId){
-        const isAlreadySubmitTestimonial = await TestimonialController.alreadySubmitTestimonial(msg.author.id)
+    static async askToWriteTestimonial(client,userId,notificationId){
+        const isAlreadySubmitTestimonial = await TestimonialController.alreadySubmitTestimonial(userId)
         if(!isAlreadySubmitTestimonial){
-            await GuidelineInfoController.updateDataShowTestimonial(msg.author.id,true)
-            GuidelineInfoController.updateMessagGuideline(msg.client,msg.author.id)
+            await GuidelineInfoController.updateDataShowTestimonial(userId,true)
+            GuidelineInfoController.updateMessagGuideline(client,userId)
             ChannelController.sendToNotification(
-                msg.client,
-                TestimonialMessage.howToShareTestimonial(msg.author.id),
-                msg.author.id,
+                client,
+                TestimonialMessage.howToShareTestimonial(userId),
+                userId,
                 notificationId
             )
         }

@@ -37,7 +37,7 @@ class BoostController{
 			if (!Time.isCooldownPeriod()) {
 				const data = await supabase.from("Users")
 					.select()
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
+					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-4)))
 					.eq('onVacation',false)
 					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))
@@ -46,7 +46,7 @@ class BoostController{
 					BoostController.incrementTotalBoostLocal(data.body.length)
 					data.body.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
-						const msg = await channelBoost.send(BoostMessage.notMakingProgress2Days(user))
+						const msg = await channelBoost.send(BoostMessage.notMakingProgress3Days(user))
 						supabase.from("Reminders")
 							.insert({
 								message:msg.id,
@@ -80,7 +80,7 @@ class BoostController{
 
 				supabase.from("Users")
 					.select()
-					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
+					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 					.eq('onVacation',false)
 					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
 					.gte('endMembership',Time.getDateOnly(Time.getDate()))

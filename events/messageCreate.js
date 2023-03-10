@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -33,7 +33,30 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) {
-			if(msg.channelId === CHANNEL_PAYMENT) ChannelController.createThread(msg,'Payment')
+			if(msg.channelId === CHANNEL_PAYMENT) {
+				
+				await ChannelController.createThread(msg,'Payment')
+				if(msg.author.id !== CLIENT_ID && msg.embeds[0]?.title === 'Repair'){
+					console.log(msg);
+					let files = []
+
+					msg.attachments.each(data=>{
+						files.push({
+							attachment:data.attachment
+						})
+					})
+					msg.delete()
+					msg.channel.send({
+						files,
+						embeds:msg.embeds,
+						components:[
+							MessageComponent.createComponent(
+								MessageComponent.addButton(`confirmRepair_null_${Time.getTodayDateOnly()}`,'Confirm',"SUCCESS")
+							)
+						]
+					})
+				}
+			}
 			return
 		}
 
@@ -355,20 +378,19 @@ so, you can learn or sharing from each others.`,
 						files:filesCelebration
 					})
 				}
-				TestimonialController.askToWriteTestimonial(msg,dataUser.body.notificationId)
+				TestimonialController.askToWriteTestimonial(msg.client,msg.author.id,dataUser.body.notificationId)
 				break;
 			case CHANNEL_MEMES:
 				const {isMemeContest} = LocalData.getData()
 				if(isMemeContest){
 					msg.delete()
 					if(msg.attachments.size === 0) {
-						const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-						notificationThread.send(MemeContestMessage.invalidSubmissionFormat(msg.author))
+						ChannelController.sendToNotification(msg.client,MemeContestMessage.invalidSubmissionFormat(msg.author),msg.author.id)
 					}else{
 						const totalSubmitToday = await MemeController.totalSubmitToday(msg.author.id)
 						if(totalSubmitToday === 5){
-							const notificationThread = await ChannelController.getNotificationThread(msg.client,msg.author.id)
-							return notificationThread.send(MemeContestMessage.submissionLimit(msg.author))
+							
+							return ChannelController.sendToNotification(msg.client,MemeContestMessage.submissionLimit(msg.author),msg.author.id)
 						}else{
 							MemeController.submitMeme(msg)
 							MemeController.addVibePoints(msg.client,msg.author)

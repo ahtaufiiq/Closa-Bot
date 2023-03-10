@@ -79,10 +79,10 @@ class BoostMessage{
         }
     }
 
-    static notMakingProgress2Days(user){
+    static notMakingProgress3Days(user){
         return { 
             content:`**IT'S TIME TO BOOST! 
-it looks like ${user} is not making progress for 2 days.**` , 
+it looks like ${user} is not making progress for 3 days.**` , 
             embeds: [MessageComponent.embedMessage({
                 title: "Send Boost 🚀",
                 description: `Show your support by sending ${user} a boost.`,

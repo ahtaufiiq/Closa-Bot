@@ -69,15 +69,14 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
 				case "upvoteMeme":
-					const notificationThread = await ChannelController.getNotificationThread(interaction.client,interaction.user.id)
 					if(interaction.user.id === targetUserId) {
-						notificationThread.send(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
+						ChannelController.sendToNotification(interaction.client,MemeContestMessage.cannotVoteOwnMeme(interaction.user),interaction.user.id)
 						return interaction.editReply(MemeContestMessage.cannotVoteOwnMeme(interaction.user))
 					}
 
 					const totalUpvoteToday = await MemeController.totalUpvoteToday(interaction.user.id)
 					if(totalUpvoteToday === 5){
-						notificationThread.send(MemeContestMessage.upvoteLimit(interaction.user))
+						ChannelController.sendToNotification(interaction.client,MemeContestMessage.upvoteLimit(interaction.user),interaction.user.id)
 						return interaction.editReply(MemeContestMessage.upvoteLimit(interaction.user))
 					}
 
@@ -96,7 +95,7 @@ module.exports = {
 							}else{
 								message = MemeContestMessage.upvoteSuccess(5 - totalUpvoteToday - 1,interaction.user)
 							}
-							notificationThread.send(message)
+							ChannelController.sendToNotification(interaction.client,message,interaction.user.id)
 							return interaction.editReply(message)
 						})
 					
