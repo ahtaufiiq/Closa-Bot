@@ -185,7 +185,7 @@ class BoostController{
 				BoostMessage.sendBoostToInactiveMember(targetUser.user,interaction.user,totalBoost),
 				targetUser.user.id
 			)
-			await interaction.editReply({embeds:[BoostMessage.successSendBoost(targetUser.user)]})
+			await interaction.editReply(BoostMessage.successSendBoost(targetUser.user))
 		}else {
 			await interaction.editReply(BoostMessage.warningSpamBoost())
 		}

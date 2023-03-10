@@ -452,17 +452,28 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
+				case 'boostPartyMember':
+					if(valueMenu === interaction.user.id) return interaction.editReply(BoostMessage.warningBoostYourself())
+					const {user} = await MemberController.getMember(interaction.client,valueMenu)
+					const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
+					ChannelController.sendToNotification(
+						interaction.client,
+						BoostMessage.sendBoostToInactiveMember(user,interaction.user,totalBoost),
+						valueMenu
+					)
+					await interaction.editReply(BoostMessage.successSendBoost(user))
+					break
 				case "inactiveReply":
 					if(valueMenu === 'personalBoost'){
 						BoostController.showModalPersonalBoost(interaction)
 					}else{
-                                                await interaction.deferReply({ephemeral:true});
+						await interaction.deferReply({ephemeral:true});
 						ChannelController.sendToNotification(
 							interaction.client,
 							BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
 							targetUserId
 						)
-						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
+						await interaction.editReply(BoostMessage.successSendBoost(targetUser.user))
 					}
 					break;
 				case "goalCategory":

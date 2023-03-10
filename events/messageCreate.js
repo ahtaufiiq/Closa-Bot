@@ -34,28 +34,7 @@ module.exports = {
 	async execute(msg) {
 		if(msg.author.bot) {
 			if(msg.channelId === CHANNEL_PAYMENT) {
-				
 				await ChannelController.createThread(msg,'Payment')
-				if(msg.author.id !== CLIENT_ID && msg.embeds[0]?.title === 'Repair'){
-					console.log(msg);
-					let files = []
-
-					msg.attachments.each(data=>{
-						files.push({
-							attachment:data.attachment
-						})
-					})
-					msg.delete()
-					msg.channel.send({
-						files,
-						embeds:msg.embeds,
-						components:[
-							MessageComponent.createComponent(
-								MessageComponent.addButton(`confirmRepair_null_${Time.getTodayDateOnly()}`,'Confirm',"SUCCESS")
-							)
-						]
-					})
-				}
 			}
 			return
 		}
