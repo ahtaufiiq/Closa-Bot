@@ -67,9 +67,7 @@ class MemeController {
     static async addVibePoints(client,author){
         const point = 25
         UserController.incrementTotalPoints(point,author.id)
-        
-        const notificationThread = await ChannelController.getNotificationThread(client,author.id)
-        notificationThread.send(MemeContestMessage.addVibePoints(author,point))
+        ChannelController.sendToNotification(client,MemeContestMessage.addVibePoints(author,point),author.id)
     }
 }
 

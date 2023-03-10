@@ -112,13 +112,18 @@ class GuidelineInfoController {
                 .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
             dataUser.body.forEach(async ({Users:{id,notificationId}})=>{
-                const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId} = await GuidelineInfoController.getData(id)
-                const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
-                
-                GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
-                GuidelineInfoController.resetDataTotalNotification(id)
-                const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-                msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial))
+                try {
+                    const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId} = await GuidelineInfoController.getData(id)
+                    const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
+                    
+                    GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
+                    GuidelineInfoController.resetDataTotalNotification(id)
+                    const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
+                    msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial))
+                } catch (error) {
+                    ChannelController.sendError(error,id)
+                }
+
             })
         })
     }

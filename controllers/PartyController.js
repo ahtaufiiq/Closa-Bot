@@ -963,7 +963,7 @@ class PartyController{
 
 	static async sendProgressRecap(client){
 		const ruleSendProgressRecap = new schedule.RecurrenceRule();
-        ruleSendProgressRecap.hour = 0
+        ruleSendProgressRecap.hour = 2
         ruleSendProgressRecap.minute = 0
 		schedule.scheduleJob(ruleSendProgressRecap,async function(){
 			const dataPartyRecap = await supabase.from("PartyProgressRecaps")
