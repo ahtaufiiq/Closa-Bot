@@ -108,6 +108,22 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
             ]
         }
     }
+
+    static repairStreak(streak,userId,time){
+        return {
+            content:`**${streak}-day streak lost! ${MessageFormatting.tagUser(userId)}** 😭
+
+Do you want to repair your record?
+this fund helps us keep the community running.
+*To keep it fair, repair only valid 1x per cohort & 24-hour time to repair*
+
+Time left: \`\`${time}\`\` ⏳`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️'),
+                MessageComponent.addButton(`repairStreak_${userId}`,'Repair for 7500 pts',"SUCCESS").setEmoji('🛠️'),
+            )]
+        }
+    }
 }
 
 module.exports=DailyStreakMessage

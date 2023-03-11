@@ -184,6 +184,12 @@ class DailyStreakController {
 				type:'safety'
 			})
 	}
+
+	static getTimeLeftRepairStreak(dateOnly){
+		const endDate = Time.getNextDate(1,dateOnly)
+		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
+		return `${Time.convertTime(diffTime,'short')} left`
+	}
 }
 
 module.exports = DailyStreakController
