@@ -13,6 +13,8 @@ const { MessageAttachment } = require('discord.js');
 const UserController = require('./UserController');
 const PartyController = require('./PartyController');
 const PartyMessage = require('../views/PartyMessage');
+const LocalData = require('../helpers/LocalData');
+const MessageComponent = require('../helpers/MessageComponent');
 class DailyStreakController {
     
     static async achieveDailyStreak(client,ChannelReminder,dailyStreak,author){
@@ -185,10 +187,125 @@ class DailyStreakController {
 			})
 	}
 
+	static sendRepairStreak(client){
+		let ruleReminderRepairStreak = new schedule.RecurrenceRule();
+		ruleReminderRepairStreak.hour = Time.minus7Hours(6)
+		ruleReminderRepairStreak.minute = 0
+		schedule.scheduleJob(ruleReminderRepairStreak,function(){
+			if (!Time.isCooldownPeriod()) {
+				supabase.from("Users")
+					.select('id,name,currentStreak,notificationId')
+					.gte('currentStreak',21)
+					.or(`lastDone.eq.${Time.getDateOnly(Time.getNextDate(-3))},lastSafety.eq.${Time.getDateOnly(Time.getNextDate(-2))}`)
+					.then(data=>{
+						if (data.body) {
+							data.body.forEach(async member=>{
+								const {id:userId,notificationId,currentStreak} = member
+								const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
+								if(isValidGetRepairStreak){
+									const msg = await ChannelController.sendToNotification(
+										client,
+										DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
+										userId,
+										notificationId
+									)
+									DailyStreakController.countdownRepairStreak(msg)
+									DailyStreakController.insertRepairStreak(userId,msg.id)
+								}
+							})
+						}
+				})
+			}
+		})
+	}
+
+	static countdownRepairStreak(msg){
+		const countdownRepairStreak = setInterval(async () => {
+			const time = DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())
+			let content = msg.content.split('Time left:')[0]
+			msg.edit(`${content}Time left: \`\`${time}\`\` ⏳`)
+				.catch(()=>{
+					clearInterval(countdownRepairStreak)
+				})
+			if(time.includes('-')){
+				clearInterval(countdownRepairStreak)
+				msg.edit({
+					components:[
+						MessageComponent.createComponent(
+							MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️').setDisabled(true),
+							MessageComponent.addButton(`repairStreak_${userId}`,'Repair for 7500 pts',"SUCCESS").setEmoji('🪙').setDisabled(true),
+						)
+					]
+				})
+				.catch(()=>{
+					clearInterval(countdownRepairStreak)
+				})
+			}
+		}, 1000 * 60);
+	}
+
 	static getTimeLeftRepairStreak(dateOnly){
 		const endDate = Time.getNextDate(1,dateOnly)
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
+	}
+
+	static async insertRepairStreak(UserId,messageNotificationId,channelDMId,msgDMId){
+		const {cohort} = LocalData.getData()
+		return await supabase.from("RepairStreaks")
+			.insert({
+				UserId,messageNotificationId,channelDMId,msgDMId,cohort,date:Time.getTodayDateOnly()
+			})
+	}
+
+	static async isValidGetRepairStreak(userId){
+		const {cohort} = LocalData.getData()
+
+		supabase.from("RepairStreaks")
+			.delete()
+			.eq('UserId',userId).eq('cohort',cohort).is('isRepair',false).then()
+
+		const data = await supabase.from("RepairStreaks")
+			.select()
+			.eq('UserId',userId)
+			.eq('cohort',cohort)
+			.is('isRepair',true)
+			.limit(1)
+			.single()
+
+		const alreadyBuyRepairStreak = data.body
+		return !alreadyBuyRepairStreak
+	}
+
+	static async updateIsRepairStreak(userId,isRepair=true){
+		const {cohort} = LocalData.getData()
+		const data = await supabase.from("RepairStreaks")
+			.update({isRepair})
+			.eq('UserId',userId)
+			.eq('cohort',cohort)
+		return data
+	}
+
+	static async generateHabitBuilder(client,user){
+		const {data} = await UserController.getDetail(user.id,'goalId,longestStreak,totalDay,totalPoint')
+		let goalName = ''
+
+		if (data?.goalId) {
+			const channel = ChannelController.getChannel(client,CHANNEL_GOALS)
+			const thread = await ChannelController.getThread(channel,data.goalId)
+			goalName = thread.name.split('by')[0]
+		}
+		if(data){
+			const progressRecently = await RequestAxios.get('todos/tracker/'+user.id)
+			const avatarUrl = InfoUser.getAvatar(user)
+			const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
+			const files = [new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)]
+			return files
+		}
+	}
+
+	static applyRepairStreak(){
+
 	}
 }
 

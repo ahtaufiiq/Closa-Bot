@@ -36,7 +36,7 @@ class VacationController{
     static async interactionShopVacationTicket(interaction){
         const [maxHoldVacation,totalPoint] = await Promise.all([
             VacationController.getMaxHoldVacationTicket(interaction.user.id),
-            VacationController.getTotalPoint(interaction.user.id)
+            UserController.getTotalPoint(interaction.user.id)
         ])
         interaction.editReply(VacationMessage.showListVacationTicket(interaction.user.id,totalPoint,maxHoldVacation))
     }
@@ -53,14 +53,6 @@ class VacationController{
             if(isHaveEnoughPoint) await interaction.editReply(VacationMessage.confirmationBuyVacationTicket(interaction.user.id,totalTicket,totalPoint))
             else await interaction.editReply(VacationMessage.notHaveEnoughPoint(interaction.user.id))
         }
-    }
-
-    static async getTotalPoint(userId){
-        const data = await supabase.from("Users")
-            .select('totalPoint')
-            .eq('id',userId)
-            .single()
-        return data.body.totalPoint
     }
 
     static async interactionBuyOneVacationTicket(interaction){
@@ -375,7 +367,7 @@ class VacationController{
     }
 
     static async isHaveEnoughPoint(userId,totalPrice){
-        const totalPointUser = await VacationController.getTotalPoint(userId)
+        const totalPointUser = await UserController.getTotalPoint(userId)
         return totalPointUser >= totalPrice
     }
 

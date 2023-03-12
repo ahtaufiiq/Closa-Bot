@@ -67,7 +67,7 @@ class WeeklyReflectionController {
     static showModalWriteReflection(interaction){
 		if(interaction.customId.includes('writeReflection')){
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				interaction.reply(WeeklyReflectionMessage.replySubmissionClosed())
+				interaction.reply({ephemeral:true,content:WeeklyReflectionMessage.replySubmissionClosed()})
 				return true
 			}
 			const modal = new Modal()

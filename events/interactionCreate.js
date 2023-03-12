@@ -28,11 +28,12 @@ const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
 const CelebrationController = require("../controllers/CelebrationController");
 const IntroController = require("../controllers/IntroController");
+const DailyStreakController = require("../controllers/DailyStreakController");
+const DailyStreakMessage = require("../views/DailyStreakMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
 		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
-
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(PartyController.showModalCustomReminder(interaction)) return
@@ -55,7 +56,7 @@ module.exports = {
 			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if(commandButton === 'buyOneVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice") {
+			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -68,6 +69,37 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "repairStreak":
+					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
+					const totalPoint = await UserController.getTotalPoint(interaction.user.id)
+					if(totalPoint < 7500){
+						interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
+					}else{
+						interaction.editReply(DailyStreakMessage.confirmationBuyRepairStreak(totalPoint,interaction.message.id))
+					}
+					break;
+				case 'confirmBuyRepairStreak':
+					await Promise.all([
+						DailyStreakController.addSafetyDot(interaction.user.id,Time.getNextDate(-1)),
+						DailyStreakController.addSafetyDot(interaction.user.id,Time.getNextDate(-2))
+					])
+					UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(-1)),interaction.user.id)
+					const currentPoint = await UserController.getTotalPoint(interaction.user.id)
+					if(currentPoint < 7500){
+						interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
+					}else{
+						await UserController.incrementTotalPoints(-7500,interaction.user.id)
+						const files = await DailyStreakController.generateHabitBuilder(interaction.client,interaction.user)
+						interaction.editReply(DailyStreakMessage.successRepairStreak(interaction.user,files))
+						const msg = await ChannelController.getMessage(interaction.message.channel,value)
+						msg.delete()
+						DailyStreakController.updateIsRepairStreak(interaction.user.id)
+						PartyController.updateRecapAfterRepairStreak(interaction.user.id)
+					}
+					break;
+				case 'cancelBuyRepairStreak':
+					interaction.editReply("Transaction has been canceled.")
+					break;
 				case "upvoteMeme":
 					if(interaction.user.id === targetUserId) {
 						ChannelController.sendToNotification(interaction.client,MemeContestMessage.cannotVoteOwnMeme(interaction.user),interaction.user.id)

@@ -963,6 +963,32 @@ class PartyController{
 			.eq('date',Time.getTodayDateOnly())
 			.then()
 	}
+	static async updateRecapAfterRepairStreak(userId){
+		const dataUser = await supabase.from("MemberPartyRooms")
+			.select()
+			.gte("endPartyDate",Time.getTodayDateOnly())
+			.eq('UserId',userId)
+			.single()
+
+		if(!dataUser.body) return
+
+		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
+			.select()
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getTodayDateOnly())
+			.single()
+		if(!dataPartyRecap.body) return
+
+		const {progressMember} = dataPartyRecap.body
+		progressMember[userId].type = 'skip'
+		progressMember[userId].lastDone = Time.getDateOnly(Time.getNextDate(-2))
+
+		supabase.from("PartyProgressRecaps")
+			.update({progressMember})
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getDateOnly(Time.getNextDate(-1)))
+			.then()
+	}
 
 	static async sendProgressRecap(client){
 		const ruleSendProgressRecap = new schedule.RecurrenceRule();
