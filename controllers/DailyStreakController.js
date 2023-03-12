@@ -304,8 +304,16 @@ class DailyStreakController {
 		}
 	}
 
-	static applyRepairStreak(){
-
+	static async applyRepairStreak(client,user){
+		await Promise.all([
+			DailyStreakController.addSafetyDot(user.id,Time.getNextDate(-1)),
+			DailyStreakController.addSafetyDot(user.id,Time.getNextDate(-2))
+		])
+		UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(-1)),user.id)
+		const files = await DailyStreakController.generateHabitBuilder(client,user)
+		DailyStreakController.updateIsRepairStreak(user.id)
+		PartyController.updateRecapAfterRepairStreak(user.id)
+		return DailyStreakMessage.successRepairStreak(user,files)
 	}
 }
 

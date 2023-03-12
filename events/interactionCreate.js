@@ -79,22 +79,15 @@ module.exports = {
 					}
 					break;
 				case 'confirmBuyRepairStreak':
-					await Promise.all([
-						DailyStreakController.addSafetyDot(interaction.user.id,Time.getNextDate(-1)),
-						DailyStreakController.addSafetyDot(interaction.user.id,Time.getNextDate(-2))
-					])
-					UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(-1)),interaction.user.id)
 					const currentPoint = await UserController.getTotalPoint(interaction.user.id)
 					if(currentPoint < 7500){
 						interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
 					}else{
 						await UserController.incrementTotalPoints(-7500,interaction.user.id)
-						const files = await DailyStreakController.generateHabitBuilder(interaction.client,interaction.user)
-						interaction.editReply(DailyStreakMessage.successRepairStreak(interaction.user,files))
+						const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
+						interaction.editReply(msgSuccessRepairStreak)
 						const msg = await ChannelController.getMessage(interaction.message.channel,value)
 						msg.delete()
-						DailyStreakController.updateIsRepairStreak(interaction.user.id)
-						PartyController.updateRecapAfterRepairStreak(interaction.user.id)
 					}
 					break;
 				case 'cancelBuyRepairStreak':
