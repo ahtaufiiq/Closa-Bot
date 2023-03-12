@@ -23,13 +23,16 @@ module.exports = {
 				.addUserOption(option => option.setName('user').setDescription('user')))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
-		const taggedUser = interaction.options.getUser('user')
+		interaction.deferReply()
+		const user = interaction.options.getUser('user')
 		
-		const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,taggedUser)
+		const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,user)
 		ChannelController.sendToNotification(
 			interaction.client,
 			msgSuccessRepairStreak,
-			taggedUser.id
+			user.id
 		)
+
+		interaction.editReply(`Repaired streak for ${user}`)
 	},
 };
