@@ -251,24 +251,22 @@ class DailyStreakController {
 	}
 
 	static async insertRepairStreak(UserId,messageNotificationId,channelDMId,msgDMId){
-		const {cohort} = LocalData.getData()
 		return await supabase.from("RepairStreaks")
 			.insert({
-				UserId,messageNotificationId,channelDMId,msgDMId,cohort,date:Time.getTodayDateOnly()
+				UserId,messageNotificationId,channelDMId,msgDMId,date:Time.getTodayDateOnly()
 			})
 	}
 
 	static async isValidGetRepairStreak(userId){
-		const {cohort} = LocalData.getData()
 
-		supabase.from("RepairStreaks")
+		await supabase.from("RepairStreaks")
 			.delete()
-			.eq('UserId',userId).eq('cohort',cohort).is('isRepair',false).then()
+			.eq('UserId',userId).is('isRepair',false)
 
 		const data = await supabase.from("RepairStreaks")
 			.select()
 			.eq('UserId',userId)
-			.eq('cohort',cohort)
+			.gte('createdAt',Time.getBeginningOfTheMonth().toUTCString())
 			.is('isRepair',true)
 			.limit(1)
 			.single()
@@ -278,11 +276,11 @@ class DailyStreakController {
 	}
 
 	static async updateIsRepairStreak(userId,isRepair=true){
-		const {cohort} = LocalData.getData()
+		
 		const data = await supabase.from("RepairStreaks")
 			.update({isRepair})
 			.eq('UserId',userId)
-			.eq('cohort',cohort)
+			.gte('createdAt',Time.getBeginningOfTheMonth().toUTCString())
 		return data
 	}
 
