@@ -12,6 +12,8 @@ const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
 const { MessageEmbed } = require('discord.js');
 const MemberController = require('./MemberController');
+const BoostMessage = require('../views/BoostMessage');
+const MessageComponent = require('../helpers/MessageComponent');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -878,7 +880,7 @@ class PartyController{
 			const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
 
 			const data = await supabase.from('PartyRooms')
-				.select("id,msgId,MemberPartyRooms(UserId,Users(lastDone,lastSafety))")
+				.select("id,msgId,MemberPartyRooms(UserId,Users(name,lastDone,lastSafety))")
 				.gte('disbandDate',tomorrowDate)
 
 			if(data.body.length === 0) return
@@ -890,11 +892,12 @@ class PartyController{
 				MemberPartyRooms.forEach((member)=>{
 					const UserId = member.UserId
 					let lastDone = member.Users.lastDone
+					const username = member.Users.name
 					if(member.Users.lastSafety > lastDone) lastDone = member.Users.lastSafety
 					if(!lastDone || lastDone < startCohortDate){
 						lastDone = startCohortDate
 					}
-					partyMember[UserId] = {type:'skip',lastDone}
+					partyMember[UserId] = {type:'skip',username,lastDone}
 				})
 				insertData.push({
 					PartyRoomId:id,
@@ -960,6 +963,32 @@ class PartyController{
 			.eq('date',Time.getTodayDateOnly())
 			.then()
 	}
+	static async updateRecapAfterRepairStreak(userId){
+		const dataUser = await supabase.from("MemberPartyRooms")
+			.select()
+			.gte("endPartyDate",Time.getTodayDateOnly())
+			.eq('UserId',userId)
+			.single()
+
+		if(!dataUser.body) return
+
+		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
+			.select()
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getTodayDateOnly())
+			.single()
+		if(!dataPartyRecap.body) return
+
+		const {progressMember} = dataPartyRecap.body
+		progressMember[userId].type = 'skip'
+		progressMember[userId].lastDone = Time.getDateOnly(Time.getNextDate(-2))
+
+		supabase.from("PartyProgressRecaps")
+			.update({progressMember})
+			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq('date',Time.getDateOnly(Time.getNextDate(-1)))
+			.then()
+	}
 
 	static async sendProgressRecap(client){
 		const ruleSendProgressRecap = new schedule.RecurrenceRule();
@@ -977,29 +1006,42 @@ class PartyController{
 				const {id,date,progressMember,PartyRoomId,msgIdParty} = party
 				const progressMembers = []
 				const noProgressMembers = []
-				
+				const selectMenu = []
 				for (const UserId in progressMember) {
 					const {
 						type,lastDone,avatarURL,username,time,msgId,msgContent
 					} = progressMember[UserId]
-	
-					switch (type) {
-						case 'progress':
-							progressMembers.push(PartyMessage.shareProgress(
-								username,avatarURL,time,msgContent,msgId
-							))
+					if(type === 'progress') {
+						progressMembers.push(PartyMessage.shareProgress(
+							username,avatarURL,time,msgContent,msgId
+						))
+					}else{
+						let message = ''
+						switch (type) {
+							case 'skip':
+								const totalSkipDay = PartyController.getTotalSkipDay(lastDone,date)
+								if(totalSkipDay === 1) {
+									message = `🫡${MessageFormatting.tagUser(UserId)} miss once`
+									selectMenu.push({
+										label:`${username} no progress (${totalSkipDay}x)`,
+										value:UserId
+									})
+								}else {
+									message = `🫥${MessageFormatting.tagUser(UserId)} no progress (${totalSkipDay}x)`
+									selectMenu.push({
+										label:`${username} no progress (${totalSkipDay}x)`,
+										value:UserId
+									})
+								}
+								break;
+							case 'vacation':
+								message = `🏖️${MessageFormatting.tagUser(UserId)} on vacation`
+								break;
+							case 'sick':
+								message = `🤢${MessageFormatting.tagUser(UserId)} on sick leave`
 							break;
-						case 'skip':
-							const totalSkipDay = PartyController.getTotalSkipDay(lastDone,date)
-							if(totalSkipDay === 1) noProgressMembers.push(`🫡${MessageFormatting.tagUser(UserId)} miss once`)
-							else noProgressMembers.push(`🫥${MessageFormatting.tagUser(UserId)} no progress (${totalSkipDay}x)`)
-							break;
-						case 'vacation':
-							noProgressMembers.push(`🏖️${MessageFormatting.tagUser(UserId)} on vacation`)
-							break;
-						case 'sick':
-							noProgressMembers.push(`🤢${MessageFormatting.tagUser(UserId)} on sick leave`)
-							break;
+						}
+						noProgressMembers.push(message)
 					}
 				}
 				const threadParty = await ChannelController.getThread(channelPartyRoom,msgIdParty)
@@ -1011,13 +1053,26 @@ class PartyController{
 					})
 				}
 				if(noProgressMembers.length > 0){
+					const components = []
+					if(selectMenu.length > 0){
+						components.push(
+							MessageComponent.createComponent(
+								MessageComponent.addMenu( 
+									`boostPartyMember`,
+									"-Select friends to boost-",
+									selectMenu
+								)
+							)
+						)
+					}
 					await threadParty.send({
 						content:`\`\`\`friends that need your support\n...\`\`\``,
 						embeds:[
 							new MessageEmbed()
 								.setColor('#ffffff')
 								.setDescription(noProgressMembers.join('\n\n'))
-						]
+						],
+						components
 					})
 	
 				}

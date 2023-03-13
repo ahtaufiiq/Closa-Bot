@@ -28,11 +28,12 @@ const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
 const CelebrationController = require("../controllers/CelebrationController");
 const IntroController = require("../controllers/IntroController");
+const DailyStreakController = require("../controllers/DailyStreakController");
+const DailyStreakMessage = require("../views/DailyStreakMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
 		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
-
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(PartyController.showModalCustomReminder(interaction)) return
@@ -55,7 +56,7 @@ module.exports = {
 			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if(commandButton === 'buyOneVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice") {
+			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -68,6 +69,30 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "repairStreak":
+					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
+					const totalPoint = await UserController.getTotalPoint(interaction.user.id)
+					if(totalPoint < 7500){
+						interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
+					}else{
+						interaction.editReply(DailyStreakMessage.confirmationBuyRepairStreak(totalPoint,interaction.message.id))
+					}
+					break;
+				case 'confirmBuyRepairStreak':
+					const currentPoint = await UserController.getTotalPoint(interaction.user.id)
+					if(currentPoint < 7500){
+						interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
+					}else{
+						await UserController.incrementTotalPoints(-7500,interaction.user.id)
+						const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
+						interaction.editReply(msgSuccessRepairStreak)
+						const msg = await ChannelController.getMessage(interaction.message.channel,value)
+						msg.delete()
+					}
+					break;
+				case 'cancelBuyRepairStreak':
+					interaction.editReply("Transaction has been canceled.")
+					break;
 				case "upvoteMeme":
 					if(interaction.user.id === targetUserId) {
 						ChannelController.sendToNotification(interaction.client,MemeContestMessage.cannotVoteOwnMeme(interaction.user),interaction.user.id)
@@ -452,17 +477,28 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
+				case 'boostPartyMember':
+					if(valueMenu === interaction.user.id) return interaction.editReply(BoostMessage.warningBoostYourself())
+					const {user} = await MemberController.getMember(interaction.client,valueMenu)
+					const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
+					ChannelController.sendToNotification(
+						interaction.client,
+						BoostMessage.sendBoostToInactiveMember(user,interaction.user,totalBoost),
+						valueMenu
+					)
+					await interaction.editReply(BoostMessage.successSendBoost(user))
+					break
 				case "inactiveReply":
 					if(valueMenu === 'personalBoost'){
 						BoostController.showModalPersonalBoost(interaction)
 					}else{
-                                                await interaction.deferReply({ephemeral:true});
+						await interaction.deferReply({ephemeral:true});
 						ChannelController.sendToNotification(
 							interaction.client,
 							BoostMessage.IamBack(targetUser.user,interaction.user,valueMenu),
 							targetUserId
 						)
-						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
+						await interaction.editReply(BoostMessage.successSendBoost(targetUser.user))
 					}
 					break;
 				case "goalCategory":

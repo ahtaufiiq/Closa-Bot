@@ -40,6 +40,14 @@ class UserController{
 			.gte('endMembership',Time.getTodayDateOnly())
 	}
 
+	static async getTotalPoint(userId){
+        const data = await supabase.from("Users")
+            .select('totalPoint')
+            .eq('id',userId)
+            .single()
+        return data.body.totalPoint
+    }
+
 	static async getNotificationId(userId){
 		const data = await supabase.from("Users")
 			.select('notificationId')

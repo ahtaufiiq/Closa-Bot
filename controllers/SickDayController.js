@@ -20,7 +20,7 @@ const PartyController = require('./PartyController');
 class SickDayController{
 
     static async interactionShopSickTicket(interaction){
-        const totalPoint = await SickDayController.getTotalPoint(interaction.user.id)
+        const totalPoint = await UserController.getTotalPoint(interaction.user.id)
         interaction.editReply(SickDayMessage.optionHowManySickDay(interaction.user.id,totalPoint))
     }
 
@@ -31,14 +31,6 @@ class SickDayController{
 
         if(isHaveEnoughPoint) await interaction.editReply(SickDayMessage.confirmationBuySickDay(interaction.user.id,totalTicket,totalPoint))
         else await interaction.editReply(SickDayMessage.notHaveEnoughPoint(interaction.user.id))
-    }
-
-    static async getTotalPoint(userId){
-        const data = await supabase.from("Users")
-            .select('totalPoint')
-            .eq('id',userId)
-            .single()
-        return data.body.totalPoint
     }
 
     static async interactionBuySickTicket(interaction,totalTicket){
@@ -242,7 +234,7 @@ class SickDayController{
     }
 
     static async isHaveEnoughPoint(userId,totalPrice){
-        const totalPointUser = await SickDayController.getTotalPoint(userId)
+        const totalPointUser = await UserController.getTotalPoint(userId)
         return totalPointUser >= totalPrice
     }
 

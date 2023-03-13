@@ -61,7 +61,7 @@ class CelebrationController {
     static showModalWriteCelebration(interaction){
 		if(interaction.customId.includes('writeCelebration')){
 			if(!CelebrationController.isRangeCelebration()) {
-				interaction.reply(CelebrationMessage.replySubmissionClosed())
+				interaction.reply({ephemeral:true,content:CelebrationMessage.replySubmissionClosed()})
 				return true
 			}
 			const modal = new Modal()

@@ -32,12 +32,7 @@ class BoostMessage{
                 user:sender,
                 totalBoost
             })], 
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${sender.id}`,'🚀 Personal Boost'),
-                    MessageComponent.addButton(`boostBack_${sender.id}`,'⚡️ Quick Boost',"SECONDARY")
-                )
-            ] 
+            components: [BoostMessage.buttonBoost(sender.id)] 
         }
     }
 
@@ -88,13 +83,15 @@ it looks like ${user} is not making progress for 3 days.**` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
-                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
-                )
-            ] 
+            components: [BoostMessage.buttonBoost(user.id)] 
         }
+    }
+
+    static buttonBoost(userId){
+        return MessageComponent.createComponent(
+            MessageComponent.addButton(`personalBoost_${userId}`,'🚀 Personal Boost'),
+            MessageComponent.addButton(`boostInactiveMember_${userId}`,'⚡️ Quick Boost',"SECONDARY")
+        )
     }
 
     static notMakingProgress10Days(user){
@@ -104,12 +101,7 @@ it looks like ${user} is not making progress for 3 days.**` ,
                 description: `${user} (no progress 10x) 😭 `,
                 user
             })], 
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
-                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
-                )
-            ] 
+            components: [BoostMessage.buttonBoost(user.id)] 
         }
     }
 
@@ -122,12 +114,7 @@ it looks like ${user} is not making progress for 3 days.**` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
-                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
-                )
-            ] 
+            components: [BoostMessage.buttonBoost(user.id)] 
         }
     }
 
@@ -140,12 +127,7 @@ it's almost a week our friend ${user} not making progress` ,
                 description: `Show your support by sending ${user} a boost.`,
                 user
             })], 
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`personalBoost_${user.id}`,'🚀 Personal Boost'),
-                    MessageComponent.addButton(`boostInactiveMember_${user.id}`,'⚡️ Quick Boost',"SECONDARY")
-                )
-            ] 
+            components: [BoostMessage.buttonBoost(user.id)] 
         }
     }
 
@@ -161,11 +143,15 @@ example:`,
         }
     }
     static successSendBoost(user){
-        return MessageComponent.embedMessage({
-                title: "Boost sent 🚀",
-                description: `You just sent boost to ${user}`,
-                user
-            }) 
+        return {
+            embeds:[
+                MessageComponent.embedMessage({
+                    title: "Boost sent 🚀",
+                    description: `You just sent boost to ${user}`,
+                    user
+                }) 
+            ]
+        }
     }
 
     static successBoostBack(user){
