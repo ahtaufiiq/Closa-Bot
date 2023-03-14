@@ -43,7 +43,7 @@ module.exports = {
 	
 			interaction.editReply('success send guideline to user')
 		}else{
-			const cohort = interaction.options.getUser('cohort')
+			const cohort = interaction.options.getString('cohort')
 			await PartyController.generatePartyRoom(client,cohort)
 			interaction.editReply('success generate all party room')
 		}
