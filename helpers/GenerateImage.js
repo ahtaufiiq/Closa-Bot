@@ -252,6 +252,159 @@ class GenerateImage{
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
+
+    static async dailySummary({name}){
+
+        function drawProgressBar(context,x,y,percentage,type='long',width=6){
+            let maxLength = 350
+            if(type === 'short') maxLength = 128
+            maxLength -= 6.3
+            context.moveTo(x, y);
+            context.lineTo(x + (maxLength * percentage / 100), y);
+            context.lineCap = 'round'
+            context.lineWidth = width;
+            context.strokeStyle = "#00B264";
+            context.stroke();
+        }
+
+        function drawCircle(ctx, x, y, stroke,percentage) {
+            ctx.beginPath()
+
+            context.arc(x, y, 43, 1.5 * Math.PI, (1.5 + (2 * percentage / 100)) * Math.PI);
+            ctx.lineCap = "round";
+            if (stroke) {
+              ctx.lineWidth = 8
+              ctx.strokeStyle = stroke
+              ctx.stroke()
+            }
+            ctx.closePath()
+          }
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/Archivo-Medium.ttf',{family:'Archivo',weight:500})
+        registerFont('./assets/fonts/Archivo-Regular.ttf',{family:'Archivo',weight:400})
+
+        // import image
+        const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
+        const template = await loadImage(`./assets/images/template_daily_summary.png`)
+        const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
+        const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
+        const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
+        const photoUser = await loadImage(`./assets/images/avatar.jpeg`)
+        const canvas = createCanvas(545,965)
+        const context = canvas.getContext('2d')
+        context.drawImage(template,0,0)
+
+        // Profile User
+        
+        context.drawImage(photoUser,39,49,56,56)
+        context.drawImage(frameProfile,35,45,64,64)
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "600 24px Archivo";
+        context.fillText(name, 116 , 85);
+
+        //----------
+
+
+        context.fillText('58%', 327.5 , 236);
+
+        context.font = "600 48px Archivo";
+
+        context.fillText('21 hr 54 min', 34 , 236);
+        
+
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "600 22px Archivo";
+        context.fillText('2 hr 5 min', 147 , 395);
+        
+        context.fillText('49 min', 395 , 396.5);
+
+        context.textAlign = 'center'
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "500 20px Archivo";
+        context.fillText('72%', 82 , 380);
+        context.fillText('28%', 331 , 380);
+        
+        context.textAlign = 'left'
+        context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
+        context.fillText('March 3, 2023', 388.5 , 102);
+        context.fillText('of 5 hr 0 min', 395.5 , 236.5);
+
+        drawProgressBar(context,164,157,80)
+
+        drawProgressBar(context,164,290,72)
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('52%', 35 , 535);
+        context.fillText('Drafting Content', 94.5 , 535);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 414 , 535);
+        drawProgressBar(context,267.8,528,52,'short')
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('48%', 35 , 574.2);
+        context.fillText('Editing', 94.4 , 574.2);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 415 , 574.2);
+        drawProgressBar(context,267.8,568,48,'short')
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('48%', 35 , 613.4);
+        context.fillText('Editing', 94.4 , 613.4);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 415 , 613.4);
+        drawProgressBar(context,267.8,608,100,'short')
+        // context.drawImage(fillGrey,36,523)
+        // context.drawImage(fillGrey,36,565)
+        // context.drawImage(fillGrey,36,605)
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('52%', 34.5 , 736);
+        context.fillText('Drafting Content', 94.8 , 736);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 414 , 736);
+        drawProgressBar(context,267.8,730,52,'short')
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('33%', 34.5 , 776.2);
+        context.fillText('Drafting Content', 94 , 776.2);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 415 , 776.2);
+        drawProgressBar(context,267.8,770,33,'short')
+
+        context.fillStyle = "#2B2B2B"; 
+        context.fillText('10%', 34.5 , 816.2);
+        context.fillText('Drafting Content', 94 , 816.2);
+        context.fillStyle = "#888888"; 
+        context.fillText('1 hr 32 min', 415 , 816.2);
+        drawProgressBar(context,267.8,810,10,'short')
+
+        drawCircle(context,83.5,372.5,"#00B264",72)
+        drawCircle(context,332.5,372.5,"#5856FF",28)
+
+        const rectWidth1 = 61;
+        const rectX1 = 162.5
+        const rectY1 = 863
+
+        const rectXFrame = 162
+        const rectYFrame = 863
+        const rectWidthFrame = 62
+        context.drawImage(photoUser,rectX1,rectY1,rectWidth1,rectWidth1)
+        context.drawImage(frameAvatar,rectXFrame,rectYFrame,rectWidthFrame,rectWidthFrame)
+
+
+        // context.drawImage(photoUser,rectX1 + 76,rectY1,rectWidth1,rectWidth1)
+        // context.drawImage(photoUser,rectX1 + 76 + 76,rectY1,rectWidth1,rectWidth1)
+        context.textAlign = 'end'
+        context.fillStyle = "#888888"; 
+        context.font = "500 16px Archivo";
+        context.drawImage(streakPartner,rectX1+4,rectY1 + 47)
+        context.fillText('14',rectX1+31,rectY1 + 66);
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
 }
 
 module.exports = GenerateImage
