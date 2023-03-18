@@ -1,6 +1,8 @@
 const { MessageEmbed } = require("discord.js")
 const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const MessageComponent = require("../helpers/MessageComponent")
+const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 
 class FocusSessionMessage{
@@ -82,6 +84,74 @@ tips:
 :arrow_right: ${taskName}`
         
          }
+    }
+
+    static selectProject(userId,projectMenus,taskName){
+        const components = []
+
+        if(projectMenus.length > 0){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectProject_${userId}_${taskName}`,
+                    "-Select project-",
+                    projectMenus
+                ),
+            ))
+        }
+        components.push(MessageComponent.createComponent(
+            MessageComponent.addButton(`addNewProject_${userId}`,"Add new project +").setEmoji('✨')
+        ))
+        return {
+            content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
+            components
+        }
+    }
+
+    static setDailyWorkTime(userId,projectId,taskName){
+        
+        return {
+            content:`**Last setup :sparkles: **
+
+Let's set your default **daily work time goal** to prevent from overworking ${MessageFormatting.tagUser(userId)} 
+\`\`💡 Work time = total of Focus time + Break time per day\`\`
+
+(*we only ask this one time, you can change on settings later.*)`,
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addMenu( 
+                        `selectDailyWorkTime_${userId}_${projectId}-${taskName}`,
+                        "- Select daily work time goal -",
+                        [
+                            {
+                                label: "25 min/day (Casual)",
+                                value: "25_25 min/day"
+                            },
+                            {
+                                label: "1 hour/day (Regular)",
+                                value: "60_1 hour/day"
+                            },
+                            {
+                                label: "2 hour/day (Serious) ",
+                                value: "120_2 hour/day"
+                            },
+                            {
+                                label: "4 hour/day (Intense)",
+                                value: "240_4 hour/day"
+                            },
+                            {
+                                label: "✎ Custom Time",
+                                value: 'custom'
+                            },
+                        ]
+                    ),
+                )
+            ]
+        }
+    }
+
+    static successSetDailyWorkTime(labelMenu){
+        const time = labelMenu ? labelMenu.split('(')[0] : ''
+        return`**✅ Your daily work time goal has been set to ${time}**`
     }
 }
 

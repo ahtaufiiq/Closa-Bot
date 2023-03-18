@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -28,6 +28,7 @@ const MessageComponent = require("../helpers/MessageComponent");
 const UserController = require("../controllers/UserController");
 const MemeController = require("../controllers/MemeController");
 const BoostController = require("../controllers/BoostController");
+const FocusSessionController = require("../controllers/FocusSessionController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -51,35 +52,14 @@ module.exports = {
 			})
 			.eq('id',msg.author.id)
 			.then()
-
+			
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_SESSION_GOAL:
 				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
-
-				thread.send(FocusSessionMessage.startFocusSession(msg.author))
-
-				supabase.from('FocusSessions')
-				.select()
-				.eq('UserId',msg.author.id)
-				.is('session',null)
-				.single() 
-				.then(({data})=>{
-					if (data) {
-						supabase.from('FocusSessions')
-							.delete()
-							.eq('id',data.id)
-							.then()
-					}
-					supabase.from('FocusSessions')
-						.insert({
-							UserId:msg.author.id,
-							threadId:thread.id,
-							taskName: msg.content
-						})
-						.then()
-				})
-				
+				const projects = await FocusSessionController.getAllProjects(msg.author.id)
+				const projectMenus = FocusSessionController.getFormattedMenu(projects)
+				thread.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,msg.content))
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternEmoji = /^🔆/
