@@ -256,6 +256,7 @@ class GenerateImage{
     static async dailySummary({name}){
 
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
+            context.beginPath()
             let maxLength = 350
             if(type === 'short') maxLength = 128
             maxLength -= 6.3
@@ -265,6 +266,7 @@ class GenerateImage{
             context.lineWidth = width;
             context.strokeStyle = "#00B264";
             context.stroke();
+            context.closePath()
         }
 
         function drawCircle(ctx, x, y, stroke,percentage) {
@@ -286,6 +288,7 @@ class GenerateImage{
         // import image
         const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
         const template = await loadImage(`./assets/images/template_daily_summary.png`)
+        // const template = await loadImage(`./assets/images/tes_template.png`)
         const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
         const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
         const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
@@ -294,7 +297,8 @@ class GenerateImage{
         const context = canvas.getContext('2d')
         context.drawImage(template,0,0)
 
-        // Profile User
+
+        //--- Header ----//
         
         context.drawImage(photoUser,39,49,56,56)
         context.drawImage(frameProfile,35,45,64,64)
@@ -303,105 +307,173 @@ class GenerateImage{
         context.font = "600 24px Archivo";
         context.fillText(name, 116 , 85);
 
-        //----------
+        context.textAlign = 'right'
+        context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
+        context.fillText(Time.getFormattedDate(Time.getDate(),false,'long'), 511 , 102);
+        context.textAlign = 'left'
 
 
-        context.fillText('58%', 327.5 , 236);
+        //--- Work Hours ----//
 
-        context.font = "600 48px Archivo";
-
-        context.fillText('21 hr 54 min', 34 , 236);
-        
-
+        drawProgressBar(context,164,157,80)
 
         context.fillStyle = "#2B2B2B"; 
-        context.font = "600 22px Archivo";
-        context.fillText('2 hr 5 min', 147 , 395);
+        context.font = "600 48px Archivo";
+        context.fillText('21 hr 54 min', 34 , 236);
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "600 24px Archivo";
+        context.fillText('158%', 325.4 , 236);
+
+        context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
+        context.fillText('of 5 hr 30 min', 395.7 , 236.5);
+
+
+        //--- Breakdown ----//
         
-        context.fillText('49 min', 395 , 396.5);
+        drawProgressBar(context,164,290,72)
+
+        drawCircle(context,83.5,372.5,"#00B264",72)
+        drawCircle(context,332.5,372.5,"#5856FF",28)
 
         context.textAlign = 'center'
         context.fillStyle = "#2B2B2B"; 
         context.font = "500 20px Archivo";
         context.fillText('72%', 82 , 380);
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "500 20px Archivo";
         context.fillText('28%', 331 , 380);
-        
+
         context.textAlign = 'left'
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "600 22px Archivo";
+        context.fillText('2 hr 5 min', 147 , 395);
+        
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "600 22px Archivo";
+        context.fillText('49 min', 395 , 396.5);
+
+
+        //--- Tasks ----//
+
+        // Task 1
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
+        context.fillText('52%', 35 , 535);
+        
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
+        context.fillText('Drafting Content', 94.5 , 535);
+
         context.fillStyle = "#888888"; 
         context.font = "400 20px Archivo";
-        context.fillText('March 3, 2023', 388.5 , 102);
-        context.fillText('of 5 hr 0 min', 395.5 , 236.5);
-
-        drawProgressBar(context,164,157,80)
-
-        drawProgressBar(context,164,290,72)
-
-        context.fillStyle = "#2B2B2B"; 
-        context.fillText('52%', 35 , 535);
-        context.fillText('Drafting Content', 94.5 , 535);
-        context.fillStyle = "#888888"; 
         context.fillText('1 hr 32 min', 414 , 535);
+
         drawProgressBar(context,267.8,528,52,'short')
+        // context.drawImage(fillGrey,36,523)
 
+        // Task 2
         context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
         context.fillText('48%', 35 , 574.2);
-        context.fillText('Editing', 94.4 , 574.2);
-        context.fillStyle = "#888888"; 
-        context.fillText('1 hr 32 min', 415 , 574.2);
-        drawProgressBar(context,267.8,568,48,'short')
 
         context.fillStyle = "#2B2B2B"; 
-        context.fillText('48%', 35 , 613.4);
-        context.fillText('Editing', 94.4 , 613.4);
+        context.font = "400 20px Archivo";
+        context.fillText('Editing', 94.4 , 574.2);
+
         context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
+        context.fillText('1 hr 32 min', 415 , 574.2);
+
+        drawProgressBar(context,267.8,568,48,'short')
+        // context.drawImage(fillGrey,36,561)
+
+        //Task 3
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
+        context.fillText('12%', 35 , 613.4);
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
+        context.fillText('Drafting', 94.4 , 613.4);
+
+        context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
         context.fillText('1 hr 32 min', 415 , 613.4);
         drawProgressBar(context,267.8,608,100,'short')
-        // context.drawImage(fillGrey,36,523)
-        // context.drawImage(fillGrey,36,565)
-        // context.drawImage(fillGrey,36,605)
+        // context.drawImage(fillGrey,36,601)
+
+
+        //--- Top Projects ----//
+
+        // Project 1
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
+        context.fillText('52%', 34.5 , 736);
 
         context.fillStyle = "#2B2B2B"; 
-        context.fillText('52%', 34.5 , 736);
+        context.font = "400 20px Archivo";
         context.fillText('Drafting Content', 94.8 , 736);
+
         context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
         context.fillText('1 hr 32 min', 414 , 736);
         drawProgressBar(context,267.8,730,52,'short')
 
+        // Project 2
+
         context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
         context.fillText('33%', 34.5 , 776.2);
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
         context.fillText('Drafting Content', 94 , 776.2);
+
         context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
         context.fillText('1 hr 32 min', 415 , 776.2);
         drawProgressBar(context,267.8,770,33,'short')
+        // context.drawImage(fillGrey,35,763)
 
+        // Project 3
         context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
         context.fillText('10%', 34.5 , 816.2);
+        
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "400 20px Archivo";
         context.fillText('Drafting Content', 94 , 816.2);
+        
         context.fillStyle = "#888888"; 
+        context.font = "400 20px Archivo";
         context.fillText('1 hr 32 min', 415 , 816.2);
         drawProgressBar(context,267.8,810,10,'short')
+        // context.drawImage(fillGrey,35,804)
 
-        drawCircle(context,83.5,372.5,"#00B264",72)
-        drawCircle(context,332.5,372.5,"#5856FF",28)
 
+
+
+        
+        //--- Coworking Friends ----//
         const rectWidth1 = 61;
-        const rectX1 = 162.5
+        const rectX1 = 162
         const rectY1 = 863
 
-        const rectXFrame = 162
-        const rectYFrame = 863
+        const rectXFrame = 161.5
+        const rectYFrame = 862.2
         const rectWidthFrame = 62
         context.drawImage(photoUser,rectX1,rectY1,rectWidth1,rectWidth1)
         context.drawImage(frameAvatar,rectXFrame,rectYFrame,rectWidthFrame,rectWidthFrame)
 
-
-        // context.drawImage(photoUser,rectX1 + 76,rectY1,rectWidth1,rectWidth1)
-        // context.drawImage(photoUser,rectX1 + 76 + 76,rectY1,rectWidth1,rectWidth1)
         context.textAlign = 'end'
         context.fillStyle = "#888888"; 
         context.font = "500 16px Archivo";
-        context.drawImage(streakPartner,rectX1+4,rectY1 + 47)
-        context.fillText('14',rectX1+31,rectY1 + 66);
+        context.drawImage(streakPartner,rectX1+3.5,rectY1 + 49)
+        context.fillText('14',rectX1+30.5,rectY1 + 68);
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
