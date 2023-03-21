@@ -31,12 +31,27 @@ const CelebrationMessage = require("../views/CelebrationMessage");
 const UserController = require("../controllers/UserController");
 const IntroMessage = require("../views/IntroMessage");
 const IntroController = require("../controllers/IntroController");
+const FocusSessionController = require("../controllers/FocusSessionController");
+const FocusSessionMessage = require("../views/FocusSessionMessage");
 
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal) {
 		const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-		if (commandButton === 'modalReferral') {
+		if(commandButton === 'addNewProject'){
+			await modal.deferReply()
+			const project = modal.getTextInputValue('project');
+			await supabase.from("Projects")
+				.insert({
+					name:project,
+					UserId:modal.user.id
+				})
+			const projects = await FocusSessionController.getAllProjects(modal.user.id)
+			const projectMenus = FocusSessionController.getFormattedMenu(projects)
+
+			await modal.editReply(FocusSessionMessage.selectProject(modal.user.id,projectMenus))
+			modal.message.delete()
+		}else if (commandButton === 'modalReferral') {
 			await modal.deferReply({ephemeral:true});
 			const referralCode = modal.getTextInputValue('referral');
 			const [isEligibleToRedeemRederral,isFirstTimeRedeemReferral,response] = await Promise.all([

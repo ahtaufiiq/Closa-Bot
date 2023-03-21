@@ -35,16 +35,33 @@ class BoostController{
 		ruleRemindBoost.minute = 0
 		schedule.scheduleJob(ruleRemindBoost,async function(){
 			if (!Time.isCooldownPeriod()) {
-				const data = await supabase.from("Users")
-					.select()
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-4)))
-					.eq('onVacation',false)
-					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
-					.gte('endMembership',Time.getDateOnly(Time.getDate()))
-
-				if (data.body.length > 0) {
-					BoostController.incrementTotalBoostLocal(data.body.length)
-					data.body.forEach(async member=>{
+				const [dataSkipThreeDay,dataSkipTenDay,dataInactiveUser] = Promise.all([
+					supabase.from("Users")
+						.select()
+						.eq('lastDone',Time.getDateOnly(Time.getNextDate(-4)))
+						.eq('onVacation',false)
+						.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
+						.gte('endMembership',Time.getDateOnly(Time.getDate())),
+					supabase.from("Users")
+						.select()
+						.eq('lastDone',Time.getDateOnly(Time.getNextDate(-11)))
+						.eq('onVacation',false)
+						.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
+						.gte('endMembership',Time.getDateOnly(Time.getDate())),
+					supabase.from("Users")
+						.select()
+						.eq('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
+						.eq('onVacation',false)
+						.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
+						.gte('endMembership',Time.getDateOnly(Time.getDate()))
+				])
+				const totalBoost = dataSkipThreeDay.body.length + dataSkipTenDay.body.length + dataInactiveUser.body.length
+				if(totalBoost > 0){
+					await ChannelController.updateChannelVisibilityForMember(client,CHANNEL_BOOST,true)
+					BoostController.incrementTotalBoostLocal(totalBoost)
+				}
+				if (dataSkipThreeDay.body.length > 0) {
+					dataSkipThreeDay.body.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
 						const msg = await channelBoost.send(BoostMessage.notMakingProgress3Days(user))
 						supabase.from("Reminders")
@@ -56,49 +73,33 @@ class BoostController{
 					})
 				}
 
-				supabase.from("Users")
-					.select()
-					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-11)))
-					.eq('onVacation',false)
-					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
-					.gte('endMembership',Time.getDateOnly(Time.getDate()))
-					.then(data=>{
-						if(data.body.length > 0){
-							BoostController.incrementTotalBoostLocal(data.body.length)
-							data.body.forEach(async member=>{
-								const {user} = await MemberController.getMember(client,member.id)
-								const msg = await channelBoost.send(BoostMessage.notMakingProgress10Days(user))
-								supabase.from("Reminders")
-									.insert({
-										message:msg.id,
-										UserId:member.id,
-										type:'boost'
-									}).then()
-							})
-						}
-					})
 
-				supabase.from("Users")
-					.select()
-					.eq('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
-					.eq('onVacation',false)
-					.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
-					.gte('endMembership',Time.getDateOnly(Time.getDate()))
-					.then(data=>{
-						if (data.body.length > 0) {
-							BoostController.incrementTotalBoostLocal(data.body.length)
-							data.body.forEach(async member=>{
-								const {user} = await MemberController.getMember(client,member.id)
-								const msg = await channelBoost.send(BoostMessage.notActive5Days(user))
-								supabase.from("Reminders")
-									.insert({
-										message:msg.id,
-										UserId:member.id,
-										type:'boost'
-									}).then()
-							})
-						}
+				if(dataSkipTenDay.body.length > 0){
+					dataSkipTenDay.body.forEach(async member=>{
+						const {user} = await MemberController.getMember(client,member.id)
+						const msg = await channelBoost.send(BoostMessage.notMakingProgress10Days(user))
+						supabase.from("Reminders")
+							.insert({
+								message:msg.id,
+								UserId:member.id,
+								type:'boost'
+							}).then()
 					})
+				}
+					
+				if (dataInactiveUser.body.length > 0) {
+					dataInactiveUser.body.forEach(async member=>{
+						const {user} = await MemberController.getMember(client,member.id)
+						const msg = await channelBoost.send(BoostMessage.notActive5Days(user))
+						supabase.from("Reminders")
+							.insert({
+								message:msg.id,
+								UserId:member.id,
+								type:'boost'
+							}).then()
+					})
+				}
+				
 			}
 		})
     }
@@ -118,6 +119,7 @@ class BoostController{
 					.gte('currentStreak',4)
 					.then(data =>{
 						if (data.body.length > 0) {
+							ChannelController.updateChannelVisibilityForMember(client,CHANNEL_BOOST,true)
 							BoostController.incrementTotalBoostLocal(data.body.length)
 							data.body.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
@@ -236,6 +238,7 @@ class BoostController{
 			if(totalBoost > 0){
 				channelBoost.bulkDelete(totalBoost,true)
 				BoostController.resetTotalBoost()
+				ChannelController.updateChannelVisibilityForMember(client,CHANNEL_BOOST,false)
 			}
 		})
 	}

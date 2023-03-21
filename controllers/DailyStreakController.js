@@ -1,7 +1,7 @@
 const schedule = require('node-schedule');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const MemberController = require('./MemberController');
-const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK} = require('../helpers/config');
+const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK, TIMEZONE} = require('../helpers/config');
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
@@ -193,24 +193,28 @@ class DailyStreakController {
 		ruleReminderRepairStreak.minute = 0
 		schedule.scheduleJob(ruleReminderRepairStreak,function(){
 			if (!Time.isCooldownPeriod()) {
+				const threeDayBefore = Time.getDateOnly(Time.getNextDate(-3))
+				const twoDayBefore = Time.getDateOnly(Time.getNextDate(-2))
 				supabase.from("Users")
-					.select('id,name,currentStreak,notificationId')
+					.select('id,name,currentStreak,notificationId,lastDone,lastSafety')
 					.gte('currentStreak',21)
-					.or(`lastDone.eq.${Time.getDateOnly(Time.getNextDate(-3))},lastSafety.eq.${Time.getDateOnly(Time.getNextDate(-2))}`)
+					.or(`lastDone.eq.${threeDayBefore},lastSafety.eq.${twoDayBefore}`)
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
-								const {id:userId,notificationId,currentStreak} = member
-								const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
-								if(isValidGetRepairStreak){
-									const msg = await ChannelController.sendToNotification(
-										client,
-										DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
-										userId,
-										notificationId
-									)
-									DailyStreakController.countdownRepairStreak(msg)
-									DailyStreakController.insertRepairStreak(userId,msg.id)
+								const {id:userId,notificationId,currentStreak,lastDone,lastSafety} = member
+								if((lastDone === threeDayBefore && lastSafety <= threeDayBefore) || (lastSafety === twoDayBefore && lastDone < twoDayBefore)){
+									const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
+									if(isValidGetRepairStreak){
+										const msg = await ChannelController.sendToNotification(
+											client,
+											DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
+											userId,
+											notificationId
+										)
+										DailyStreakController.countdownRepairStreak(msg)
+										DailyStreakController.insertRepairStreak(userId,msg.id)
+									}
 								}
 							})
 						}
@@ -246,6 +250,7 @@ class DailyStreakController {
 
 	static getTimeLeftRepairStreak(dateOnly){
 		const endDate = Time.getNextDate(1,dateOnly)
+		endDate.setHours(endDate.getHours() - Number(TIMEZONE))
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
 	}

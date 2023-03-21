@@ -3,7 +3,7 @@ const Time = require('../helpers/time');
 const schedule = require('node-schedule');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL } = require('../helpers/config');
+const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CELEBRATE } = require('../helpers/config');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 const UserController = require('./UserController');
@@ -159,6 +159,17 @@ class CelebrationController {
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
 	}
+
+	static hideCelebrationChannel(client){
+        const {celebrationDate} = LocalData.getData()
+        const date = Time.getDate(celebrationDate)
+        date.setDate(date.getDate()+2)
+        date.setHours(Time.minus7Hours(23))
+        date.setMinutes(0)
+        schedule.scheduleJob(date,async function() {
+            ChannelController.updateChannelVisibilityForMember(client,CHANNEL_CELEBRATE,false)
+        })
+    }
 }
 
 module.exports = CelebrationController

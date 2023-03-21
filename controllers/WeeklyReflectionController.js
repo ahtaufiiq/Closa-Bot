@@ -35,9 +35,17 @@ class WeeklyReflectionController {
 			}
 		});
 	}
+	static async hideChannelReflection(client){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(8)} * * 3`, async function(){
+			if(!Time.isCooldownPeriod()){
+				ChannelController.updateChannelVisibilityForMember(client,CHANNEL_REFLECTION,false)
+			}
+		});
+	}
 	static async sendReminderReflection(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 2`, async function(){
 			if(!Time.isCooldownPeriod()){
+				await ChannelController.updateChannelVisibilityForMember(client,CHANNEL_REFLECTION,true)
 				const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
 				channelGeneral.send(WeeklyReflectionMessage.reminderReflection())
 			}

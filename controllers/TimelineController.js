@@ -1,4 +1,4 @@
-const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT, CHANNEL_CLOSA_CAFE, CHANNEL_GENERAL } = require("../helpers/config")
+const { CHANNEL_TIMELINE_CATEGORY, CHANNEL_TIMELINE_STATUS, CHANNEL_TIMELINE_DAY_LEFT, CHANNEL_CLOSA_CAFE, CHANNEL_GENERAL, CHANNEL_CELEBRATE } = require("../helpers/config")
 const LocalData = require("../helpers/LocalData.js")
 const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
@@ -21,6 +21,8 @@ class TimelineController{
             const todayDate = Time.getTodayDateOnly()
             const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
             const data = LocalData.getData()
+
+            ChannelController.changeName(client,'1086508511439110266',`🍜Runway: ${TimelineController.getDayLeft('2023-06-30')} days`)
     
             if(todayDate === data.kickoffDate){
                 data.celebrationDate = Time.addDateByWeek(data.celebrationDate,5)
@@ -125,6 +127,7 @@ class TimelineController{
         date.setHours(Time.minus7Hours(8))
         date.setMinutes(0)
         schedule.scheduleJob(date,async function() {
+            ChannelController.updateChannelVisibilityForMember(client,CHANNEL_CELEBRATE,true)
             TimelineController.createCelebrationEvent(client)
             const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
             channelGeneral.send(TimelineStatusMessage.notificationBeforeCelebrationDay(5))

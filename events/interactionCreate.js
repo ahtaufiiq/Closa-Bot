@@ -30,6 +30,8 @@ const CelebrationController = require("../controllers/CelebrationController");
 const IntroController = require("../controllers/IntroController");
 const DailyStreakController = require("../controllers/DailyStreakController");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
+const FocusSessionController = require("../controllers/FocusSessionController");
+const FocusSessionMessage = require("../views/FocusSessionMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -51,6 +53,7 @@ module.exports = {
 			if(BoostController.showModalPersonalBoost(interaction)) return
 			if(IntroController.showModalWriteIntro(interaction)) return
 			if(IntroController.showModalEditIntro(interaction)) return
+			if(FocusSessionController.showModalAddNewProject(interaction)) return
 			
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
@@ -461,7 +464,7 @@ module.exports = {
 			}
 		}else if(interaction.isSelectMenu()){
 			
-			const [commandMenu,targetUserId] = interaction.customId.split("_")
+			const [commandMenu,targetUserId,value] = interaction.customId.split("_")
 			if (commandMenu.includes('boost')) {
 				await interaction.deferReply({ephemeral:true});
 				if (interaction.user.id === targetUserId ) {
@@ -477,6 +480,53 @@ module.exports = {
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
+				case "selectDailyWorkTime":
+					const [projectId,taskName] = value.split('-')
+					const [min,labelMenu] = valueMenu.split('_')
+					const data = await supabase.from("Users")
+						.update({dailyWorkTime:min})
+						.eq('id',interaction.user.id)
+					console.log(data);
+					interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
+					await supabase.from('FocusSessions')
+						.delete()
+						.eq('UserId',interaction.user.id)
+						.is('session',null)
+					await supabase.from('FocusSessions')
+						.insert({
+							UserId:interaction.user.id,
+							threadId:interaction.channelId,
+							taskName: taskName,
+							ProjectId:projectId
+						})
+						console.log(tes);
+					interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
+					ChannelController.deleteMessage(interaction.message)
+					break;
+				case 'selectProject':
+					const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
+					if (dataUser.body?.dailyWorkTime) {
+						await supabase.from('FocusSessions')
+						.delete()
+						.eq('UserId',interaction.user.id)
+						.is('session',null)
+
+					const tes = await supabase.from('FocusSessions')
+						.insert({
+							UserId:interaction.user.id,
+							threadId:interaction.channelId,
+							taskName: value,
+							ProjectId:valueMenu
+						})
+					console.log(tes);
+						await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
+					}else{
+						await interaction.editReply(
+							FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,value)
+						)
+					}
+					ChannelController.deleteMessage(interaction.message)
+					break;
 				case 'boostPartyMember':
 					if(valueMenu === interaction.user.id) return interaction.editReply(BoostMessage.warningBoostYourself())
 					const {user} = await MemberController.getMember(interaction.client,valueMenu)

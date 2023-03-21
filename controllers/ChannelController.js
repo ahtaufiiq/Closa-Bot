@@ -1,6 +1,6 @@
 const { PermissionFlagsBits } = require("discord-api-types/v9");
 const { WebhookClient } = require("discord.js");
-const { GUILD_ID, CHANNEL_NOTIFICATION } = require("../helpers/config");
+const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
@@ -13,16 +13,19 @@ class ChannelController{
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId).setName(name)
     }
 
-    static setVisibilityChannel(client,channelId,setVisible){
-        const guild = client.guilds.cache.get(GUILD_ID)
+    static async updateChannelVisibilityForMember(client,channelId,setVisible){
 		const channel = ChannelController.getChannel(client,channelId)
 		const permissionOverwrites = [
 			{
-				id:guild.roles.everyone.id,
+				id:ROLE_MEMBER,
 				[setVisible ? "allow":"deny"]:[PermissionFlagsBits.ViewChannel]
-			}
+			},
+			{
+				id:ROLE_NEW_MEMBER,
+				[setVisible ? "allow":"deny"]:[PermissionFlagsBits.ViewChannel]
+			},
 		]
-		channel.edit({
+		return await channel.edit({
 			permissionOverwrites 
 		})
     }
