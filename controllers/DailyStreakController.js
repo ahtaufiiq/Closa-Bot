@@ -193,24 +193,28 @@ class DailyStreakController {
 		ruleReminderRepairStreak.minute = 0
 		schedule.scheduleJob(ruleReminderRepairStreak,function(){
 			if (!Time.isCooldownPeriod()) {
+				const threeDayBefore = Time.getDateOnly(Time.getNextDate(-3))
+				const twoDayBefore = Time.getDateOnly(Time.getNextDate(-2))
 				supabase.from("Users")
-					.select('id,name,currentStreak,notificationId')
+					.select('id,name,currentStreak,notificationId,lastDone,lastSafety')
 					.gte('currentStreak',21)
-					.or(`lastDone.eq.${Time.getDateOnly(Time.getNextDate(-3))},lastSafety.eq.${Time.getDateOnly(Time.getNextDate(-2))}`)
+					.or(`lastDone.eq.${threeDayBefore},lastSafety.eq.${twoDayBefore}`)
 					.then(data=>{
 						if (data.body) {
 							data.body.forEach(async member=>{
-								const {id:userId,notificationId,currentStreak} = member
-								const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
-								if(isValidGetRepairStreak){
-									const msg = await ChannelController.sendToNotification(
-										client,
-										DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
-										userId,
-										notificationId
-									)
-									DailyStreakController.countdownRepairStreak(msg)
-									DailyStreakController.insertRepairStreak(userId,msg.id)
+								const {id:userId,notificationId,currentStreak,lastDone,lastSafety} = member
+								if((lastDone === threeDayBefore && lastSafety <= threeDayBefore) || (lastSafety === twoDayBefore && lastDone < twoDayBefore)){
+									const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
+									if(isValidGetRepairStreak){
+										const msg = await ChannelController.sendToNotification(
+											client,
+											DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
+											userId,
+											notificationId
+										)
+										DailyStreakController.countdownRepairStreak(msg)
+										DailyStreakController.insertRepairStreak(userId,msg.id)
+									}
 								}
 							})
 						}
