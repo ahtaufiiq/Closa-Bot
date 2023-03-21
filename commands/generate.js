@@ -69,6 +69,7 @@ module.exports = {
 				DailyStreakController.countdownRepairStreak(msg)
 				DailyStreakController.insertRepairStreak(user.id,msg.id)
 			}
+			interaction.editReply('success repair streak')
 		}
 		
 	},

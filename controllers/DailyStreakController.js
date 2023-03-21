@@ -1,7 +1,7 @@
 const schedule = require('node-schedule');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const MemberController = require('./MemberController');
-const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK} = require('../helpers/config');
+const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK, TIMEZONE} = require('../helpers/config');
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
@@ -246,6 +246,7 @@ class DailyStreakController {
 
 	static getTimeLeftRepairStreak(dateOnly){
 		const endDate = Time.getNextDate(1,dateOnly)
+		endDate.setHours(endDate.getHours() - Number(TIMEZONE))
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
 	}
