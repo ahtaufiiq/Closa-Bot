@@ -55,11 +55,37 @@ module.exports = {
 			
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
-			case CHANNEL_SESSION_GOAL:
-				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
+			case CHANNEL_COMMAND:
+				const threadSession = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)
 				const projectMenus = FocusSessionController.getFormattedMenu(projects)
-				thread.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,msg.content))
+				threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,msg.content))
+				break;
+			case CHANNEL_SESSION_GOAL:
+				const thread = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
+				thread.send(FocusSessionMessage.startFocusSession(msg.author))
+
+				supabase.from('FocusSessions')
+				.select()
+				.eq('UserId',msg.author.id)
+				.is('session',null)
+				.single() 
+				.then(({data})=>{
+					if (data) {
+						supabase.from('FocusSessions')
+							.delete()
+							.eq('id',data.id)
+							.then()
+					}
+					supabase.from('FocusSessions')
+						.insert({
+							UserId:msg.author.id,
+							threadId:thread.id,
+							taskName: msg.content
+						})
+						.then()
+				})
+				
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternEmoji = /^🔆/
