@@ -336,7 +336,7 @@ class RecurringMeetupController {
 		})
 	}
 
-	static async scheduleMeetup(client,scheduleMeetupDate,threadId,partyId){
+	static async scheduleMeetup(client,scheduleMeetupDate,threadId,partyId,isFirstMeetup=false){
 		await RecurringMeetupController.deleteOldWeeklyMeetup(partyId)
 		const twoDayBefore = new Date(scheduleMeetupDate.valueOf())
 		twoDayBefore.setDate(twoDayBefore.getDate()-2)
@@ -352,14 +352,17 @@ class RecurringMeetupController {
 
 		const fiveMinutesBefore = new Date(scheduleMeetupDate.valueOf())
 		fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
-		supabase.from("Reminders")
-			.insert([
-				{ message:partyId, time:twoDayBefore, type:'twoDayBeforeMeetup'},
+
+		const data = [
 				{ message:partyId, time:oneDayBefore, type:'oneDayBeforeMeetup'},
 				{ message:partyId, time:oneHourBefore, type:'oneHourBeforeMeetup'},
 				{ message:partyId, time:tenMinutesBefore, type:'tenMinutesBeforeMeetup'},
 				{ message:partyId, time:fiveMinutesBefore, type:'fiveMinutesBeforeMeetup'},
-			])
+			]
+				
+		if(!isFirstMeetup) data.push({ message:partyId, time:twoDayBefore, type:'twoDayBeforeMeetup'})
+		supabase.from("Reminders")
+			.insert(data)
 			.then()
 
 		supabase.from("Reminders")
@@ -370,7 +373,7 @@ class RecurringMeetupController {
 			})
 			.single()
 			.then(async scheduleWeeklyMeetup=>{
-				RecurringMeetupController.remindTwoDayBeforeMeetup(client,twoDayBefore,partyId)
+				if(!isFirstMeetup) RecurringMeetupController.remindTwoDayBeforeMeetup(client,twoDayBefore,partyId)
 				RecurringMeetupController.remindOneDayBeforeMeetup(client,oneDayBefore,partyId)
 				RecurringMeetupController.remindOneHourBeforeMeetup(client,oneHourBefore,partyId)
 				RecurringMeetupController.remindTenMinuteBeforeMeetup(client,tenMinutesBefore,partyId)
@@ -453,7 +456,7 @@ class RecurringMeetupController {
 			.then(async totalUser=>{
 				if (totalUser === 2) {
 					if(isAcceptMeetup) {
-						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId)
+						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId,true)
 						const meetupSchedule = Time.getDate(meetupDateOnly)
 						meetupSchedule.setHours(21)
 						meetupSchedule.setMinutes(0)
