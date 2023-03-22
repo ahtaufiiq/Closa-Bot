@@ -35,12 +35,19 @@ Sentry.init({
   
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
+const focusRoomUser = {
+}
+
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}else {
-		client.on(event.name, (...args) => event.execute(...args));
+		if(file === 'interactionCreate.js' || file === 'voiceStateUpdate.js'){
+			client.on(event.name, (...args) => event.execute(...args,focusRoomUser));
+		}else{
+			client.on(event.name, (...args) => event.execute(...args));
+		}
 	}
 }
 
