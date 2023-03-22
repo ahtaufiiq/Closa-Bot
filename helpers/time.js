@@ -54,7 +54,7 @@ class Time {
           }
         
         function formatHour(hour) {
-            if(type === 'short') return `${hour}h`   
+            if(type === 'short') return `${hour} hr`   
             if (hour==1) {
                 return `${hour} hour`   
             }else{

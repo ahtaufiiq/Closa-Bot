@@ -63,27 +63,32 @@ if you already inside closa cafe please __disconnect & rejoin.__
 \`\`rules:\`\` __turn on video or sharescreen to show accountability.__`
     }
 
-    static messageTimer(minute,name,isLive=true){
-        
-        const taskName = name.split('focus log - ')[1]
-         if (isLive) {
-            return `**Focus session started**
-        
-:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
-:arrow_right: ${taskName}
+    static messageTimer({focusTime,breakTime,totalTime,isFocus},taskName,projectName,userId,isLive=true){
+        const components = []
+        if(isLive){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}`,'5 min break','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱')
+            ))
+        }
+        return {
+            content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
+⏲️ Focus: \`\`${Time.convertTime(focusTime)}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
+☕ Breaks: \`\`${Time.convertTime(breakTime)}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
+💻 Work: \`\`${Time.convertTime(totalTime)}\`\` in total
+🎯 Goal: \`\`0%\`\` from \`\`5h\`\` daily work time goal
 
-—
-tips: 
-• *disconnect from closa café to stop your focus time*
-• *try to hit your goal during the focus time.*
-• *if you are done, post on <#${CHANNEL_TODO}>.*`
-         }else{
-            return `**Focus session ended**
-        
-:timer: focus time: **${Time.convertTime(minute,'short')}** 
-:arrow_right: ${taskName}`
-        
-         }
+\`\`\`
+Project: ${projectName}
+➡️ Task: ${taskName}
+\`\`\`
+${isLive ? `\`\`\`💡 pro tip:
+• take frequent breaks to improve your productivity.
+• try to hit your daily work time goal.
+• disconnect to end your focus time.\`\`\`
+cc: ${MessageFormatting.tagUser(userId)}`:''}`,
+            components
+        }
     }
 
     static selectProject(userId,projectMenus,taskName){
@@ -152,6 +157,14 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
     static successSetDailyWorkTime(labelMenu){
         const time = labelMenu ? labelMenu.split('(')[0] : ''
         return`**✅ Your daily work time goal has been set to ${time}**`
+    }
+
+    static messageBreakTime(time,userId){
+        return `Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time)}** — **LIVE :red_circle:**`
+    }
+
+    static reminderEndedBreak(userId){
+        return `**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`
     }
 }
 
