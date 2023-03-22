@@ -73,9 +73,9 @@ if you already inside closa cafe please __disconnect & rejoin.__
         }
         return {
             content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
+💻 Work: \`\`${Time.convertTime(totalTime)}\`\` in total
 ⏲️ Focus: \`\`${Time.convertTime(focusTime)}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
 ☕ Breaks: \`\`${Time.convertTime(breakTime)}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
-💻 Work: \`\`${Time.convertTime(totalTime)}\`\` in total
 🎯 Goal: \`\`0%\`\` from \`\`5h\`\` daily work time goal
 
 \`\`\`
