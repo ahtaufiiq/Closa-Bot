@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_ANNOUNCEMENT } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const getRandomValue = require("../helpers/getRandomValue")
@@ -34,10 +34,10 @@ Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('writeReflection',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
-                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e').setEmoji('💡')
+                MessageComponent.addLinkEmojiButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e','💡')
             )],
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor(isEnded ? "#888888" : "#00B264")
                 .setImage(randomGif)
             ]
@@ -82,7 +82,7 @@ ${participants.join('\n')}`,
         if(lowlight) reflection.push({name:"Didn't go well?",value:FormatString.truncateString( lowlight,1020)})
         if(actionPlan) reflection.push({name:"Next action plan for improvements",value:FormatString.truncateString( actionPlan,1020)})
         if(note) reflection.push({name:"Additional Notes / Key learnings",value:FormatString.truncateString( note,1020)})
-        return new MessageEmbed()
+        return new EmbedBuilder()
         .setColor("#ffffff")
         .setTitle(FormatString.truncateString(`📝 Reflection by ${user.username}`,250))
         .setThumbnail(InfoUser.getAvatar(user))

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK } = require("../helpers/config")
 const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -26,7 +26,7 @@ class VacationMessage {
     static initShopVacation(totalTicket=0){
         return {
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#a9a735")
                 .setTitle("🏖 Vacation Ticket ")
                 .setDescription(`Buy vacation ticket to keep your streak without posting progress
@@ -40,7 +40,7 @@ class VacationMessage {
             ],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('shopVacation','Buy Ticket','🎫'),
-                MessageComponent.addLinkButton("Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe").setEmoji('💡')
+                MessageComponent.addLinkEmojiButton("Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe",'💡')
             )]
         }
     }
@@ -56,12 +56,15 @@ have a productive day!
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased 1-day vacation ticket 🎫
 \`\`You don't need to post any progress for today.\`\``,
-            embeds:[new MessageEmbed()
+            embeds:[new EmbedBuilder()
                 .setColor("#00B264")
-                .addField("Ticket Details",`Applied for: Today (${todayDate}).
+                .addFields({
+                    name:"Ticket Details",
+                    value:`Applied for: Today (${todayDate}).
 Please come back tomorrow sharing your progress. (${tomorrowDate})
 
-Points left: **${pointLeft} :coin:**`)
+Points left: **${pointLeft} :coin:**`
+                })
                 .setImage('https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif')
             ]
         }
@@ -160,7 +163,7 @@ To get vibe points you can contribute to community by doing certain activities.`
         return {
             content:`${tagUsers} vacation mode: on`,
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(urlVacationGif)
             ]
@@ -175,13 +178,16 @@ To get vibe points you can contribute to community by doing certain activities.`
 
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, you’ve successfully purchased ${totalTicket}-day vacation ticket 🎫`,
-            embeds:[new MessageEmbed()
+            embeds:[new EmbedBuilder()
                 .setColor("#00B264")
-                .addField("Ticket Details",`Start: ${startVacation}
+                .addFields({
+                    name:"Ticket Details",
+                    value:`Start: ${startVacation}
 Until: ${endDate}
 Please back making progress at ${endDate}
 
-Points left: **${pointLeft} :coin:**`)
+Points left: **${pointLeft} :coin:**`
+                })
                 .setImage('https://media.giphy.com/media/3ohuP6Vh0Ddo31VFks/giphy.gif')
             ]
         }
@@ -200,7 +206,7 @@ Points left: **${pointLeft} :coin:**`)
             content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough vacation day!
 It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(randomGif)
             ]

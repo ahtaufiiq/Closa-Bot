@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_ANNOUNCEMENT } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const getRandomValue = require("../helpers/getRandomValue")
@@ -32,10 +32,10 @@ Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('writeCelebration',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
-                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40').setEmoji('💡')
+                MessageComponent.addLinkEmojiButton('Learn more','https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40','💡')
             )],
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor(isEnded ? "#888888" : "#00B264")
                 .setImage(randomGif)
             ]
@@ -69,7 +69,7 @@ ${participants.join('\n')}`,
         if(story) celebration.push({name:CelebrationMessage.titleField.story,value:FormatString.truncateString( story,1020)})
         if(linkProject) celebration.push({name:CelebrationMessage.titleField.linkProject,value:FormatString.truncateString( linkProject,1020)})
         if(linkDeck) celebration.push({name:CelebrationMessage.titleField.linkDeck,value:FormatString.truncateString( linkDeck,1020)})
-        return new MessageEmbed()
+        return new EmbedBuilder()
         .setColor("#ffffff")
         .setTitle(FormatString.truncateString(`🎉 Celebration by ${user.username}`,250))
         .setThumbnail(InfoUser.getAvatar(user))

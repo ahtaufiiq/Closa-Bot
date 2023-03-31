@@ -1,5 +1,4 @@
-const { PermissionFlagsBits } = require("discord-api-types/v9");
-const { WebhookClient } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
@@ -93,7 +92,7 @@ class ChannelController{
             entityType,
             entityMetadata:{location},
             channel,
-            privacyLevel:"GUILD_ONLY",
+            privacyLevel:GuildScheduledEventPrivacyLevel.GuildOnly,
         })
     }
 

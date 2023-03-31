@@ -1,16 +1,11 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord-api-types/v9');
-const { MessageEmbed } = require('discord.js');
-const ChannelController = require('../controllers/ChannelController');
-const UserController = require('../controllers/UserController');
-const { CHANNEL_GOALS } = require('../helpers/config');
+const { EmbedBuilder } = require('discord.js');
 const FormatString = require('../helpers/formatString');
 const InfoUser = require('../helpers/InfoUser');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const IntroMessage = require('../views/IntroMessage');
-const PointMessage = require('../views/PointMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -45,7 +40,7 @@ module.exports = {
 			
 			interaction.editReply({
 				embeds:[
-					new MessageEmbed()
+					new Embe()
 					.setColor("#ffffff")
 					.setTitle(`See ${name.split(',')[0]} profile's →`)
 					.setURL(MessageFormatting.linkToInsideThread(id))
@@ -76,18 +71,21 @@ module.exports = {
 			
 			interaction.editReply({
 				embeds:[
-					new MessageEmbed()
+					new EmbedBuilder()
 					.setColor("#ffffff")
 					.setTitle("See goal & latest progress →")
 					.setURL(MessageFormatting.linkToInsideThread(id))
 					.setThumbnail(InfoUser.getAvatar(user))
 					.addFields(
-						{ name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
+						{ name: 'Goal 🎯', value:FormatString.truncateString( goal,1020), },
 						{ name: 'About project', value:FormatString.truncateString( about,1020) },
 						{ name: "Role", value:FormatString.truncateString( role,1020) },
 						{ name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
 					)	
-				]
+				],
+				// components:[
+				// 	MessageComponent.createComponent(MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"))
+				// ]
 			})
 		}
 

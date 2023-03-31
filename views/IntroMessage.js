@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -16,7 +16,7 @@ class IntroMessage {
     }
 
     static embedMessageIntro({name,about,expertise,needHelp,social,user}){
-        return new MessageEmbed()
+        return new EmbedBuilder()
         .setColor("#ffffff")
         .setTitle(FormatString.truncateString(`👋 Intro by ${user.username}`,250))
         .setThumbnail(InfoUser.getAvatar(user))

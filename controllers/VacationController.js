@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { MessageAttachment } = require("discord.js")
+const { AttachmentBuilder } = require("discord.js")
 const RequestAxios = require("../helpers/axios")
 const { CHANNEL_STREAK, CHANNEL_GOALS, CHANNEL_SHOP, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK, CHANNEL_TODO } = require("../helpers/config")
 const GenerateImage = require("../helpers/GenerateImage")
@@ -91,7 +91,7 @@ class VacationController{
                 const avatarUrl = InfoUser.getAvatar(interaction.user)
 
                 const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
-                const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
+                const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${interaction.user.username}.png`})
                 channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,0,true))
             })
 
@@ -174,7 +174,7 @@ class VacationController{
                             const isBuyOneVacation = totalTicket === 1
             
                             const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,vacationTicketLeft,isBuyOneVacation)
-                            const attachment = new MessageAttachment(buffer,`progress_tracker_${interaction.user.username}.png`)
+                            const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${interaction.user.username}.png`})
                             channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,vacationTicketLeft,isBuyOneVacation))
                         })
 
@@ -232,7 +232,7 @@ class VacationController{
                     const avatarUrl = InfoUser.getAvatar(user)
 
                     const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,vacationLeft)
-                    const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
+                    const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
                     channelStreak.send(VacationMessage.onVacationMode(user.id,attachment,vacationLeft))
                 })
 

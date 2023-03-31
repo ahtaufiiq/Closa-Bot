@@ -1,51 +1,59 @@
-const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require("discord.js");
+const { ButtonBuilder } = require("@discordjs/builders");
+const {  ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder } = require("discord.js");
 const FormatString = require("./formatString");
 const InfoUser = require("./InfoUser");
 class MessageComponent {
     static createComponent(...buttons){
-        return new MessageActionRow()
+        return new ActionRowBuilder()
             .addComponents(
                 ...buttons
             )
     }
 
     static addButton(id,text,style="SUCCESS"){
-        return new MessageButton()
+        return new ButtonBuilder()
             .setCustomId(id)
             .setLabel(text)
-            .setStyle(style)
+            .setStyle(this.pickButtonStyle(style))
     }
     static addDisabledButton(id,text,style="SUCCESS"){
-        return new MessageButton()
+        return new ButtonBuilder()
             .setCustomId(id)
             .setLabel(text)
-            .setStyle(style)
+            .setStyle(this.pickButtonStyle(style))
             .setDisabled(true);
     }
     static addLinkButton(text,link){
-        return new MessageButton()
+        return new ButtonBuilder()
             .setLabel(text)
             .setURL(link)
-            .setStyle("LINK")
+            .setStyle(ButtonStyle.Link)
+    }
+    static addLinkEmojiButton(text,link,emoji){
+        return new ButtonBuilder()
+            .setLabel(text)
+            .setURL(link)
+            .setStyle(ButtonStyle.Link)
+            .setEmoji({name:emoji})
     }
 
     static addMenu(id,placeholder,options){
-        return new MessageSelectMenu()
+        return new StringSelectMenuBuilder()
             .setCustomId(id)
             .setPlaceholder(placeholder)
             .addOptions(options)
     }
 
     static addEmojiButton(id,text,emoji,style="SUCCESS"){
-        return new MessageButton()
+        return new ButtonBuilder()
             .setCustomId(id)
             .setLabel(text)
-            .setStyle(style)
-            .setEmoji(emoji)
+            .setStyle(this.pickButtonStyle(style))
+            .setEmoji({name:emoji})
     }
 
     static embedMessage({title,description,user},color="#00B264"){
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
         .setColor(color)
         .setTitle(FormatString.truncateString(title,252)||"")
         .setDescription(FormatString.truncateString(description,4092)||"")
@@ -55,6 +63,20 @@ class MessageComponent {
         }
 
         return embed
+    }
+
+    static pickButtonStyle(style) {
+        if(typeof style !== 'string') return style
+        switch (style) {
+            case "Primary":
+                return ButtonStyle.Primary
+            case "SECONDARY":
+                return ButtonStyle.Secondary
+            case "DANGER":
+                return ButtonStyle.Danger
+            default:
+                return ButtonStyle.Success
+        }
     }
 }
 

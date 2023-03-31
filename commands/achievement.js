@@ -1,12 +1,6 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord-api-types/v9');
-const { MessageEmbed, MessageAttachment } = require('discord.js');
-const ChannelController = require('../controllers/ChannelController');
-const UserController = require('../controllers/UserController');
+const { AttachmentBuilder, SlashCommandBuilder } = require('discord.js');
 const GenerateImage = require('../helpers/GenerateImage');
-const InfoUser = require('../helpers/InfoUser');
 const supabase = require('../helpers/supabaseClient');
-const PointMessage = require('../views/PointMessage');
 
 
 module.exports = {
@@ -16,7 +10,6 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true});
 		const files = []
-
 		const dataUser = await supabase.from("Users")
 			.select('longestStreak')
 			.eq('id',interaction.user.id)
@@ -29,17 +22,17 @@ Keep your streak earn the badge.`)
 		}else {
 			if(longestStreak >= 7){
 				const buffer = await GenerateImage.streakBadge(7,interaction.user)
-				const attachment = new MessageAttachment(buffer,`streak_badge_${interaction.user.username}.png`)
+				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
 				files.push(attachment)
 			}
 			if(longestStreak >= 30){
 				const buffer = await GenerateImage.streakBadge(30,interaction.user)
-				const attachment = new MessageAttachment(buffer,`streak_badge_${interaction.user.username}.png`)
+				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
 				files.push(attachment)
 			}
 			if(longestStreak >= 100){
 				const buffer = await GenerateImage.streakBadge(100,interaction.user)
-				const attachment = new MessageAttachment(buffer,`streak_badge_${interaction.user.username}.png`)
+				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
 				files.push(attachment)
 			}
 			

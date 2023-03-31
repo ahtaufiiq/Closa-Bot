@@ -5,15 +5,13 @@ const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, 
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const TodoReminderMessage = require('../views/TodoReminderMessage');
 const RequestAxios = require('../helpers/axios');
 const InfoUser = require('../helpers/InfoUser');
 const GenerateImage = require('../helpers/GenerateImage');
-const { MessageAttachment } = require('discord.js');
+const { AttachmentBuilder } = require('discord.js');
 const UserController = require('./UserController');
 const PartyController = require('./PartyController');
 const PartyMessage = require('../views/PartyMessage');
-const LocalData = require('../helpers/LocalData');
 const MessageComponent = require('../helpers/MessageComponent');
 class DailyStreakController {
     
@@ -34,7 +32,7 @@ class DailyStreakController {
         }
 
 		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
-		const attachment = new MessageAttachment(buffer,`streak_badge_${author.username}.png`)
+		const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${author.username}.png`})
 		data.files = [attachment]
 		
 		const msg = await ChannelReminder.send(data)
@@ -105,7 +103,7 @@ class DailyStreakController {
 									})
 									const avatarUrl = InfoUser.getAvatar(user)
 									const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
-									const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
+									const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
 									channelStreak.send(DailyStreakMessage.activateSafetyDot(user,currentStreak,longestStreak,attachment))
 								})
 							})
@@ -236,8 +234,8 @@ class DailyStreakController {
 				msg.edit({
 					components:[
 						MessageComponent.createComponent(
-							MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️').setDisabled(true),
-							MessageComponent.addButton(`repairStreak_${userId}`,'Repair for 7500 pts',"SUCCESS").setEmoji('🪙').setDisabled(true),
+							MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️').setDisabled(true),
+							MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 7500 pts',"🪙","SUCCESS").setDisabled(true),
 						)
 					]
 				})
@@ -302,7 +300,7 @@ class DailyStreakController {
 			const progressRecently = await RequestAxios.get('todos/tracker/'+user.id)
 			const avatarUrl = InfoUser.getAvatar(user)
 			const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
-			const files = [new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)]
+			const files = [new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})]
 			return files
 		}
 	}

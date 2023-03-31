@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_CELEBRATE, CHANNEL_PARTY_ROOM } = require("../helpers/config")
 const getRandomValue = require("../helpers/getRandomValue")
@@ -25,7 +25,7 @@ Let's prepare your 10 slides story format before our celebration day.`,
                 )
             ],
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(randomGif)
             ]
@@ -69,7 +69,7 @@ Thank you for reading, have a great day!
 
 Join your accountability group before the kick-off started → ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)}`,
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(randomGif)
             ]

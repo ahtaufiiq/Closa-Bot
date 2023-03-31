@@ -7,7 +7,6 @@ const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const ChannelController = require('../controllers/ChannelController');
 const MessageComponent = require('../helpers/MessageComponent');
-const ReminderController = require('../controllers/ReminderController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')

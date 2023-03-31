@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { MessageAttachment, MessageEmbed } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -19,13 +19,10 @@ const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
-const GoalController = require("../controllers/GoalController");
 const TestimonialController = require("../controllers/TestimonialController");
 const GoalMessage = require("../views/GoalMessage");
 const LocalData = require("../helpers/LocalData");
 const MemeContestMessage = require("../views/MemeContestMessage");
-const MessageComponent = require("../helpers/MessageComponent");
-const UserController = require("../controllers/UserController");
 const MemeController = require("../controllers/MemeController");
 const BoostController = require("../controllers/BoostController");
 const FocusSessionController = require("../controllers/FocusSessionController");
@@ -45,7 +42,7 @@ module.exports = {
 		await DailyReport.activeMember(msg.client,msg.author.id)
 		PointController.addPoint(msg.author.id,msg.channel.type,0,msg.channelId)
 
-		if (msg.type !== "DEFAULT") return
+		if (msg.type !== MessageType.Default) return
 		supabase.from("Users")
 			.update({
 				lastActive:Time.getTodayDateOnly()
@@ -302,7 +299,7 @@ so, you can learn or sharing from each others.`,
 								const buffer = await GenerateImage.tracker(msg.author,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
 								
 
-								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
+								const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${msg.author.username}.png`})
 								await ChannelStreak.send({
 									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
 									files:[
@@ -313,7 +310,6 @@ so, you can learn or sharing from each others.`,
 								if(endLongestStreak === Time.getTodayDateOnly()){
 									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
 										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,msg.author)
-										ReferralCodeController.giftMilestoneDailyStreak(msg.client,msg.author,currentStreak)
 									}
 								}else {
 									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {

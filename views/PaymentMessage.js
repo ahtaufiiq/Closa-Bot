@@ -1,4 +1,3 @@
-const { MessageActionRow, MessageButton} = require("discord.js")
 const { CHANNEL_REGISTRATION } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 class PaymentMessage{
@@ -89,7 +88,7 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     static buttonLinkExtendMembership(label="Extend membership"){
         return [
             MessageComponent.createComponent(
-                MessageComponent.addLinkButton(label,"https://tally.so/r/wbRa2w").setEmoji('💳')
+                MessageComponent.addLinkEmojiButton(label,"https://tally.so/r/wbRa2w",'💳')
             )
         ]
     }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const BoostController = require('../controllers/BoostController');
 const ChannelController = require('../controllers/ChannelController');
 const DailyReport = require('../controllers/DailyReport');

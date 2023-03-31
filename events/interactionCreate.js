@@ -34,8 +34,8 @@ const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 module.exports = {
 	name: 'interactionCreate',
-	async execute(interaction) {
-		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
+	async execute(interaction,focusRoomUser) {
+		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(PartyController.showModalCustomReminder(interaction)) return
@@ -59,7 +59,7 @@ module.exports = {
 			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if(commandButton === 'buyOneVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if (commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+			}else if (commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -72,6 +72,37 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "breakFiveMinute":
+				case "breakFifteenMinute":
+					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't break focus session someone else")
+					let minute = commandButton === 'breakFiveMinute' ? 5 : 15
+					const replyBreakFiveMinute = await interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
+					const intervalBreak = setInterval(() => {
+						minute--
+						if(minute === 1) {
+							clearInterval(intervalBreak)
+							replyBreakFiveMinute.reply(FocusSessionMessage.reminderEndedBreak(targetUserId))
+								.then(msg=>{
+									setTimeout(async () => {
+										const data = await FocusSessionController.getDetailFocusSession(targetUserId)
+										const taskName = data?.taskName
+										const projectName = data.Projects.name
+										msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],'tes',targetUserId))
+											.then(msgFocus=>{
+												FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
+												ChannelController.deleteMessage(msg)
+											})
+									}, 1000 * 5);
+									ChannelController.deleteMessage(replyBreakFiveMinute)
+								})
+						}else{
+							interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
+						}
+					}, 1000 * 5);
+					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreakFiveMinute.id
+					focusRoomUser[targetUserId].isFocus = false
+					focusRoomUser[targetUserId].breakCounter = 5
+					break
 				case "repairStreak":
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
 					const totalPoint = await UserController.getTotalPoint(interaction.user.id)
@@ -462,7 +493,7 @@ module.exports = {
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 			}
-		}else if(interaction.isSelectMenu()){
+		}else if(interaction.isStringSelectMenu()){
 			
 			const [commandMenu,targetUserId,value] = interaction.customId.split("_")
 			if (commandMenu.includes('boost')) {
@@ -473,7 +504,7 @@ module.exports = {
 				}
 			}else if(commandMenu === 'buyVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if(commandMenu !== 'inactiveReply'){
+			}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== "selectProject"){
 				await interaction.deferReply();
 			}
 			
@@ -481,12 +512,13 @@ module.exports = {
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
 				case "selectDailyWorkTime":
+					if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
+					await interaction.deferReply();
 					const [projectId,taskName] = value.split('-')
 					const [min,labelMenu] = valueMenu.split('_')
 					const data = await supabase.from("Users")
 						.update({dailyWorkTime:min})
 						.eq('id',interaction.user.id)
-					console.log(data);
 					interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
 					await supabase.from('FocusSessions')
 						.delete()
@@ -499,11 +531,12 @@ module.exports = {
 							taskName: taskName,
 							ProjectId:projectId
 						})
-						console.log(tes);
-					interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
+					await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
 					ChannelController.deleteMessage(interaction.message)
 					break;
 				case 'selectProject':
+					if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})
+					await interaction.deferReply();
 					const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 					if (dataUser.body?.dailyWorkTime) {
 						await supabase.from('FocusSessions')
@@ -511,14 +544,13 @@ module.exports = {
 						.eq('UserId',interaction.user.id)
 						.is('session',null)
 
-					const tes = await supabase.from('FocusSessions')
-						.insert({
-							UserId:interaction.user.id,
-							threadId:interaction.channelId,
-							taskName: value,
-							ProjectId:valueMenu
+						await supabase.from('FocusSessions')
+							.insert({
+								UserId:interaction.user.id,
+								threadId:interaction.channelId,
+								taskName: value,
+								ProjectId:valueMenu
 						})
-					console.log(tes);
 						await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
 					}else{
 						await interaction.editReply(

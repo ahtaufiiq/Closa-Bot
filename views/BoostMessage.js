@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
+const {AttachmentBuilder, EmbedBuilder } = require("discord.js")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -139,7 +139,7 @@ type:
 ${MessageFormatting.slashCommand().boost}
 
 example:`,
-            files:[new MessageAttachment('./assets/images/how_to_boost.png','how_to_boost.png')]
+            files:[new AttachmentBuilder('./assets/images/how_to_boost.png',{name:'how_to_boost.png'})]
         }
     }
     static successSendBoost(user){
@@ -174,7 +174,7 @@ example:`,
     }
 
     static embedMessageBoost({message,user,totalBoost},color="#00B264"){
-        const msg = new MessageEmbed()
+        const msg = new EmbedBuilder()
             .setColor(color)
             .setFooter({iconURL:InfoUser.getAvatar(user),text:`${user.username} — boosted ${totalBoost}x 🚀`})
 

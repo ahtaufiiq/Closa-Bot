@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -29,12 +29,12 @@ class DailyStreakMessage{
         
         if (longestStreak>=7) {
             
-            return new MessageEmbed()
+            return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`${streak}x day streak!`.toUpperCase(),iconURL:url})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }else{
-            return new MessageEmbed()
+            return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`🔥 ${streak}x day ${textStreak}!`.toUpperCase()})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
@@ -95,7 +95,7 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
             content:`${user} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
 \`\`Please don't skip more than once to keep your streak & come back tomorrow.\`\``,
             embeds:[
-                 new MessageEmbed()
+                 new EmbedBuilder()
                     .setColor(color)
                     .setAuthor({name:`Safety dot activated 🟩`})
                     .setFooter({text:`${user.username}`, iconURL:avatarUrl})
@@ -120,8 +120,8 @@ this fund helps us keep the community running.
 
 Time left: \`\`${time}\`\` ⏳`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️'),
-                MessageComponent.addButton(`repairStreak_${userId}`,'Repair for 7500 pts',"SUCCESS").setEmoji('🪙'),
+                MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 7500 pts','🪙',"SUCCESS"),
             )]
         }
     }
@@ -145,8 +145,8 @@ Time left: \`\`${time}\`\` ⏳`,
             content:`You don't have enough points to repair your streak?`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️'),
-                    MessageComponent.addLinkButton(`Learn more about points`,'https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2').setEmoji('💡'),
+                    MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                    MessageComponent.addLinkEmojiButton(`Learn more about points`,'https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2','💡'),
                 )
             ]
         }

@@ -88,9 +88,11 @@ module.exports = {
 		WeeklyReflectionController.sendReminderReflection(client)
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
 		WeeklyReflectionController.updateAnnouncementReflection(client)
+		WeeklyReflectionController.hideChannelReflection(client)
 
 		CelebrationController.sendAnnouncementCelebration(client)
 		CelebrationController.updateAnnouncementCelebration(client)
+		CelebrationController.hideCelebrationChannel(client)
 
 		DailyReport.inactiveMember(client)
 

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const InfoUser = require("../helpers/InfoUser")
 
 class PointMessage {
@@ -7,7 +7,7 @@ class PointMessage {
         return {
 				content:`Bonus vibe points for you ${user}!`,
 				embeds:[
-					new MessageEmbed()
+					new EmbedBuilder()
 					.setColor("#FEFEFE")
 					.setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
 					.setDescription(message)

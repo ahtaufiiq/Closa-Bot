@@ -5,6 +5,7 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');
 const ChannelController = require('./ChannelController');
+const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType } = require('discord.js');
 
 class CoworkingController {
     static recurringCoworkingSession(client){
@@ -59,7 +60,7 @@ class CoworkingController {
             description,
             scheduledStartTime,
             scheduledEndTime,
-            entityType:"VOICE",
+            entityType:GuildScheduledEventEntityType.Voice,
             channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
         })
     }
@@ -97,7 +98,7 @@ class CoworkingController {
             entityType,
             entityMetadata:{location},
             channel,
-            privacyLevel:"GUILD_ONLY",
+            privacyLevel:GuildScheduledEventPrivacyLevel.GuildOnly,
         })
     }
 

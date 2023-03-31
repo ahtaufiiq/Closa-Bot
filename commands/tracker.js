@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageAttachment } = require('discord.js');
+const { AttachmentBuilder } = require('discord.js');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS, CHANNEL_STREAK, CHANNEL_GENERAL, CHANNEL_COMMAND } = require('../helpers/config');
 const GenerateImage = require('../helpers/GenerateImage');
@@ -38,7 +38,7 @@ module.exports = {
 			.then(async progressRecently=>{
 				const avatarUrl = InfoUser.getAvatar(user)
 				const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
-				const attachment = new MessageAttachment(buffer,`progress_tracker_${user.username}.png`)
+				const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
 				await interaction.editReply({
 					files:[
 						attachment

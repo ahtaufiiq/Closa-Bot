@@ -6,6 +6,7 @@ const schedule = require('node-schedule');
 const supabase = require("../helpers/supabaseClient");
 const TimelineStatusMessage = require("../views/TimelineStatusMessage");
 const DailyStreakController = require("./DailyStreakController");
+const { GuildScheduledEventEntityType } = require("discord.js");
 class TimelineController{
     static getDayLeft(toDate){
         const diff = Time.getDate(toDate).getTime() - Time.getDate().getTime()
@@ -168,7 +169,7 @@ I hope you hit your goal before the celebration event started and try your best
 • Be kind.`,
             scheduledStartTime:startCelebrationDate,
             scheduledEndTime:endCelebrationDate,
-            entityType:"VOICE",
+            entityType:GuildScheduledEventEntityType.Voice,
             channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
         })
         const data = LocalData.getData()

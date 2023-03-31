@@ -22,7 +22,7 @@ class Time {
     static getDayLeft(toDate){
         return this.getDiffDay(Time.getDate(Time.getTodayDateOnly()),toDate)
     }
-    static convertTime(time,type='long'){
+    static convertTime(time,type='long',isShowZeroMin=false){
         let day = Math.floor((time/60/24))
         let hour = Math.floor(time/60)
         let minute = time%60
@@ -35,7 +35,8 @@ class Time {
           if (minute>1) {
               return `${formatHour(hour)} ${formatMinute(minute)}`
           }else{
-              return formatHour(hour)
+              if(isShowZeroMin) return `${formatHour(hour)} ${formatMinute(0)}`
+              else return formatHour(hour)
           }
         }
 
@@ -54,7 +55,7 @@ class Time {
           }
         
         function formatHour(hour) {
-            if(type === 'short') return `${hour}h`   
+            if(type === 'short') return `${hour} hr`   
             if (hour==1) {
                 return `${hour} hour`   
             }else{
@@ -250,6 +251,14 @@ class Time {
             date = Time.getNextDate(7 - (day - 2) )
         }
         return date
+    }
+
+    static getFirstDateOfYear(){
+        return `${new Date().getFullYear()}-01-01`
+    }
+
+    static getWeekOfYear(){
+        return Math.ceil(Time.getDiffDay(Time.getNextDate(-1,Time.getFirstDateOfYear()),Time.getDate(Time.getTodayDateOnly())) / 7)
     }
 
 }

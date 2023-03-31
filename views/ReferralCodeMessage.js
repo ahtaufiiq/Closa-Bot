@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
+const { EmbedBuilder, MessageActionRow, SelectMenuInteraction, MessageSelectMenu, AttachmentBuilder } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
@@ -11,7 +11,7 @@ class ReferralCodeMessage{
         return {
             content:`**Redeem your referral code here:**
 \`\`1 month free membership for code owner & redeemer.\`\``,
-            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+            files:[new AttachmentBuilder('./assets/images/redeem_cover.png',{name:'cover.png'})],
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addButton("redeem","Enter Code","PRIMARY"),
@@ -31,7 +31,7 @@ class ReferralCodeMessage{
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY"),
-                    MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
+                    MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
                 )
             ] 
         }
@@ -75,8 +75,8 @@ Your friends can redeem it via https://closa.me/referral
         return { 
             content, 
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateReferral_${userId}`,'Ticket',"PRIMARY").setEmoji('💌'),
-                MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
+                MessageComponent.addEmojiButton(`generateReferral_${userId}`,'Ticket','💌',"PRIMARY"),
+                MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
                 MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
@@ -123,7 +123,7 @@ ${referralCode}`,
         return { 
             content:`${user} joined via referral code from ${referrer}` , 
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('#00B264')
                     .setTitle(`Welcome to closa ${user.username}!`)
                     .setThumbnail(InfoUser.getAvatar(user))
@@ -151,7 +151,7 @@ ${referralCode}`,
 
 \`\`To get your access back, please renew your membership status\`\``,
             components: [MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Renew membership","https://tally.so/r/wbRa2w").setEmoji('💳')
+                MessageComponent.addLinkEmojiButton("Renew membership","https://tally.so/r/wbRa2w",'💳')
             )]
         }
     }

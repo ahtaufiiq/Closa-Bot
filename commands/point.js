@@ -1,10 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord-api-types/v9');
-const { MessageEmbed } = require('discord.js');
+const { PermissionFlagsBits } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const UserController = require('../controllers/UserController');
 const { CHANNEL_GENERAL } = require('../helpers/config');
-const InfoUser = require('../helpers/InfoUser');
 const PointMessage = require('../views/PointMessage');
 
 module.exports = {
@@ -20,7 +18,6 @@ module.exports = {
 		const taggedUser = interaction.options.getUser('user')
 		const message = interaction.options.getString('message') || ""
 		const amount = interaction.options.getNumber('amount') || ""
-		
 		const user = taggedUser? taggedUser : interaction.user
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")

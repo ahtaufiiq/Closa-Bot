@@ -117,7 +117,7 @@ Have a good time! @everyone
 
 \`\`here's the guideline\`\``,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Weekly check-in guideline","https://closa.notion.site/Weekly-check-in-bb6ea395dc4e4873a182cc3e4ba194fd").setEmoji("📝")
+                MessageComponent.addLinkEmojiButton("Weekly check-in guideline","https://closa.notion.site/Weekly-check-in-bb6ea395dc4e4873a182cc3e4ba194fd","📝")
             )]
         }
     }
@@ -135,7 +135,7 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
             content:`**Reminder**:bell: 
 **5 minutes before the session end** @everyone`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`extendTemporaryVoice_null_${voiceChannelId}`,"Extend time").setEmoji("⏲")
+                MessageComponent.addEmojiButton(`extendTemporaryVoice_null_${voiceChannelId}`,"Extend time","⏲")
             )]
         }
     }
@@ -147,7 +147,7 @@ Join → ${MessageFormatting.tagChannel(channelId)}`
                 MessageComponent.addButton(`extendSession_null_${voiceChannelId}-5`,"5 min"),
                 MessageComponent.addButton(`extendSession_null_${voiceChannelId}-10`,"10 min"),
                 MessageComponent.addButton(`extendSession_null_${voiceChannelId}-15`,"15 min"),
-                MessageComponent.addButton(`customExtend_null_${voiceChannelId}`,"Custom","SECONDARY").setEmoji("⏲"),
+                MessageComponent.addEmojiButton(`customExtend_null_${voiceChannelId}`,"Custom","⏲","SECONDARY"),
                 MessageComponent.addButton(`cancelExtend`,"Cancel","SECONDARY"),
             )]
         }

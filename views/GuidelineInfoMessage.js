@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_GUIDELINE, CHANNEL_COMMAND } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -10,13 +10,13 @@ class GuidelineInfoMessage {
         if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Refer Friends','🎁',"PRIMARY"))
         if(showButtonTestimonial) buttons.push(MessageComponent.addEmojiButton(`submitTestimonialGuideline_${userId}`,'Testimonial','💌'))
         buttons.push(
-            MessageComponent.addLinkButton("Community playbook",'https://closa.notion.site/Closa-f3937e68c57e46c4b028b69e8f1412b2').setEmoji('📒'),
-            MessageComponent.addLinkButton("Extend membership",'https://tally.so/r/wbRa2w').setEmoji('💳'),
+            MessageComponent.addLinkEmojiButton("Community playbook",'https://closa.notion.site/Closa-f3937e68c57e46c4b028b69e8f1412b2','📒'),
+            MessageComponent.addLinkEmojiButton("Extend membership",'https://tally.so/r/wbRa2w','💳'),
         )
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! please follow the guideline below to begin`,
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('fafafb')
                     .setThumbnail('https://pbs.twimg.com/profile_images/1497990921874403329/qLmIBav9_400x400.jpg')
                     .setTitle("🗒 Closa Guidelines ")

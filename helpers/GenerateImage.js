@@ -253,7 +253,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({name}){
+    static async dailySummary({user,dailyGoal,totalWork,totalFocus,tasks,projects,coworkingFriends}){
 
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
@@ -288,11 +288,11 @@ class GenerateImage{
         // import image
         const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
         const template = await loadImage(`./assets/images/template_daily_summary.png`)
-        // const template = await loadImage(`./assets/images/tes_template.png`)
         const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
         const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
         const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
-        const photoUser = await loadImage(`./assets/images/avatar.jpeg`)
+        const photoUser = await loadImage('./assets/images/avatar.jpeg')
+        // const photoUser = await loadImage(InfoUser.getAvatar(user))
         const canvas = createCanvas(545,965)
         const context = canvas.getContext('2d')
         context.drawImage(template,0,0)
@@ -303,177 +303,162 @@ class GenerateImage{
         context.drawImage(photoUser,39,49,56,56)
         context.drawImage(frameProfile,35,45,64,64)
 
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "600 24px Archivo";
-        context.fillText(name, 116 , 85);
+        context.fillText(UserController.getNameFromUserDiscord(user), 116 , 85);
 
         context.textAlign = 'right'
         context.fillStyle = "#888888"; 
         context.font = "400 20px Archivo";
-        context.fillText(Time.getFormattedDate(Time.getDate(),false,'long'), 511 , 102);
+        context.fillText(Time.getFormattedDate(Time.getDate(),false,'long'), 512.8 , 98);
         context.textAlign = 'left'
 
 
         //--- Work Hours ----//
+        const percentageWorkHours = totalWork > dailyGoal ? 100 : Math.round(totalWork/dailyGoal*100)
+        drawProgressBar(context,164,157,percentageWorkHours)
 
-        drawProgressBar(context,164,157,80)
-
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "600 48px Archivo";
-        context.fillText('21 hr 54 min', 34 , 236);
+        context.fillText(Time.convertTime(totalWork,'short',true), 34 , 236);
 
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "600 24px Archivo";
-        context.fillText('158%', 325.4 , 236);
+        context.fillText(`${percentageWorkHours}%`, 325.4 , 236);
 
         context.fillStyle = "#888888"; 
         context.font = "400 20px Archivo";
-        context.fillText('of 5 hr 30 min', 395.7 , 236.5);
+        context.fillText(`of ${Time.convertTime(dailyGoal,'short',true)}`, 395.7 , 236.5);
 
 
         //--- Breakdown ----//
-        
-        drawProgressBar(context,164,290,72)
+        const totalBreak = totalWork - totalFocus
+        const percentageFocus = Math.round(totalFocus/totalWork* 100) 
+        const percentageBreak = 100 - percentageFocus
+        drawProgressBar(context,163,288.8,percentageFocus)
 
-        drawCircle(context,83.5,372.5,"#00B264",72)
-        drawCircle(context,332.5,372.5,"#5856FF",28)
+        drawCircle(context,83.5,372.5,"#00B264",percentageFocus)
+        drawCircle(context,332.5,372.5,"#5856FF",percentageBreak)
 
         context.textAlign = 'center'
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText('72%', 82 , 380);
+        context.fillText(`${percentageFocus}%`, 82 , 380);
 
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText('28%', 331 , 380);
+        context.fillText(`${percentageBreak}%`, 331 , 380);
 
         context.textAlign = 'left'
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "600 22px Archivo";
-        context.fillText('2 hr 5 min', 147 , 395);
+        context.fillText(Time.convertTime(totalFocus,'short',true), 147 , 395);
         
-        context.fillStyle = "#2B2B2B"; 
+        context.fillStyle = "#31373D"; 
         context.font = "600 22px Archivo";
-        context.fillText('49 min', 395 , 396.5);
+        context.fillText(Time.convertTime(totalBreak,'short',true), 395 , 396.5);
 
 
         //--- Tasks ----//
+        let totalTaskTime = 0
+        tasks.forEach(task=>{
+            totalTaskTime += task.totalTime
+        })
 
-        // Task 1
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('52%', 35 , 535);
-        
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Drafting Content', 94.5 , 535);
+        let koordinatTask = 535
+        let koordinatProgressTask = 527.3
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            const percentage = Math.round(task.totalTime / totalTaskTime * 100) 
+            context.fillStyle = "#31373D"; 
+            context.font = "400 20px Archivo";
+            context.fillText(`${percentage}%`, 35 , koordinatTask);
+            
+            context.fillStyle = "#31373D"; 
+            context.font = "400 20px Archivo";
+            context.fillText(FormatString.capitalizeWords(task.name), 94.5 , koordinatTask);
+    
+            context.fillStyle = "#888888"; 
+            context.font = "400 20px Archivo";
+            context.textAlign = 'right'
+            context.fillText(Time.convertTime(task.totalTime,'short',true), 510 , koordinatTask);
+            context.textAlign = 'left'
 
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 414 , 535);
+    
+            drawProgressBar(context,267.8,koordinatProgressTask,percentage,'short')
 
-        drawProgressBar(context,267.8,528,52,'short')
-        // context.drawImage(fillGrey,36,523)
+            koordinatTask += 39.2
+            koordinatProgressTask += 40
+        }
 
-        // Task 2
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('48%', 35 , 574.2);
+        if(tasks.length < 2) context.drawImage(fillGrey,36,561)
+        if(tasks.length < 3) context.drawImage(fillGrey,36,601)
 
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Editing', 94.4 , 574.2);
-
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 415 , 574.2);
-
-        drawProgressBar(context,267.8,568,48,'short')
-        // context.drawImage(fillGrey,36,561)
-
-        //Task 3
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('12%', 35 , 613.4);
-
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Drafting', 94.4 , 613.4);
-
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 415 , 613.4);
-        drawProgressBar(context,267.8,608,100,'short')
-        // context.drawImage(fillGrey,36,601)
 
 
         //--- Top Projects ----//
+        let totalProjectTime = 0
+        projects.forEach(project=>{
+            totalProjectTime += project.totalTime
+        })
+
+        let koordinatProject = 736
+        let koordinatProgressProject = 729
 
         // Project 1
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('52%', 34.5 , 736);
+        for (let i = 0; i < projects.length; i++) {
+            const project = projects[i];
+            const percentage = Math.round(project.totalTime / totalProjectTime * 100) 
 
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Drafting Content', 94.8 , 736);
+            context.fillStyle = "#31373D"; 
+            context.font = "400 20px Archivo";
+            context.fillText(`${percentage}%`, 34.5 , koordinatProject);
+    
+            context.fillStyle = "#31373D"; 
+            context.font = "400 20px Archivo";
+            context.fillText(FormatString.capitalizeWords(project.name), 94.8 , koordinatProject);
+    
+            context.fillStyle = "#888888"; 
+            context.font = "400 20px Archivo";
+            context.textAlign = 'right'
+            context.fillText(Time.convertTime(project.totalTime,'short',true), 510 , koordinatProject);
+            context.textAlign = 'left'
+            drawProgressBar(context,267.8,koordinatProgressProject,percentage,'short')
+            koordinatProject += 40.2
+            koordinatProgressProject += 40
+        }
 
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 414 , 736);
-        drawProgressBar(context,267.8,730,52,'short')
-
-        // Project 2
-
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('33%', 34.5 , 776.2);
-
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Drafting Content', 94 , 776.2);
-
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 415 , 776.2);
-        drawProgressBar(context,267.8,770,33,'short')
         // context.drawImage(fillGrey,35,763)
-
-        // Project 3
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('10%', 34.5 , 816.2);
-        
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "400 20px Archivo";
-        context.fillText('Drafting Content', 94 , 816.2);
-        
-        context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText('1 hr 32 min', 415 , 816.2);
-        drawProgressBar(context,267.8,810,10,'short')
-        // context.drawImage(fillGrey,35,804)
-
-
-
-
+        if(projects.length < 2) context.drawImage(fillGrey,35,763)
+        if(projects.length < 3) context.drawImage(fillGrey,35,804)
         
         //--- Coworking Friends ----//
-        const rectWidth1 = 61;
-        const rectX1 = 162
-        const rectY1 = 863
+        const coworkerImageSize = 61;
+        let xCoordinatCoworker = 162
+        let yCoordinatCoworker = 863
 
-        const rectXFrame = 161.5
-        const rectYFrame = 862.2
-        const rectWidthFrame = 62
-        context.drawImage(photoUser,rectX1,rectY1,rectWidth1,rectWidth1)
-        context.drawImage(frameAvatar,rectXFrame,rectYFrame,rectWidthFrame,rectWidthFrame)
+        const sizeFrame = 62
+        let xCoordinateFrame = 161.5
+        let yCoordinateFrame = 862.2
+        let counterCoordinatFrame = 0
+        for (let i = 0; i < coworkingFriends.length; i++) {
+            const coworkingFriend = coworkingFriends[i];
+            const photo = await loadImage(coworkingFriend.avatar)
+            context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
+            context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
 
-        context.textAlign = 'end'
-        context.fillStyle = "#888888"; 
-        context.font = "500 16px Archivo";
-        context.drawImage(streakPartner,rectX1+3.5,rectY1 + 49)
-        context.fillText('14',rectX1+30.5,rectY1 + 68);
+            if(coworkingFriend.streak > 1){
+                context.textAlign = 'end'
+                context.fillStyle = "#888888"; 
+                context.font = "500 16px Archivo";
+                context.drawImage(streakPartner,xCoordinatCoworker+3.5,yCoordinatCoworker + 49)
+                context.fillText(coworkingFriend.streak,xCoordinatCoworker+30.5,yCoordinatCoworker + 68);
+            }
+            counterCoordinatFrame += 0.01
+            xCoordinatCoworker += 76.2
+            xCoordinateFrame += 76.2 + counterCoordinatFrame
+        }
+
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }

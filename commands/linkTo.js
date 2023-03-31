@@ -1,12 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord-api-types/v9');
-const { MessageEmbed } = require('discord.js');
-const ChannelController = require('../controllers/ChannelController');
-const UserController = require('../controllers/UserController');
-const InfoUser = require('../helpers/InfoUser');
+const { PermissionFlagsBits } = require('discord.js');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
-const PointMessage = require('../views/PointMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -26,7 +21,6 @@ module.exports = {
 	async execute(interaction) {
 		const command = interaction.options.getSubcommand()
 		const taggedUser = interaction.options.getUser('user')
-
 		const dataUser = await supabase.from('Users')
 			.select()
 			.eq('id',taggedUser.id)
