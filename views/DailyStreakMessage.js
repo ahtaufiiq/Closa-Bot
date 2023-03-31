@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -29,12 +29,12 @@ class DailyStreakMessage{
         
         if (longestStreak>=7) {
             
-            return new MessageEmbed()
+            return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`${streak}x day streak!`.toUpperCase(),iconURL:url})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }else{
-            return new MessageEmbed()
+            return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`🔥 ${streak}x day ${textStreak}!`.toUpperCase()})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
@@ -95,7 +95,7 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
             content:`${user} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
 \`\`Please don't skip more than once to keep your streak & come back tomorrow.\`\``,
             embeds:[
-                 new MessageEmbed()
+                 new EmbedBuilder()
                     .setColor(color)
                     .setAuthor({name:`Safety dot activated 🟩`})
                     .setFooter({text:`${user.username}`, iconURL:avatarUrl})

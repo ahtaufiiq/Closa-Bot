@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_REFLECTION, CHANNEL_CELEBRATE } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -7,6 +7,7 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 class PartyMessage {
     static initAccountabilityMode(){
+        EmbedBuilder
         return { 
             content:`**Select your accountability mode:**` , 
             files:["https://cdn.discordapp.com/attachments/954303982812151818/1082998117567311992/Set-goal_5.png"],
@@ -67,7 +68,7 @@ Next, follow the step on your 🔔 **notification** → ${MessageFormatting.link
     static partyRoom(partyNumber,members,totalMember,isFull=false){
         return {
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor(isFull ? "#8b3636" :"#4ba341")
                 .setTitle(`PARTY #${partyNumber}`)
                 .setDescription("—————————")
@@ -383,7 +384,7 @@ let's support each other to make progress 🙌`
         return {
 			content:`${MessageFormatting.tagUser(userId)} **just posted a reflection 📝**`,
 			embeds:[
-				new MessageEmbed()
+				new EmbedBuilder()
 					.setColor('#ffffff')
 					.setTitle("See reflection →")
 					.setURL(MessageFormatting.linkToMessage(CHANNEL_REFLECTION,msgIdReflection))
@@ -396,7 +397,7 @@ let's support each other to make progress 🙌`
         return {
 			content:`${MessageFormatting.tagUser(userId)} **just posted a celebration 🎉**`,
 			embeds:[
-				new MessageEmbed()
+				new EmbedBuilder()
 					.setColor('#ffffff')
 					.setTitle("See celebration →")
 					.setURL(MessageFormatting.linkToMessage(CHANNEL_CELEBRATE,msgIdCelebration))
@@ -420,7 +421,7 @@ let's support each other to make progress 🙌`
     }
 
     static shareProgress(username,avatarUrl,time,msgContent,msgId){
-        return new MessageEmbed()
+        return new EmbedBuilder()
             .setColor('#ffffff')
             .setTitle("see on timeline ›")
             .setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msgId))

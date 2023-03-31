@@ -1,4 +1,3 @@
-const { MessageActionRow, MessageButton} = require("discord.js")
 const { CHANNEL_REGISTRATION } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 class PaymentMessage{

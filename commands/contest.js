@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord-api-types/v9');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits ,} = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const { CHANNEL_MEMES } = require('../helpers/config');
 const getRandomValue = require('../helpers/getRandomValue');
@@ -43,7 +42,7 @@ module.exports = {
 				channel.send({
 					content:message,
 					embeds:[
-						new MessageEmbed()
+						new EmbedBuilder()
 						.setTitle('MEME CONTEST NOW OPEN 🟢')
 						.setColor('#299912')
 						.setImage(gifStart)
@@ -66,7 +65,7 @@ module.exports = {
 				channel.send({
 					content:message,
 					embeds:[
-						new MessageEmbed()
+						new EmbedBuilder()
 						.setTitle('MEME CONTEST HAS ENDED 🔴')
 						.setColor('#cd0a0a')
 						.setImage(gifEnded)

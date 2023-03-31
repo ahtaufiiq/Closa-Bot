@@ -35,7 +35,7 @@ const FocusSessionMessage = require("../views/FocusSessionMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser) {
-		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isSelectMenu()) return;
+		if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 		if (interaction.isButton()) {
 			if(ReferralCodeController.showModalRedeem(interaction)) return
 			if(PartyController.showModalCustomReminder(interaction)) return
@@ -92,13 +92,13 @@ module.exports = {
 												FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
 												ChannelController.deleteMessage(msg)
 											})
-									}, 1000 * 60);
+									}, 1000 * 5);
 									ChannelController.deleteMessage(replyBreakFiveMinute)
 								})
 						}else{
 							interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
 						}
-					}, 1000 * 60);
+					}, 1000 * 5);
 					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreakFiveMinute.id
 					focusRoomUser[targetUserId].isFocus = false
 					focusRoomUser[targetUserId].breakCounter = 5
@@ -493,7 +493,7 @@ module.exports = {
 					await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 					break;
 			}
-		}else if(interaction.isSelectMenu()){
+		}else if(interaction.isStringSelectMenu()){
 			
 			const [commandMenu,targetUserId,value] = interaction.customId.split("_")
 			if (commandMenu.includes('boost')) {

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_GUIDELINE, CHANNEL_COMMAND } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -16,7 +16,7 @@ class GuidelineInfoMessage {
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! please follow the guideline below to begin`,
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('fafafb')
                     .setThumbnail('https://pbs.twimg.com/profile_images/1497990921874403329/qLmIBav9_400x400.jpg')
                     .setTitle("🗒 Closa Guidelines ")

@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageSelectMenu, MessageAttachment } = require("discord.js")
+const { EmbedBuilder, MessageActionRow, SelectMenuInteraction, MessageSelectMenu, AttachmentBuilder } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
 const { CHANNEL_WELCOME } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
@@ -11,7 +11,7 @@ class ReferralCodeMessage{
         return {
             content:`**Redeem your referral code here:**
 \`\`1 month free membership for code owner & redeemer.\`\``,
-            files:[new MessageAttachment('./assets/images/redeem_cover.png','cover.png')],
+            files:[new AttachmentBuilder('./assets/images/redeem_cover.png',{name:'cover.png'})],
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addButton("redeem","Enter Code","PRIMARY"),
@@ -123,7 +123,7 @@ ${referralCode}`,
         return { 
             content:`${user} joined via referral code from ${referrer}` , 
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('#00B264')
                     .setTitle(`Welcome to closa ${user.username}!`)
                     .setThumbnail(InfoUser.getAvatar(user))

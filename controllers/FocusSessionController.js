@@ -2,6 +2,7 @@ const supabase = require("../helpers/supabaseClient")
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const ChannelController = require("./ChannelController");
+const Time = require("../helpers/time");
 class FocusSessionController {
 
     static showModalAddNewProject(interaction){
@@ -65,7 +66,7 @@ class FocusSessionController {
             }else{
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
-        }, 1000 * 60);
+        }, 1000 * 5);
     }
 
     static async getDetailFocusSession(userId){
@@ -80,12 +81,21 @@ class FocusSessionController {
 
     static async updateTime(userId,totalTime,focusTime,breakTime){
         return await supabase.from("FocusSessions")
-            .update({focusTime,breakTime,session:totalTime})
+            .update({focusTime,breakTime,session:totalTime,updatedAt:new Date()})
             .eq('UserId',userId)
             .is('session',null)
             .order('createdAt',{ascending:false})
             .limit(1)
             .single()
+    }
+
+    static async getAllTodayTasks(userId){
+        const date = new Date(Time.getTodayDateOnly())
+        date.setHours(Time.minus7Hours(date.getHours()))
+        return await supabase.from('FocusSessions')
+            .select('*,Projects(name)')
+            .gte('createdAt',date.toISOString())
+            .eq(userId)
     }
 
 }

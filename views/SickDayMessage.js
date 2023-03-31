@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_HIGHLIGHT } = require("../helpers/config")
 const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -39,13 +39,16 @@ class SickDayMessage {
 
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, i hope you have a decent rest ✨`,
-            embeds:[new MessageEmbed()
+            embeds:[new EmbedBuilder()
                 .setColor("#00B264")
-                .addField("Receipt Details",`Start: ${startSickTicket}
+                .addFields({
+                    name:"Receipt Details",
+                    value:`Start: ${startSickTicket}
 Until: ${endDate}
 Please back making progress at ${endDate}
 
-Points left: **${pointLeft} :coin:**`)
+Points left: **${pointLeft} :coin:**`
+                })
                 .setImage('https://media.giphy.com/media/S6IYqxt0ZosZXl82O8/giphy.gif')
             ]
         }
@@ -68,7 +71,7 @@ Points left: **${pointLeft} :coin:**`)
             content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough rest day!
 It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(randomGif)
             ]
@@ -79,7 +82,7 @@ It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and m
         return {
             content:`${tagUsers} on sick leave 🤢`,
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(urlSickGif)
             ]

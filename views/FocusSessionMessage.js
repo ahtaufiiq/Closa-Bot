@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -13,14 +13,22 @@ class FocusSessionMessage{
         
         const {daily,weekly,monthly,all,average,dailyStreak,longestStreak} = data
         const avatarUrl = InfoUser.getAvatar(user)
-        return new MessageEmbed()
+        return new EmbedBuilder()
             .setColor('#FEFEFE')
-            .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`
-Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
+            .addFields(
+                {
+                name:`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,
+                value:`Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${monthly} h
-All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
-            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
+All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
+                inline:true
+                },
+                {
+                    name:"\u200B",
+                    value:`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`
+                }
+            )
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }
@@ -43,14 +51,22 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
             longestStreak: '3',
           }
         const avatarUrl = InfoUser.getAvatar(user)
-        return new MessageEmbed()
+        return new EmbedBuilder()
             .setColor('#FEFEFE')
-            .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`
-Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
+            .addFields(
+                {
+                    name:`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,
+                    value:`Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F${monthly} h
-All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
-            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
+All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
+                    inline:true
+                },
+                {
+                    name:"\u200B",
+                    value:`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`
+                }
+            )
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }

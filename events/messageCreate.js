@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { MessageAttachment, MessageEmbed } = require("discord.js");
+const { AttachmentBuilder } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -302,7 +302,7 @@ so, you can learn or sharing from each others.`,
 								const buffer = await GenerateImage.tracker(msg.author,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
 								
 
-								const attachment = new MessageAttachment(buffer,`progress_tracker_${msg.author.username}.png`)
+								const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${msg.author.username}.png`})
 								await ChannelStreak.send({
 									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
 									files:[

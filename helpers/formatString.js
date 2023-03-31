@@ -15,6 +15,10 @@ class FormatString {
     static isNumber(stringNumber){
         return !Number.isNaN(Number(stringNumber))
     }
+
+    static capitalizeWords(str) {
+        return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
 }
 
 module.exports = FormatString

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { EmbedBuilder } = require("discord.js")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const supabase = require("../helpers/supabaseClient")
@@ -18,7 +18,7 @@ class MemeController {
         const msgMeme = await msg.channel.send({
             content:`submission by ${msg.author}`,
             embeds:[
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('#ffffff')
                     .setTitle(msg.content)
                     .setImage(memeUrl)
