@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { AttachmentBuilder } = require('discord.js');
+const { AttachmentBuilder, SlashCommandBuilder } = require('discord.js');
 const GenerateImage = require('../helpers/GenerateImage');
 const supabase = require('../helpers/supabaseClient');
 

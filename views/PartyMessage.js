@@ -12,7 +12,7 @@ class PartyMessage {
             content:`**Select your accountability mode:**` , 
             files:["https://cdn.discordapp.com/attachments/954303982812151818/1082998117567311992/Set-goal_5.png"],
             components: [
-                MessageComponent.createComponent(MessageComponent.addButton("joinPartyMode","Party Mode").setEmoji('🥳'),MessageComponent.addButton("startSoloMode","Solo Mode").setEmoji('🫡')),
+                MessageComponent.createComponent(MessageComponent.addEmojiButton("joinPartyMode","Party Mode",'🥳'),MessageComponent.addEmojiButton("startSoloMode","Solo Mode",'🫡')),
             ] 
         }
     }
@@ -146,7 +146,7 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
-                    MessageComponent.addButton(`customReminder_${userId}`,"Custom Reminder","SECONDARY").setEmoji('⏰'),
+                    MessageComponent.addEmojiButton(`customReminder_${userId}`,"Custom Reminder","SECONDARY",'⏰'),
                     MessageComponent.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]

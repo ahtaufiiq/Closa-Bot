@@ -8,8 +8,6 @@
   },
   "dependencies": {
     "@discordjs/builders": "^1.5.0",
-    "@discordjs/formatters": "^0.2.0",
-    "@discordjs/rest": "^1.6.0",
     "@june-so/analytics-node": "^6.1.1",
     "@sentry/node": "^6.19.7",
     "@sentry/profiling-node": "^0.0.13",

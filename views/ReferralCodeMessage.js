@@ -31,7 +31,7 @@ class ReferralCodeMessage{
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY"),
-                    MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
+                    MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
                 )
             ] 
         }
@@ -75,8 +75,8 @@ Your friends can redeem it via https://closa.me/referral
         return { 
             content, 
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateReferral_${userId}`,'Ticket',"PRIMARY").setEmoji('💌'),
-                MessageComponent.addButton(`generateReferralCover_${userId}`,'Invites Cover',"SECONDARY").setEmoji('✨'),
+                MessageComponent.addEmojiButton(`generateReferral_${userId}`,'Ticket','💌',"PRIMARY"),
+                MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
                 MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
             )]
         }
@@ -151,7 +151,7 @@ ${referralCode}`,
 
 \`\`To get your access back, please renew your membership status\`\``,
             components: [MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Renew membership","https://tally.so/r/wbRa2w").setEmoji('💳')
+                MessageComponent.addLinkEmojiButton("Renew membership","https://tally.so/r/wbRa2w",'💳')
             )]
         }
     }

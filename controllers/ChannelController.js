@@ -1,5 +1,4 @@
-const { PermissionFlagsBits } = require("discord-api-types/v9");
-const { WebhookClient, GuildScheduledEventPrivacyLevel } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");

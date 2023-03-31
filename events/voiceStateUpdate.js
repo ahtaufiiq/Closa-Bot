@@ -213,7 +213,6 @@ module.exports = {
 					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
 				}, 1000 * 5);
 			}
-			delete focusRoomUser[userId]
 			supabase.from('FocusSessions')
 				.select()
 				.eq('UserId',userId)
@@ -221,6 +220,8 @@ module.exports = {
 				.single()
 				.then(response=>{
 					if(response.body){
+						delete focusRoomUser[userId]
+
 						const {totalInMinutes} = getGapTime(response.data.createdAt)
 						if (totalInMinutes >= 5) {
 							RequestAxios.get('voice/report/'+userId)

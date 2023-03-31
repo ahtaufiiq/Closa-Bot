@@ -34,7 +34,7 @@ Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('writeReflection',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
-                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e').setEmoji('💡')
+                MessageComponent.addLinkEmojiButton('Learn more','https://closa.notion.site/Reflection-9d7c976982954e43960fc0af7a58b68e','💡')
             )],
             embeds: [
                 new EmbedBuilder()

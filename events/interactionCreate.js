@@ -519,7 +519,6 @@ module.exports = {
 					const data = await supabase.from("Users")
 						.update({dailyWorkTime:min})
 						.eq('id',interaction.user.id)
-					console.log(data);
 					interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
 					await supabase.from('FocusSessions')
 						.delete()

@@ -32,7 +32,7 @@ Participated (${participants.length}): :red_circle: ${time}
 ${participants.join('\n')}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('writeCelebration',`${isEnded ? "Ended" : "Join"}`).setDisabled(isEnded),
-                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40').setEmoji('💡')
+                MessageComponent.addLinkEmojiButton('Learn more','https://closa.notion.site/Celebration-Day-5c1aa3ea23b349db8b23b80b5c59db40','💡')
             )],
             embeds: [
                 new EmbedBuilder()

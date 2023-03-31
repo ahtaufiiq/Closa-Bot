@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord.js');
+
+const { PermissionFlagsBits, SlashCommandBuilder } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 const MemberController = require('../controllers/MemberController');
@@ -22,7 +22,7 @@ module.exports = {
 		const date = Time.getDate(dateString)
 		const endMembership =Time.getDateOnly(date)
 		const formattedDate = Time.getFormattedDate(date,false,'long')
-
+		
 		await interaction.deferReply();
 
 		try {
@@ -64,7 +64,6 @@ module.exports = {
 			}
 	
 		} catch (error) {
-			console.log(error);
 			MemberController.addRole(interaction.client,user.id,ROLE_NEW_MEMBER)
 		}
 

@@ -120,8 +120,8 @@ this fund helps us keep the community running.
 
 Time left: \`\`${time}\`\` ⏳`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️'),
-                MessageComponent.addButton(`repairStreak_${userId}`,'Repair for 7500 pts',"SUCCESS").setEmoji('🪙'),
+                MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 7500 pts','🪙',"SUCCESS"),
             )]
         }
     }
@@ -145,8 +145,8 @@ Time left: \`\`${time}\`\` ⏳`,
             content:`You don't have enough points to repair your streak?`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX').setEmoji('🛠️'),
-                    MessageComponent.addLinkButton(`Learn more about points`,'https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2').setEmoji('💡'),
+                    MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                    MessageComponent.addLinkEmojiButton(`Learn more about points`,'https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2','💡'),
                 )
             ]
         }

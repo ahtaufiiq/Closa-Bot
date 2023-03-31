@@ -29,6 +29,13 @@ class MessageComponent {
             .setURL(link)
             .setStyle(ButtonStyle.Link)
     }
+    static addLinkEmojiButton(text,link,emoji){
+        return new ButtonBuilder()
+            .setLabel(text)
+            .setURL(link)
+            .setStyle(ButtonStyle.Link)
+            .setEmoji({name:emoji})
+    }
 
     static addMenu(id,placeholder,options){
         return new StringSelectMenuBuilder()
@@ -42,7 +49,7 @@ class MessageComponent {
             .setCustomId(id)
             .setLabel(text)
             .setStyle(this.pickButtonStyle(style))
-            .setEmoji(emoji)
+            .setEmoji({name:emoji})
     }
 
     static embedMessage({title,description,user},color="#00B264"){

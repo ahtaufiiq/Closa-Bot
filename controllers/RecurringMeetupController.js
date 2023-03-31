@@ -1,4 +1,3 @@
-const { PermissionFlagsBits, ChannelType } = require("discord-api-types/v9");
 const { GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, CHANNEL_WEEKLY_SCYNC_CATEGORY } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const ChannelController = require("./ChannelController");
@@ -10,6 +9,7 @@ const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateLink = require("../helpers/GenerateLink");
 const PartyController = require("./PartyController");
+const { PermissionFlagsBits, ChannelType } = require("discord.js");
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){

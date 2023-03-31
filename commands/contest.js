@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder, PermissionFlagsBits ,} = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits , SlashCommandBuilder} = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const { CHANNEL_MEMES } = require('../helpers/config');
 const getRandomValue = require('../helpers/getRandomValue');
@@ -26,7 +25,6 @@ module.exports = {
 		const command = interaction.options.getSubcommand()
 		const channel = ChannelController.getChannel(interaction.client,CHANNEL_MEMES)
 		const data = LocalData.getData()
-		console.log('masuk');
 		switch (command) {
 			case "start":
 				data.isMemeContest = true

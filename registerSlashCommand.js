@@ -1,7 +1,6 @@
-const {REST} = require('@discordjs/rest')
-const {Routes} = require('discord-api-types/v9')
 const fs = require('fs')
-const {CLIENT_ID,GUILD_ID,TOKEN} = require('./helpers/config')
+const {CLIENT_ID,GUILD_ID,TOKEN} = require('./helpers/config');
+const { Routes, REST } = require('discord.js');
 
 const commands = []; 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -12,7 +11,6 @@ for (const file of commandFiles) {
 	// With the key as the command name and the value as the exported module
 	commands.push(command.data.toJSON())
 }
-  
   const rest = new REST({ version: '9' }).setToken(TOKEN);
   
   (async () => {

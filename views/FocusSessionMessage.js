@@ -106,7 +106,7 @@ tips:
             ))
         }
         components.push(MessageComponent.createComponent(
-            MessageComponent.addButton(`addNewProject_${userId}`,"Add new project +").setEmoji('✨')
+            MessageComponent.addEmojiButton(`addNewProject_${userId}`,"Add new project +",'✨')
         ))
         return {
             content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,

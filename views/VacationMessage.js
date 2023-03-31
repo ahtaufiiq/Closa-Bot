@@ -40,7 +40,7 @@ class VacationMessage {
             ],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('shopVacation','Buy Ticket','🎫'),
-                MessageComponent.addLinkButton("Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe").setEmoji('💡')
+                MessageComponent.addLinkEmojiButton("Learn more","https://closa.notion.site/Vacation-Mode-1cb1ff1110ef40a39cc26841061aa6fe",'💡')
             )]
         }
     }
