@@ -4,7 +4,6 @@ const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
-
 class FocusSessionMessage{
 
     //-----------------------    Daily Streak    -----------------------// 
@@ -53,20 +52,12 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
         const avatarUrl = InfoUser.getAvatar(user)
         return new EmbedBuilder()
             .setColor('#FEFEFE')
-            .addFields(
-                {
-                    name:`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,
-                    value:`Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
+            .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`
+Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F${monthly} h
-All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
-                    inline:true
-                },
-                {
-                    name:"\u200B",
-                    value:`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`
-                }
-            )
+All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
+            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }
@@ -79,32 +70,27 @@ if you already inside closa cafe please __disconnect & rejoin.__
 \`\`rules:\`\` __turn on video or sharescreen to show accountability.__`
     }
 
-    static messageTimer({focusTime,breakTime,totalTime,isFocus},taskName,projectName,userId,isLive=true){
-        const components = []
-        if(isLive){
-            components.push(MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}`,'5 min break','☕'),
-                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱')
-            ))
-        }
-        return {
-            content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
-💻 Work: \`\`${Time.convertTime(totalTime)}\`\` in total
-⏲️ Focus: \`\`${Time.convertTime(focusTime)}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
-☕ Breaks: \`\`${Time.convertTime(breakTime)}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
-🎯 Goal: \`\`0%\`\` from \`\`5h\`\` daily work time goal
+    static messageTimer(minute,name,isLive=true){
+        
+        const taskName = name.split('focus log - ')[1]
+         if (isLive) {
+            return `**Focus session started**
+        
+:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
+:arrow_right: ${taskName}
 
-\`\`\`
-Project: ${projectName}
-➡️ Task: ${taskName}
-\`\`\`
-${isLive ? `\`\`\`💡 pro tip:
-• take frequent breaks to improve your productivity.
-• try to hit your daily work time goal.
-• disconnect to end your focus time.\`\`\`
-cc: ${MessageFormatting.tagUser(userId)}`:''}`,
-            components
-        }
+—
+tips: 
+• *disconnect from closa café to stop your focus time*
+• *try to hit your goal during the focus time.*
+• *if you are done, post on <#${CHANNEL_TODO}>.*`
+         }else{
+            return `**Focus session ended**
+        
+:timer: focus time: **${Time.convertTime(minute,'short')}** 
+:arrow_right: ${taskName}`
+        
+         }
     }
 
     static selectProject(userId,projectMenus,taskName){
@@ -173,14 +159,6 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
     static successSetDailyWorkTime(labelMenu){
         const time = labelMenu ? labelMenu.split('(')[0] : ''
         return`**✅ Your daily work time goal has been set to ${time}**`
-    }
-
-    static messageBreakTime(time,userId){
-        return `Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time)}** — **LIVE :red_circle:**`
-    }
-
-    static reminderEndedBreak(userId){
-        return `**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`
     }
 }
 

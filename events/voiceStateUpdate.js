@@ -207,7 +207,7 @@ module.exports = {
 					})
 				focusRoomUser[userId].firstTime = false
 			}
-		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] && focusRoomUser[userId] ){
+		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
 			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
 				setTimeout(() => {
 					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
@@ -220,7 +220,8 @@ module.exports = {
 				.is('session',null)
 				.single()
 				.then(response=>{
-					const {totalInMinutes} = getGapTime(response.data.createdAt)
+					if(response.body){
+						const {totalInMinutes} = getGapTime(response.data.createdAt)
 						if (totalInMinutes >= 5) {
 							RequestAxios.get('voice/report/'+userId)
 								.then(async data=>{
@@ -237,6 +238,7 @@ module.exports = {
 							})
 							.eq('id',response.data.id)
 							.then()
+					}
 				})
 		}
 
