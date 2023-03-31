@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits,SlashCommandBuilder } = require('discord.js');
 const ChannelController = require('../controllers/ChannelController');
 const UserController = require('../controllers/UserController');
 const { CHANNEL_GENERAL } = require('../helpers/config');

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const ReferralCodeMessage = require('../views/ReferralCodeMessage');
 

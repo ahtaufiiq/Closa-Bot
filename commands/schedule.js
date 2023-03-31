@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const FormatString = require('../helpers/formatString');
 const MessageFormatting = require('../helpers/MessageFormatting');

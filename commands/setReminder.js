@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');

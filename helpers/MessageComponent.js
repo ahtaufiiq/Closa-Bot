@@ -1,5 +1,4 @@
-const { ButtonBuilder } = require("@discordjs/builders");
-const {  ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder } = require("discord.js");
+const {  ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder } = require("discord.js");
 const FormatString = require("./formatString");
 const InfoUser = require("./InfoUser");
 class MessageComponent {
@@ -55,8 +54,8 @@ class MessageComponent {
     static embedMessage({title,description,user},color="#00B264"){
         const embed = new EmbedBuilder()
         .setColor(color)
-        .setTitle(FormatString.truncateString(title,252)||"")
-        .setDescription(FormatString.truncateString(description,4092)||"")
+        .setTitle(FormatString.truncateString(title,252) || null)
+        .setDescription(FormatString.truncateString(description,4092) || null)
 
         if(user){
             embed.setFooter({iconURL:InfoUser.getAvatar(user),text:user.username})
