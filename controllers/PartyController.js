@@ -13,7 +13,7 @@ const RecurringMeetupController = require('./RecurringMeetupController');
 const MemberController = require('./MemberController');
 const BoostMessage = require('../views/BoostMessage');
 const MessageComponent = require('../helpers/MessageComponent');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -382,7 +382,7 @@ class PartyController{
                 description:PartyMessage.descriptionKickoffEvent(),
                 scheduledStartTime:PartyController.getStartTimeKickoffEvent(),
                 scheduledEndTime:PartyController.getEndTimeKickoffEvent(),
-                entityType:"VOICE",
+                entityType:GuildScheduledEventEntityType.Voice,
                 channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
             })
             .then(kickoffEventId=>{

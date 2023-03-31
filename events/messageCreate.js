@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { AttachmentBuilder } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -19,13 +19,10 @@ const MembershipController = require("../controllers/MembershipController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
-const GoalController = require("../controllers/GoalController");
 const TestimonialController = require("../controllers/TestimonialController");
 const GoalMessage = require("../views/GoalMessage");
 const LocalData = require("../helpers/LocalData");
 const MemeContestMessage = require("../views/MemeContestMessage");
-const MessageComponent = require("../helpers/MessageComponent");
-const UserController = require("../controllers/UserController");
 const MemeController = require("../controllers/MemeController");
 const BoostController = require("../controllers/BoostController");
 const FocusSessionController = require("../controllers/FocusSessionController");
@@ -45,7 +42,7 @@ module.exports = {
 		await DailyReport.activeMember(msg.client,msg.author.id)
 		PointController.addPoint(msg.author.id,msg.channel.type,0,msg.channelId)
 
-		if (msg.type !== "DEFAULT") return
+		if (msg.type !== MessageType.Default) return
 		supabase.from("Users")
 			.update({
 				lastActive:Time.getTodayDateOnly()
