@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const RequestAxios = require('../helpers/axios');
 const { GUILD_ID } = require('../helpers/config');
 const FocusSessionMessage = require('../views/FocusSessionMessage');

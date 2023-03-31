@@ -11,7 +11,7 @@ class MemeController {
     static async submitMeme(msg){
         let memeUrl = ''
         for (const [_,value] of msg.attachments) {
-            memeUrl = value.attachment.split('cdn.discordapp.com').join('media.discordapp.net')
+            memeUrl = value.proxyURL
             break
         }
 
@@ -20,7 +20,7 @@ class MemeController {
             embeds:[
                 new EmbedBuilder()
                     .setColor('#ffffff')
-                    .setTitle(msg.content)
+                    .setTitle(msg.content || null)
                     .setImage(memeUrl)
                     .setFooter({iconURL:InfoUser.getAvatar(msg.author),text:`by ${msg.author.username}`})
             ]

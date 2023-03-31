@@ -7,7 +7,6 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 class PartyMessage {
     static initAccountabilityMode(){
-        EmbedBuilder
         return { 
             content:`**Select your accountability mode:**` , 
             files:["https://cdn.discordapp.com/attachments/954303982812151818/1082998117567311992/Set-goal_5.png"],
@@ -425,7 +424,7 @@ let's support each other to make progress 🙌`
             .setColor('#ffffff')
             .setTitle("see on timeline ›")
             .setURL(MessageFormatting.linkToMessage(CHANNEL_TODO,msgId))
-            .setDescription(FormatString.truncateString(msgContent.split('\n')[0],100))
+            .setDescription(FormatString.truncateString(msgContent.split('\n')[0],100) || null)
             .setFooter({iconURL:avatarUrl,text:`${username} · Yesterday at ${time} WIB`})
     }
 

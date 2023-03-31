@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const FormatString = require('../helpers/formatString');
 const InfoUser = require('../helpers/InfoUser');
 const MessageFormatting = require('../helpers/MessageFormatting');

@@ -179,7 +179,7 @@ example:`,
             .setFooter({iconURL:InfoUser.getAvatar(user),text:`${user.username} — boosted ${totalBoost}x 🚀`})
 
         if(message){
-            msg.setTitle(FormatString.truncateString(message,252)||"")
+            msg.setTitle(FormatString.truncateString(message,252)||null)
         }
 
         return msg

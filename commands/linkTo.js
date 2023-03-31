@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits,SlashCommandBuilder } = require('discord.js');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 

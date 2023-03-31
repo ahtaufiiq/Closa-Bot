@@ -1,4 +1,3 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { CHANNEL_PARTY_ROOM } = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('../controllers/ChannelController');
@@ -6,7 +5,7 @@ const LocalData = require('../helpers/LocalData');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const PartyController = require('../controllers/PartyController');
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits,SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('voice')
