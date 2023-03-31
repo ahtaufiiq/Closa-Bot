@@ -135,7 +135,7 @@ You will be matched with other members on the kick-off day at 20.30 WIB`
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new EmbedBuilder()
         .setColor("#ffffff")
-        .setTitle(FormatString.truncateString(project,250))
+        .setTitle(FormatString.truncateString(project,250) || null)
         .setThumbnail(InfoUser.getAvatar(user))
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
