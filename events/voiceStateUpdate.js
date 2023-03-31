@@ -9,12 +9,15 @@ const FocusSessionMessage = require('../views/FocusSessionMessage');
 const ChannelController = require('../controllers/ChannelController');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
-const FocusSessionController = require('../controllers/FocusSessionController');
 let listFocusRoom = {
 	"737311735308091423":true,
 	"949245624094687283":true,
 	[CHANNEL_CLOSA_CAFE]:true
 }
+let focusRoomUser = {
+
+}
+
 let closaCafe = {
 
 }
@@ -22,7 +25,7 @@ let closaCafe = {
 let meetup = {}
 module.exports = {
 	name: 'voiceStateUpdate',
-	async execute(oldMember,newMember,focusRoomUser) {
+	async execute(oldMember,newMember) {
 		if(oldMember.member.user.bot) return
 		let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
 		let totalNewMember = newMember.channel? newMember.channel.members.size : 0
@@ -138,11 +141,6 @@ module.exports = {
 						selfVideo : newMember.selfVideo,
 						streaming : newMember.streaming,
 						threadId:data.threadId,
-						totalTime:0,
-						focusTime:0,
-						breakTime:0,
-						breakCounter:0,
-						isFocus:true,
 						status : 'processed',
 						firstTime:true
 					}
@@ -151,16 +149,22 @@ module.exports = {
 					const thread = await channel.threads.fetch(data.threadId);
 					if (newMember.selfVideo || newMember.streaming ){
 						CoworkingController.handleStartCoworkingSession(oldMember.client)
-						const data = await FocusSessionController.getDetailFocusSession(userId)
-						const taskName = data?.taskName
-						const projectName = data.Projects.name
-						thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
-						.then(async msgFocus=>{
-							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId)						
-						})
+						let minute = 0
+						thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
+							.then(msgFocus=>{
+								const timerFocus = setInterval(() => {
+									if (!focusRoomUser[userId]) {
+										msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name,false))
+										clearInterval(timerFocus)
+									}else{
+										minute++
+										msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name))
+									}
+								}, 1000 * 60);
+							})
 						focusRoomUser[userId].firstTime = false
 					}
-					kickUser(userId,newMember.member.user,thread,focusRoomUser)
+					kickUser(userId,newMember.member.user,thread)
 						.then(()=>{
 							newMember.disconnect()
 						})
@@ -178,7 +182,7 @@ module.exports = {
 			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
 				if (focusRoomUser[userId].status !== 'processed' ) {
 					focusRoomUser[userId].status === 'processed'
-					kickUser(userId,newMember.member.user,thread,focusRoomUser)
+					kickUser(userId,newMember.member.user,thread)
 						.then(()=>{		
 							newMember.disconnect()	
 						})
@@ -187,13 +191,19 @@ module.exports = {
 						})
 				}
 			}else if (focusRoomUser[userId].firstTime){
+				let minute = 0
 				CoworkingController.handleStartCoworkingSession(oldMember.client)
-				const data = await FocusSessionController.getDetailFocusSession(userId)
-				const taskName = data?.taskName
-				const projectName = data.Projects.name
-				thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
-					.then(async msgFocus=>{
-						FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId)						
+				thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
+					.then(msgFocus=>{
+						const timerFocus = setInterval(() => {
+							if (!focusRoomUser[userId]) {
+								msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name,false))
+								clearInterval(timerFocus)
+							}else{
+								minute++
+								msgFocus.edit(FocusSessionMessage.messageTimer(minute,thread.name))
+							}
+						}, 1000 * 60);
 					})
 				focusRoomUser[userId].firstTime = false
 			}
@@ -201,28 +211,32 @@ module.exports = {
 			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
 				setTimeout(() => {
 					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
-				}, 1000 * 60);
+				}, 1000 * 5);
 			}
-			const {totalTime,focusTime,breakTime} = focusRoomUser[userId]
-			const data = await FocusSessionController.getDetailFocusSession(userId)
-			const taskName = data?.taskName
-			const projectName = data.Projects.name
-			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime)
-				.then(async response=>{
-					if (totalTime >= 5) {
-						RequestAxios.get('voice/report/'+userId)
-							.then(async data=>{
-								channelSessionLog.send({
-									content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalTime)}**\n:arrow_right: ${taskName}`, 
-									embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
+			delete focusRoomUser[userId]
+			supabase.from('FocusSessions')
+				.select()
+				.eq('UserId',userId)
+				.is('session',null)
+				.single()
+				.then(response=>{
+					const {totalInMinutes} = getGapTime(response.data.createdAt)
+						if (totalInMinutes >= 5) {
+							RequestAxios.get('voice/report/'+userId)
+								.then(async data=>{
+									channelSessionLog.send({
+										content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalInMinutes)}**\n:arrow_right: ${response.data.taskName}`, 
+										embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
+									})
 								})
+						}
+
+						supabase.from("FocusSessions")
+							.update({
+								'session':totalInMinutes
 							})
-					}
-					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
-					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)
-					const msgFocus = await ChannelController.getMessage(channel,msgIdFocusRecap)
-					msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
-					delete focusRoomUser[userId]
+							.eq('id',response.data.id)
+							.then()
 				})
 		}
 
@@ -243,7 +257,7 @@ module.exports = {
 };
 
 
-async function kickUser(userId,user,thread,focusRoomUser) {					
+async function kickUser(userId,user,thread) {					
 	const time = 1000 * 120
 	return new Promise((resolve,reject)=>{
 		setTimeout(() => {
