@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, ROLE_TRIAL_MEMBER, CHANNEL_TODO, CHANNEL_REFLECTION, MY_ID } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE} = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -10,10 +10,10 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
-const { MessageEmbed } = require('discord.js');
 const MemberController = require('./MemberController');
 const BoostMessage = require('../views/BoostMessage');
 const MessageComponent = require('../helpers/MessageComponent');
+const { EmbedBuilder } = require('discord.js');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -1068,7 +1068,7 @@ class PartyController{
 					await threadParty.send({
 						content:`\`\`\`friends that need your support\n...\`\`\``,
 						embeds:[
-							new MessageEmbed()
+							new EmbedBuilder()
 								.setColor('#ffffff')
 								.setDescription(noProgressMembers.join('\n\n'))
 						],
