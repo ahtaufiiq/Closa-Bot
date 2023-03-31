@@ -1,5 +1,8 @@
 const supabase = require("../helpers/supabaseClient")
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const FocusSessionMessage = require("../views/FocusSessionMessage");
+const ChannelController = require("./ChannelController");
+const Time = require("../helpers/time");
 class FocusSessionController {
 
     static showModalAddNewProject(interaction){
@@ -36,6 +39,63 @@ class FocusSessionController {
             })
         }
         return menus
+    }
+
+    static countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId) {
+        focusRoomUser[userId].msgIdFocusRecap = msgFocus.id
+        focusRoomUser[userId].channelIdFocusRecap = msgFocus.channelId
+        const timerFocus = setInterval(async () => {
+            if(!focusRoomUser[userId]) return clearInterval(timerFocus)
+
+            focusRoomUser[userId].totalTime++
+            if(focusRoomUser[userId].isFocus) focusRoomUser[userId].focusTime++
+            else {
+                focusRoomUser[userId].breakCounter--
+                focusRoomUser[userId].breakTime++
+            }
+
+            if(!focusRoomUser[userId].isFocus && focusRoomUser[userId].breakCounter === 0){
+                focusRoomUser[userId].isFocus = true
+                ChannelController.deleteMessage(msgFocus)
+                return clearInterval(timerFocus)
+            }
+    
+            if (!focusRoomUser[userId]) {
+                msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
+                clearInterval(timerFocus)
+            }else{
+                msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
+            }
+        }, 1000 * 5);
+    }
+
+    static async getDetailFocusSession(userId){
+        const data = await supabase.from('FocusSessions')
+        .select('*,Projects(name)')
+        .eq('UserId',userId)
+        .is('session',null)
+        .single()
+
+        return data.body
+    }
+
+    static async updateTime(userId,totalTime,focusTime,breakTime){
+        return await supabase.from("FocusSessions")
+            .update({focusTime,breakTime,session:totalTime,updatedAt:new Date()})
+            .eq('UserId',userId)
+            .is('session',null)
+            .order('createdAt',{ascending:false})
+            .limit(1)
+            .single()
+    }
+
+    static async getAllTodayTasks(userId){
+        const date = new Date(Time.getTodayDateOnly())
+        date.setHours(Time.minus7Hours(date.getHours()))
+        return await supabase.from('FocusSessions')
+            .select('*,Projects(name)')
+            .gte('createdAt',date.toISOString())
+            .eq(userId)
     }
 
 }
