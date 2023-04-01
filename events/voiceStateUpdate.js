@@ -208,11 +208,7 @@ module.exports = {
 				focusRoomUser[userId].firstTime = false
 			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
-			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
-				setTimeout(() => {
-					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
-				}, 1000 * 5);
-			}
+
 			supabase.from('FocusSessions')
 				.select()
 				.eq('UserId',userId)
@@ -220,6 +216,11 @@ module.exports = {
 				.single()
 				.then(response=>{
 					if(response.body){
+						if (totalOldMember === 0) {
+							setTimeout(() => {
+								CoworkingController.handleLastUserLeaveEvent(oldMember.client)
+							}, 1000 * 5);
+						}
 						delete focusRoomUser[userId]
 
 						const {totalInMinutes} = getGapTime(response.data.createdAt)
