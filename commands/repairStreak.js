@@ -9,7 +9,7 @@ module.exports = {
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('streak')
-				.setDescription('create voice channel for all party')
+				.setDescription('repair streak')
 				.addUserOption(option => option.setName('user').setDescription('user')))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
