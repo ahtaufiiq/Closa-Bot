@@ -162,7 +162,7 @@ module.exports = {
 									}
 								}, 1000 * 60);
 							})
-						focusRoomUser[userId].firstTime = false
+						focusRoomUser[userId]?.firstTime = false
 					}
 					kickUser(userId,newMember.member.user,thread)
 						.then(()=>{
@@ -190,7 +190,7 @@ module.exports = {
 							focusRoomUser[userId].status = 'done'
 						})
 				}
-			}else if (focusRoomUser[userId].firstTime){
+			}else if (focusRoomUser[userId]?.firstTime){
 				let minute = 0
 				CoworkingController.handleStartCoworkingSession(oldMember.client)
 				thread.send(FocusSessionMessage.messageTimer(minute,thread.name))
@@ -205,7 +205,7 @@ module.exports = {
 							}
 						}, 1000 * 60);
 					})
-				focusRoomUser[userId].firstTime = false
+				focusRoomUser[userId]?.firstTime = false
 			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] ){
 
