@@ -35,7 +35,7 @@ class BoostController{
 		ruleRemindBoost.minute = 0
 		schedule.scheduleJob(ruleRemindBoost,async function(){
 			if (!Time.isCooldownPeriod()) {
-				const [dataSkipThreeDay,dataSkipTenDay,dataInactiveUser] = Promise.all([
+				const [dataSkipThreeDay,dataSkipTenDay,dataInactiveUser] = await Promise.all([
 					supabase.from("Users")
 						.select()
 						.eq('lastDone',Time.getDateOnly(Time.getNextDate(-4)))

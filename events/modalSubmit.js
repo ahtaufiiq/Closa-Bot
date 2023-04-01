@@ -241,8 +241,8 @@ The correct format:
 			const note = modal.getTextInputValue('note');
 
 			if(!WeeklyReflectionController.isRangeWeeklyReflection()) {
-				await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
-				return ChannelController.deleteMessage(interaction.message)
+				await modal.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+				return ChannelController.deleteMessage(modal.message)
 			}
 			const dataUser = await supabase
 			.from('Users')
@@ -299,8 +299,8 @@ The correct format:
 				if(!metatagImage && linkProject && linkProject.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
 	
 				if(!CelebrationController.isRangeCelebration()) {
-					await interaction.editReply(WeeklyReflectionMessage.replySubmissionClosed())
-					return ChannelController.deleteMessage(interaction.message)
+					await modal.editReply(WeeklyReflectionMessage.replySubmissionClosed())
+					return ChannelController.deleteMessage(modal.message)
 				}
 				const dataUser = await supabase
 				.from('Users')
@@ -444,7 +444,7 @@ The correct format:
 									}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
 										const {id:userId,notificationId} = data;
 										ChannelController.sendToNotification(
-											interaction.client,
+											modal.client,
 											HighlightReminderMessage.highlightReminder(userId),
 											userId,
 											notificationId
