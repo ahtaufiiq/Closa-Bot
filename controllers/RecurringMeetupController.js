@@ -4,12 +4,12 @@ const ChannelController = require("./ChannelController");
 const MemberController = require("./MemberController");
 const schedule = require('node-schedule');
 const Time = require("../helpers/time");
-const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateLink = require("../helpers/GenerateLink");
 const { PermissionFlagsBits, ChannelType } = require("discord.js");
+const MessageFormatting = require("../helpers/MessageFormatting");
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
@@ -35,7 +35,8 @@ class RecurringMeetupController {
 			})
 		}
 		
-		const voiceChannel = await guild.channels.create(channelName,{
+		const voiceChannel = await guild.channels.create({
+			name:channelName,
 			permissionOverwrites,
 			parent:ChannelController.getChannel(client,CHANNEL_WEEKLY_SCYNC_CATEGORY),
 			type:ChannelType.GuildVoice,
