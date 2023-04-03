@@ -4,7 +4,6 @@ const ChannelController = require("./ChannelController");
 const MemberController = require("./MemberController");
 const schedule = require('node-schedule');
 const Time = require("../helpers/time");
-const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
