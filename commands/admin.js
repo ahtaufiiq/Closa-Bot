@@ -19,13 +19,13 @@ module.exports = {
 				.setName('add_to_party')
 				.setDescription('add user to party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
-				.addStringOption(option => option.setName('partyId').setDescription('party number').setRequired(true)))
+				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('remove_from_party')
 				.setDescription('remove user from party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
-				.addStringOption(option => option.setName('partyNumber').setDescription('party number').setRequired(true)))
+				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		const command = interaction.options.getSubcommand()
@@ -33,8 +33,8 @@ module.exports = {
 
 		if(command === 'add_to_party'){
 			const user = interaction.options.getUser('user')
-			const partyNumber = interaction.options.getString('partyNumber')
-			const {body:{goalId}} = await UserController.getDetail(MY_ID,'goalId')
+			const partyNumber = interaction.options.getString('party')
+			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
 			await PartyController.addMemberPartyRoom(interaction.client,goalId,partyNumber,user.id)
 			const dataPartyRooms = await supabase.from("PartyRooms")
 				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -58,8 +58,8 @@ module.exports = {
 			interaction.editReply('success add user to party')
 		}else if(command === 'remove_from_party'){
 			const user = interaction.options.getUser('user')
-			const partyNumber = interaction.options.getString('partyNumber')
-			const {body:{goalId}} = await UserController.getDetail(MY_ID,'goalId')
+			const partyNumber = interaction.options.getString('party')
+			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
 			await PartyController.removeMemberPartyRoom(interaction.client,goalId,partyNumber,user.id)
 			const dataPartyRooms = await supabase.from("PartyRooms")
 				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -67,7 +67,7 @@ module.exports = {
 				.single()
 		
 			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body.msgId)
+			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body?.msgId)
 			ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,dataPartyRooms.body.msgId)
 			threadPartyRoom.send(PartyMessage.userLeaveParty(user.id))
 
