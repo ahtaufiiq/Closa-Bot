@@ -261,6 +261,14 @@ class Time {
         return Math.ceil(Time.getDiffDay(Time.getNextDate(-1,Time.getFirstDateOfYear()),Time.getDate(Time.getTodayDateOnly())) / 7)
     }
 
+    static getGapTime(date,isFormatDate = false) {
+        const todayDateInMinutes = Math.floor(Time.getDate().getTime() / 1000 / 60)
+        const joinedDate = isFormatDate ? date : Time.getDate(date)
+        const joinedDateInMinutes = Math.floor(joinedDate?.getTime() / 1000 / 60)
+        const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
+        return {totalInMinutes:diff}
+    }
+
 }
 
 module.exports = Time
