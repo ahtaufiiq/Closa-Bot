@@ -14,6 +14,7 @@ class ChannelController{
 
     static async updateChannelVisibilityForMember(client,channelId,setVisible){
 		const channel = ChannelController.getChannel(client,channelId)
+        const guild = client.guilds.cache.get(GUILD_ID)
 		const permissionOverwrites = [
 			{
 				id:ROLE_MEMBER,
@@ -22,6 +23,10 @@ class ChannelController{
 			{
 				id:ROLE_NEW_MEMBER,
 				[setVisible ? "allow":"deny"]:[PermissionFlagsBits.ViewChannel]
+			},
+			{
+				id:guild.roles.everyone.id,
+				["deny"]:[PermissionFlagsBits.ViewChannel]
 			},
 		]
 		return await channel.edit({
