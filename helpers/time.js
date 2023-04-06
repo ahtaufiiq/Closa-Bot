@@ -123,13 +123,13 @@ class Time {
         return hour < 0 ? 24 + hour : hour
     }
 
-    static isYesterday(date) {
+    static isYesterday(dateOnly) {
         const todayDate = Time.getDate()
     
         todayDate.setDate(todayDate.getDate()-1)
         const stringDate = todayDate.toISOString().substring(0,10)
         
-        return stringDate === date
+        return stringDate === dateOnly
     }
     
     static getDateOnly(date){
@@ -267,6 +267,10 @@ class Time {
         const joinedDateInMinutes = Math.floor(joinedDate?.getTime() / 1000 / 60)
         const diff = Math.floor(todayDateInMinutes - joinedDateInMinutes)
         return {totalInMinutes:diff}
+    }
+
+    static isValidCoworkingStreak(lastCoworking,startCoworkingDate){
+        return Time.getDateOnly(Time.getNextDate(-1,startCoworkingDate)) === lastCoworking || lastCoworking === startCoworkingDate || lastCoworking === Time.getTodayDateOnly()
     }
 
 }

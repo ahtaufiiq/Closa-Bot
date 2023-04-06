@@ -98,6 +98,92 @@ class FocusSessionController {
             .eq(userId)
     }
 
+    static async startCoworkingPartner(userId){
+        supabase.from("FocusSessions")
+            .select()
+            .is('session',null)
+            .neq('UserId',userId)
+            .then(async data => {
+                for (let i = 0; i < data.body.length; i++) {
+                    const {UserId} = data.body[i];
+                    const id = FocusSessionController.getFormatIdCoworkingPartner(userId,UserId)
+
+                    await supabase.from('CoworkingPartners')
+                        .upsert({
+                            id,currentTime:null,currentSession:2,updatedAt:Time.getDate()
+                        })
+                }
+            })
+    }
+
+    static async updateCoworkingPartner(userId){
+        supabase.from("CoworkingPartners")
+            .select()
+            .like('id',`%${userId}%`)
+            .gt('currentSession',0)
+            .then(data => {
+                for (let i = 0; i < data.body.length; i++) {
+                    const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
+                    const date = Time.getDate(updatedAt)
+                    const dateOnly = Time.getDateOnly(date)
+                    if(currentSession === 2){
+                        let coworkingStreak
+                        if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
+                            coworkingStreak = currentStreak + 1
+                        }else{
+                            coworkingStreak = 1
+                        }
+                        const totalTimeCoworking = Time.getGapTime(date).totalInMinutes
+                        const value = {
+                            currentTime : totalTimeCoworking,
+                            totalTime: totalTime + totalTimeCoworking,
+                            lastCoworking: Time.getTodayDateOnly(),
+                            currentStreak: coworkingStreak,
+                            currentSession: 1
+                        }
+                        
+                        if(coworkingStreak > longestStreak){
+                            value.longestStreak = coworkingStreak
+                            value.endLongestStreak = Time.getTodayDateOnly()
+                        }
+
+                        supabase.from("CoworkingPartners")
+                            .update(value)
+                            .eq('id',id)
+                            .then()
+                    }else{
+                        supabase.from("CoworkingPartners")
+                            .update({
+                                currentSession:0
+                            })
+                            .eq('id',id)
+                            .then()
+                    }
+
+                }
+            })
+    }
+
+    static async getAllCoworkingPartners(userId){
+        return await supabase.from('CoworkingPartners')
+            .select()
+            .gte('lastCoworking',Time.getDateOnly(Time.getNextDate(-1)))
+            .like('id',`%${userId}%`)
+            .order('currentStreak',{ascending:false})
+    }
+
+    static async getAllDataDailySummary(userId){
+        //butuh streak dan avatar url
+        const coworkingPartner = await FocusSessionController.getAllCoworkingPartners(userId)
+        
+
+    }
+
+    static getFormatIdCoworkingPartner(user1,user2) {
+        if(user1 > user2) return `${user1}_${user2}`
+        else return `${user2}_${user1}`
+    }
+
 }
 
 module.exports = FocusSessionController
