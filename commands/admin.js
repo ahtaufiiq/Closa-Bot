@@ -16,19 +16,19 @@ module.exports = {
 		.setDescription('Admin Access')
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('add_to_party')
+				.setName('party__add_user')
 				.setDescription('add user to party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
 				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('remove_from_thread')
+				.setName('thread__remove_user')
 				.setDescription('remove user from thread')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
 				.addStringOption(option => option.setName('link').setDescription("Message Link").setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('remove_from_party')
+				.setName('party__remove_user')
 				.setDescription('remove user from party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
@@ -36,7 +36,7 @@ module.exports = {
 		const command = interaction.options.getSubcommand()
 		await interaction.deferReply({ephemeral:true});
 		
-		if(command === 'add_to_party'){
+		if(command === 'party__add_user'){
 			const user = interaction.options.getUser('user')
 			const partyNumber = interaction.options.getString('party')
 			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
@@ -61,7 +61,7 @@ module.exports = {
 			PartyController.followGoalAccountabilityPartner(interaction.client,partyNumber,user.id,goalId)
 	
 			interaction.editReply('success add user to party')
-		}else if(command === 'remove_from_party'){
+		}else if(command === 'party__remove_user'){
 			const user = interaction.options.getUser('user')
 			const memberPartyRooms = await supabase.from("MemberPartyRooms")
 				.select("partyId,PartyRooms(msgId),Users(goalId)")
@@ -86,7 +86,7 @@ module.exports = {
 				interaction.editReply('failed remove user from party')
 			}
 		
-		}else if(command === 'remove_from_thread'){
+		}else if(command === 'thread__remove_user'){
 			const user = interaction.options.getUser('user')
 			const messageLink = interaction.options.getString('link')
 			const channelId= messageLink.split('/')[5]
