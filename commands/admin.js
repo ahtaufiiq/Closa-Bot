@@ -30,13 +30,12 @@ module.exports = {
 			subcommand
 				.setName('remove_from_party')
 				.setDescription('remove user from party')
-				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
-				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		const command = interaction.options.getSubcommand()
 		await interaction.deferReply({ephemeral:true});
-
+		
 		if(command === 'add_to_party'){
 			const user = interaction.options.getUser('user')
 			const partyNumber = interaction.options.getString('party')
@@ -64,24 +63,29 @@ module.exports = {
 			interaction.editReply('success add user to party')
 		}else if(command === 'remove_from_party'){
 			const user = interaction.options.getUser('user')
-			const partyNumber = interaction.options.getString('party')
-			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
-			await PartyController.removeMemberPartyRoom(interaction.client,goalId,partyNumber,user.id)
-			const dataPartyRooms = await supabase.from("PartyRooms")
-				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
-				.eq('id',partyNumber)
+			const memberPartyRooms = await supabase.from("MemberPartyRooms")
+				.select("partyId,PartyRooms(msgId),Users(goalId)")
+				.limit(1)
+				.eq("UserId",user.id)
+				.order('endPartyDate',{ascending:false})
 				.single()
+			if(memberPartyRooms.body){
+				const {partyId,PartyRooms:{msgId},Users:{goalId}} = memberPartyRooms.body
+				await PartyController.removeMemberPartyRoom(interaction.client,goalId,partyId,user.id)
+				const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
+				const threadPartyRoom = await ChannelController.getThread(channelParty,msgId)
+				ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,msgId)
+				threadPartyRoom.send(PartyMessage.userLeaveParty(user.id))
+				ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,msgId)
+				PartyController.updateMessagePartyRoom(interaction.client,msgId,partyId)
+			
+				PartyController.unfollowGoalAccountabilityPartner(interaction.client,partyId,user.id,goalId)
 		
-			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body?.msgId)
-			ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,dataPartyRooms.body.msgId)
-			threadPartyRoom.send(PartyMessage.userLeaveParty(user.id))
-			ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,dataPartyRooms.body.msgId)
-			PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,partyNumber)
+				interaction.editReply('success remove user from party')
+			}else{
+				interaction.editReply('failed remove user from party')
+			}
 		
-			PartyController.unfollowGoalAccountabilityPartner(interaction.client,partyNumber,user.id,goalId)
-	
-			interaction.editReply('success remove user from party')
 		}else if(command === 'remove_from_thread'){
 			const user = interaction.options.getUser('user')
 			const messageLink = interaction.options.getString('link')
@@ -89,7 +93,7 @@ module.exports = {
 			const threadId= messageLink.split('/')[6]
 
 			if(channelId && threadId){
-				ChannelController.removeUserFromThread(interaction.client,channelId,threadId)
+				ChannelController.removeUserFromThread(interaction.client,channelId,threadId,user.id)
 				interaction.editReply('success remove user from thread')
 			}else{
 				interaction.editReply('failed remove user from thread')
