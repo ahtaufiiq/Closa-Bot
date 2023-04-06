@@ -22,6 +22,12 @@ module.exports = {
 				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('remove_from_thread')
+				.setDescription('remove user from thread')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
+				.addStringOption(option => option.setName('link').setDescription("Message Link").setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('remove_from_party')
 				.setDescription('remove user from party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
@@ -70,12 +76,24 @@ module.exports = {
 			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body?.msgId)
 			ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,dataPartyRooms.body.msgId)
 			threadPartyRoom.send(PartyMessage.userLeaveParty(user.id))
-
+			ChannelController.removeUserFromThread(interaction.client,CHANNEL_PARTY_ROOM,dataPartyRooms.body.msgId)
 			PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,partyNumber)
 		
 			PartyController.unfollowGoalAccountabilityPartner(interaction.client,partyNumber,user.id,goalId)
 	
 			interaction.editReply('success remove user from party')
+		}else if(command === 'remove_from_thread'){
+			const user = interaction.options.getUser('user')
+			const messageLink = interaction.options.getString('link')
+			const channelId= messageLink.split('/')[5]
+			const threadId= messageLink.split('/')[6]
+
+			if(channelId && threadId){
+				ChannelController.removeUserFromThread(interaction.client,channelId,threadId)
+				interaction.editReply('success remove user from thread')
+			}else{
+				interaction.editReply('failed remove user from thread')
+			}
 		}
 		
 	},
