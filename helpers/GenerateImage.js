@@ -290,7 +290,7 @@ class GenerateImage{
         for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
             totalTime += Number(task.totalTime)
-            totalFocusTime += Number(task.totalFocusTime)
+            totalFocusTime += Number(task.focusTime)
         }
 
         let totalProjectTime = 0
