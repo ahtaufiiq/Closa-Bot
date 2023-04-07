@@ -199,15 +199,6 @@ class FocusSessionController {
         ])
 
         const dailyWorkTime = dataUser.body?.dailyWorkTime
-        let totalWork = 0
-        let totalFocusTime = 0
-        let totalBreakTime = 0
-        for (let i = 0; i < tasks.length; i++) {
-            const task = tasks[i];
-            totalWork += +task.totalTime
-            totalFocusTime += +task.focusTime
-            totalBreakTime += +task.breakTime
-        }
         const coworkingPartner = []
 
         for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
@@ -221,7 +212,7 @@ class FocusSessionController {
         }
 
         return {
-            dailyWorkTime,totalWork,totalFocusTime,totalBreakTime,tasks,projectThisWeek,coworkingPartner
+            dailyWorkTime,tasks,projectThisWeek,coworkingPartner
         }
 
     }

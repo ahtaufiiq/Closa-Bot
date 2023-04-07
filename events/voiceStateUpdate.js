@@ -214,22 +214,19 @@ module.exports = {
 				.then(async response=>{
 					if (totalTime >= 5) {
 						await FocusSessionController.updateCoworkingPartner(userId)
-						const {coworkingPartner,dailyWorkTime,projectThisWeek,tasks,totalFocusTime,totalWork} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const {coworkingPartner,dailyWorkTime,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
 							coworkingFriends:coworkingPartner,
 							dailyWorkTime,
 							projects:projectThisWeek,
-							tasks,
-							totalFocus:totalFocusTime,
-							totalWork
-
+							tasks
 						})
 
 						const attachment = new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})
 						channelSessionLog.send({
-							content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalTime)}**\n:arrow_right: ${taskName}`, 
+							content:`Here's your recap ${newMember.member.user}`, 
 							files:[
 								attachment
 							]

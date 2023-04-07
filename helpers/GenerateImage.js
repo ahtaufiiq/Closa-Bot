@@ -253,8 +253,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({user,dailyWorkTime,totalWork,totalFocus,tasks,projects,coworkingFriends}){
-
+    static async dailySummary({user,dailyWorkTime,tasks,projects,coworkingFriends}){
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
             let maxLength = 350
@@ -280,10 +279,24 @@ class GenerateImage{
               ctx.stroke()
             }
             ctx.closePath()
-          }
+        }
+
         registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
         registerFont('./assets/fonts/Archivo-Medium.ttf',{family:'Archivo',weight:500})
         registerFont('./assets/fonts/Archivo-Regular.ttf',{family:'Archivo',weight:400})
+
+        let totalTime = 0
+        let totalFocusTime = 0
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            totalTime += Number(task.totalTime)
+            totalFocusTime += Number(task.totalFocusTime)
+        }
+
+        let totalProjectTime = 0
+        projects.forEach(project=>{
+            totalProjectTime += Number(project.totalTime)
+        })
 
         // import image
         const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
@@ -314,12 +327,12 @@ class GenerateImage{
 
 
         //--- Work Hours ----//
-        const percentageWorkHours = totalWork > dailyWorkTime ? 100 : Math.round(totalWork/dailyWorkTime*100)
+        const percentageWorkHours = totalTime > dailyWorkTime ? 100 : Math.round(totalTime/dailyWorkTime*100)
         drawProgressBar(context,164,157,percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
         context.font = "600 48px Archivo";
-        context.fillText(Time.convertTime(totalWork,'short',true), 34 , 236);
+        context.fillText(Time.convertTime(totalTime,'short',true), 34 , 236);
 
         context.fillStyle = "#31373D"; 
         context.font = "600 24px Archivo";
@@ -331,8 +344,8 @@ class GenerateImage{
 
 
         //--- Breakdown ----//
-        const totalBreak = totalWork - totalFocus
-        const percentageFocus = Math.round(totalFocus/totalWork* 100) 
+        const totalBreak = totalTime - totalFocusTime
+        const percentageFocus = Math.round(totalFocusTime/totalTime* 100) 
         const percentageBreak = 100 - percentageFocus
         drawProgressBar(context,163,288.8,percentageFocus)
 
@@ -351,7 +364,7 @@ class GenerateImage{
         context.textAlign = 'left'
         context.fillStyle = "#31373D"; 
         context.font = "600 22px Archivo";
-        context.fillText(Time.convertTime(totalFocus,'short',true), 147 , 395);
+        context.fillText(Time.convertTime(totalFocusTime,'short',true), 147 , 395);
         
         context.fillStyle = "#31373D"; 
         context.font = "600 22px Archivo";
@@ -359,16 +372,12 @@ class GenerateImage{
 
 
         //--- Tasks ----//
-        let totalTaskTime = 0
-        tasks.forEach(task=>{
-            totalTaskTime += task.totalTime
-        })
 
         let koordinatTask = 535
         let koordinatProgressTask = 527.3
         for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
-            const percentage = Math.round(task.totalTime / totalTaskTime * 100) 
+            const percentage = Math.round(+task.totalTime / totalTime * 100) 
             context.fillStyle = "#31373D"; 
             context.font = "400 20px Archivo";
             context.fillText(`${percentage}%`, 35 , koordinatTask);
@@ -380,7 +389,7 @@ class GenerateImage{
             context.fillStyle = "#888888"; 
             context.font = "400 20px Archivo";
             context.textAlign = 'right'
-            context.fillText(Time.convertTime(task.totalTime,'short',true), 510 , koordinatTask);
+            context.fillText(Time.convertTime(+task.totalTime,'short',true), 510 , koordinatTask);
             context.textAlign = 'left'
 
     
@@ -396,10 +405,7 @@ class GenerateImage{
 
 
         //--- Top Projects ----//
-        let totalProjectTime = 0
-        projects.forEach(project=>{
-            totalProjectTime += project.totalTime
-        })
+
 
         let koordinatProject = 736
         let koordinatProgressProject = 729
@@ -407,7 +413,7 @@ class GenerateImage{
         // Project 1
         for (let i = 0; i < projects.length; i++) {
             const project = projects[i];
-            const percentage = Math.round(project.totalTime / totalProjectTime * 100) 
+            const percentage = Math.round(+project.totalTime / totalProjectTime * 100) 
 
             context.fillStyle = "#31373D"; 
             context.font = "400 20px Archivo";
@@ -420,7 +426,7 @@ class GenerateImage{
             context.fillStyle = "#888888"; 
             context.font = "400 20px Archivo";
             context.textAlign = 'right'
-            context.fillText(Time.convertTime(project.totalTime,'short',true), 510 , koordinatProject);
+            context.fillText(Time.convertTime(+project.totalTime,'short',true), 510 , koordinatProject);
             context.textAlign = 'left'
             drawProgressBar(context,267.8,koordinatProgressProject,percentage,'short')
             koordinatProject += 40.2
