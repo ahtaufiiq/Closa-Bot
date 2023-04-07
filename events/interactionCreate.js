@@ -92,13 +92,13 @@ module.exports = {
 												FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
 												ChannelController.deleteMessage(msg)
 											})
-									}, 1000 * 5);
+									}, 1000 * 60);
 									ChannelController.deleteMessage(replyBreakFiveMinute)
 								})
 						}else{
 							interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
 						}
-					}, 1000 * 5);
+					}, 1000 * 60);
 					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreakFiveMinute.id
 					focusRoomUser[targetUserId].isFocus = false
 					focusRoomUser[targetUserId].breakCounter = 5
@@ -520,17 +520,8 @@ module.exports = {
 						.update({dailyWorkTime:min})
 						.eq('id',interaction.user.id)
 					interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-					await supabase.from('FocusSessions')
-						.delete()
-						.eq('UserId',interaction.user.id)
-						.is('session',null)
-					await supabase.from('FocusSessions')
-						.insert({
-							UserId:interaction.user.id,
-							threadId:interaction.channelId,
-							taskName: taskName,
-							ProjectId:projectId
-						})
+					FocusSessionController.insertFocusSession(interaction.user.id,taskName,projectId,interaction.channelId)
+
 					await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
 					ChannelController.deleteMessage(interaction.message)
 					break;
@@ -539,18 +530,8 @@ module.exports = {
 					await interaction.deferReply();
 					const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 					if (dataUser.body?.dailyWorkTime) {
-						await supabase.from('FocusSessions')
-						.delete()
-						.eq('UserId',interaction.user.id)
-						.is('session',null)
+						FocusSessionController.insertFocusSession(interaction.user.id,value,valueMenu,interaction.channelId)
 
-						await supabase.from('FocusSessions')
-							.insert({
-								UserId:interaction.user.id,
-								threadId:interaction.channelId,
-								taskName: value,
-								ProjectId:valueMenu
-						})
 						await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
 					}else{
 						await interaction.editReply(

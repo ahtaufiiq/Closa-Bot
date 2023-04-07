@@ -3,6 +3,10 @@ const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Defin
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const ChannelController = require("./ChannelController");
 const Time = require("../helpers/time");
+const RequestAxios = require("../helpers/axios");
+const UserController = require("./UserController");
+const MemberController = require("./MemberController");
+const InfoUser = require("../helpers/InfoUser");
 class FocusSessionController {
 
     static showModalAddNewProject(interaction){
@@ -66,7 +70,19 @@ class FocusSessionController {
             }else{
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
-        }, 1000 * 5);
+        }, 1000 * 60);
+    }
+
+    static async insertFocusSession(UserId,taskName,ProjectId,threadId){
+        await supabase.from('FocusSessions')
+        .delete()
+        .eq('UserId',UserId)
+        .is('session',null)
+
+        await supabase.from('FocusSessions')
+            .insert({
+                threadId,taskName,ProjectId,UserId,
+             })
     }
 
     static async getDetailFocusSession(userId){
@@ -98,7 +114,7 @@ class FocusSessionController {
             .eq(userId)
     }
 
-    static async startCoworkingPartner(userId){
+    static async setCoworkingPartner(userId){
         supabase.from("FocusSessions")
             .select()
             .is('session',null)
@@ -129,7 +145,8 @@ class FocusSessionController {
                     if(currentSession === 2){
                         let coworkingStreak
                         if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
-                            coworkingStreak = currentStreak + 1
+                            if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
+                            else coworkingStreak = currentStreak
                         }else{
                             coworkingStreak = 1
                         }
@@ -170,13 +187,49 @@ class FocusSessionController {
             .gte('lastCoworking',Time.getDateOnly(Time.getNextDate(-1)))
             .like('id',`%${userId}%`)
             .order('currentStreak',{ascending:false})
+            .limit(5)
     }
 
-    static async getAllDataDailySummary(userId){
-        //butuh streak dan avatar url
-        const coworkingPartner = await FocusSessionController.getAllCoworkingPartners(userId)
-        
+    static async getRecapFocusSession(client,userId){
+        const [dataCoworkingPartner, tasks, projectThisWeek,dataUser] = await Promise.all([
+            FocusSessionController.getAllCoworkingPartners(userId),
+            RequestAxios.get('voice/dailySummary/'+userId),
+            RequestAxios.get('voice/weeklyProject/'+userId),
+            UserController.getDetail(userId,'dailyWorkTime')
+        ])
 
+        const dailyWorkTime = dataUser.body?.dailyWorkTime
+        let totalWork = 0
+        let totalFocusTime = 0
+        let totalBreakTime = 0
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            totalWork += +task.totalTime
+            totalFocusTime += +task.focusTime
+            totalBreakTime += +task.breakTime
+        }
+        const coworkingPartner = []
+
+        for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
+            const partner = dataCoworkingPartner.body[i];
+            const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
+            const {user} = await MemberController.getMember(client,idPartner)
+            coworkingPartner.push({
+                avatar:InfoUser.getAvatar(user),
+                streak: partner.currentStreak
+            })
+        }
+
+        return {
+            dailyWorkTime,totalWork,totalFocusTime,totalBreakTime,tasks,projectThisWeek,coworkingPartner
+        }
+
+    }
+
+    static getIdCoworkingPartner(userId,idTable){
+        const data = idTable.split('_')
+        if(data[0] === userId) return data[1]
+        else return data[0]
     }
 
     static getFormatIdCoworkingPartner(user1,user2) {

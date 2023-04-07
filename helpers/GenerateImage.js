@@ -253,7 +253,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({user,dailyGoal,totalWork,totalFocus,tasks,projects,coworkingFriends}){
+    static async dailySummary({user,dailyWorkTime,totalWork,totalFocus,tasks,projects,coworkingFriends}){
 
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
@@ -291,8 +291,7 @@ class GenerateImage{
         const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
         const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
         const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
-        const photoUser = await loadImage('./assets/images/avatar.jpeg')
-        // const photoUser = await loadImage(InfoUser.getAvatar(user))
+        const photoUser = await loadImage(InfoUser.getAvatar(user))
         const canvas = createCanvas(545,965)
         const context = canvas.getContext('2d')
         context.drawImage(template,0,0)
@@ -315,7 +314,7 @@ class GenerateImage{
 
 
         //--- Work Hours ----//
-        const percentageWorkHours = totalWork > dailyGoal ? 100 : Math.round(totalWork/dailyGoal*100)
+        const percentageWorkHours = totalWork > dailyWorkTime ? 100 : Math.round(totalWork/dailyWorkTime*100)
         drawProgressBar(context,164,157,percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
@@ -328,7 +327,7 @@ class GenerateImage{
 
         context.fillStyle = "#888888"; 
         context.font = "400 20px Archivo";
-        context.fillText(`of ${Time.convertTime(dailyGoal,'short',true)}`, 395.7 , 236.5);
+        context.fillText(`of ${Time.convertTime(dailyWorkTime,'short',true)}`, 395.7 , 236.5);
 
 
         //--- Breakdown ----//
@@ -376,7 +375,7 @@ class GenerateImage{
             
             context.fillStyle = "#31373D"; 
             context.font = "400 20px Archivo";
-            context.fillText(FormatString.capitalizeWords(task.name), 94.5 , koordinatTask);
+            context.fillText(FormatString.capitalizeWords(task.taskName), 94.5 , koordinatTask);
     
             context.fillStyle = "#888888"; 
             context.font = "400 20px Archivo";

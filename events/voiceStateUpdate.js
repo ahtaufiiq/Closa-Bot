@@ -10,6 +10,8 @@ const ChannelController = require('../controllers/ChannelController');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('../controllers/RecurringMeetupController');
 const FocusSessionController = require('../controllers/FocusSessionController');
+const GenerateImage = require('../helpers/GenerateImage');
+const { AttachmentBuilder } = require('discord.js');
 let listFocusRoom = {
 	"737311735308091423":true,
 	"949245624094687283":true,
@@ -53,9 +55,9 @@ module.exports = {
 						const channelParty = ChannelController.getChannel(newMember.client,CHANNEL_PARTY_ROOM)
 						const threadParty = await ChannelController.getThread(channelParty,data.body.msgId)
 						const dataParty = await supabase.from("PartyRooms")
-						.select()
-						.eq('id',partyId)
-						.single()
+							.select()
+							.eq('id',partyId)
+							.single()
 						const voiceChannelId = dataParty.body.voiceChannelId
 						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
 						let totalExtendTime = 0
@@ -146,6 +148,7 @@ module.exports = {
 						status : 'processed',
 						firstTime:true
 					}
+					FocusSessionController.setCoworkingPartner(userId)
 					
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 					const thread = await channel.threads.fetch(data.threadId);
@@ -210,13 +213,27 @@ module.exports = {
 			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime)
 				.then(async response=>{
 					if (totalTime >= 5) {
-						RequestAxios.get('voice/report/'+userId)
-							.then(async data=>{
-								channelSessionLog.send({
-									content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalTime)}**\n:arrow_right: ${taskName}`, 
-									embeds:[FocusSessionMessage.report(oldMember.member.user,data)]
-								})
-							})
+						await FocusSessionController.updateCoworkingPartner(userId)
+						const {coworkingPartner,dailyWorkTime,projectThisWeek,tasks,totalFocusTime,totalWork} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						
+						const buffer = await GenerateImage.dailySummary({
+							user:newMember.member.user,
+							coworkingFriends:coworkingPartner,
+							dailyWorkTime,
+							projects:projectThisWeek,
+							tasks,
+							totalFocus:totalFocusTime,
+							totalWork
+
+						})
+
+						const attachment = new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})
+						channelSessionLog.send({
+							content:`${newMember.member.user} just done focus session for **${Time.convertTime(totalTime)}**\n:arrow_right: ${taskName}`, 
+							files:[
+								attachment
+							]
+						})
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)
