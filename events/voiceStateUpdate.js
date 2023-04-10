@@ -12,6 +12,7 @@ const RecurringMeetupController = require('../controllers/RecurringMeetupControl
 const FocusSessionController = require('../controllers/FocusSessionController');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
+const UserController = require('../controllers/UserController');
 let listFocusRoom = {
 	"737311735308091423":true,
 	"949245624094687283":true,
@@ -117,13 +118,13 @@ module.exports = {
 			.eq('id',userId)
 			.then()
 		}
-
+		
 		if(oldMember.channel === null){
 			closaCafe[userId] = Time.getDate()
 		}else if (newMember.channel === null) {
 			const {totalInMinutes}= Time.getGapTime(closaCafe[userId],true)
 			await DailyReport.activeMember(oldMember.client,userId)
-			if(totalInMinutes >= 20) PointController.addPoint(userId,'cafe',totalInMinutes)
+			if(totalInMinutes >= 20 && !focusRoomUser[userId]) PointController.addPoint(userId,'cafe',totalInMinutes)
 
 			delete closaCafe[userId]
 		}
@@ -136,7 +137,12 @@ module.exports = {
 				.single()
 				.then(async ({data})=>{
 				if (data) {
+					const dataUser = await UserController.getDetail(userId,'dailyWorkTime')
+					const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
+					const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 					focusRoomUser[userId] = {
+						totalTimeToday,
+						dailyWorkTime,
 						selfVideo : newMember.selfVideo,
 						streaming : newMember.streaming,
 						threadId:data.threadId,
@@ -146,13 +152,14 @@ module.exports = {
 						breakCounter:0,
 						isFocus:true,
 						status : 'processed',
-						firstTime:true
+						firstTime:true,
 					}
 					FocusSessionController.setCoworkingPartner(userId)
 					
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 					const thread = await channel.threads.fetch(data.threadId);
 					if (newMember.selfVideo || newMember.streaming ){
+						
 						CoworkingController.handleStartCoworkingSession(oldMember.client)
 						const data = await FocusSessionController.getDetailFocusSession(userId)
 						const taskName = data?.taskName
@@ -210,11 +217,14 @@ module.exports = {
 			const data = await FocusSessionController.getDetailFocusSession(userId)
 			const taskName = data?.taskName
 			const projectName = data.Projects.name
-			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime)
+			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
 				.then(async response=>{
 					if (totalTime >= 5) {
 						await FocusSessionController.updateCoworkingPartner(userId)
-						const {coworkingPartner,dailyWorkTime,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const incrementVibePoint = PointController.calculatePoint('cafe',totalTime)
+						await UserController.incrementTotalPoints(incrementVibePoint,userId)
+						if(totalTime >= 20) PointController.addPoint(userId,'cafe',totalTime)
+						const {coworkingPartner,dailyWorkTime,totalPoint,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
@@ -229,6 +239,9 @@ module.exports = {
 							content:`Here's your recap ${newMember.member.user}`, 
 							files:[
 								attachment
+							],
+							embeds:[
+								FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,newMember.member.user)
 							]
 						})
 					}

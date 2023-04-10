@@ -17,7 +17,7 @@ class FormatString {
     }
 
     static capitalizeWords(str) {
-        return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        return str.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 }
 

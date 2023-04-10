@@ -4,6 +4,7 @@ const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
+const UserController = require("../controllers/UserController")
 
 class FocusSessionMessage{
 
@@ -72,14 +73,23 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
     }
 
     static startFocusSession(author){
-        
-        return `**Hi ${author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
-if you already inside closa cafe please __disconnect & rejoin.__
+        return `**Hi ${author}, to start your co-working session follow the steps: **
 
-\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`
+1. Join → <#${CHANNEL_CLOSA_CAFE}>
+2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
+3. Mute your mic during focus time.
+
+**Having a trouble? try one of these:**
+\`\`\`
+• Make sure you write #session-goals first before join voice channel or turn-on video.
+• or Try to turn-off then turn-on your video 
+• or turn-off then turn-on sharescreen.
+• or disconnect > join the voice channel > turn-on video or sharescreen.
+\`\`\``
+
     }
 
-    static messageTimer({focusTime,breakTime,totalTime,isFocus},taskName,projectName,userId,isLive=true){
+    static messageTimer({focusTime,breakTime,totalTime,isFocus,dailyWorkTime,totalTimeToday},taskName,projectName,userId,isLive=true){
         const components = []
         if(isLive){
             components.push(MessageComponent.createComponent(
@@ -89,10 +99,10 @@ if you already inside closa cafe please __disconnect & rejoin.__
         }
         return {
             content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
-💻 Work: \`\`${Time.convertTime(totalTime)}\`\` in total
-⏲️ Focus: \`\`${Time.convertTime(focusTime)}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
-☕ Breaks: \`\`${Time.convertTime(breakTime)}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
-🎯 Goal: \`\`0%\`\` from \`\`5h\`\` daily work time goal
+💻 Work: \`\`${Time.convertTime(totalTime,'short')}\`\` in total
+⏲️ Focus: \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
+☕ Breaks: \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
+🎯 Goal: \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily work time goal
 
 \`\`\`
 Project: ${projectName}
@@ -120,7 +130,7 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
             ))
         }
         components.push(MessageComponent.createComponent(
-            MessageComponent.addButton(`addNewProject_${userId}`,"Add new project +").setEmoji('✨')
+            MessageComponent.addButton(`addNewProject_${userId}_${taskName}`,"Add new project +").setEmoji('✨')
         ))
         return {
             content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
@@ -176,11 +186,24 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
     }
 
     static messageBreakTime(time,userId){
-        return `Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time)}** — **LIVE :red_circle:**`
+        return `Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`
     }
 
     static reminderEndedBreak(userId){
         return `**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`
+    }
+
+    static reachedDailyWorkTime(dailyWorkTime,userId){
+        return `You reached ${Time.convertTime(dailyWorkTime)} of work today ${MessageFormatting.tagUser(userId)}
+Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TODO)}.`
+    }
+
+    static embedPointReward(increment,totalPoint,user){
+        return new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setDescription(`Total points: ${totalPoint} (+${increment}) :coin:`)
+                .setAuthor({name:`+${increment} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif "})
+                .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
 }
 

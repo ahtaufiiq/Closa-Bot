@@ -51,6 +51,10 @@ class FocusSessionController {
         const timerFocus = setInterval(async () => {
             if(!focusRoomUser[userId]) return clearInterval(timerFocus)
 
+            if(FocusSessionController.isReachedDailyWorkTime(focusRoomUser[userId])){
+                msgFocus.channel.send(FocusSessionMessage.reachedDailyWorkTime(focusRoomUser[userId].dailyWorkTime,userId))
+            }
+
             focusRoomUser[userId].totalTime++
             if(focusRoomUser[userId].isFocus) focusRoomUser[userId].focusTime++
             else {
@@ -71,6 +75,10 @@ class FocusSessionController {
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
         }, 1000 * 60);
+    }
+
+    static isReachedDailyWorkTime({totalTime,totalTimeToday,dailyWorkTime}){
+        return (totalTime + totalTimeToday) === dailyWorkTime
     }
 
     static async insertFocusSession(UserId,taskName,ProjectId,threadId){
@@ -95,7 +103,9 @@ class FocusSessionController {
         return data.body
     }
 
-    static async updateTime(userId,totalTime,focusTime,breakTime){
+    static async updateTime(userId,totalTime,focusTime,breakTime,projectName){
+        supabase.rpc('incrementTotalTimeProject',{x:totalTime,row_id:userId,project_name:projectName})
+            .then()
         return await supabase.from("FocusSessions")
             .update({focusTime,breakTime,session:totalTime,updatedAt:new Date()})
             .eq('UserId',userId)
@@ -143,14 +153,16 @@ class FocusSessionController {
                     const date = Time.getDate(updatedAt)
                     const dateOnly = Time.getDateOnly(date)
                     if(currentSession === 2){
-                        let coworkingStreak
-                        if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
-                            if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
-                            else coworkingStreak = currentStreak
-                        }else{
-                            coworkingStreak = 1
-                        }
                         const totalTimeCoworking = Time.getGapTime(date).totalInMinutes
+                        if(totalTimeCoworking >= 5){
+                            let coworkingStreak
+                            if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
+                                if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
+                                else coworkingStreak = currentStreak
+                            }else{
+                                coworkingStreak = 1
+                            }
+                        }
                         const value = {
                             currentTime : totalTimeCoworking,
                             totalTime: totalTime + totalTimeCoworking,
@@ -195,10 +207,10 @@ class FocusSessionController {
             FocusSessionController.getAllCoworkingPartners(userId),
             RequestAxios.get('voice/dailySummary/'+userId),
             RequestAxios.get('voice/weeklyProject/'+userId),
-            UserController.getDetail(userId,'dailyWorkTime')
+            UserController.getDetail(userId,'dailyWorkTime,totalPoint')
         ])
 
-        const dailyWorkTime = dataUser.body?.dailyWorkTime
+        const {dailyWorkTime,totalPoint} = dataUser.body
         const coworkingPartner = []
 
         for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
@@ -212,7 +224,7 @@ class FocusSessionController {
         }
 
         return {
-            dailyWorkTime,tasks,projectThisWeek,coworkingPartner
+            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner
         }
 
     }
@@ -228,6 +240,16 @@ class FocusSessionController {
         else return `${user2}_${user1}`
     }
 
+    static async getTotalTaskTimeToday(userId){
+        const data = await RequestAxios.get('voice/dailySummary/'+userId)
+        let totalTime = 0
+        for (let i = 0; i < data.length; i++) {
+            const el = data[i];
+            totalTime += Number(el.totalTime)
+        }
+
+        return totalTime
+    }
 }
 
 module.exports = FocusSessionController

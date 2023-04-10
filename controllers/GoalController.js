@@ -11,6 +11,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const GoalMessage = require('../views/GoalMessage');
 const PartyController = require('./PartyController');
 const PointController = require('./PointController');
+const FormatString = require('../helpers/formatString');
 
 class GoalController {
 
@@ -146,6 +147,20 @@ class GoalController {
 		if (updatedData.body) {
 			GoalController.updateGoal(client,updatedData.body,0)
 		}
+
+		supabase.from("Projects")
+			.select()
+			.eq('UserId',user.id)
+			.eq('name',FormatString.capitalizeWords(project))
+			.limit(1)
+			.single()
+			.then(data=>{
+				if (!data.body) {
+					supabase.from("Projects")
+						.insert({name:FormatString.capitalizeWords(project),UserId:user.id})
+						.then()
+				}
+			})
 
 		ChannelController.createThread(msg,project,user.username)
 		supabase.from('Users')

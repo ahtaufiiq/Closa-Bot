@@ -101,7 +101,7 @@ module.exports = {
 					}, 1000 * 60);
 					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreakFiveMinute.id
 					focusRoomUser[targetUserId].isFocus = false
-					focusRoomUser[targetUserId].breakCounter = 5
+					focusRoomUser[targetUserId].breakCounter = commandButton === 'breakFiveMinute' ? 5 : 15
 					break
 				case "repairStreak":
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")

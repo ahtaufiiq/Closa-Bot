@@ -49,7 +49,7 @@ module.exports = {
 			const projects = await FocusSessionController.getAllProjects(modal.user.id)
 			const projectMenus = FocusSessionController.getFormattedMenu(projects)
 
-			await modal.editReply(FocusSessionMessage.selectProject(modal.user.id,projectMenus))
+			await modal.editReply(FocusSessionMessage.selectProject(modal.user.id,projectMenus,value))
 			modal.message.delete()
 		}else if (commandButton === 'modalReferral') {
 			await modal.deferReply({ephemeral:true});
