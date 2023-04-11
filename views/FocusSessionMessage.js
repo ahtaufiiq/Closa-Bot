@@ -91,7 +91,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     static messageTimer({focusTime,breakTime,totalTime,isFocus,dailyWorkTime,totalTimeToday},taskName,projectName,userId,isLive=true){
         const components = []
-        if(isLive){
+        if(isLive && isFocus){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`breakFiveMinute_${userId}`,'5 min break','☕'),
                 MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱')
@@ -128,10 +128,12 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
                     projectMenus
                 ),
             ))
+        }else{
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton(`addNewProject_${userId}_${taskName}`,"Add new project +").setEmoji('✨')
+            ))
         }
-        components.push(MessageComponent.createComponent(
-            MessageComponent.addButton(`addNewProject_${userId}_${taskName}`,"Add new project +").setEmoji('✨')
-        ))
+
         return {
             content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
             components
@@ -169,10 +171,7 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
                                 label: "4 hour/day (Intense)",
                                 value: "240_4 hour/day"
                             },
-                            {
-                                label: "✎ Custom Time",
-                                value: 'custom'
-                            },
+                            
                         ]
                     ),
                 )
@@ -186,11 +185,23 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
     }
 
     static messageBreakTime(time,userId){
-        return `Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`
+        return {
+            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min break','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min break','🍱')
+            )]
+        }
     }
 
     static reminderEndedBreak(userId){
-        return `**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`
+        return {
+            content:`**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min break','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min break','🍱')
+            )]
+        }
     }
 
     static reachedDailyWorkTime(dailyWorkTime,userId){

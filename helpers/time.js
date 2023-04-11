@@ -273,6 +273,10 @@ class Time {
         return Time.getDateOnly(Time.getNextDate(-1,startCoworkingDate)) === lastCoworking || lastCoworking === startCoworkingDate || lastCoworking === Time.getTodayDateOnly()
     }
 
+    static oneMinute(){
+        return 1000 * 60
+    }
+
 }
 
 module.exports = Time

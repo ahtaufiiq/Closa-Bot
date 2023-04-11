@@ -9,12 +9,12 @@ const MemberController = require("./MemberController");
 const InfoUser = require("../helpers/InfoUser");
 class FocusSessionController {
 
-    static showModalAddNewProject(interaction){
-        const [commandButton,userId] = interaction.customId.split('_')
+    static showModalAddNewProject(interaction,customId){
+        const [commandButton,userId] = customId? customId.split('_') : interaction.customId.split('_')
         if(commandButton === 'addNewProject'){
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't add someone else project.`})
 			const modal = new Modal()
-			.setCustomId(interaction.customId)
+			.setCustomId(customId || interaction.customId)
 			.setTitle("Add Project")
 			.addComponents(
 				new TextInputComponent().setCustomId('project').setLabel("New Project Name").setStyle("SHORT").setRequired(true),
@@ -42,14 +42,24 @@ class FocusSessionController {
                 value:String(project.id)
             })
         }
+
+        if(menus.length > 0) menus.push({
+            label:"✨ Add new project +",
+            value:'addNewProject'
+
+        })
         return menus
     }
 
-    static countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId) {
+    static countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,event) {
         focusRoomUser[userId].msgIdFocusRecap = msgFocus.id
         focusRoomUser[userId].channelIdFocusRecap = msgFocus.channelId
+        focusRoomUser[userId].event = event
         const timerFocus = setInterval(async () => {
             if(!focusRoomUser[userId]) return clearInterval(timerFocus)
+            if(event !== focusRoomUser[userId].event) {
+                return clearInterval(timerFocus)
+            }
 
             if(FocusSessionController.isReachedDailyWorkTime(focusRoomUser[userId])){
                 msgFocus.channel.send(FocusSessionMessage.reachedDailyWorkTime(focusRoomUser[userId].dailyWorkTime,userId))
@@ -74,7 +84,7 @@ class FocusSessionController {
             }else{
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
-        }, 1000 * 60);
+        }, Time.oneMinute());
     }
 
     static isReachedDailyWorkTime({totalTime,totalTimeToday,dailyWorkTime}){
@@ -154,8 +164,8 @@ class FocusSessionController {
                     const dateOnly = Time.getDateOnly(date)
                     if(currentSession === 2){
                         const totalTimeCoworking = Time.getGapTime(date).totalInMinutes
+                        let coworkingStreak
                         if(totalTimeCoworking >= 5){
-                            let coworkingStreak
                             if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
                                 if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
                                 else coworkingStreak = currentStreak

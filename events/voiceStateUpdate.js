@@ -124,7 +124,7 @@ module.exports = {
 		}else if (newMember.channel === null) {
 			const {totalInMinutes}= Time.getGapTime(closaCafe[userId],true)
 			await DailyReport.activeMember(oldMember.client,userId)
-			if(totalInMinutes >= 20 && !focusRoomUser[userId]) PointController.addPoint(userId,'cafe',totalInMinutes)
+			if(!focusRoomUser[userId]) PointController.addPoint(userId,'voice',totalInMinutes)
 
 			delete closaCafe[userId]
 		}
@@ -166,7 +166,7 @@ module.exports = {
 						const projectName = data.Projects.name
 						thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 						.then(async msgFocus=>{
-							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId)						
+							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 						})
 						focusRoomUser[userId].firstTime = false
 					}
@@ -203,7 +203,7 @@ module.exports = {
 				const projectName = data.Projects.name
 				thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 					.then(async msgFocus=>{
-						FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId)						
+						FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 					})
 				focusRoomUser[userId].firstTime = false
 			}
@@ -221,9 +221,8 @@ module.exports = {
 				.then(async response=>{
 					if (totalTime >= 5) {
 						await FocusSessionController.updateCoworkingPartner(userId)
-						const incrementVibePoint = PointController.calculatePoint('cafe',totalTime)
-						await UserController.incrementTotalPoints(incrementVibePoint,userId)
-						if(totalTime >= 20) PointController.addPoint(userId,'cafe',totalTime)
+						const incrementVibePoint = totalTime * 2
+						PointController.addPoint(userId,'voice',totalTime)
 						const {coworkingPartner,dailyWorkTime,totalPoint,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						
 						const buffer = await GenerateImage.dailySummary({
