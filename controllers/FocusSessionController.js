@@ -57,22 +57,22 @@ class FocusSessionController {
         focusRoomUser[userId].event = event
         const timerFocus = setInterval(async () => {
             if(!focusRoomUser[userId]) return clearInterval(timerFocus)
-            if(event !== focusRoomUser[userId].event) {
+            if(event !== focusRoomUser[userId]?.event) {
                 return clearInterval(timerFocus)
             }
 
             if(FocusSessionController.isReachedDailyWorkTime(focusRoomUser[userId])){
-                msgFocus.channel.send(FocusSessionMessage.reachedDailyWorkTime(focusRoomUser[userId].dailyWorkTime,userId))
+                msgFocus.channel.send(FocusSessionMessage.reachedDailyWorkTime(focusRoomUser[userId]?.dailyWorkTime,userId))
             }
 
             focusRoomUser[userId].totalTime++
-            if(focusRoomUser[userId].isFocus) focusRoomUser[userId].focusTime++
+            if(focusRoomUser[userId]?.isFocus) focusRoomUser[userId].focusTime++
             else {
                 focusRoomUser[userId].breakCounter--
                 focusRoomUser[userId].breakTime++
             }
 
-            if(!focusRoomUser[userId].isFocus && focusRoomUser[userId].breakCounter === 0){
+            if(!focusRoomUser[userId]?.isFocus && focusRoomUser[userId]?.breakCounter === 0){
                 focusRoomUser[userId].isFocus = true
                 ChannelController.deleteMessage(msgFocus)
                 return clearInterval(timerFocus)
@@ -172,24 +172,30 @@ class FocusSessionController {
                             }else{
                                 coworkingStreak = 1
                             }
-                        }
-                        const value = {
-                            currentTime : totalTimeCoworking,
-                            totalTime: totalTime + totalTimeCoworking,
-                            lastCoworking: Time.getTodayDateOnly(),
-                            currentStreak: coworkingStreak,
-                            currentSession: 1
-                        }
-                        
-                        if(coworkingStreak > longestStreak){
-                            value.longestStreak = coworkingStreak
-                            value.endLongestStreak = Time.getTodayDateOnly()
-                        }
 
-                        supabase.from("CoworkingPartners")
-                            .update(value)
-                            .eq('id',id)
-                            .then()
+                            const value = {
+                                currentTime : totalTimeCoworking,
+                                totalTime: totalTime + totalTimeCoworking,
+                                lastCoworking: Time.getTodayDateOnly(),
+                                currentStreak: coworkingStreak,
+                                currentSession: 1
+                            }
+                            
+                            if(coworkingStreak > longestStreak){
+                                value.longestStreak = coworkingStreak
+                                value.endLongestStreak = Time.getTodayDateOnly()
+                            }
+    
+                            supabase.from("CoworkingPartners")
+                                .update(value)
+                                .eq('id',id)
+                                .then()
+                        }else{
+                            supabase.from("CoworkingPartners")
+                                .delete()
+                                .eq('id',id)
+                                .then()
+                        }
                     }else{
                         supabase.from("CoworkingPartners")
                             .update({

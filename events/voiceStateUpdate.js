@@ -184,10 +184,10 @@ module.exports = {
 			focusRoomUser[userId].selfVideo = newMember.selfVideo
 			focusRoomUser[userId].streaming = newMember.streaming
 			const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
-			const thread = await channel.threads.fetch(focusRoomUser[userId].threadId);
-			if (!focusRoomUser[userId].selfVideo && !focusRoomUser[userId].streaming) {
-				if (focusRoomUser[userId].status !== 'processed' ) {
-					focusRoomUser[userId].status === 'processed'
+			const thread = await channel.threads.fetch(focusRoomUser[userId]?.threadId);
+			if (!focusRoomUser[userId]?.selfVideo && !focusRoomUser[userId]?.streaming) {
+				if (focusRoomUser[userId]?.status !== 'processed' ) {
+					focusRoomUser[userId]?.status === 'processed'
 					kickUser(userId,newMember.member.user,thread,focusRoomUser)
 						.then(()=>{		
 							newMember.disconnect()	
@@ -196,7 +196,7 @@ module.exports = {
 							focusRoomUser[userId].status = 'done'
 						})
 				}
-			}else if (focusRoomUser[userId].firstTime){
+			}else if (focusRoomUser[userId]?.firstTime){
 				CoworkingController.handleStartCoworkingSession(oldMember.client)
 				const data = await FocusSessionController.getDetailFocusSession(userId)
 				const taskName = data?.taskName
@@ -208,7 +208,7 @@ module.exports = {
 				focusRoomUser[userId].firstTime = false
 			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] && focusRoomUser[userId] ){
-			if (totalOldMember === 0 && !focusRoomUser[userId].firstTime) {
+			if (totalOldMember === 0 && !focusRoomUser[userId]?.firstTime) {
 				setTimeout(() => {
 					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
 				}, 1000 * 60);
@@ -248,6 +248,12 @@ module.exports = {
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)
 					const msgFocus = await ChannelController.getMessage(channel,msgIdFocusRecap)
 					msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
+					if(focusRoomUser[userId]?.msgIdReplyBreak){
+						ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
+							.then(replyBreak=>{
+								ChannelController.deleteMessage(replyBreak)
+							})
+					}
 					delete focusRoomUser[userId]
 				})
 		}
@@ -270,7 +276,7 @@ module.exports = {
 
 
 async function kickUser(userId,user,thread,focusRoomUser) {					
-	const time = 1000 * 120
+	const time = Time.oneMinute() * 2
 	return new Promise((resolve,reject)=>{
 		setTimeout(() => {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
