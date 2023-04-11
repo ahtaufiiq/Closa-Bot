@@ -188,8 +188,9 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
         return {
             content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min break','☕'),
-                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min break','🍱')
+                MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min more','🍱')
             )]
         }
     }
@@ -198,8 +199,9 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
         return {
             content:`**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min break','☕'),
-                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min break','🍱')
+                MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min more','🍱')
             )]
         }
     }
