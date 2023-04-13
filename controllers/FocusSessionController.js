@@ -223,10 +223,10 @@ class FocusSessionController {
             FocusSessionController.getAllCoworkingPartners(userId),
             RequestAxios.get('voice/dailySummary/'+userId),
             RequestAxios.get('voice/weeklyProject/'+userId),
-            UserController.getDetail(userId,'dailyWorkTime,totalPoint')
+            UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession')
         ])
 
-        const {dailyWorkTime,totalPoint} = dataUser.body
+        const {dailyWorkTime,totalPoint,totalFocusSession} = dataUser.body
         const coworkingPartner = []
 
         for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
@@ -240,7 +240,7 @@ class FocusSessionController {
         }
 
         return {
-            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner
+            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner,totalSession:totalFocusSession
         }
 
     }

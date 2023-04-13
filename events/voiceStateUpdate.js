@@ -220,17 +220,20 @@ module.exports = {
 			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
 				.then(async response=>{
 					if (totalTime >= 5) {
+						supabase.rpc('incrementTotalSession',{x:totalTime,row_id:userId})
+            			.then()
 						await FocusSessionController.updateCoworkingPartner(userId)
 						const incrementVibePoint = totalTime * 2
 						PointController.addPoint(userId,'voice',totalTime)
-						const {coworkingPartner,dailyWorkTime,totalPoint,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
 							coworkingFriends:coworkingPartner,
 							dailyWorkTime,
 							projects:projectThisWeek,
-							tasks
+							tasks,
+							totalSession
 						})
 
 						const attachment = new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})
