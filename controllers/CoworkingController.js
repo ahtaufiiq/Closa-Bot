@@ -5,7 +5,7 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');
 const ChannelController = require('./ChannelController');
-const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType } = require('discord.js');
+const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType, GuildScheduledEventStatus } = require('discord.js');
 
 class CoworkingController {
     static recurringCoworkingSession(client){
@@ -106,7 +106,7 @@ class CoworkingController {
         try {
             const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
             if (!event.isActive()) {
-                 event.setStatus("ACTIVE")
+                 event.setStatus(GuildScheduledEventStatus.Active)
             }
         } catch (error) {
             
@@ -117,7 +117,7 @@ class CoworkingController {
         try {
             const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
             if (!event.isCompleted() && event.isActive()) {
-                 event.setStatus("COMPLETED")
+                 event.setStatus(GuildScheduledEventStatus.Completed)
             }
         } catch (error) {
             
@@ -177,11 +177,11 @@ class CoworkingController {
         const data = LocalData.getData()
         if (CoworkingController.isRangeMorningSession()) {
             const event = await CoworkingController.getDetailEvent(client,data.morning)
-            const isCompleted = event.status === "COMPLETED"
-            let isScheduled = event.status === "SCHEDULED"
+            const isCompleted = event.status === GuildScheduledEventStatus.Completed
+            let isScheduled = event.status === GuildScheduledEventStatus.Scheduled
             if (isCompleted) {
                 const event = await CoworkingController.createCoworkingEvent(client,'morning','now')
-                isScheduled = event.status === "SCHEDULED"
+                isScheduled = event.status === GuildScheduledEventStatus.Scheduled
                 data.morning = event.id
                 LocalData.writeData(data)
             }
@@ -191,12 +191,12 @@ class CoworkingController {
             }
         }else if(CoworkingController.isRangeNightSession()){
             const event = await CoworkingController.getDetailEvent(client,data.night)
-            const isCompleted = event.status === "COMPLETED"
-            let isScheduled = event.status === "SCHEDULED"
+            const isCompleted = event.status === GuildScheduledEventStatus.Completed
+            let isScheduled = event.status === GuildScheduledEventStatus.Scheduled
             if (isCompleted) {
                 const event = await CoworkingController.createCoworkingEvent(client,'night','now')
                     
-                isScheduled = event.status === "SCHEDULED"
+                isScheduled = event.status === GuildScheduledEventStatus.Scheduled
                 data.night = event.id
                 LocalData.writeData(data)
             }
