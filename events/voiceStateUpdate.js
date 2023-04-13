@@ -220,7 +220,7 @@ module.exports = {
 			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
 				.then(async response=>{
 					if (totalTime >= 5) {
-						supabase.rpc('incrementTotalSession',{x:totalTime,row_id:userId})
+						supabase.rpc('incrementTotalSession',{row_id:userId})
             			.then()
 						await FocusSessionController.updateCoworkingPartner(userId)
 						const incrementVibePoint = totalTime * 2
