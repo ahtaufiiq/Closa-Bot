@@ -269,6 +269,7 @@ class GenerateImage{
         }
 
         function drawCircle(ctx, x, y, stroke,percentage) {
+            if(percentage === 0) return
             ctx.beginPath()
 
             context.arc(x, y, 43, 1.5 * Math.PI, (1.5 + (2 * percentage / 100)) * Math.PI);
@@ -358,11 +359,11 @@ class GenerateImage{
         context.textAlign = 'center'
         context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText(`${percentageFocus}%`, 82.3 , 336);
+        context.fillText(`${percentageFocus}%`, 86 , 336);
 
         context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText(`${percentageBreak}%`, 330.6 , 336);
+        context.fillText(`${percentageBreak}%`, 336 , 336);
 
         context.textAlign = 'left'
         context.fillStyle = "#31373D"; 
