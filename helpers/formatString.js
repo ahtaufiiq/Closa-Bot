@@ -1,8 +1,8 @@
 class FormatString {
-    static truncateString(text="",maxLength=90){
+    static truncateString(text="",maxLength=90,isTwoDot=false){
         if(text===null) text = ''
         if (text.length > maxLength) {
-            return text.substring(0,maxLength) +'...'
+            return text.substring(0,maxLength) +`${isTwoDot ? ".." : "..."}`
         }else{
             return text
         }
@@ -17,7 +17,7 @@ class FormatString {
     }
 
     static capitalizeWords(str) {
-        return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        return str.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 }
 
