@@ -4,6 +4,8 @@ const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
+const UserController = require("../controllers/UserController")
+
 class FocusSessionMessage{
 
     //-----------------------    Daily Streak    -----------------------// 
@@ -52,45 +54,67 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
         const avatarUrl = InfoUser.getAvatar(user)
         return new EmbedBuilder()
             .setColor('#FEFEFE')
-            .addField(`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,`
-Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
+            .addFields(
+                {
+                    name:`Timeframe ${FocusSessionMessage.addSpace(5)} Hours`,
+                    value:`Daily:${FocusSessionMessage.addSpace(8,"\u2002")}**${daily}** h
 Weekly:${FocusSessionMessage.addSpace(6,"\u2002")}${weekly} h
 Monthly:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F${monthly} h
-All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,true)
-            .addField("\u200B",`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`)
+All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
+                    inline:true
+                },
+                {
+                    name:"\u200B",
+                    value:`Average/day (${Time.getThisMonth()}): \u2005**${average}** h\n\nCurrent study streak: \u2005${dailyStreak} days\nLongest study streak: \u2005${longestStreak} days`
+                }
+            )
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
 
     }
 
     static startFocusSession(author){
-        
-        return `**Hi ${author} please join <#${CHANNEL_CLOSA_CAFE}> to start your focus session.**
-if you already inside closa cafe please __disconnect & rejoin.__
+        return `**Hi ${author}, to start your co-working session follow the steps: **
 
-\`\`rules:\`\` __turn on video or sharescreen to show accountability.__`
+1. Join → <#${CHANNEL_CLOSA_CAFE}>
+2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
+3. Mute your mic during focus time.
+
+**Having a trouble? try one of these:**
+\`\`\`
+• Make sure you write #session-goals first before join voice channel or turn-on video.
+• or Try to turn-off then turn-on your video 
+• or turn-off then turn-on sharescreen.
+• or disconnect > join the voice channel > turn-on video or sharescreen.
+\`\`\``
+
     }
 
-    static messageTimer(minute,name,isLive=true){
-        
-        const taskName = name.split('focus log - ')[1]
-         if (isLive) {
-            return `**Focus session started**
-        
-:timer: focus time: **${Time.convertTime(minute,'short')}** — **LIVE :red_circle:**
-:arrow_right: ${taskName}
+    static messageTimer({focusTime,breakTime,totalTime,isFocus,dailyWorkTime,totalTimeToday},taskName,projectName,userId,isLive=true){
+        const components = []
+        if(isLive && isFocus){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}`,'5 min break','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱')
+            ))
+        }
+        return {
+            content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
+💻 Work: \`\`${Time.convertTime(totalTime,'short')}\`\` in total
+⏲️ Focus: \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
+☕ Breaks: \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
+🎯 Goal: \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily work time goal
 
-—
-tips: 
-• *disconnect from closa café to stop your focus time*
-• *try to hit your goal during the focus time.*
-• *if you are done, post on <#${CHANNEL_TODO}>.*`
-         }else{
-            return `**Focus session ended**
-        
-:timer: focus time: **${Time.convertTime(minute,'short')}** 
-:arrow_right: ${taskName}`
-        
-         }
+\`\`\`
+Project: ${projectName}
+➡️ Task: ${taskName}
+\`\`\`
+${isLive ? `\`\`\`💡 pro tip:
+• take frequent breaks to improve your productivity.
+• try to hit your daily work time goal.
+• disconnect to end your focus time.\`\`\`
+cc: ${MessageFormatting.tagUser(userId)}`:''}`,
+            components
+        }
     }
 
     static selectProject(userId,projectMenus,taskName){
@@ -104,10 +128,12 @@ tips:
                     projectMenus
                 ),
             ))
+        }else{
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton(`addNewProject_${userId}_${taskName}`,"Add new project +").setEmoji('✨')
+            ))
         }
-        components.push(MessageComponent.createComponent(
-            MessageComponent.addEmojiButton(`addNewProject_${userId}`,"Add new project +",'✨')
-        ))
+
         return {
             content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
             components
@@ -145,10 +171,7 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
                                 label: "4 hour/day (Intense)",
                                 value: "240_4 hour/day"
                             },
-                            {
-                                label: "✎ Custom Time",
-                                value: 'custom'
-                            },
+                            
                         ]
                     ),
                 )
@@ -159,6 +182,41 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
     static successSetDailyWorkTime(labelMenu){
         const time = labelMenu ? labelMenu.split('(')[0] : ''
         return`**✅ Your daily work time goal has been set to ${time}**`
+    }
+
+    static messageBreakTime(time,userId){
+        return {
+            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min more','🍱')
+            )]
+        }
+    }
+
+    static reminderEndedBreak(userId){
+        return {
+            content:`**1 min left for break** before the focus time auto started ${MessageFormatting.tagUser(userId)}`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_addBreak`,'15 min more','🍱')
+            )]
+        }
+    }
+
+    static reachedDailyWorkTime(dailyWorkTime,userId){
+        return `You reached ${Time.convertTime(dailyWorkTime)} of work today ${MessageFormatting.tagUser(userId)}
+Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TODO)}.`
+    }
+
+    static embedPointReward(increment,totalPoint,user){
+        return new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setDescription(`Total points: ${totalPoint} (+${increment}) :coin:`)
+                .setAuthor({name:`+${increment} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif "})
+                .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
 }
 

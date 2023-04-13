@@ -59,7 +59,7 @@ module.exports = {
 			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if(commandButton === 'buyOneVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if (commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+			}else if (commandButton === 'continueFocus' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 				await interaction.deferReply();
 			}else{
 				await interaction.deferReply({ephemeral:true});
@@ -72,36 +72,69 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "continueFocus":{
+					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't continue focus session someone else")
+					const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)
+					const msgFocusOld = await ChannelController.getMessage(channel,focusRoomUser[targetUserId]?.msgIdFocusRecap)
+					const dataFocusSession = await FocusSessionController.getDetailFocusSession(targetUserId)
+					const taskName = dataFocusSession?.taskName
+					const projectName = dataFocusSession?.Projects?.name
+					focusRoomUser[targetUserId].msgIdReplyBreak = null
+					focusRoomUser[targetUserId].breakCounter = 0
+					focusRoomUser[targetUserId].isFocus = true
+					ChannelController.deleteMessage(msgFocusOld)
+					interaction.editReply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
+						.then(msgFocus=>{
+							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
+							ChannelController.deleteMessage(interaction.message)
+						})
+					}break;
 				case "breakFiveMinute":
 				case "breakFifteenMinute":
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't break focus session someone else")
 					let minute = commandButton === 'breakFiveMinute' ? 5 : 15
-					const replyBreakFiveMinute = await interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
+					focusRoomUser[targetUserId].isFocus = false
+					focusRoomUser[targetUserId].breakCounter += minute
+					const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)
+					const [msgFocusOld,replyBreak] = await Promise.all([
+						ChannelController.getMessage(channel,focusRoomUser[targetUserId]?.msgIdFocusRecap),
+					 	interaction.editReply(FocusSessionMessage.messageBreakTime(focusRoomUser[targetUserId]?.breakCounter,targetUserId))
+					])
+					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreak.id
+					const dataFocusSession = await FocusSessionController.getDetailFocusSession(targetUserId)
+					const taskName = dataFocusSession?.taskName
+					const projectName = dataFocusSession?.Projects?.name
+					if(value === 'addBreak') {
+						ChannelController.deleteMessage(interaction.message)
+					}
+
+					msgFocusOld.edit(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
+					const event = value ? `interaction_${replyBreak.id}`: 'interaction'
+					FocusSessionController.countdownFocusSession(msgFocusOld,taskName,projectName,focusRoomUser,targetUserId,event)
 					const intervalBreak = setInterval(() => {
-						minute--
-						if(minute === 1) {
+						if(focusRoomUser[targetUserId]?.msgIdReplyBreak != replyBreak.id) return clearInterval(intervalBreak)
+						if(focusRoomUser[targetUserId]?.breakCounter === 1) {
 							clearInterval(intervalBreak)
-							replyBreakFiveMinute.reply(FocusSessionMessage.reminderEndedBreak(targetUserId))
+							if(focusRoomUser[targetUserId]?.msgIdReplyBreak != replyBreak.id) return
+							replyBreak.reply(FocusSessionMessage.reminderEndedBreak(targetUserId))
 								.then(msg=>{
+									focusRoomUser[targetUserId].msgIdReplyBreak = msg.id
 									setTimeout(async () => {
-										const data = await FocusSessionController.getDetailFocusSession(targetUserId)
-										const taskName = data?.taskName
-										const projectName = data.Projects.name
-										msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],'tes',targetUserId))
+										if(focusRoomUser[targetUserId]?.msgIdReplyBreak != msg.id) return 
+										ChannelController.deleteMessage(msgFocusOld)
+										msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
 											.then(msgFocus=>{
 												FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
 												ChannelController.deleteMessage(msg)
+													.then(()=> focusRoomUser[targetUserId].msgIdReplyBreak = null)
 											})
-									}, 1000 * 5);
-									ChannelController.deleteMessage(replyBreakFiveMinute)
+									}, Time.oneMinute());
+									ChannelController.deleteMessage(replyBreak)
 								})
 						}else{
-							interaction.editReply(FocusSessionMessage.messageBreakTime(minute,targetUserId))
+							interaction.editReply(FocusSessionMessage.messageBreakTime(focusRoomUser[targetUserId]?.breakCounter,targetUserId))
 						}
-					}, 1000 * 5);
-					focusRoomUser[targetUserId].msgIdReplyBreak = replyBreakFiveMinute.id
-					focusRoomUser[targetUserId].isFocus = false
-					focusRoomUser[targetUserId].breakCounter = 5
+					}, Time.oneMinute());
 					break
 				case "repairStreak":
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
@@ -520,44 +553,29 @@ module.exports = {
 						.update({dailyWorkTime:min})
 						.eq('id',interaction.user.id)
 					interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-					await supabase.from('FocusSessions')
-						.delete()
-						.eq('UserId',interaction.user.id)
-						.is('session',null)
-					await supabase.from('FocusSessions')
-						.insert({
-							UserId:interaction.user.id,
-							threadId:interaction.channelId,
-							taskName: taskName,
-							ProjectId:projectId
-						})
+					FocusSessionController.insertFocusSession(interaction.user.id,taskName,projectId,interaction.channelId)
+
 					await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
 					ChannelController.deleteMessage(interaction.message)
 					break;
 				case 'selectProject':
 					if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})
-					await interaction.deferReply();
-					const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
-					if (dataUser.body?.dailyWorkTime) {
-						await supabase.from('FocusSessions')
-						.delete()
-						.eq('UserId',interaction.user.id)
-						.is('session',null)
-
-						await supabase.from('FocusSessions')
-							.insert({
-								UserId:interaction.user.id,
-								threadId:interaction.channelId,
-								taskName: value,
-								ProjectId:valueMenu
-						})
-						await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
+					if(valueMenu === 'addNewProject'){
+						FocusSessionController.showModalAddNewProject(interaction,`addNewProject_${targetUserId}_${value}`)
 					}else{
-						await interaction.editReply(
-							FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,value)
-						)
+						await interaction.deferReply();
+						const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
+						if (dataUser.body?.dailyWorkTime) {
+							FocusSessionController.insertFocusSession(interaction.user.id,value,valueMenu,interaction.channelId)
+
+							await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
+						}else{
+							await interaction.editReply(
+								FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,value)
+							)
+						}
+						ChannelController.deleteMessage(interaction.message)
 					}
-					ChannelController.deleteMessage(interaction.message)
 					break;
 				case 'boostPartyMember':
 					if(valueMenu === interaction.user.id) return interaction.editReply(BoostMessage.warningBoostYourself())

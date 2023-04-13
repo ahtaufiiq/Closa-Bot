@@ -74,7 +74,7 @@ class PointController{
                             .then()
                     }
                 }
-                if(key || type === 'cafe' || type === 'boost'){
+                if(key || type === 'voice' || type === 'boost'){
                     UserController.incrementTotalPoints(totalPoint,UserId)
                 }
             })
@@ -106,8 +106,8 @@ class PointController{
             case 'GUILD_PUBLIC_THREAD':
                 finalPoint = PointController.randomNumber(1,5)
                 break;
-            case 'cafe':
-                finalPoint = Math.floor(minute / 20) * PointController.randomNumber(20,50)
+            case 'voice':
+                finalPoint = minute * 2
                 break
             case 'goal':
                 finalPoint = PointController.randomNumber(100,300)
