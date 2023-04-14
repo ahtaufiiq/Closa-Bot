@@ -26,7 +26,7 @@ class TimelineController{
             ChannelController.changeName(client,'1086508511439110266',`🍜Runway: ${TimelineController.getDayLeft('2023-05-21')} days`)
     
             if(todayDate === data.kickoffDate){
-                data.celebrationDate = Time.addDateByWeek(data.celebrationDate,5)
+                data.celebrationDate = Time.addDateByWeek(data.kickoffDate,4)
                 LocalData.writeData(data)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline: Cohort ${data.cohort}`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Kick-off day 🚀")
