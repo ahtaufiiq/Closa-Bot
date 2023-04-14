@@ -151,13 +151,13 @@ class GoalController {
 		supabase.from("Projects")
 			.select()
 			.eq('UserId',user.id)
-			.eq('name',FormatString.capitalizeWords(project))
+			.eq('name',FormatString.capitalizeFirstChar(project))
 			.limit(1)
 			.single()
 			.then(data=>{
 				if (!data.body) {
 					supabase.from("Projects")
-						.insert({name:FormatString.capitalizeWords(project),UserId:user.id})
+						.insert({name:FormatString.capitalizeFirstChar(project),UserId:user.id})
 						.then()
 				}
 			})
