@@ -19,6 +19,14 @@ class FormatString {
     static capitalizeWords(str) {
         return str.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
+
+    static capitalizeFirstChar(str) {
+        if(!str) return ''
+        const word = str.trim()
+        return word.charAt(0).toUpperCase() + word.slice(1)
+    }
+
+    static 
 }
 
 module.exports = FormatString

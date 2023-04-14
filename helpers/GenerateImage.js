@@ -387,7 +387,7 @@ class GenerateImage{
             
             context.fillStyle = "#31373D"; 
             context.font = "400 20px Archivo";
-            context.fillText(FormatString.truncateString((task.taskName),18,true), 94.5 , koordinatTask);
+            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 94.5 , koordinatTask);
     
             context.fillStyle = "#888888"; 
             context.font = "400 20px Archivo";
@@ -424,7 +424,7 @@ class GenerateImage{
     
             context.fillStyle = "#31373D"; 
             context.font = "400 20px Archivo";
-            context.fillText(FormatString.truncateString(FormatString.capitalizeWords(project.name),18,true), 94.8 , koordinatProject);
+            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(project.name),18,true), 94.8 , koordinatProject);
     
             context.fillStyle = "#888888"; 
             context.font = "400 20px Archivo";
