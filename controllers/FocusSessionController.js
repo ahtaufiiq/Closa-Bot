@@ -190,11 +190,6 @@ class FocusSessionController {
                                 .update(value)
                                 .eq('id',id)
                                 .then()
-                        }else{
-                            supabase.from("CoworkingPartners")
-                                .delete()
-                                .eq('id',id)
-                                .then()
                         }
                     }else{
                         supabase.from("CoworkingPartners")
