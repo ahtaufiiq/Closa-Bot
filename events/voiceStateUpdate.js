@@ -141,6 +141,7 @@ module.exports = {
 					const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
 					const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 					focusRoomUser[userId] = {
+						date:Time.getTodayDateOnly(),
 						totalTimeToday,
 						dailyWorkTime,
 						selfVideo : newMember.selfVideo,
@@ -217,7 +218,8 @@ module.exports = {
 			const data = await FocusSessionController.getDetailFocusSession(userId)
 			const taskName = data?.taskName
 			const projectName = data.Projects.name
-			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
+
+			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 				.then(async response=>{
 					if (totalTime >= 5) {
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
