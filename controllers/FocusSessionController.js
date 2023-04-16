@@ -146,7 +146,7 @@ class FocusSessionController {
 
                     await supabase.from('CoworkingPartners')
                         .upsert({
-                            id,currentTime:null,currentSession:2,updatedAt:Time.getDate()
+                            id,currentTime:null,currentSession:2,updatedAt:new Date()
                         })
                 }
             })
@@ -163,7 +163,7 @@ class FocusSessionController {
                     const date = Time.getDate(updatedAt)
                     const dateOnly = Time.getDateOnly(date)
                     if(currentSession === 2){
-                        const totalTimeCoworking = Time.getGapTime(date).totalInMinutes
+                        const totalTimeCoworking = Time.getGapTime(date,true).totalInMinutes
                         let coworkingStreak
                         if(totalTimeCoworking >= 5){
                             if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
