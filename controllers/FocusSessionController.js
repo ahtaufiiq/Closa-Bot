@@ -72,6 +72,23 @@ class FocusSessionController {
                 focusRoomUser[userId].breakTime++
             }
 
+            if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
+                focusRoomUser[userId].date = Time.getTodayDateOnly()
+                const data = await FocusSessionController.getDetailFocusSession(userId)
+				const taskName = data?.taskName
+				const projectName = data.Projects.name
+				const projectId = data.Projects.id
+                const {totalTime,focusTime,breakTime} = focusRoomUser[userId]
+                FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
+				.then(async response=>{
+                    FocusSessionController.insertFocusSession(userId,taskName,projectId)
+                })
+
+                focusRoomUser[userId].yesterdayProgress = {
+                    totalTime,focusTime,breakTime
+                }
+            }
+
             if(!focusRoomUser[userId]?.isFocus && focusRoomUser[userId]?.breakCounter === 0){
                 focusRoomUser[userId].isFocus = true
                 ChannelController.deleteMessage(msgFocus)
@@ -105,7 +122,7 @@ class FocusSessionController {
 
     static async getDetailFocusSession(userId){
         const data = await supabase.from('FocusSessions')
-        .select('*,Projects(name)')
+        .select('*,Projects(id,name)')
         .eq('UserId',userId)
         .is('session',null)
         .single()
@@ -113,7 +130,12 @@ class FocusSessionController {
         return data.body
     }
 
-    static async updateTime(userId,totalTime,focusTime,breakTime,projectName){
+    static async updateTime(userId,totalTime,focusTime,breakTime,projectName,yesterdayProgress){
+        if(yesterdayProgress){
+            totalTime -= yesterdayProgress.totalTime
+            focusTime -= yesterdayProgress.focusTime
+            breakTime -= yesterdayProgress.breakTime
+        }
         supabase.rpc('incrementTotalTimeProject',{x:totalTime,row_id:userId,project_name:projectName})
             .then()
         return await supabase.from("FocusSessions")
