@@ -258,6 +258,7 @@ class GenerateImage{
             context.beginPath()
             let maxLength = 350
             if(type === 'short') maxLength = 100
+            if(percentage >= 100) percentage = 100
             maxLength -= 6.3
             context.moveTo(x, y);
             context.lineTo(x + (maxLength * percentage / 100), y);
@@ -332,7 +333,7 @@ class GenerateImage{
 
 
         //--- Work Hours ----//
-        const percentageWorkHours = totalTime > dailyWorkTime ? 100 : Math.round(totalTime/dailyWorkTime*100)
+        const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
         drawProgressBar(context,164,133,percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
