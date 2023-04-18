@@ -6,6 +6,7 @@ module.exports = {
     CLIENT_ID: process.env.CLIENT_ID,
     MY_ID: process.env.MY_ID,
     GUILD_ID: process.env.GUILD_ID,
+    CHANNEL_FEATURE_REQUEST: process.env.CHANNEL_FEATURE_REQUEST,
     CHANNEL_COMMAND: process.env.CHANNEL_COMMAND,
     CHANNEL_GUIDELINE: process.env.CHANNEL_GUIDELINE,
     CHANNEL_GENERAL: process.env.CHANNEL_GENERAL,
