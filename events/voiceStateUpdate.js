@@ -236,18 +236,15 @@ module.exports = {
 							tasks,
 							totalSession
 						})
-
-						const attachment = new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})
-						channelSessionLog.send({
-							content:`Here's your recap ${newMember.member.user}`, 
-							files:[
-								attachment
-							],
-
-							embeds:[
-								FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,newMember.member.user)
-							]
-						})
+						let totalTaskTime = 0
+						let totalTaskFocusTime = 0
+						for (let i = 0; i < tasks.length; i++) {
+							const task = tasks[i];
+							totalTaskTime += Number(task.totalTime)
+							totalTaskFocusTime += Number(task.focusTime)
+						}
+						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
+						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)

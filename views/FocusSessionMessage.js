@@ -218,6 +218,25 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 .setAuthor({name:`+${increment} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif "})
                 .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
+
+    static recapDailySummary(user,files,incrementVibePoint,totalPoint,totalTime,totalFocusTime,dailyWorkTime){
+        const totalBreakTime = totalTime - totalFocusTime
+        const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
+        let content = `Here's your recap ${user}\n`
+        if(dailyWorkTime > totalTime){
+            content += `You are \`\`${percentageWorkHours}%\`\` on your daily work hours goal with \`\`${Time.convertTime(totalFocusTime,'short',true)}\`\` focused work & \`\`${Time.convertTime(totalBreakTime,'short',true)}\`\` breaks.
+\`\`${Time.convertTime(dailyWorkTime - totalTime,'short',true)} (${100 - percentageWorkHours}%)\`\` away to reached your daily work goal.`
+        }else{
+            content += `You've reached \`\`${percentageWorkHours}% (${Time.convertTime(totalTime,'short',true)})\`\` of your \`\`${Time.convertTime(dailyWorkTime,'short',true)}\`\` daily work hours goal today :tada:`
+        }
+        return {
+            content, 
+            files,
+            embeds:[
+                FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
+            ]
+        }
+    }
 }
 
 module.exports=FocusSessionMessage
