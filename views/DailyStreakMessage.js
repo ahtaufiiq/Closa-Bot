@@ -121,14 +121,14 @@ this fund helps us keep the community running.
 Time left: \`\`${time}\`\` ⏳`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
-                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 7500 pts','🪙',"SUCCESS"),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SUCCESS"),
             )]
         }
     }
 
     static confirmationBuyRepairStreak(totalPoint,msgId){
         return {
-            content:`**Are you sure to repair using 7500 points?**
+            content:`**Are you sure to repair using 3500 points?**
 
 \`\`Your points:\`\` ${totalPoint} :coin:`,
             components:[

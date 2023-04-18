@@ -459,9 +459,9 @@ class GenerateImage{
             if(coworkingFriend.streak > 1){
                 context.textAlign = 'end'
                 context.fillStyle = "#888888"; 
-                context.font = "500 16px Archivo";
-                context.drawImage(streakPartner,xCoordinatCoworker+4.5,yCoordinatCoworker + 52)
-                context.fillText(coworkingFriend.streak,xCoordinatCoworker+31.5,yCoordinatCoworker + 71);
+                context.font = "500 20px Archivo";
+                context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
+                context.fillText(coworkingFriend.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
             }
             counterCoordinatFrame += 0.01
             xCoordinatCoworker += 76.2
