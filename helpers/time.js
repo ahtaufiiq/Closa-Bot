@@ -100,24 +100,83 @@ class Time {
 
     static convertMonthInNumber(month){
         let listMonth = {
-            "january":0,
-            "february":1,
-            "march":2,
-            "april":3,
-            "may":4,
-            "june":5,
-            "july":6,
-            "august":7,
-            "september":8,
-            'october':9,
-            "november":10,
-            "december":11
+            "january": 0,
+            "february": 1,
+            "march": 2,
+            "april": 3,
+            "may": 4,
+            "june": 5,
+            "july": 6,
+            "august": 7,
+            "september": 8,
+            'october': 9,
+            "november": 10,
+            "december": 11,
+            "jan": 0,
+            "feb": 1,
+            "mar": 2,
+            "apr": 3,
+            "may": 4,
+            "jun": 5,
+            "jul": 6,
+            "aug": 7,
+            "sep": 8,
+            "oct": 9,
+            "nov": 10,
+            "dec": 11
         }
         const monthInNumber = listMonth[month.trim().toLowerCase()]
         
         return monthInNumber === undefined ? -1 : monthInNumber
     }
 
+    static convertToDate(string = "") {
+        string = string.trim().toLowerCase()
+        const result = {
+            error:null,
+            data:null,
+        }
+        const differentTime = string.includes(' wita') ? -1 : string.includes(' wit') ? -2 : 0
+        const isTomorrow = string.includes('tomorrow')
+        const isToday = string.includes('today')
+        const patternTime = /\d+[.:]\d+/
+        const time = string.match(patternTime)[0]
+        const [hours,minutes] = time.split(/[.:]/)
+        const coworkingDate = Time.getDate()
+        
+        if(isTomorrow) {
+            coworkingDate.setDate(coworkingDate.getDate()+1)
+        }else if(!isToday){
+            const date = string.match(/(\d+)/)[0]
+            const month = string.match(/(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)/i)
+            if(!month){
+                result.error = 'month'
+                return result
+            }
+    
+            const monthInNumber = Time.convertMonthInNumber(month[0])
+            coworkingDate.setMonth(monthInNumber)
+            coworkingDate.setDate(date)
+        }
+        coworkingDate.setHours(Time.minus7Hours(Number(hours) + differentTime))
+        coworkingDate.setMinutes(minutes)
+        result.data = coworkingDate
+        return result
+    }
+
+    static getTotalMinutes(timeString) {
+        const regex = /(\d+)\s*hr(?:\s*(\d+)\s*min)?/; // Regular expression pattern to match "2 hr" or "1 hr 30 min"
+        const matches = timeString.match(regex); // Array of matches
+    
+        if (matches && matches.length >= 2) {
+            const hours = parseInt(matches[1]); // Extract hours from the first match
+            const minutes = matches[2] ? parseInt(matches[2]) : 0; // Extract minutes from the second match, or use 0 if not present
+            return hours * 60 + minutes; // Calculate total minutes
+        } else {
+            return NaN; // Return NaN if the format is invalid
+        }
+    }
+    
     static minus7Hours(hour){
     	hour = hour - Number(TIMEZONE)		
         return hour < 0 ? 24 + hour : hour
