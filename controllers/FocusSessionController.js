@@ -175,55 +175,52 @@ class FocusSessionController {
     }
 
     static async updateCoworkingPartner(userId){
-        supabase.from("CoworkingPartners")
+        const data = await supabase.from("CoworkingPartners")
             .select()
             .like('id',`%${userId}%`)
             .gt('currentSession',0)
-            .then(data => {
-                for (let i = 0; i < data.body.length; i++) {
-                    const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
-                    const date = Time.getDate(updatedAt)
-                    const dateOnly = Time.getDateOnly(date)
-                    if(currentSession === 2){
-                        const totalTimeCoworking = Time.getGapTime(date,true).totalInMinutes
-                        let coworkingStreak
-                        if(totalTimeCoworking >= 5){
-                            if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
-                                if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
-                                else coworkingStreak = currentStreak
-                            }else{
-                                coworkingStreak = 1
-                            }
-
-                            const value = {
-                                currentTime : totalTimeCoworking,
-                                totalTime: totalTime + totalTimeCoworking,
-                                lastCoworking: Time.getTodayDateOnly(),
-                                currentStreak: coworkingStreak,
-                                currentSession: 1
-                            }
-                            
-                            if(coworkingStreak > longestStreak){
-                                value.longestStreak = coworkingStreak
-                                value.endLongestStreak = Time.getTodayDateOnly()
-                            }
-    
-                            supabase.from("CoworkingPartners")
-                                .update(value)
-                                .eq('id',id)
-                                .then()
-                        }
+        for (let i = 0; i < data.body.length; i++) {
+            const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
+            const date = Time.getDate(updatedAt)
+            const dateOnly = Time.getDateOnly(date)
+            if(currentSession === 2){
+                const totalTimeCoworking = Time.getGapTime(date,true).totalInMinutes
+                let coworkingStreak
+                if(totalTimeCoworking >= 5){
+                    if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
+                        if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
+                        else coworkingStreak = currentStreak
                     }else{
-                        supabase.from("CoworkingPartners")
-                            .update({
-                                currentSession:0
-                            })
-                            .eq('id',id)
-                            .then()
+                        coworkingStreak = 1
                     }
 
+                    const value = {
+                        currentTime : totalTimeCoworking,
+                        totalTime: totalTime + totalTimeCoworking,
+                        lastCoworking: Time.getTodayDateOnly(),
+                        currentStreak: coworkingStreak,
+                        currentSession: 1
+                    }
+                    
+                    if(coworkingStreak > longestStreak){
+                        value.longestStreak = coworkingStreak
+                        value.endLongestStreak = Time.getTodayDateOnly()
+                    }
+
+                    await supabase.from("CoworkingPartners")
+                        .update(value)
+                        .eq('id',id)
                 }
-            })
+            }else{
+                supabase.from("CoworkingPartners")
+                    .update({
+                        currentSession:0
+                    })
+                    .eq('id',id)
+                    .then()
+            }
+
+        }
     }
 
     static async getAllCoworkingPartners(userId){
