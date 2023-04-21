@@ -165,15 +165,25 @@ class Time {
     }
 
     static getTotalMinutes(timeString) {
-        const regex = /(\d+)\s*hr(?:\s*(\d+)\s*min)?/; // Regular expression pattern to match "2 hr" or "1 hr 30 min"
+        const regex = /(\d+)\s*hr(?:\s*(\d+)\s*min)?/g; // Regular expression pattern to match "1 hr", "1 hr 30 min", "30 min", "2hr", etc.
         const matches = timeString.match(regex); // Array of matches
-    
-        if (matches && matches.length >= 2) {
-            const hours = parseInt(matches[1]); // Extract hours from the first match
-            const minutes = matches[2] ? parseInt(matches[2]) : 0; // Extract minutes from the second match, or use 0 if not present
-            return hours * 60 + minutes; // Calculate total minutes
+      
+        if (matches && matches.length > 0) {
+            const parts = matches[0].split(" "); // Split the match by space to extract hours and minutes
+            console.log("🚀 ~ file: time.js:175 ~ Time ~ getTotalMinutes ~ parts:", parts)
+            const hours = parseInt(parts[0]); // Extract hours from the first part
+            const strMinute = parts[1] === 'hr' ? parts[2] : parts[1]
+            const minutes = strMinute ? parseInt(strMinute) : 0; // Extract minutes from the third part, or use 0 if not present
+            let totalMinutes = hours * 60 + minutes; // Calculate total minutes
+            return totalMinutes;
         } else {
+          // If no matches found, check for 'min' without 'hr' separately
+          if (/\d+\s*min/.test(timeString)) {
+            const minutes = parseInt(timeString); // Extract minutes as numeric value
+            return minutes;
+          } else {
             return NaN; // Return NaN if the format is invalid
+          }
         }
     }
     
@@ -333,7 +343,7 @@ class Time {
     }
 
     static oneMinute(){
-        return 1000 * 60
+        return 1000 * 10
     }
 
 }
