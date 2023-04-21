@@ -34,6 +34,7 @@ const IntroController = require("../controllers/IntroController");
 const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const CoworkingMessage = require("../views/CoworkingMessage");
+const CoworkingController = require("../controllers/CoworkingController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -442,7 +443,7 @@ The correct format:
 						totalSlot,
 						HostId:modal.user.id
 					}).then()
-
+					CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 					supabase.from("Reminders")
 						.insert([
 							{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
