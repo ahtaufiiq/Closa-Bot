@@ -447,7 +447,7 @@ The correct format:
 						HostId:modal.user.id
 					}).then()
 					if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
-						CoworkingController.createFocusRoom(modal.client,voiceRoomName)
+						CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
 					}else{
 						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 					}

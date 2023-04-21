@@ -350,11 +350,11 @@ class CoworkingController {
 		}
 	}
 
-    static async createFocusRoom(client,roomName){
+    static async createFocusRoom(client,roomName,eventId){
         const channel = await ChannelController.createTemporaryVoiceChannel(client,roomName,CHANNEL_WEEKLY_SCYNC_CATEGORY)
         supabase.from("CoworkingEvents")
             .update({status:'upcoming',voiceRoomId:channel.id})
-            .eq('id',channel.id)
+            .eq('id',eventId)
             .then()
         return channel
     }
@@ -364,7 +364,7 @@ class CoworkingController {
 		schedule.scheduleJob(time,async function() {
 			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
 			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt && newEvent.body.voiceRoomId === null){
-				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName)
+				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id)
                 const dataAttendances = await supabase.from("CoworkingAttendances")
                     .select()
                     .eq('EventId',eventId)
