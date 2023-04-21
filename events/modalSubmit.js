@@ -458,6 +458,62 @@ The correct format:
 						]).then()
 				})
 			modal.editReply('success create coworking event')
+		}else if(commandButton === 'editCoworking'){
+			await modal.deferReply({ephemeral:true})
+			const name = modal.getTextInputValue('name');
+			const duration = modal.getTextInputValue('duration');
+			const date = modal.getTextInputValue('date');
+			const totalSlot = modal.getTextInputValue('totalSlot');
+			const rules = modal.getTextInputValue('rules');
+			
+			let totalMinute = Time.getTotalMinutes(duration)
+			let {error,data:coworkingDate} = Time.convertToDate(date)
+			if(error) return modal.editReply('invalid format date')
+
+			const fiveMinutesBefore = new Date(coworkingDate.valueOf())
+			fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
+
+			const msg = await ChannelController.getMessage(
+				ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION),
+				value
+			)
+
+			ChannelController.createThread(msg,name)
+				.then(data=>{
+					console.log(data);
+				})
+			msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+			const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
+			supabase.from("CoworkingEvents")
+			.update({
+				rules,
+				name,
+				voiceRoomName,
+				totalMinute,
+				date:coworkingDate,
+				totalSlot,
+			})
+			.eq('id',msg.id).single()
+			.then(async coworkingEvent=>{
+				if(!coworkingEvent.voiceRoomId){
+					if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
+						CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
+					}else{
+						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
+					}
+					await supabase.from("Reminders")
+						.delete()
+						.eq('message',msg.id)
+						
+					supabase.from("Reminders")
+						.insert([
+							{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
+							{ message:msg.id, time:coworkingDate, type:'CoworkingEvent'}
+						]).then()
+				}
+
+			})
+			modal.editReply('success edit coworking event')
 		}else if(commandButton === 'customReminder'){
 			await modal.deferReply()
 			const time = modal.getTextInputValue('time');

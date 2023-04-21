@@ -56,6 +56,7 @@ module.exports = {
 			if(IntroController.showModalEditIntro(interaction)) return
 			if(FocusSessionController.showModalAddNewProject(interaction)) return
 			if(CoworkingController.showModalScheduleCoworking(interaction)) return
+			if(CoworkingController.showModalEditCoworking(interaction)) return
 
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id

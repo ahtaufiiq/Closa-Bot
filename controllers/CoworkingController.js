@@ -31,6 +31,35 @@ class CoworkingController {
         return false
     }
 
+    static showModalEditCoworking(interaction){
+        const [commandButton,userId] = interaction.customId.split('_')
+        if(commandButton === 'editCoworking'){
+            if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else session.`})
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Edit Schedule a session 👨‍💻👩‍💻")
+
+            CoworkingController.getCoworkingEvent(interaction.message.id)
+                .then(data=>{
+                    const {name,rules,date,totalMinute,totalSlot} = data.body
+                    const duration = Time.convertTime(totalMinute)
+                    const dateString = CoworkingController.formatDateToString(Time.getDate(date))
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Event Title").setStyle(TextInputStyle.Short).setValue(name).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration").setStyle(TextInputStyle.Short).setValue(duration).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (24-h)").setStyle(TextInputStyle.Paragraph).setValue(dateString).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('totalSlot').setLabel("How many people (max 25)").setStyle(TextInputStyle.Short).setValue(`${totalSlot}`).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('rules').setLabel("Agenda & rules").setStyle(TextInputStyle.Paragraph).setValue(rules).setRequired(true))
+                    )
+                    
+                    interaction.showModal(modal);
+                })
+
+			return true
+		}
+        return false
+    }
+
     static recurringCoworkingSession(client){
 
         let ruleCoworkingSession = new schedule.RecurrenceRule();
@@ -231,6 +260,19 @@ class CoworkingController {
 
     static isNotTuesday(){
         return Time.getDay() !== "Tuesday"
+    }
+
+    static formatDateToString(date){
+        let [weekday,month,day] = date.toLocaleDateString("en-US", { weekday: 'short', day:'2-digit',month:'short',}).split(/[, ]+/)
+        let hours = date.getHours()
+        let minutes = Time.getMinutesFromDate(date)
+        if(day == Time.getDate().getDate()){
+            return `today at ${hours}.${minutes} WIB`
+        }else if(day == Time.getNextDate(-1).getDate()){
+            return `tomorrow at ${hours}.${minutes} WIB`
+        }else{
+            return `${day} ${month} at ${hours}.${minutes} WIB`
+        }
     }
 
     static isRangeMorningSession(){
