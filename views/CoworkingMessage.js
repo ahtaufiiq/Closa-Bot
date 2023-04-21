@@ -28,7 +28,6 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         startDate.setHours(Time.minus7Hours(startDate.getHours())) 
         const endDate = new Date(startDate.valueOf())
         endDate.setMinutes(endDate.getMinutes()+totalMinute)
-        console.log(coworkingDate,startDate,endDate);
         const availableSlot = totalSlot - 1 //author
         const spotLeft = availableSlot - totalAttendance
         if(totalAttendance === 0){
