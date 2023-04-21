@@ -350,19 +350,26 @@ class CoworkingController {
 		}
 	}
 
+    static async createFocusRoom(client,roomName){
+        const channel = await ChannelController.createTemporaryVoiceChannel(client,roomName,CHANNEL_WEEKLY_SCYNC_CATEGORY)
+        supabase.from("CoworkingEvents")
+            .update({status:'upcoming',voiceRoomId:channel.id})
+            .eq('id',channel.id)
+            .then()
+        return channel
+    }
+
 	static async remindFiveMinutesBeforeCoworking(client,time,eventId){
 		const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
 		schedule.scheduleJob(time,async function() {
 			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
-			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt ){
-				const channel = await ChannelController.createTemporaryVoiceChannel(client,'room',CHANNEL_WEEKLY_SCYNC_CATEGORY)
-                supabase.from("CoworkingEvents")
-                    .update({status:'upcoming',voiceRoomId:channel.id})
-                    .then()
+			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt && newEvent.body.voiceRoomId === null){
+				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName)
                 const dataAttendances = await supabase.from("CoworkingAttendances")
                     .select()
                     .eq('EventId',eventId)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
+                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,UserController.getNameFromUserDiscord(user),channel.id))
                 dataAttendances.body.forEach(async attendance=>{
                     ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,UserController.getNameFromUserDiscord(user),channel.id))
                 })

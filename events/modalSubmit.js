@@ -420,30 +420,37 @@ The correct format:
 			let totalMinute = Time.getTotalMinutes(duration)
 			let {error,data:coworkingDate} = Time.convertToDate(date)
 			if(error) return modal.editReply('invalid format date')
-			console.log(coworkingDate,date);
+
+
 
 			const fiveMinutesBefore = new Date(coworkingDate.valueOf())
 			fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
 
 			const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
-			channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,coworkingDate))
+			channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
 				.then(msg=>{
 					ChannelController.createThread(msg,name)
 						.then(data=>{
 							console.log(data);
 						})
-					msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,coworkingDate))
+					msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+					const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
 					supabase.from("CoworkingEvents")
 					.insert({
 						id:msg.id,
 						rules,
 						name,
+						voiceRoomName,
 						totalMinute,
 						date:coworkingDate,
 						totalSlot,
 						HostId:modal.user.id
 					}).then()
-					CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
+					if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) > 5){
+						CoworkingController.createFocusRoom(modal.client,voiceRoomName)
+					}else{
+						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
+					}
 					supabase.from("Reminders")
 						.insert([
 							{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},

@@ -24,7 +24,9 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
     static coworkingEvent(eventId,eventName,author,totalSlot,totalAttendance,rule,totalMinute,coworkingDate){
         let footer = ''
         const session = Time.convertTime(totalMinute,'short')
-        const endDate = new Date(coworkingDate.valueOf())
+        const startDate = new Date(coworkingDate.valueOf())
+        startDate.setHours(Time.minus7Hours(startDate.getHours())) 
+        const endDate = new Date(startDate.valueOf())
         endDate.setMinutes(endDate.getMinutes()+totalMinute)
         const availableSlot = totalSlot - 1 //author
         const spotLeft = availableSlot - totalAttendance
