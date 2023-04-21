@@ -63,6 +63,11 @@ class Time {
             }
           }
     }
+
+    static getMinutesFromDate(date){
+        const minute = date.getMinutes()
+        return minute > 9 ? minute : `0${minute}`
+    }
     static getDate(customDate){
         const date= customDate ? new Date(customDate) : new Date()
         date.setHours(date.getHours()+Number(TIMEZONE))
