@@ -1,13 +1,36 @@
 const schedule = require('node-schedule');
-const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID, CHANNEL_WEEKLY_SCYNC_CATEGORY } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');
 const ChannelController = require('./ChannelController');
-const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType } = require('discord.js');
+const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType, ModalBuilder, TextInputBuilder, ActionRowBuilder } = require('discord.js');
+const { TextInputStyle } = require('discord.js');
+const MemberController = require('./MemberController');
+const UserController = require('./UserController');
 
 class CoworkingController {
+    static showModalScheduleCoworking(interaction){
+        if(interaction.customId === 'scheduleCoworking'){
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Schedule a session 👨‍💻👩‍💻")
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Event Title").setStyle(TextInputStyle.Short).setValue('Virtual Coworking').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration").setStyle(TextInputStyle.Short).setPlaceholder('e.g. 50 min / 2 hr / etc').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (24-h)").setStyle(TextInputStyle.Paragraph).setPlaceholder('e.g: today at 20.00 wib / 14 mar at 20.00 wib').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('totalSlot').setLabel("How many people (max 25)").setStyle(TextInputStyle.Short).setValue('9').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('rules').setLabel("Agenda & rules").setStyle(TextInputStyle.Paragraph).setPlaceholder(`5 min goal / 50 min focus / 5 min celebrate \n(feel free to delete or add based on your rules)`).setRequired(true))
+            )
+            
+			interaction.showModal(modal);
+			return true
+		}
+        return false
+    }
+
     static recurringCoworkingSession(client){
 
         let ruleCoworkingSession = new schedule.RecurrenceRule();
@@ -278,6 +301,74 @@ class CoworkingController {
             }
         })
     }
+
+    static async updateCoworkingMessage(msg){
+        const eventId = msg.id
+        const [dataEvent,dataAttendance] = await Promise.all([
+            supabase.from('CoworkingEvents')
+            .select('*')
+            .eq('id',eventId).single(),
+            supabase.from("CoworkingAttendances")
+                .select()
+                .eq('EventId',eventId)
+        ])
+
+        
+        const {name,totalSlot,rules,totalMinute,date,HostId} = dataEvent.body
+        console.log(dataEvent);
+        const {user} = await MemberController.getMember(msg.client,HostId)
+        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date)))
+            
+    }
+
+    static async scheduleCreateCoworkingRoom(client,time,eventId){
+        const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
+		schedule.scheduleJob(time,async function() {
+			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
+			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt ){
+				ChannelController.createTemporaryVoiceChannel(client,)
+			}
+		})
+	}
+
+    static async getCoworkingEvent(eventId){
+        return await supabase.from("CoworkingEvents")
+            .select()
+            .eq('id',eventId)
+            .single()
+    }
+
+    static async setReminderFiveMinutesBeforeCoworking(client){
+		const data = await supabase.from("Reminders")
+			.select()
+			.eq('type',"fiveMinutesBeforeCoworking")
+			.gte('time',new Date().toUTCString())
+		if(data.body.length === 0 ) return
+		for (let i = 0; i < data.body.length; i++) {
+			const {time,message:eventId} = data.body[i];
+            CoworkingController.remindFiveMinutesBeforeCoworking(client,time,eventId)
+		}
+	}
+
+	static async remindFiveMinutesBeforeCoworking(client,time,eventId){
+		const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
+		schedule.scheduleJob(time,async function() {
+			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
+			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt ){
+				const channel = await ChannelController.createTemporaryVoiceChannel(client,'room',CHANNEL_WEEKLY_SCYNC_CATEGORY)
+                supabase.from("CoworkingEvents")
+                    .update({status:'upcoming',voiceRoomId:channel.id})
+                    .then()
+                const dataAttendances = await supabase.from("CoworkingAttendances")
+                    .select()
+                    .eq('EventId',eventId)
+                const {user} = await MemberController.getMember(client,newEvent.body.HostId)
+                dataAttendances.body.forEach(async attendance=>{
+                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,UserController.getNameFromUserDiscord(user),channel.id))
+                })
+			}
+		})
+	}
 }
 
 module.exports = CoworkingController

@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL } = require("../helpers/config");
+const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -32,6 +32,7 @@ const DailyStreakController = require("../controllers/DailyStreakController");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
 const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
+const CoworkingController = require("../controllers/CoworkingController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser) {
@@ -54,7 +55,8 @@ module.exports = {
 			if(IntroController.showModalWriteIntro(interaction)) return
 			if(IntroController.showModalEditIntro(interaction)) return
 			if(FocusSessionController.showModalAddNewProject(interaction)) return
-			
+			if(CoworkingController.showModalScheduleCoworking(interaction)) return
+
 			let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 			if(targetUserId === 'null') targetUserId = interaction.user.id
 			if(commandButton === 'buyOneVacationTicket'){
@@ -72,6 +74,43 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case "cancelBookCoworking":
+					const dataAttendance = await supabase.from("CoworkingAttendances")
+						.select()
+						.eq('UserId',interaction.user.id)
+						.eq('EventId',value)
+						.single()
+					if (dataAttendance.body) {
+						const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
+						const threadCoworking = await ChannelController.getThread(channel,dataAttendance.body.EventId)
+						const msg = await ChannelController.getMessage(threadCoworking,dataAttendance.body.id)
+						supabase.from("CoworkingAttendances")
+							.delete()
+							.eq('id',dataAttendance.body.id)
+							.then(data=>{
+								CoworkingController.updateCoworkingMessage(interaction.message)
+							})
+						msg.delete()
+						interaction.editReply("Cancel Book Coworking")
+					}else{
+						interaction.editReply("belum Book Coworking")
+					}
+					break;
+				case "bookCoworking":
+					interaction.editReply("Success Book")
+					const threadCoworking = await ChannelController.getThread(
+						ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION),
+						interaction.message.id
+					)
+					threadCoworking.send(`${interaction.user} will attend the session`)
+						.then(msg=>{
+							supabase.from("CoworkingAttendances")
+								.insert({id:msg.id,UserId:interaction.user.id,EventId:interaction.message.id})
+								.then(()=>{
+									CoworkingController.updateCoworkingMessage(interaction.message)
+								})
+						})
+					break;
 				case "continueFocus":{
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't continue focus session someone else")
 					const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)

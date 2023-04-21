@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -33,6 +33,7 @@ const IntroMessage = require("../views/IntroMessage");
 const IntroController = require("../controllers/IntroController");
 const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
+const CoworkingMessage = require("../views/CoworkingMessage");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -407,6 +408,48 @@ The correct format:
 
 			modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
 			modal.editReply('change custom reply')
+		}else if(commandButton === 'scheduleCoworking'){
+			await modal.deferReply({ephemeral:true})
+			const name = modal.getTextInputValue('name');
+			const duration = modal.getTextInputValue('duration');
+			const date = modal.getTextInputValue('date');
+			const totalSlot = modal.getTextInputValue('totalSlot');
+			const rules = modal.getTextInputValue('rules');
+			
+			let totalMinute = Time.getTotalMinutes(duration)
+			let {error,data:coworkingDate} = Time.convertToDate(date)
+			if(error) return modal.editReply('invalid format date')
+			console.log(coworkingDate,date);
+
+			const fiveMinutesBefore = new Date(coworkingDate.valueOf())
+			fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
+
+			const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
+			channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,coworkingDate))
+				.then(msg=>{
+					ChannelController.createThread(msg,name)
+						.then(data=>{
+							console.log(data);
+						})
+					msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,coworkingDate))
+					supabase.from("CoworkingEvents")
+					.insert({
+						id:msg.id,
+						rules,
+						name,
+						totalMinute,
+						date:coworkingDate,
+						totalSlot,
+						HostId:modal.user.id
+					}).then()
+
+					supabase.from("Reminders")
+						.insert([
+							{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
+							{ message:msg.id, time:coworkingDate, type:'CoworkingEvent'}
+						]).then()
+				})
+			modal.editReply('success create coworking event')
 		}else if(commandButton === 'customReminder'){
 			await modal.deferReply()
 			const time = modal.getTextInputValue('time');

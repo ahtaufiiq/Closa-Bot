@@ -73,7 +73,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
     }
 
     static startFocusSession(author){
-        return `**Hi ${author}, to start your co-working session follow the steps: **
+        return `**Hi ${author}, follow the steps below to start your session: **
 
 1. Join → <#${CHANNEL_CLOSA_CAFE}>
 2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
@@ -81,10 +81,8 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
 **Having a trouble? try one of these:**
 \`\`\`
-• Make sure you write #session-goals first before join voice channel or turn-on video.
-• or Try to turn-off then turn-on your video 
-• or turn-off then turn-on sharescreen.
-• or disconnect > join the voice channel > turn-on video or sharescreen.
+• Try to turn-off then turn-on either your video or sharescreen.
+• Make sure to write #session-goals first & then select your project before step 1.
 \`\`\``
 
     }

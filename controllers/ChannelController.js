@@ -1,4 +1,4 @@
-const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
@@ -162,6 +162,19 @@ class ChannelController{
     static sendError(error,data='error'){
         const webhookClient = new WebhookClient({ url:"https://discord.com/api/webhooks/953519981629419540/5PQwLXEB-Xxh5nuwOANNRUdddt1UTqsCay-TRRVocN-_lV6mXSoSI7KkZX7xiC8PDh1E" });
         webhookClient.send(`${data}: ${error}`)
+    }
+
+    static async createTemporaryVoiceChannel(client,name,channelParentID){
+        const guild = client.guilds.cache.get(GUILD_ID)
+
+        const voiceChannel = await guild.channels.create({
+            name,
+            parent:ChannelController.getChannel(client,channelParentID),
+            type:ChannelType.GuildVoice,
+            
+        })
+        
+        return voiceChannel
     }
 }
 

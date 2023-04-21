@@ -7,6 +7,8 @@ module.exports = {
     MY_ID: process.env.MY_ID,
     GUILD_ID: process.env.GUILD_ID,
     CHANNEL_COMMAND: process.env.CHANNEL_COMMAND,
+    CHANNEL_CREATE_SESSION: process.env.CHANNEL_CREATE_SESSION,
+    CHANNEL_UPCOMING_SESSION: process.env.CHANNEL_UPCOMING_SESSION,
     CHANNEL_GUIDELINE: process.env.CHANNEL_GUIDELINE,
     CHANNEL_GENERAL: process.env.CHANNEL_GENERAL,
     CHANNEL_CLOSA_CAFE: process.env.CHANNEL_CLOSA_CAFE,
@@ -59,5 +61,6 @@ module.exports = {
     SENTRY_DSN: process.env.SENTRY_DSN,
     EMAIL_PASS: process.env.EMAIL_PASS,
     SENDINBLUE_API_KEY: process.env.SENDINBLUE_API_KEY,
-    BASE_URL: process.env.BASE_URL
+    BASE_URL: process.env.BASE_URL,
+    JUNE_API_KEY: process.env.JUNE_API_KEY
 }
