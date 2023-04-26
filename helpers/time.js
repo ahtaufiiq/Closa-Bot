@@ -169,7 +169,7 @@ class Time {
             coworkingDate.setMonth(monthInNumber)
             coworkingDate.setDate(date)
         }
-        coworkingDate.setHours(Time.minus7Hours(Number(hours) + differentTime))
+        coworkingDate.setHours(Time.minus7Hours(Number(hours) + differentTime,false))
         coworkingDate.setMinutes(minutes)
         result.data = coworkingDate
         return result
@@ -197,9 +197,11 @@ class Time {
         }
     }
     
-    static minus7Hours(hour){
+    static minus7Hours(hour,isAbsolute=true){
     	hour = hour - Number(TIMEZONE)		
-        return hour < 0 ? 24 + hour : hour
+        if(isAbsolute) return hour < 0 ? 24 + hour : hour
+        else return hour
+        
     }
 
     static isYesterday(dateOnly) {

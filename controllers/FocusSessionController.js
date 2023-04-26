@@ -127,7 +127,7 @@ class FocusSessionController {
 
     static async getAllTodayTasks(userId){
         const date = new Date(Time.getTodayDateOnly())
-        date.setHours(Time.minus7Hours(date.getHours()))
+        date.setHours(Time.minus7Hours(date.getHours(),false))
         return await supabase.from('FocusSessions')
             .select('*,Projects(name)')
             .gte('createdAt',date.toISOString())

@@ -69,8 +69,8 @@ class CoworkingController {
         schedule.scheduleJob(ruleCoworkingSession,function(){
             if(CoworkingController.isNotTuesday()){
                 Promise.all([
-                    CoworkingController.createCoworkingEvent(client,'morning','tomorrow'),
-                    CoworkingController.createCoworkingEvent(client,'night','tomorrow'),
+                    CoworkingController.createEventDiscord(client,'morning','tomorrow'),
+                    CoworkingController.createEventDiscord(client,'night','tomorrow'),
                 ])
                 .then(([morning,night])=>{
                     const data = LocalData.getData()
@@ -101,7 +101,7 @@ class CoworkingController {
     }
 
     //startTime = 'now' || 'tomorrow'
-    static async createCoworkingEvent(client,type='morning',startTime){
+    static async createEventDiscord(client,type='morning',startTime){
         let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight()
         let description = type === 'morning' ? CoworkingMessage.descriptionCoworkingMorning() : CoworkingMessage.descriptionCoworkingNight()
         let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession(type,startTime)
@@ -232,7 +232,7 @@ class CoworkingController {
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
-                const event = await CoworkingController.createCoworkingEvent(client,'morning','now')
+                const event = await CoworkingController.createEventDiscord(client,'morning','now')
                 isScheduled = event.status === "SCHEDULED"
                 data.morning = event.id
                 LocalData.writeData(data)
@@ -246,7 +246,7 @@ class CoworkingController {
             const isCompleted = event.status === "COMPLETED"
             let isScheduled = event.status === "SCHEDULED"
             if (isCompleted) {
-                const event = await CoworkingController.createCoworkingEvent(client,'night','now')
+                const event = await CoworkingController.createEventDiscord(client,'night','now')
                     
                 isScheduled = event.status === "SCHEDULED"
                 data.night = event.id
@@ -303,14 +303,14 @@ class CoworkingController {
         const data = LocalData.getData()
         if (this.isRangeMorningSession()) {
             this.stopEvent(client,data.morning)
-            CoworkingController.createCoworkingEvent(client,'morning','now').then((morning) => {
+            CoworkingController.createEventDiscord(client,'morning','now').then((morning) => {
                 const data = LocalData.getData()
                 data.morning = morning.id
                 LocalData.writeData(data)
             })
         }else if(this.isRangeNightSession()){
             this.stopEvent(client,data.night)
-            CoworkingController.createCoworkingEvent(client,'night','now').then((night)=>{
+            CoworkingController.createEventDiscord(client,'night','now').then((night)=>{
                 const data = LocalData.getData()
                 data.night = night.id
                 LocalData.writeData(data)
@@ -380,6 +380,46 @@ class CoworkingController {
                 { message:CoworkingEventId, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking',UserId},
                 { message:CoworkingEventId, time:coworkingDate, type:'CoworkingEvent',UserId}
             ]).then()
+    }
+    
+    static createCoworkingEvent(modal){
+        const name = modal.getTextInputValue('name');
+        const duration = modal.getTextInputValue('duration');
+        const date = modal.getTextInputValue('date');
+        const totalSlot = modal.getTextInputValue('totalSlot');
+        const rules = modal.getTextInputValue('rules');
+        let totalMinute = Time.getTotalMinutes(duration)
+        let {error,data:coworkingDate} = Time.convertToDate(date)
+        if(error) return modal.editReply('invalid format date')
+
+        const fiveMinutesBefore = new Date(coworkingDate.valueOf())
+        fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
+
+        const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
+        channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+            .then(msg=>{
+                ChannelController.createThread(msg,name)
+                msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+                const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
+                supabase.from("CoworkingEvents")
+                .insert({
+                    id:msg.id,
+                    rules,
+                    name,
+                    voiceRoomName,
+                    totalMinute,
+                    date:coworkingDate,
+                    totalSlot,
+                    HostId:modal.user.id
+                }).then()
+                if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
+                    CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
+                }else{
+                    CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
+                }
+                CoworkingController.addReminderCoworkingEvent(coworkingDate,modal.user.id,msg.id)
+            })
+        modal.editReply('success create coworking event')
     }
 
     static async getCoworkingEvent(eventId){

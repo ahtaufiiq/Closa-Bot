@@ -214,7 +214,7 @@ The correct format:
 			meetupDate.setDate(date)
 			if (monthInNumber < meetupDate.getMonth()) meetupDate.setFullYear(meetupDate.getFullYear()+1)
 			meetupDate.setMonth(monthInNumber)
-			meetupDate.setHours(Time.minus7Hours(hours))
+			meetupDate.setHours(Time.minus7Hours(hours,false))
 			meetupDate.setMinutes(minutes)
 	
 			const partyId = modal.channel.name.split(' ')[1]
@@ -411,46 +411,7 @@ The correct format:
 			modal.editReply('change custom reply')
 		}else if(commandButton === 'scheduleCoworking'){
 			await modal.deferReply({ephemeral:true})
-			const name = modal.getTextInputValue('name');
-			const duration = modal.getTextInputValue('duration');
-			const date = modal.getTextInputValue('date');
-			const totalSlot = modal.getTextInputValue('totalSlot');
-			const rules = modal.getTextInputValue('rules');
-			
-			let totalMinute = Time.getTotalMinutes(duration)
-			let {error,data:coworkingDate} = Time.convertToDate(date)
-			if(error) return modal.editReply('invalid format date')
-
-
-
-			const fiveMinutesBefore = new Date(coworkingDate.valueOf())
-			fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
-
-			const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
-			channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
-				.then(msg=>{
-					ChannelController.createThread(msg,name)
-					msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
-					const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
-					supabase.from("CoworkingEvents")
-					.insert({
-						id:msg.id,
-						rules,
-						name,
-						voiceRoomName,
-						totalMinute,
-						date:coworkingDate,
-						totalSlot,
-						HostId:modal.user.id
-					}).then()
-					if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
-						CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
-					}else{
-						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
-					}
-					CoworkingController.addReminderCoworkingEvent(coworkingDate,modal.user.id,msg.id)
-				})
-			modal.editReply('success create coworking event')
+			CoworkingController.createCoworkingEvent(modal)
 		}else if(commandButton === 'editCoworking'){
 			await modal.deferReply({ephemeral:true})
 			const name = modal.getTextInputValue('name');

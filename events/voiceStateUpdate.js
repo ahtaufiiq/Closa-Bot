@@ -118,7 +118,7 @@ module.exports = {
 			.eq('id',userId)
 			.then()
 		}
-		
+
 		if(oldMember.channel === null){
 			closaCafe[userId] = Time.getDate()
 		}else if (newMember.channel === null) {

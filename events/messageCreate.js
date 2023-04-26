@@ -74,7 +74,7 @@ module.exports = {
 							lastHighlight = Time.getTomorrowDateOnly()
 						}
 
-						date.setHours(Time.minus7Hours(Number(hours)+differentTime))
+						date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
 						date.setMinutes(minutes-10)
 						supabase.from('Reminders')
 							.insert({
