@@ -469,12 +469,24 @@ class CoworkingController {
 	}
 
     static async haveCoworkingEvent(userId){
-        const data = await supabase.from('CoworkingAttendances')
-            .select('*,CoworkingEvents(status,voiceRoomId)')
-            .eq("UserId",userId)
+        const [dataAttendance,dataHost] = await Promise.all([
+            supabase.from('CoworkingAttendances')
+                .select('*,CoworkingEvents(status,voiceRoomId)')
+                .eq("UserId",userId),
+            supabase.from("CoworkingEvents")
+                .select()
+                .eq('HostId',userId)
+                .or('status.eq.upcoming,status.eq.live')
+                .limit(1)
+                .single()
+        ])
 
-        for (let i = 0; i < data.body.length; i++) {
-            const {status,voiceRoomId} = data.body[i]?.CoworkingEvents;
+        if(dataHost.body){
+            return {voiceRoomId: dataHost.body.voiceRoomId}
+        }
+
+        for (let i = 0; i < dataAttendance.body.length; i++) {
+            const {status,voiceRoomId} = dataAttendance.body[i]?.CoworkingEvents;
             if(status === 'upcoming' || status === 'live'){
                 return {voiceRoomId}
             }
@@ -488,6 +500,7 @@ class CoworkingController {
             .eq("HostId",HostId)
             .eq('voiceRoomId',voiceRoomId)
             .eq('status','upcoming')
+            .limit(1)
             .single()
     }
 }
