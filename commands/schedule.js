@@ -32,7 +32,7 @@ The correct format:
 		meetupDate.setDate(date)
 		if (monthInNumber < meetupDate.getMonth()) meetupDate.setFullYear(meetupDate.getFullYear()+1)
 		meetupDate.setMonth(monthInNumber)
-		meetupDate.setHours(Time.minus7Hours(hours))
+		meetupDate.setHours(Time.minus7Hours(hours,false))
 		meetupDate.setMinutes(minutes)
 
 		if(!RecurringMeetupController.isDateBeforeCelebrationDay(meetupDate)){
