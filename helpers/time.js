@@ -151,11 +151,13 @@ class Time {
         const patternTime = /\d+[.:]\d+/
         const time = string.match(patternTime)[0]
         const [hours,minutes] = time.split(/[.:]/)
-        const coworkingDate = Time.getDate()
+        let coworkingDate = new Date()
         
         if(isTomorrow) {
             coworkingDate.setDate(coworkingDate.getDate()+1)
-        }else if(!isToday){
+        }else if(isToday){
+            coworkingDate = new Date(Time.getTodayDateOnly())
+        }else{
             const date = string.match(/(\d+)/)[0]
             const month = string.match(/(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)/i)
             if(!month){
