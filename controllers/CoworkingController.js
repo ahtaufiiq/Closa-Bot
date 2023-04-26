@@ -460,9 +460,9 @@ class CoworkingController {
                     .select()
                     .eq('EventId',eventId)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
-                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,UserController.getNameFromUserDiscord(user),channel.id))
+                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,UserController.getNameFromUserDiscord(user),channel.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
-                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,UserController.getNameFromUserDiscord(user),channel.id))
+                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,UserController.getNameFromUserDiscord(user),channel.id),attendance.UserId)
                 })
 			}
 		})
