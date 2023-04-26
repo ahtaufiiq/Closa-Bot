@@ -52,7 +52,6 @@ class MessageComponent {
     }
 
     static embedMessage({title,description,user},color="#00B264"){
-        console.log({title,description,user});
         const embed = new EmbedBuilder()
         .setColor(color)
         .setTitle(FormatString.truncateString(title,252) || null)

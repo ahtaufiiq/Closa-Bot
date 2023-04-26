@@ -68,6 +68,10 @@ class Time {
         const minute = date.getMinutes()
         return minute > 9 ? minute : `0${minute}`
     }
+    static getHoursFromDate(date){
+        const hour = date.getHours()
+        return hour > 9 ? hour : `0${hour}`
+    }
     static getDate(customDate){
         const date= customDate ? new Date(customDate) : new Date()
         date.setHours(date.getHours()+Number(TIMEZONE))
@@ -175,7 +179,6 @@ class Time {
       
         if (matches && matches.length > 0) {
             const parts = matches[0].split(" "); // Split the match by space to extract hours and minutes
-            console.log("🚀 ~ file: time.js:175 ~ Time ~ getTotalMinutes ~ parts:", parts)
             const hours = parseInt(parts[0]); // Extract hours from the first part
             const strMinute = parts[1] === 'hr' ? parts[2] : parts[1]
             const minutes = strMinute ? parseInt(strMinute) : 0; // Extract minutes from the third part, or use 0 if not present

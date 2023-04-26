@@ -72,10 +72,10 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     }
 
-    static startFocusSession(author){
+    static startFocusSession(author,voiceRoomId){
         return `**Hi ${author}, follow the steps below to start your session: **
 
-1. Join → <#${CHANNEL_CLOSA_CAFE}>
+1. Join → <#${voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE}>
 2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
 3. Mute your mic during focus time.
 

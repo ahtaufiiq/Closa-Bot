@@ -357,7 +357,6 @@ class CoworkingController {
 
         
         const {name,totalSlot,rules,totalMinute,date,HostId} = dataEvent.body
-        console.log(dataEvent);
         const {user} = await MemberController.getMember(msg.client,HostId)
         msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date)))
             
@@ -372,6 +371,16 @@ class CoworkingController {
 			}
 		})
 	}
+
+    static async addReminderCoworkingEvent(coworkingDate,UserId,CoworkingEventId){
+        const fiveMinutesBefore = new Date(coworkingDate.valueOf())
+        fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
+        supabase.from("Reminders")
+            .insert([
+                { message:CoworkingEventId, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking',UserId},
+                { message:CoworkingEventId, time:coworkingDate, type:'CoworkingEvent',UserId}
+            ]).then()
+    }
 
     static async getCoworkingEvent(eventId){
         return await supabase.from("CoworkingEvents")
@@ -418,6 +427,29 @@ class CoworkingController {
 			}
 		})
 	}
+
+    static async haveCoworkingEvent(userId){
+        const data = await supabase.from('CoworkingAttendances')
+            .select('*,CoworkingEvents(status,voiceRoomId)')
+            .eq("UserId",userId)
+
+        for (let i = 0; i < data.body.length; i++) {
+            const {status,voiceRoomId} = data.body[i]?.CoworkingEvents;
+            if(status === 'upcoming' || status === 'live'){
+                return {voiceRoomId}
+            }
+        }
+        return false
+    }
+
+    static async isHostCoworking(HostId,voiceRoomId){
+        return await supabase.from('CoworkingEvents')
+            .select()
+            .eq("HostId",HostId)
+            .eq('voiceRoomId',voiceRoomId)
+            .eq('status','upcoming')
+            .single()
+    }
 }
 
 module.exports = CoworkingController

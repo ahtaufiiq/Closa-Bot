@@ -430,9 +430,6 @@ The correct format:
 			channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
 				.then(msg=>{
 					ChannelController.createThread(msg,name)
-						.then(data=>{
-							console.log(data);
-						})
 					msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
 					const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
 					supabase.from("CoworkingEvents")
@@ -451,11 +448,7 @@ The correct format:
 					}else{
 						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 					}
-					supabase.from("Reminders")
-						.insert([
-							{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
-							{ message:msg.id, time:coworkingDate, type:'CoworkingEvent'}
-						]).then()
+					CoworkingController.addReminderCoworkingEvent(coworkingDate,modal.user.id,msg.id)
 				})
 			modal.editReply('success create coworking event')
 		}else if(commandButton === 'editCoworking'){
@@ -479,9 +472,6 @@ The correct format:
 			)
 
 			ChannelController.createThread(msg,name)
-				.then(data=>{
-					console.log(data);
-				})
 			msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
 			const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
 			supabase.from("CoworkingEvents")

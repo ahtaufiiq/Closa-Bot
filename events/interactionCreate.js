@@ -110,7 +110,13 @@ module.exports = {
 								.then(()=>{
 									CoworkingController.updateCoworkingMessage(interaction.message)
 								})
+							CoworkingController.getCoworkingEvent(interaction.message.id)
+								.then(data=>{
+									const coworkingDate = new Date(data.body.time)
+									CoworkingController.addReminderCoworkingEvent(coworkingDate,interaction.user.id,interaction.message.id)
+								})
 						})
+					
 					break;
 				case "continueFocus":{
 					if(targetUserId !== interaction.user.id) return interaction.editReply("You can't continue focus session someone else")
@@ -607,8 +613,8 @@ module.exports = {
 						const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 						if (dataUser.body?.dailyWorkTime) {
 							FocusSessionController.insertFocusSession(interaction.user.id,value,valueMenu,interaction.channelId)
-
-							await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user))
+							const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(interaction.user.id)
+							await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user,haveCoworkingEvent?.voiceRoomId))
 						}else{
 							await interaction.editReply(
 								FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,value)
