@@ -261,7 +261,7 @@ module.exports = {
 							supabase.from("CoworkingEvents")
 								.update({status:'live'})
 								.eq('voiceRoomId',joinedChannelId)
-								.then(data=>console.log(data))
+								.then()
 							const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
 							const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
 							CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
@@ -284,6 +284,10 @@ module.exports = {
 													.then(coworkingEventThread =>{
 														coworkingEventThread.delete()
 													})
+												supabase.from("CoworkingEvents")
+													.delete()
+													.eq('voiceRoomId',joinedChannelId)
+													.then()
 											}, 1000 * 15);
 										}
 									}, Time.oneMinute());
