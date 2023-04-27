@@ -344,7 +344,7 @@ class CoworkingController {
         })
     }
 
-    static async updateCoworkingMessage(msg){
+    static async updateCoworkingMessage(msg,isLive=false){
         const eventId = msg.id
         const [dataEvent,dataAttendance] = await Promise.all([
             supabase.from('CoworkingEvents')
@@ -356,9 +356,9 @@ class CoworkingController {
         ])
 
         
-        const {name,totalSlot,rules,totalMinute,date,HostId} = dataEvent.body
+        const {name,totalSlot,rules,totalMinute,date,HostId,voiceRoomId} = dataEvent.body
         const {user} = await MemberController.getMember(msg.client,HostId)
-        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date)))
+        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date),isLive,voiceRoomId))
             
     }
 

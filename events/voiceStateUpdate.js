@@ -15,8 +15,6 @@ const { AttachmentBuilder } = require('discord.js');
 const UserController = require('../controllers/UserController');
 const CoworkingMessage = require('../views/CoworkingMessage');
 let listFocusRoom = {
-	"737311735308091423":true,
-	"949245624094687283":true,
 	[CHANNEL_CLOSA_CAFE]:true
 }
 let closaCafe = {
@@ -35,6 +33,15 @@ module.exports = {
 		const userId = newMember.member.id || oldMember.member.id
 		const joinedChannelId = newMember?.channel?.id
 		const beforeJoinedChannelId = oldMember?.channel?.id
+
+		if(!listFocusRoom[joinedChannelId]){
+			const event = await supabase.from("CoworkingEvents")
+				.select()
+				.eq('voiceRoomId',joinedChannelId)
+			if(event.body.length > 0) listFocusRoom[joinedChannelId] = true
+			console.log(listFocusRoom);
+		}
+
 		if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
 			const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
 			if(dataEvent.body){
@@ -172,7 +179,7 @@ module.exports = {
 
 			delete closaCafe[userId]
 		}
-
+		console.log(focusRoomUser,listFocusRoom);
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
 				.select()
@@ -199,35 +206,10 @@ module.exports = {
 						firstTime:true,
 					}
 					FocusSessionController.setCoworkingPartner(userId)
-					CoworkingController.isHostCoworking(userId,joinedChannelId)
-						.then(dataEvent=>{
-							if(dataEvent.body){
-								const {rules,totalMinute} = dataEvent.body
-								let currentMin = totalMinute
-								newMember.channel.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
-									.then(msg=>{
-										const countdownCoworkingSession = setInterval(() => {
-											currentMin--
-											msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
-											if(currentMin === 10) newMember.channel.send(CoworkingMessage.remindSessionEnded(10))
-											else if(currentMin === 5) newMember.channel.send(CoworkingMessage.remindSessionEnded(5))
-											else if(currentMin === 2) newMember.channel.send(CoworkingMessage.remindSessionEnded(2))
-											else if(currentMin === 0){
-												clearInterval(countdownCoworkingSession)
-												setTimeout(() => {
-													newMember.channel.send(CoworkingMessage.remindSessionEnded())
-												}, 1000 * 15);
-											}
-										}, Time.oneMinute());
-									})
-							}
-						})
 					
 					const channel = oldMember.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_SESSION_GOAL)
 					const thread = await channel.threads.fetch(data.threadId);
 					if (newMember.selfVideo || newMember.streaming ){
-						
-						CoworkingController.handleStartCoworkingSession(oldMember.client)
 						const data = await FocusSessionController.getDetailFocusSession(userId)
 						const taskName = data?.taskName
 						const projectName = data.Projects.name
@@ -264,7 +246,6 @@ module.exports = {
 						})
 				}
 			}else if (focusRoomUser[userId]?.firstTime){
-				CoworkingController.handleStartCoworkingSession(oldMember.client)
 				const data = await FocusSessionController.getDetailFocusSession(userId)
 				const taskName = data?.taskName
 				const projectName = data.Projects.name
@@ -273,13 +254,45 @@ module.exports = {
 						FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 					})
 				focusRoomUser[userId].firstTime = false
+				CoworkingController.isHostCoworking(userId,joinedChannelId)
+					.then(async dataEvent=>{
+						if(dataEvent.body){
+							const {rules,totalMinute} = dataEvent.body
+							supabase.from("CoworkingEvents")
+								.update({status:'live'})
+								.eq('voiceRoomId',joinedChannelId)
+								.then(data=>console.log(data))
+							const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
+							const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
+							CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
+							let currentMin = totalMinute
+							newMember.channel.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+								.then(msg=>{
+									const countdownCoworkingSession = setInterval(() => {
+										currentMin--
+										msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+										if(currentMin === 10) newMember.channel.send(CoworkingMessage.remindSessionEnded(10))
+										else if(currentMin === 5) newMember.channel.send(CoworkingMessage.remindSessionEnded(5))
+										else if(currentMin === 2) newMember.channel.send(CoworkingMessage.remindSessionEnded(2))
+										else if(currentMin === 0){
+											clearInterval(countdownCoworkingSession)
+											newMember.channel.send(CoworkingMessage.remindSessionEnded())
+											setTimeout(() => {
+												newMember.channel.delete()
+												coworkingEventMessage.delete()
+												ChannelController.getThread(channel,dataEvent.body.id)
+													.then(coworkingEventThread =>{
+														coworkingEventThread.delete()
+													})
+											}, 1000 * 15);
+										}
+									}, Time.oneMinute());
+								})
+						}
+					})
 			}
 		}else if(listFocusRoom[oldMember.channelId] && !listFocusRoom[newMember.channelId] && focusRoomUser[userId] ){
-			if (totalOldMember === 0 && !focusRoomUser[userId]?.firstTime) {
-				setTimeout(() => {
-					CoworkingController.handleLastUserLeaveEvent(oldMember.client)
-				}, 1000 * 60);
-			}
+
 			const {totalTime,focusTime,breakTime} = focusRoomUser[userId]
 			const data = await FocusSessionController.getDetailFocusSession(userId)
 			const taskName = data?.taskName

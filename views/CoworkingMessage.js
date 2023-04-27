@@ -21,7 +21,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         }
     }
     
-    static coworkingEvent(eventId,eventName,author,totalSlot,totalAttendance,rule,totalMinute,coworkingDate){
+    static coworkingEvent(eventId,eventName,author,totalSlot,totalAttendance,rule,totalMinute,coworkingDate,isLive=false,voiceRoomId){
         let footer = ''
         const session = Time.convertTime(totalMinute,'short')
         const startDate = new Date(coworkingDate.valueOf())
@@ -48,21 +48,28 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
 			startDate,
 			endDate
 		  )
-        return {
-            embeds:[
-                new EmbedBuilder()
-                .setColor("#FEFEFE")
-                .setTitle(`${UserController.getNameFromUserDiscord(author)} wants to ${eventName} @ ${CoworkingMessage.formatCoworkingDate(coworkingDate)}`)
-                .setDescription(`${session} session\n${rule}`)
-                .setFooter({text:`${UserController.getNameFromUserDiscord(author)} ${footer}`, iconURL:InfoUser.getAvatar(author)})
-            ],
-            components:[MessageComponent.createComponent(
+        const components = []
+        if(!isLive){
+            components.push(MessageComponent.createComponent(
                 MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
                 MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
                 MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓'),
                 MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
                 // MessageComponent.addLinkButton('Learn more','')
-            )]
+            ))
+        }
+        const content = isLive ? `${MessageFormatting.tagUser(author.id)} just started ${eventName} — LIVE 🔴` :`${MessageFormatting.tagUser(author.id)} just scheduled a session`
+        const titleEmbed = isLive ? `**Join** → ${MessageFormatting.tagChannel(voiceRoomId)}` : `${UserController.getNameFromUserDiscord(author)} wants to ${eventName} @ ${CoworkingMessage.formatCoworkingDate(coworkingDate)}`
+        return {
+            content,
+            embeds:[
+                new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setTitle(titleEmbed)
+                .setDescription(`${session} session\n${rule}`)
+                .setFooter({text:`${UserController.getNameFromUserDiscord(author)} ${footer}`, iconURL:InfoUser.getAvatar(author)})
+            ],
+            components
         }
     }
 
@@ -207,11 +214,11 @@ ${rules}
         let isGreySquare = false
         let progressTimer = ''
         for (let i = 1; i <= 10; i++) {
-            if(puluhan >= i) progressTimer += '🟩'
-            else if(isGreySquare) progressTimer += '⬜'
+            if(puluhan >= i) progressTimer += '🟩 '
+            else if(isGreySquare) progressTimer += '⬜ '
             else{
-                if(satuan >= 5) progressTimer += '🟨'
-                else progressTimer += '⬜'
+                if(satuan >= 5) progressTimer += '🟨 '
+                else progressTimer += '⬜ '
                 isGreySquare = true
             }
         }
