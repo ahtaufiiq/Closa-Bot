@@ -33,6 +33,7 @@ const DailyStreakMessage = require("../views/DailyStreakMessage");
 const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const CoworkingController = require("../controllers/CoworkingController");
+const CoworkingMessage = require("../views/CoworkingMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser) {
@@ -75,6 +76,9 @@ module.exports = {
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			switch (commandButton) {
+				case 'showGuidelineCoworking':
+					interaction.editReply(CoworkingMessage.guidelineCoworking())
+					break;
 				case "cancelBookCoworking":
 					const dataAttendance = await supabase.from("CoworkingAttendances")
 						.select()

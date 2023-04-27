@@ -1,5 +1,5 @@
 const { EmbedBuilder, ButtonStyle } = require("discord.js")
-const { CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_UPCOMING_SESSION, CHANNEL_SESSION_GOAL } = require("../helpers/config")
+const { CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_UPCOMING_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_TODO } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const InfoUser = require("../helpers/InfoUser")
@@ -132,6 +132,105 @@ Let's get ready:
 3. Join → ${MessageFormatting.tagChannel(channelId)}
 4. Turn on camera \`\`OR\`\` share screen to track your time.
 5. Mute your mic (during focus time).`
+    }
+
+    static howToStartSession(HostId,min=10){
+        return {
+            content:`:arrow_upper_right: **Start your session or Invite your friends** ${MessageFormatting.tagUser(HostId)}
+${min > 0 ? `\n**⏳ ${min} min** remaining to start the session
+or this room will auto-delete.\n`:''}
+**How to start the session?👨‍💻👩‍💻 **
+1. Write the task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
+2. Select your project inside the tasks thread.
+3. __Turn on camera__\`\` OR \`\`__sharescreen__ to start session & track time.
+4. Mute your mic (during focus session).
+
+\`\`Troubleshoot\`\` 
+*turn-off & turn-on your video __or__ sharescreen if the time tracker didn't start*`,
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addEmojiButton('showGuidelineCoworking','Guideline','💡',ButtonStyle.Secondary)
+                )
+            ]
+        }
+    }
+
+    static guidelineCoworking(){
+        return `**HOW TO BE PRODUCTIVE**
+
+**Prepare for your session.**
+\`\`1.\`\` Remove any other sources of interruption: close your door, turn off notifications, etc.
+\`\`2.\`\` Get water/coffee or use the restroom
+\`\`3.\`\` Join your session 2-5 min before it starts
+\`\`4.\`\` Turn on video. Please do not turn off your camera during the session or bot will auto-kick from the room in 2 min.
+    
+**Kick off your session.**
+\`\`1.\`\` Be friendly and greet your partner
+\`\`2.\`\` Ask your partner what they plan to accomplish in this session.
+\`\`3.\`\` Describe you specific task for 30s
+\`\`4.\`\` Post your plan in #session-goals (1 specific task/ session).
+\`\`5.\`\` Start working buy turn-on video.
+(if the time tracker doesn’t start then turn-off then turn-on your video/sharescreen back)
+
+**Get to work.**
+\`\`1.\`\` Work quietly
+\`\`2.\`\` If you need a break: press break button & post in the room chat
+
+**Wrap up.**
+\`\`1.\`\` Few minutes before the session ends. Stop & share what you've done with your partner.
+\`\`2.\`\` Be supportive and celebrate your productive session! 
+\`\`3.\`\` Share to ${MessageFormatting.tagChannel(CHANNEL_TODO)} after the session.
+
+\`\`notes:\`\` 
+\`\`\`• you can listen to music—mute your audio first.
+• Talk only allowed in the beginning & end of the session.
+• If you must step away, post on voice chat while keeping the camera open & back ASAP.
+\`\`\``
+    }
+
+    static countdownCoworkingSession(HostId,rules,totalMin,currentMin){
+        return `Session started @everyone
+
+**${Time.convertTime(currentMin,'short')}** left
+${CoworkingMessage.progressTimer(totalMin,currentMin)}
+
+\`Agenda & Rules\`
+${rules}
+
+\`hosted by\` ${MessageFormatting.tagUser(HostId)}`
+    }
+
+    static progressTimer(totalMin,currentMin){
+        const progress = currentMin / totalMin * 100
+        const puluhan = Math.floor(progress/10)
+        const satuan = progress % 10
+        let isGreySquare = false
+        let progressTimer = ''
+        for (let i = 1; i <= 10; i++) {
+            if(puluhan >= i) progressTimer += '🟩'
+            else if(isGreySquare) progressTimer += '⬜'
+            else{
+                if(satuan >= 5) progressTimer += '🟨'
+                else progressTimer += '⬜'
+                isGreySquare = true
+            }
+        }
+        return progressTimer
+    }
+
+    static remindSessionEnded(type){
+        switch (type) {
+            case 10:
+                return `\`\`10 min\`\` before the session ended @everyone`
+            case 5:
+                return `\`\`5 min\`\` before the session ended, let's celebrate together! :tada: @everyone`
+            case 2:
+                return `\`\`2 min\`\` before the session ended & room auto-delete.
+Feel free to take group photo before the session ended 📸
+tag @joinclosa & your friends to celebrate together ✨`
+            default:
+                return `\`\`15s\`\` It's time say good bye to @everyone!👋`
+        }
     }
 }
 module.exports = CoworkingMessage
