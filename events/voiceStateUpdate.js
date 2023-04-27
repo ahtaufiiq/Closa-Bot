@@ -39,7 +39,6 @@ module.exports = {
 				.select()
 				.eq('voiceRoomId',joinedChannelId)
 			if(event.body.length > 0) listFocusRoom[joinedChannelId] = true
-			console.log(listFocusRoom);
 		}
 
 		if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
@@ -179,7 +178,6 @@ module.exports = {
 
 			delete closaCafe[userId]
 		}
-		console.log(focusRoomUser,listFocusRoom);
 		if(listFocusRoom[newMember.channelId] && !focusRoomUser[userId]){
 			supabase.from('FocusSessions')
 				.select()
@@ -266,19 +264,20 @@ module.exports = {
 							const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
 							CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
 							let currentMin = totalMinute
-							newMember.channel.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+							const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
+							voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
 								.then(msg=>{
 									const countdownCoworkingSession = setInterval(() => {
 										currentMin--
 										msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
-										if(currentMin === 10) newMember.channel.send(CoworkingMessage.remindSessionEnded(10))
-										else if(currentMin === 5) newMember.channel.send(CoworkingMessage.remindSessionEnded(5))
-										else if(currentMin === 2) newMember.channel.send(CoworkingMessage.remindSessionEnded(2))
+										if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
+										else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
+										else if(currentMin === 2) voiceChat.send(CoworkingMessage.remindSessionEnded(2))
 										else if(currentMin === 0){
 											clearInterval(countdownCoworkingSession)
-											newMember.channel.send(CoworkingMessage.remindSessionEnded())
+											voiceChat.send(CoworkingMessage.remindSessionEnded())
 											setTimeout(() => {
-												newMember.channel.delete()
+												voiceChat.delete()
 												coworkingEventMessage.delete()
 												ChannelController.getThread(channel,dataEvent.body.id)
 													.then(coworkingEventThread =>{
