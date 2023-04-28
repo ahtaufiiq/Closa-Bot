@@ -355,7 +355,7 @@ class Time {
     }
 
     static oneMinute(){
-        return 1000 * 10
+        return 1000 * 60
     }
 
 }
