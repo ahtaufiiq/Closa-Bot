@@ -78,7 +78,7 @@ module.exports = {
 		DailyStreakController.remindAboutToLoseStreak(client)
 		DailyStreakController.sendRepairStreak(client)
 
-		CoworkingController.recurringCoworkingSession(client)
+		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
 
 		BoostController.remindBoostInactiveMember(client)
 		BoostController.remindEveryMonday(client)
