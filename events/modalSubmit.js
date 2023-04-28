@@ -75,48 +75,37 @@ module.exports = {
 						.update({isRedeemed:true,redeemedBy:modal.user.id})
 						.eq('referralCode',referralCode)
 						.then()
-				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
-				Promise.all([
-					MembershipController.updateMembership(1,modal.user.id),
-					MembershipController.updateMembership(1,response.ownedBy)
+
+
+				// ChannelController.sendToNotification(
+				// 	modal.client,
+				// 	ReferralCodeMessage.successRedeemReferral(endMembershipNewUser),
+				// 	modal.user.id
+				// )
+
+				ChannelController.sendToNotification(
+					modal.client,
+					ReferralCodeMessage.successRedeemYourReferral(referralCode,modal.user),
+					response.ownedBy
+				)
+
+				const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
+				const referrer = await MemberController.getMember(modal.client,response.ownedBy)
+
+				const [totalMember,totalInvited] = await Promise.all([
+					MemberController.getTotalMember(),
+					ReferralCodeController.getTotalInvited(response.ownedBy)
 				])
-				.then(async ([endMembershipNewUser,endMembershipReferrer])=>{
-					GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
-					GuidelineInfoController.updateMessagGuideline(modal.client,response.ownedBy)
-					ChannelController.sendToNotification(
-						modal.client,
-						ReferralCodeMessage.successRedeemReferral(endMembershipNewUser),
-						modal.user.id
-					)
+				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
+				ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 
-					ChannelController.sendToNotification(
-						modal.client,
-						ReferralCodeMessage.successRedeemYourReferral(referralCode,endMembershipReferrer,modal.user),
-						response.ownedBy
-					)
+				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
+				GuidelineInfoController.generateGuideline(modal.client,modal.user.id)
+				GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
 
-					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
-					const referrer = await MemberController.getMember(modal.client,response.ownedBy)
-
-					const [totalMember,totalInvited] = await Promise.all([
-						MemberController.getTotalMember(),
-						ReferralCodeController.getTotalInvited(response.ownedBy)
-					])
-					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
-					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
-
-					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
-				})
-				
-
-				
 			}else{
 				switch (response.description) {
-					case "expired":
-						await modal.editReply(ReferralCodeMessage.replyExpiredCode());
-						
-						break;
 					case "redeemed":
 						await modal.editReply(ReferralCodeMessage.replyAlreadyRedeemedCode());
 						break;
@@ -229,7 +218,7 @@ The correct format:
 			ChannelController.createThread(msg,`from ${modal.user.username}`)
 			if(commandButton === 'submitTestimonial') ChannelController.deleteMessage(modal.message)
 			await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
-			GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
+			GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
 			TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
 		}else if(commandButton === "writeReflection" ){
 			await modal.deferReply({
@@ -372,7 +361,7 @@ The correct format:
 					UserId:modal.user.id,
 				})
 
-				GuidelineInfoController.updateMessagGuideline(modal.client,modal.user.id)
+				GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
 
 				await modal.editReply(IntroMessage.replySuccessSubmitIntro(totalPoint,incrementPoint))
 			}else if(commandButton === 'editIntro'){

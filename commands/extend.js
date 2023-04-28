@@ -31,7 +31,7 @@ module.exports = {
 			.update({endMembership})
 			.eq('id',user.id)
 
-			GuidelineInfoController.updateMessagGuideline(interaction.client,user.id)
+			GuidelineInfoController.updateMessageGuideline(interaction.client,user.id)
 			await ChannelController.sendToNotification(
 				interaction.client,
 				PaymentMessage.successExtendMembership(formattedDate),

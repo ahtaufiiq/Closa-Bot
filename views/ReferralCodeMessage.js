@@ -9,8 +9,7 @@ class ReferralCodeMessage{
 
     static infoRedeemReferral(){
         return {
-            content:`**Redeem your referral code here:**
-\`\`1 month free membership for code owner & redeemer.\`\``,
+            content:`**Redeem your referral code to early get access here:**`,
             files:[new AttachmentBuilder('./assets/images/redeem_cover.png',{name:'cover.png'})],
             components: [
                 MessageComponent.createComponent(
@@ -24,32 +23,14 @@ class ReferralCodeMessage{
         }
     }
 
-    static reminderClaimReferral(userId,files,day=5){
-        return { 
-            content:`Hi <@${userId}> your referral code will be expired in ${day} days. ` , 
-            files,
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton(`claimReferral_${userId}`,"Claim","🎁","PRIMARY"),
-                    MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
-                )
-            ] 
-        }
-    }
-    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral,expiredDate,files){
+    static sendReferralCode(userId,totalNewReferral,isAdditionalReferral,files){
         return { 
             content:`**${totalNewReferral} ${isAdditionalReferral?"more ":""}referral code for you!** :gift: 
 
 Hi <@${userId}> thank you for being active & progressive on our community!
-If you find the community is valuable, help us spread it to your friends that you think also need to know closa :smile:
+Feel free to invite a friends that might valuable for our community :smile:
 
-One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
-
-**Get 1 month free membership** both you and your friends for every referral code that redeemed. ${MessageFormatting.customEmoji().stonks}
-
-the referral code *valid until ${expiredDate}*
-
-Share to your network or friends using the cover image below 💌: ` , 
+this will help us grow & provide better experience for you.` , 
             files,
             components: [
                 MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim`,"🎁","PRIMARY"))
@@ -57,8 +38,8 @@ Share to your network or friends using the cover image below 💌: ` ,
         }
     }
 
-    static showReferralCode(userId,referralCodes,dates,totalDay){
-        const content = `**Copy & share your referral** *valid until ${dates}*:
+    static showReferralCode(userId,referralCodes){
+        const content = `**Copy & share your referral**:
 \`\`\`
 ${referralCodes}
 \`\`\`
@@ -77,20 +58,18 @@ Your friends can redeem it via https://closa.me/referral
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`generateReferral_${userId}`,'Ticket','💌',"PRIMARY"),
                 MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
-                MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral,totalDay))}`)
+                MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral))}`)
             )]
         }
     }
 
-    static templateShareTwitterReferralCode(referralCodes,totalDay){
-        return `I'm on day ${totalDay} of my passion projects so far.
-Closa has helped me to stay consistent on it 😄
+    static templateShareTwitterReferralCode(referralCodes){
+        return `I have a referral code to @joinclosa discord server!
 
-I want to share my @joinclosa referral code: 
+Get early access & stay productive together:
+${referralCodes.join("\n").substring(0,362)}
 
-${referralCodes.join("\n")}
-
-Get free 1-month membership & redeem it via closa.me/referral🎁`
+Redeem it here → https://closa.me/referral🎁`
     }
 
     static allReferralAlreadyBeenRedeemed(){
@@ -102,17 +81,13 @@ We'll send the next referral code once a month based on your active participatio
 We'll send you once a month based on your active participation at closa.`
     }
 
-    static successRedeemYourReferral(referralCode,endMembership,user){
+    static successRedeemYourReferral(referralCode,user){
         
         return { 
-            content:`**Your membership status has been extended until ${endMembership}.**
-You can type \`\`/referral\`\` to check your referral status.
-
-Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
+            content:`Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
             embeds: [MessageComponent.embedMessage({
-                title: "1 month free membership from referral 🎁",
-                description: `Your friend has onboarded to closa using this referral code from you:
-${referralCode}`,
+                title: "Your friends just redeemed your referral code",
+                description: `${referralCode}`,
                 user
             })], 
         }
@@ -147,17 +122,15 @@ ${referralCode}`,
     static cannotRedeemByExistingMember(){
         return {
             content:`:warning: **can't redeem the referral code for existing members** 
-↳ you're detected as existing members that have joined the community previously
-
-\`\`To get your access back, please renew your membership status\`\``,
-            components: [MessageComponent.createComponent(
-                MessageComponent.addLinkEmojiButton("Renew membership","https://tally.so/r/wbRa2w",'💳')
-            )]
+↳ you're detected as existing members that have joined the community previously`,
+            // components: [MessageComponent.createComponent(
+            //     MessageComponent.addLinkEmojiButton("Renew membership","https://tally.so/r/wbRa2w",'💳')
+            // )]
         }
     }
     static cannotRedeemOwnCode(){
         return `Can't redeem your own code. 
-Share it to your friends to get 1 month free membership.`
+Share it to your friends instead 😄`
     }
     static replyInvalidReferralCode(){
         return {
@@ -180,28 +153,14 @@ Share it to your friends to get 1 month free membership.`
         }
     }
     
-
-    static replyExpiredCode(){
-        return {
-            content:"This referral code has expired.",
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
-                )
-            ] 
-        }
-    }
-
     static achieveFirstDailyStreak(newReferral,totalStreak,userId,files){
         return {
             content:`**${newReferral} referral code for you!** :gift: 
 
 Hi ${MessageFormatting.tagUser(userId)} 💠 as an honor of achieving **${totalStreak}-day streak**, you are eligible for ${newReferral} referral code.
+Feel free to invite a friends that might valuable for our community :smile:
 
-If you find the community is valuable, help us spread it to your friends. :smile: 
-One of the reason we’re able to sustainably provide better experience for our community because of the referral & support from the people like you :sparkles:
-
-**Get 1 month free membership both you and your friends** for every referral code that redeemed. :stonks:`,
+this will help us grow & provide better experience for you.`,
             files,
             components: [
                 MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim`,"🎁","PRIMARY"))
