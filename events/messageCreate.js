@@ -32,7 +32,7 @@ module.exports = {
 	async execute(msg) {
 		if(msg.author.bot) {
 			if(msg.channelId === CHANNEL_PAYMENT) {
-				await ChannelController.createThread(msg,'Payment')
+				await ChannelController.createThread(msg,'Sign Up')
 			}else if(msg.channelId === CHANNEL_FEATURE_REQUEST){
 				let titleThread
 				if(msg.content.includes('changelog')){
