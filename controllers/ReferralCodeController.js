@@ -41,8 +41,7 @@ class ReferralCodeController{
             if (dataReferral.allReferralAlreadyBeenRedeemed) {
                 await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
             }else{
-                const totalDays = await ReferralCodeController.getTotalDays(targetUserId)
-                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode,dataReferral.expired,totalDays))
+                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode))
                 ReferralCodeController.updateIsClaimed(targetUserId)
             }
         }else{
@@ -57,14 +56,13 @@ class ReferralCodeController{
         }
 
         const referralCodes = ReferralCodeController.getActiveReferralCodeFromMessage(interaction.message.content)
-        const expire = ReferralCodeController.getExpiredDateFromMessage(interaction.message.content)
         
         if (referralCodes.length > 0) {
             const files = []
 
             for (let i = 0; i < referralCodes.length; i++) {
                 const referralCode = referralCodes[i];
-                const buffer = await GenerateImage.referralTicket(referralCode,expire)
+                const buffer = await GenerateImage.referralTicket(referralCode)
                 const attachment = new AttachmentBuilder(buffer,{name:`referral_ticket_${interaction.user.username}.png`})
                 files.push(attachment)
             }
@@ -115,21 +113,14 @@ class ReferralCodeController{
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
-        const expiredDate = Time.getNextDate(14)
         const values = codes.map(code=>{
             return {
                 UserId:userId,
                 referralCode:code,
-                expired:Time.getDateOnly(expiredDate),
                 isRedeemed:false,
             }
         })
 
-        ReferralCodeController.saveReminderClaimReferral(userId)
-            .then(()=>{
-                ReferralCodeController.remindToClaimReferral(client,userId)
-            })
-        
         await supabase.from("Referrals")
             .insert(values)
 
@@ -140,16 +131,15 @@ class ReferralCodeController{
         .then(async data=>{
             const isAdditionalReferral = totalActiveReferral === 1
             const {id:userId,notificationId} = data.body
-            const formattedExpiredDate = Time.getFormattedDate(expiredDate)
             const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
             const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
             ChannelController.sendToNotification(
                 client,
-                ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate,files),
+                ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,files),
                 userId,
                 notificationId
             )
-            user.send(ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,formattedExpiredDate,files))
+            user.send(ReferralCodeMessage.sendReferralCode(userId,totalNewReferral,isAdditionalReferral,files))
                 .catch(err=>console.log("Cannot send message to user"))
         })
     }
@@ -163,20 +153,13 @@ class ReferralCodeController{
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
-        const expiredDate = Time.getNextDate(14)
         const values = codes.map(code=>{
             return {
                 UserId:userId,
                 referralCode:code,
-                expired:Time.getDateOnly(expiredDate),
                 isRedeemed:false,
             }
         })
-
-        ReferralCodeController.saveReminderClaimReferral(userId)
-            .then(()=>{
-                ReferralCodeController.remindToClaimReferral(client,userId)
-            })
         
         await supabase.from("Referrals")
             .insert(values)
@@ -191,85 +174,6 @@ class ReferralCodeController{
         )
         user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalStreak,userId,files)) 
             .catch(err=>console.log("Cannot send message to user"))
-    }
-
-    static remindToClaimReferral(client,userId){
-        if (userId) {
-            supabase.from('Reminders')
-                .select('UserId,Users(notificationId)')
-                .eq('type',"claimReferral")
-                .eq('UserId',userId)
-                .gte('time',new Date().toUTCString())
-                .then(data=>{
-                    if (data.body) {
-                        data.body.forEach(async reminder=>{
-                            schedule.scheduleJob(reminder.time,async function() {
-                                const type = reminder.message === '5 days' ? 5 : 2
-                                const {user} = await MemberController.getMember(client,userId)
-                                const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
-                                const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
-                                const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
-                                ChannelController.sendToNotification(
-                                    client,
-                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,files,type),
-                                    userId,
-                                    reminder.Users.notificationId
-                                )
-                            })
-                        })
-                    }
-                })
-        }else{
-            supabase.from('Reminders')
-                .select('time,message,UserId,Users(notificationId)')
-                .eq('type',"claimReferral")
-                .gte('time',new Date().toUTCString())
-                .then(data=>{
-                    if (data.body) {
-                        data.body.forEach(async reminder=>{
-                            schedule.scheduleJob(reminder.time,async function() {
-                                const type = reminder.message === '5 days' ? 5 : 2
-                                const {user} = await MemberController.getMember(client,reminder.UserId)
-                                const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(reminder.UserId)
-                                const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
-                                const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
-                                ChannelController.sendToNotification(
-                                    client,
-                                    ReferralCodeMessage.reminderClaimReferral(reminder.UserId,files,type),
-                                    reminder.UserId,
-                                    reminder.Users.notificationId
-                                )
-                            })
-                        })
-                    }
-                })
-        }
-    }
-
-    static async saveReminderClaimReferral(userId){
-        const reminder5Days = Time.getNextDate(9)
-        const reminder2Days = Time.getNextDate(2)
-
-        reminder5Days.setHours(Time.minus7Hours(8))
-        reminder5Days.setMinutes(15)
-        reminder2Days.setHours(Time.minus7Hours(8))
-        reminder2Days.setMinutes(15)
-        const data = await supabase.from('Reminders')
-        .insert([
-            {
-                time:reminder5Days,
-                message:'5 days',
-                UserId:userId,
-                type:"claimReferral"
-            },
-            {
-                time:reminder2Days,
-                message:'2 days',
-                UserId:userId,
-                type:'claimReferral'
-            }
-        ])
-        return data
     }
 
     static async getTotalNewReferral(userId,totalActiveReferral){
@@ -297,7 +201,7 @@ class ReferralCodeController{
         const data = await supabase.from("Referrals")
             .select('id')
             .eq("UserId",userId)
-            .gte("expired",Time.getTodayDateOnly())
+            .is('redeemedBy',null)
         return data.body.length
     }
 
@@ -315,7 +219,7 @@ class ReferralCodeController{
         const data = await supabase.from("Referrals")
             .select()
             .eq('UserId',userId)
-            .gte("expired",Time.getTodayDateOnly())
+            .is('redeemedBy',null)
 
         if (data.body?.length > 0) {
             let allReferralAlreadyBeenRedeemed = true
@@ -323,9 +227,7 @@ class ReferralCodeController{
                 if(!code.isRedeemed) allReferralAlreadyBeenRedeemed = false
                 return `${code.referralCode}${code.isRedeemed ? " (redeemed ✅)" :''}`
             })
-            const expired = Time.getFormattedDate(Time.getDate(data.body[0].expired))
             return {
-                expired,
                 allReferralAlreadyBeenRedeemed,
                 referralCode:referral.join('\n'),
             }
@@ -347,10 +249,7 @@ class ReferralCodeController{
         if (data.body) {
             const referral = data.body
             response.ownedBy = data.body.UserId
-            if (Time.getTodayDateOnly() > referral.expired ) {
-                response.valid = false
-                response.description = "expired"  
-            }else if(referral.isRedeemed){
+            if(referral.isRedeemed){
                 response.valid = false
                 response.description = 'redeemed'
             }

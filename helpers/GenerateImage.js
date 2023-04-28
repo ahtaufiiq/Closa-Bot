@@ -152,7 +152,7 @@ class GenerateImage{
     
     }
 
-    static async referralTicket(referralCode,expired){
+    static async referralTicket(referralCode){
         registerFont('./assets/fonts/IBMPlexMono-Regular.ttf',{family:'IBMPlexMono',weight:400})
         registerFont('./assets/fonts/DMMono-Medium.ttf',{family:'DMMono',weight:500})
         
@@ -167,12 +167,6 @@ class GenerateImage{
         context.textAlign = 'center'
         context.fillText(referralCode, 607 , 478);
         
-        context.fillStyle = "#888888"; 
-        context.font = "500 28px DMMono";
-        context.textAlign = 'end'
-        context.fillText(expired, 1155 , 108);
-
-          
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }

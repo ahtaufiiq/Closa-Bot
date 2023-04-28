@@ -46,7 +46,7 @@ class TestimonialController{
         const isAlreadySubmitTestimonial = await TestimonialController.alreadySubmitTestimonial(userId)
         if(!isAlreadySubmitTestimonial){
             await GuidelineInfoController.updateDataShowTestimonial(userId,true)
-            GuidelineInfoController.updateMessagGuideline(client,userId)
+            GuidelineInfoController.updateMessageGuideline(client,userId)
             ChannelController.sendToNotification(
                 client,
                 TestimonialMessage.howToShareTestimonial(userId),

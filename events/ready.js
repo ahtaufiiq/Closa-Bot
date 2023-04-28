@@ -67,7 +67,6 @@ module.exports = {
 		GoalController.remindToWriteGoal(client)
 		GoalController.updateAllActiveGoal(client)
 
-		ReferralCodeController.remindToClaimReferral(client)
 		ReferralCodeController.resetTotalDaysThisCohort()
 
 		ReminderController.remindSetHighlight(client)

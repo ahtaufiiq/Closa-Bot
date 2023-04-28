@@ -38,6 +38,5 @@ module.exports = {
 			.eq('id',member.user.id)
 		}
 
-		GuidelineInfoController.generateGuideline(member.client,member.user.id)
 	},
 };
