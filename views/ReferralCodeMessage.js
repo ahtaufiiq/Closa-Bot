@@ -67,7 +67,7 @@ Your friends can redeem it via https://closa.me/referral
         return `I have a referral code to @joinclosa discord server!
 
 Get early access & stay productive together:
-${referralCodes.join("\n").substring(0,362)}
+${referralCodes.join("\n").substring(0,208)}
 
 Redeem it here → https://closa.me/referral🎁`
     }
