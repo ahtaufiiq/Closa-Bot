@@ -65,6 +65,9 @@ class ReferralCodeController{
                 const buffer = await GenerateImage.referralTicket(referralCode)
                 const attachment = new AttachmentBuilder(buffer,{name:`referral_ticket_${interaction.user.username}.png`})
                 files.push(attachment)
+                if (i === 9) {
+                    break
+                }
             }
             interaction.editReply({
                 content:`**Share this referral ticket to your friends.**\nalso feel free to tag \`\`@joinclosa\`\`, we will help you spread your referral.`,
