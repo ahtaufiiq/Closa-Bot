@@ -8,15 +8,12 @@ const UserController = require("./UserController")
 const schedule = require('node-schedule');
 class GuidelineInfoController {
 
-    static async generateGuideline(client,userId){
-        const notificationThread = await ChannelController.getNotificationThread(client,userId)
-        const [isHaveReferral,dataUser] = await Promise.all([
-            GuidelineInfoController.isHaveReferral(userId),
-            UserController.getDetail(userId,'endMembership')
-        ])
-        let endMembership = dataUser.body?.endMembership
-        if(endMembership) endMembership = Time.getFormattedDate(Time.getDate(endMembership),false,'long')
-		const msgGuideline = await notificationThread.send(GuidelineInfoMessage.guideline(userId,endMembership,isHaveReferral))
+    static async generateGuideline(client,userId,notificationId){
+        const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+ 
+        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral} = await GuidelineInfoController.getData(userId)
+
+		const msgGuideline = await notificationThread.send(GuidelineInfoMessage.guideline(userId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
 		GuidelineInfoController.addNewData(userId,msgGuideline.id)
     }
 

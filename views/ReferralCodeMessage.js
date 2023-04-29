@@ -81,10 +81,10 @@ We'll send the next referral code once a month based on your active participatio
 We'll send you once a month based on your active participation at closa.`
     }
 
-    static successRedeemYourReferral(referralCode,user){
+    static successRedeemYourReferral(referralCode,user,referrerId){
         
         return { 
-            content:`Let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
+            content:`Hi ${MessageFormatting.tagUser(referrerId)}, let's welcome your friend! → <#${CHANNEL_WELCOME}>` , 
             embeds: [MessageComponent.embedMessage({
                 title: "Your friends just redeemed your referral code",
                 description: `${referralCode}`,

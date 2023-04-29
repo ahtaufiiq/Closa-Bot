@@ -8,10 +8,6 @@ const Time = require("../helpers/time");
 module.exports = {
 	name: 'guildMemberAdd',
 	async execute(member) {
-		const channelNotifications = ChannelController.getChannel(member.client,CHANNEL_NOTIFICATION)
-		const msg = await channelNotifications.send(`${member.user}`)
-		ChannelController.createThread(msg,member.user.username)
-		
 		MemberController.addRole(member.client,member.user.id,ROLE_ACTIVE_MEMBER)
 		
 		const data = await supabase.from("Users")
@@ -25,7 +21,6 @@ module.exports = {
 					id:member.user.id,
 					username:member.user.username,
 					name:member.nickname || member.user.username,
-					notificationId:msg.id,
 					currentStreak:0,
 					longestStreak:0,
 					totalDay:0,
