@@ -156,7 +156,7 @@ class GenerateImage{
         registerFont('./assets/fonts/IBMPlexMono-Regular.ttf',{family:'IBMPlexMono',weight:400})
         registerFont('./assets/fonts/DMMono-Medium.ttf',{family:'DMMono',weight:500})
         
-        const canvas = createCanvas(1213,913)
+        const canvas = createCanvas(1440,1440)
 
         const context = canvas.getContext('2d')
  
@@ -165,7 +165,7 @@ class GenerateImage{
         context.fillStyle = "#FAFAFB"; 
         context.font = "400 48px IBMPlexMono";
         context.textAlign = 'center'
-        context.fillText(referralCode, 607 , 478);
+        context.fillText(referralCode, 721 , 776);
         
         const buffer = canvas.toBuffer('image/png')
         return buffer
@@ -214,8 +214,8 @@ class GenerateImage{
         if(totalReferral > 1){
             const template = await loadImage(`./assets/images/referral_cover_template${isDarkMode ? "":"_white"}.png`)
             context.drawImage(template,0,0)
-            context.font = "500 48px BaiJamjuree";
-            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1033 , 222.5);
+            context.font = "500 44px BaiJamjuree";
+            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1005 , 366);
 
         }else{
             const template = await loadImage(`./assets/images/referral_cover_oneInvite${isDarkMode ? "":"_white"}.png`) 
@@ -228,15 +228,15 @@ class GenerateImage{
         context.textAlign = 'center'
         context.font = "600 42px Archivo";
         const username = UserController.getNameFromUserDiscord(user)
-        context.fillText(username, 721 , 1330);
+        context.fillText(username, 719 , 1358);
 
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
 
-        const rectWidth = 124.6;
-        const rectHeight = 124;
-        const rectX = 657.6;
-        const rectY = 1140.9;
+        const rectWidth = 135.7;
+        const rectHeight = 135.7;
+        const rectX = 652;
+        const rectY = 1156;
         const cornerRadius = 43;
         
         this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
