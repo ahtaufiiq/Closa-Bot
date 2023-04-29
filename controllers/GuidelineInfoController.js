@@ -70,7 +70,7 @@ class GuidelineInfoController {
                 .single(),
             GuidelineInfoController.isHaveReferral(UserId),
             GuidelineInfoController.isHaveProfile(UserId),
-            ReferralCodeController.getTotalInvited(response.ownedBy)
+            ReferralCodeController.getTotalInvited(UserId)
         ])
         if(!data.body) return {isHaveReferral,isHaveProfile}
         
