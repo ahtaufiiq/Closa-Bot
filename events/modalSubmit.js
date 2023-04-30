@@ -109,8 +109,10 @@ module.exports = {
 					
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 				GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
-				ReferralCodeController.addNewReferral(modal.user.id,3)
-				await ChannelController.createThread(msgNotification,modal.user.username)
+				await Promise.all([
+					ReferralCodeController.addNewReferral(modal.user.id,3),
+					ChannelController.createThread(msgNotification,modal.user.username)
+				])
 				GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
 			}else{
 				switch (response.description) {
