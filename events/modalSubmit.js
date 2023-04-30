@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_NOTIFICATION } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -86,7 +86,7 @@ module.exports = {
 
 				ChannelController.sendToNotification(
 					modal.client,
-					ReferralCodeMessage.successRedeemYourReferral(referralCode,modal.user),
+					ReferralCodeMessage.successRedeemYourReferral(referralCode,modal.user,response.ownedBy),
 					response.ownedBy
 				)
 
@@ -100,10 +100,18 @@ module.exports = {
 				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 				ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 
+				const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)
+				const msgNotification = await channelNotifications.send(`${modal.user}`)
+				supabase.from("Users")
+					.update({notificationId:msgNotification.id})
+					.eq('id',modal.user.id)
+					.then()
+					
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
-				GuidelineInfoController.generateGuideline(modal.client,modal.user.id)
 				GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
-
+				ReferralCodeController.addNewReferral(modal.user.id,3)
+				await ChannelController.createThread(msgNotification,modal.user.username)
+				GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
 			}else{
 				switch (response.description) {
 					case "redeemed":
