@@ -11,7 +11,7 @@ class GuidelineInfoController {
     static async generateGuideline(client,userId,notificationId){
         const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
  
-        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral} = await GuidelineInfoController.getData(userId)
+        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,totalReferral} = await GuidelineInfoController.getData(userId)
 
 		const msgGuideline = await notificationThread.send(GuidelineInfoMessage.guideline(userId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
 		GuidelineInfoController.addNewData(userId,msgGuideline.id)
@@ -69,7 +69,7 @@ class GuidelineInfoController {
             GuidelineInfoController.isHaveProfile(UserId),
             ReferralCodeController.getTotalInvited(UserId)
         ])
-        if(!data.body) return {isHaveReferral,isHaveProfile}
+        if(!data.body) return {isHaveReferral,isHaveProfile,totalReferral}
         
         const {id,showSubmitTestimonial,totalNotification} = data.body
         let endMembership = data.body.Users.endMembership

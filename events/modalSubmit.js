@@ -106,12 +106,12 @@ module.exports = {
 					.update({notificationId:msgNotification.id})
 					.eq('id',modal.user.id)
 					.then()
-				ChannelController.createThread(msgNotification,modal.user.username)
-
+					
 				MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
-				GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
 				GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
-
+				ReferralCodeController.addNewReferral(modal.user.id,3)
+				await ChannelController.createThread(msgNotification,modal.user.username)
+				GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
 			}else{
 				switch (response.description) {
 					case "redeemed":

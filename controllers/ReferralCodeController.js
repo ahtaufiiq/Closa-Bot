@@ -100,19 +100,9 @@ class ReferralCodeController{
         }
     }
 
-    static async generateReferral(client,user){
-        const userId = user.id
-        const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
-        if (!isGenerateNewReferral) return
-
-        const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
-        if(totalActiveReferral > 1) return
-
-        const totalNewReferral = await ReferralCodeController.getTotalNewReferral(userId,totalActiveReferral)
-        if(totalNewReferral === 0) return
-
+    static async addNewReferral(userId,totalReferral){
         const codes = referralCodes.generate({
-            count:totalNewReferral,
+            count:totalReferral,
             charset:referralCodes.charset(referralCodes.Charset.ALPHANUMERIC).toUpperCase(),
             length:10
         })
@@ -126,13 +116,28 @@ class ReferralCodeController{
 
         await supabase.from("Referrals")
             .insert(values)
+    }
+
+    static async generateReferral(client,user){
+        const userId = user.id
+        const isGenerateNewReferral = await ReferralCodeController.isEligibleGenerateNewReferral(userId)
+        if (!isGenerateNewReferral) return
+
+        const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
+        if(totalActiveReferral >= 5) return
+
+
+        const totalNewReferral = await ReferralCodeController.getTotalNewReferral(userId,totalActiveReferral)
+        if(totalNewReferral === 0) return
+
+        ReferralCodeController.addNewReferral(userId,totalNewReferral)
 
         supabase.from("Users")
         .select('id,notificationId')
         .eq("id",userId)
         .single()
         .then(async data=>{
-            const isAdditionalReferral = totalActiveReferral === 1
+            const isAdditionalReferral = totalActiveReferral > 0
             const {id:userId,notificationId} = data.body
             const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
             const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
@@ -187,15 +192,15 @@ class ReferralCodeController{
                 
         const totalDaysThisCohort = data.body.totalDaysThisCohort
         let totalNewReferral = 0
+        const slotReferral = 5 - totalActiveReferral
         if (totalDaysThisCohort >= 18) {
             totalNewReferral = 2
         }else if(totalDaysThisCohort >= 12){
             totalNewReferral = 1
         }
         
-        if(totalActiveReferral === 1 && totalNewReferral > 0){
-            totalNewReferral -= 1
-        }
+        
+        if(totalNewReferral > slotReferral) return slotReferral
 
         return totalNewReferral
     }
