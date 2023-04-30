@@ -77,19 +77,6 @@ module.exports = {
 						.then()
 				await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
 
-
-				// ChannelController.sendToNotification(
-				// 	modal.client,
-				// 	ReferralCodeMessage.successRedeemReferral(endMembershipNewUser),
-				// 	modal.user.id
-				// )
-
-				ChannelController.sendToNotification(
-					modal.client,
-					ReferralCodeMessage.successRedeemYourReferral(referralCode,modal.user,response.ownedBy),
-					response.ownedBy
-				)
-
 				const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
 				const referrer = await MemberController.getMember(modal.client,response.ownedBy)
 
