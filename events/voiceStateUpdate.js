@@ -44,11 +44,8 @@ module.exports = {
 		if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
 			const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
 			if(dataEvent.body){
-				const thread = await ChannelController.getThread(
-					ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION),
-					dataEvent.body.id
-				)
-				thread.send(CoworkingMessage.howToStartSession(userId))	
+				const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
+				voiceChat.send(CoworkingMessage.howToStartSession(userId))	
 					.then(msg=>{
 						let min = 10
 						const countdownEndSession = setInterval(() => {
@@ -62,7 +59,7 @@ module.exports = {
 									.single()
 									.then(async data=>{
 										if(data.body && data.body.status !== 'live'){
-											newMember.channel.delete()
+											voiceChat.delete()
 											const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
 											ChannelController.getMessage(channel,data.body.id)
 												.then(coworkingEventMessage =>{

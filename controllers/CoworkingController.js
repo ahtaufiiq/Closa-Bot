@@ -21,8 +21,8 @@ class CoworkingController {
 
             modal.addComponents(
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Event Title").setStyle(TextInputStyle.Short).setValue('Virtual Coworking').setRequired(true)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration").setStyle(TextInputStyle.Short).setPlaceholder('e.g. 50 min / 2 hr / etc').setRequired(true)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (24-h)").setStyle(TextInputStyle.Paragraph).setPlaceholder('e.g: today at 20.00 wib / 14 mar at 20.00 wib').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration (e.g. 50 min / 1 hr)").setStyle(TextInputStyle.Short).setPlaceholder('min or hr format').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (e.g. 28 apr at 20.00 wib)").setStyle(TextInputStyle.Short).setPlaceholder('today at 20.00 wib').setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('totalSlot').setLabel("How many people (max 25)").setStyle(TextInputStyle.Short).setValue('9').setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('rules').setLabel("Agenda & rules").setStyle(TextInputStyle.Paragraph).setPlaceholder(`5 min goal / 50 min focus / 5 min celebrate \n(feel free to delete or add based on your rules)`).setRequired(true))
             )
@@ -48,8 +48,8 @@ class CoworkingController {
                     const dateString = CoworkingController.formatDateToString(Time.getDate(date))
                     modal.addComponents(
                         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Event Title").setStyle(TextInputStyle.Short).setValue(name).setRequired(true)),
-                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration").setStyle(TextInputStyle.Short).setValue(duration).setRequired(true)),
-                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (24-h)").setStyle(TextInputStyle.Paragraph).setValue(dateString).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('duration').setLabel("Duration (e.g. 50 min / 1 hr)").setStyle(TextInputStyle.Short).setValue(duration).setRequired(true)),
+                        new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('date').setLabel("Date & Time (e.g. 28 apr at 20.00 wib)").setStyle(TextInputStyle.Short).setValue(dateString).setRequired(true)),
                         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('totalSlot').setLabel("How many people (max 25)").setStyle(TextInputStyle.Short).setValue(`${totalSlot}`).setRequired(true)),
                         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('rules').setLabel("Agenda & rules").setStyle(TextInputStyle.Paragraph).setValue(rules).setRequired(true))
                     )
