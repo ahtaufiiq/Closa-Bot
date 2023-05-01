@@ -34,6 +34,7 @@ const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const CoworkingController = require("../controllers/CoworkingController");
 const CoworkingMessage = require("../views/CoworkingMessage");
+const InfoUser = require("../helpers/InfoUser");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser) {
@@ -110,7 +111,7 @@ module.exports = {
 					threadCoworking.send(`${interaction.user} will attend the session`)
 						.then(msg=>{
 							supabase.from("CoworkingAttendances")
-								.insert({id:msg.id,UserId:interaction.user.id,EventId:interaction.message.id})
+								.insert({id:msg.id,UserId:interaction.user.id,EventId:interaction.message.id,avatarUrl:InfoUser.getAvatar(interaction.user)})
 								.then(()=>{
 									CoworkingController.updateCoworkingMessage(interaction.message)
 								})

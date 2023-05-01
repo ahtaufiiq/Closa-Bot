@@ -379,7 +379,7 @@ class CoworkingController {
             title:name,
             isLive
         })
-        return [new AttachmentBuilder(image,{name:`coworking_event_${msg.author.username}.png`})]
+        return [new AttachmentBuilder(image,{name:`coworking_event_${UserController.getNameFromUserDiscord(host)}.png`})]
     }
 
     static async scheduleCreateCoworkingRoom(client,time,eventId){
