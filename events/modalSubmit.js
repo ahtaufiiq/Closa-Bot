@@ -433,7 +433,18 @@ The correct format:
 			)
 
 			ChannelController.createThread(msg,name)
-			msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+			const dateCoworking = new Date(coworkingDate.valueOf())
+        	dateCoworking.setHours(dateCoworking.getHours() + 7)
+			const image = await GenerateImage.coworkingEvent({
+				host:modal.user,
+				attendances:[],
+				coworkingDate:dateCoworking,
+				session:totalMinute,
+				title:name,
+				isLive:false
+			})
+			const attachment = new AttachmentBuilder(image,{name:`coworking_event_${msg.author.username}.png`})
+			msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),attachment))
 			const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
 			supabase.from("CoworkingEvents")
 			.update({

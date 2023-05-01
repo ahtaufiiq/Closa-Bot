@@ -21,7 +21,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         }
     }
     
-    static coworkingEvent(eventId,eventName,author,totalSlot,totalAttendance,rule,totalMinute,coworkingDate,isLive=false,voiceRoomId){
+    static coworkingEvent(eventId,eventName,author,totalSlot,totalAttendance,rule,totalMinute,coworkingDate,attachment,isLive=false,voiceRoomId){
         let footer = ''
         const session = Time.convertTime(totalMinute,'short')
         const startDate = new Date(coworkingDate.valueOf())
@@ -62,6 +62,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         const titleEmbed = isLive ? `**Join** → ${MessageFormatting.tagChannel(voiceRoomId)}` : `${UserController.getNameFromUserDiscord(author)} wants to ${eventName} @ ${CoworkingMessage.formatCoworkingDate(coworkingDate)}`
         return {
             content,
+            files:[attachment],
             embeds:[
                 new EmbedBuilder()
                 .setColor("#FEFEFE")

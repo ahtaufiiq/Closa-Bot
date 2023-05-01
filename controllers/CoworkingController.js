@@ -5,10 +5,12 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const CoworkingMessage = require('../views/CoworkingMessage');
 const ChannelController = require('./ChannelController');
-const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType, ModalBuilder, TextInputBuilder, ActionRowBuilder } = require('discord.js');
+const { GuildScheduledEventPrivacyLevel, GuildScheduledEvent, GuildScheduledEventEntityType, ModalBuilder, TextInputBuilder, ActionRowBuilder, AttachmentBuilder } = require('discord.js');
 const { TextInputStyle } = require('discord.js');
 const MemberController = require('./MemberController');
 const UserController = require('./UserController');
+const GenerateImage = require('../helpers/GenerateImage');
+const InfoUser = require('../helpers/InfoUser');
 
 class CoworkingController {
     static showModalScheduleCoworking(interaction){
@@ -358,7 +360,22 @@ class CoworkingController {
         
         const {name,totalSlot,rules,totalMinute,date,HostId,voiceRoomId} = dataEvent.body
         const {user} = await MemberController.getMember(msg.client,HostId)
-        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date),isLive,voiceRoomId))
+        const attendances = []
+        for (let i = 0; i < dataAttendance.body.length; i++) {
+            const attendance = dataAttendance.body[i];
+            const {user} = await MemberController.getMember(msg.client,attendance.UserId)
+            attendances.push(InfoUser.getAvatar(user))
+        }
+        const image = await GenerateImage.coworkingEvent({
+            host:user,
+            attendances,
+            coworkingDate:Time.getDate(date),
+            session:totalMinute,
+            title:name,
+            isLive
+        })
+        const attachment = new AttachmentBuilder(image,{name:`coworking_event_${msg.author.username}.png`})
+        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date),attachment,isLive,voiceRoomId))
             
     }
 
@@ -382,7 +399,7 @@ class CoworkingController {
             ]).then()
     }
     
-    static createCoworkingEvent(modal){
+    static async createCoworkingEvent(modal){
         const name = modal.getTextInputValue('name');
         const duration = modal.getTextInputValue('duration');
         const date = modal.getTextInputValue('date');
@@ -392,14 +409,25 @@ class CoworkingController {
         let {error,data:coworkingDate} = Time.convertToDate(date)
         if(error) return modal.editReply('invalid format date')
 
+        const dateCoworking = new Date(coworkingDate.valueOf())
+        dateCoworking.setHours(dateCoworking.getHours() + 7)
+
         const fiveMinutesBefore = new Date(coworkingDate.valueOf())
         fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
-
+        const image = await GenerateImage.coworkingEvent({
+            host:modal.user,
+            attendances:[],
+            coworkingDate:dateCoworking,
+            session:totalMinute,
+            title:name,
+            isLive:false
+        })
+        const attachment = new AttachmentBuilder(image,{name:`coworking_event_${modal.user.username}.png`})
         const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
-        channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+        channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),attachment))
             .then(msg=>{
                 ChannelController.createThread(msg,name)
-                msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate)))
+                msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),attachment))
                 const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
                 supabase.from("CoworkingEvents")
                 .insert({

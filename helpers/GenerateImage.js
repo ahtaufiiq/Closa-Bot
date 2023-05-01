@@ -124,7 +124,7 @@ class GenerateImage{
         return buffer
     }
 
-    static roundRect(ctx, x, y, width, height, radius = 5) {
+    static roundRect(context, x, y, width, height, radius = 5) {
 
         if (typeof radius === 'undefined') {
         radius = 5;
@@ -137,19 +137,18 @@ class GenerateImage{
             radius[side] = radius[side] || defaultRadius[side];
         }
         }
-        ctx.beginPath();
-        ctx.moveTo(x + radius.tl, y); // top left
-        ctx.lineTo(x + width - radius.tr, y); // top right - radiusnya
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr); // panjangnya,y -> panjangnya sampai y
-        ctx.lineTo(x + width, y + height - radius.br);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-        ctx.lineTo(x + radius.bl, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-        ctx.lineTo(x, y + radius.tl);
-        ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-        ctx.closePath();
+        context.beginPath();
+        context.moveTo(x + radius.tl, y); // top left
+        context.lineTo(x + width - radius.tr, y); // top right - radiusnya
+        context.quadraticCurveTo(x + width, y, x + width, y + radius.tr); // panjangnya,y -> panjangnya sampai y
+        context.lineTo(x + width, y + height - radius.br);
+        context.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+        context.lineTo(x + radius.bl, y + height);
+        context.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+        context.lineTo(x, y + radius.tl);
+        context.quadraticCurveTo(x, y, x + radius.tl, y);
+        context.closePath();
 
-    
     }
 
     static async referralTicket(referralCode,expired){
@@ -268,17 +267,17 @@ class GenerateImage{
             context.closePath()
         }
 
-        function drawCircle(ctx, x, y, stroke,percentage) {
-            ctx.beginPath()
+        function drawCircle(context, x, y, stroke,percentage) {
+            context.beginPath()
 
             context.arc(x, y, 43, 1.5 * Math.PI, (1.5 + (2 * percentage / 100)) * Math.PI);
-            ctx.lineCap = "round";
+            context.lineCap = "round";
             if (stroke) {
-              ctx.lineWidth = 8
-              ctx.strokeStyle = stroke
-              ctx.stroke()
+              context.lineWidth = 8
+              context.strokeStyle = stroke
+              context.stroke()
             }
-            ctx.closePath()
+            context.closePath()
         }
 
         registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
@@ -467,6 +466,117 @@ class GenerateImage{
             xCoordinateFrame += 76.2 + counterCoordinatFrame
         }
 
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+
+    static async coworkingEvent({host, title, session, coworkingDate, attendances,isLive}){
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+            
+        }
+          
+          // Function to draw a rounded image using the rounded rectangle path and clipping
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.lineWidth = 8
+            context.strokeStyle = '#EFEFEF'
+            context.stroke()
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+
+        const drawRotatedImage = (context, image, x, y, angle,size) => {
+            let [width, height ] = [size,size];
+          
+            context.save();
+            context.translate(x + width / 2, y + height / 2);
+            context.rotate(angle);
+            context.drawImage(image, -width / 2, -height / 2, width, height);
+            context.restore();
+          };
+
+        const formatCoworkingTime = (date,session)=>{
+            let [weekday] = date.toLocaleDateString("en-US", { weekday: 'short', day:'2-digit',month:'short',}).split(/[, ]+/)
+            return `${weekday} · ${Time.getHoursFromDate(date)}.${Time.getMinutesFromDate(date)} WIB · (${session} min)`
+        }
+        // import image
+        const upcomingDot = await loadImage(`./assets/images/coworking_red_dot.png`)
+        const liveDot = await loadImage(`./assets/images/coworking_green_dot.png`)
+        const template = await loadImage(`./assets/images/coworking_template_${isLive? 'live' : 'upcoming'}.png`)
+        const frameAvatar = await loadImage(`./assets/images/coworking_photo_frame.png`)
+        const canvas = createCanvas(1080,810)
+        const context = canvas.getContext('2d')
+        context.drawImage(template,-15.5,-11)
+
+
+
+
+
+
+        context.fillStyle = "#31373D"; 
+        context.font = "600 48px Archivo";
+        context.fillText(FormatString.truncateString(title,28),321,179);
+
+        const [month,date] = Time.getFormattedDate(coworkingDate,false,'medium').split(/[ ,]/)
+        
+        context.fillStyle = "#2B2B2B"; 
+        context.textAlign = 'center'
+        context.font = "500 64px Inter";
+        context.fillText(date,169,217);
+        
+        context.fillStyle = "#484A4E"; 
+        context.font = "500 32px Inter";
+        context.fillText(month,170,112);
+
+        context.fillStyle = "#656A71"; 
+        context.textAlign = 'start'
+        context.font = "500 40px Inter";
+        context.fillText(formatCoworkingTime(coworkingDate,session),320,249);
+        
+        
+        context.fillStyle = "#888888"; 
+        context.font = "500 40px Inter";
+        context.fillText(UserController.getNameFromUserDiscord(host),72,722);
+
+
+        
+        const coworkerImageSize = 95;
+
+        let xCoordinatCoworker = 322 + (85 * (attendances.length - 1))
+        let yCoordinatCoworker = 307
+
+
+        for (let i = attendances.length - 1; i >= 0; i--) {
+            const photo = await loadImage(attendances[i])
+            roundedRect(context,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
+            drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
+            
+            xCoordinatCoworker -= 85
+        }
+
+        const hostAvatar = await loadImage(InfoUser.getAvatar(host))
+        
+        const rectX = 795
+        const rectY = 510
+        const size = 222.5
+        
+        drawRotatedImage(context,hostAvatar,rectX,rectY, 4 * (Math.PI / 180),size)
+        // context.drawImage(frameAvatar,rectX,rectY,size,size)
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
