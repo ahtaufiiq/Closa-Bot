@@ -38,7 +38,9 @@ module.exports = {
 			const event = await supabase.from("CoworkingEvents")
 				.select()
 				.eq('voiceRoomId',joinedChannelId)
-			if(event.body.length > 0) listFocusRoom[joinedChannelId] = true
+			if(event.body.length > 0) listFocusRoom[joinedChannelId] = {
+				status:'upcoming'
+			}
 		}
 
 		if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
@@ -49,6 +51,10 @@ module.exports = {
 					.then(msg=>{
 						let min = 10
 						const countdownEndSession = setInterval(() => {
+							if(listFocusRoom[joinedChannelId]?.status === 'live'){
+								clearInterval(countdownEndSession)
+								return msg.edit(CoworkingMessage.howToStartSession(userId,0))
+							}
 							min--
 							msg.edit(CoworkingMessage.howToStartSession(userId,min))
 							if(min === 0){
@@ -257,6 +263,7 @@ module.exports = {
 								.update({status:'live'})
 								.eq('voiceRoomId',joinedChannelId)
 								.then()
+							listFocusRoom[joinedChannelId].status = 'live'
 							const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
 							const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
 							CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
