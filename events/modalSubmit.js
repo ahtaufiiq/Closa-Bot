@@ -443,6 +443,7 @@ The correct format:
 				totalMinute,
 				date:coworkingDate,
 				totalSlot,
+				updatedAt:new Date()
 			})
 			.eq('id',msg.id).single()
 			.then(async coworkingEvent=>{

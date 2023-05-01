@@ -382,16 +382,6 @@ class CoworkingController {
         return [new AttachmentBuilder(image,{name:`coworking_event_${UserController.getNameFromUserDiscord(host)}.png`})]
     }
 
-    static async scheduleCreateCoworkingRoom(client,time,eventId){
-        const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
-		schedule.scheduleJob(time,async function() {
-			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
-			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt ){
-				ChannelController.createTemporaryVoiceChannel(client,)
-			}
-		})
-	}
-
     static async addReminderCoworkingEvent(coworkingDate,UserId,CoworkingEventId){
         const fiveMinutesBefore = new Date(coworkingDate.valueOf())
         fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
@@ -417,11 +407,11 @@ class CoworkingController {
         const files = await CoworkingController.generateImageCoworking(modal.user,null,coworkingDate,totalMinute,name,false)
         const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
         channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
-            .then(msg=>{
+            .then(async msg=>{
                 ChannelController.createThread(msg,name)
                 msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
                 const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
-                supabase.from("CoworkingEvents")
+                await supabase.from("CoworkingEvents")
                 .insert({
                     id:msg.id,
                     rules,
@@ -431,8 +421,9 @@ class CoworkingController {
                     date:coworkingDate,
                     totalSlot,
                     HostId:modal.user.id
-                }).then()
-                if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
+                })
+                const isLessThanFiveMinutes = Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5
+                if(isLessThanFiveMinutes){
                     CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
                 }else{
                     CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
