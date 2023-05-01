@@ -348,7 +348,7 @@ class CoworkingController {
 
     static async updateCoworkingMessage(msg,isLive=false){
         const eventId = msg.id
-        const [dataEvent,dataAttendance] = await Promise.all([
+        const [dataEvent,dataAttendances] = await Promise.all([
             supabase.from('CoworkingEvents')
             .select('*')
             .eq('id',eventId).single(),
@@ -360,23 +360,26 @@ class CoworkingController {
         
         const {name,totalSlot,rules,totalMinute,date,HostId,voiceRoomId} = dataEvent.body
         const {user} = await MemberController.getMember(msg.client,HostId)
+        const files = await CoworkingController.generateImageCoworking(user,dataAttendances,date,totalMinute,name,isLive)
+        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendances.body.length,rules,totalMinute,Time.getDate(date),files,isLive,voiceRoomId))
+            
+    }
+
+    static async generateImageCoworking(host,dataAttendances,date,totalMinute,name,isLive){
         const attendances = []
-        for (let i = 0; i < dataAttendance.body.length; i++) {
-            const attendance = dataAttendance.body[i];
-            const {user} = await MemberController.getMember(msg.client,attendance.UserId)
-            attendances.push(InfoUser.getAvatar(user))
+        for (let i = 0; i < dataAttendances?.body?.length; i++) {
+            const attendance = dataAttendances.body[i].avatarUrl;
+            attendances.push(attendance)
         }
         const image = await GenerateImage.coworkingEvent({
-            host:user,
+            host,
             attendances,
             coworkingDate:Time.getDate(date),
             session:totalMinute,
             title:name,
             isLive
         })
-        const attachment = new AttachmentBuilder(image,{name:`coworking_event_${msg.author.username}.png`})
-        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendance.body.length,rules,totalMinute,Time.getDate(date),attachment,isLive,voiceRoomId))
-            
+        return [new AttachmentBuilder(image,{name:`coworking_event_${msg.author.username}.png`})]
     }
 
     static async scheduleCreateCoworkingRoom(client,time,eventId){
@@ -409,25 +412,14 @@ class CoworkingController {
         let {error,data:coworkingDate} = Time.convertToDate(date)
         if(error) return modal.editReply('invalid format date')
 
-        const dateCoworking = new Date(coworkingDate.valueOf())
-        dateCoworking.setHours(dateCoworking.getHours() + 7)
-
         const fiveMinutesBefore = new Date(coworkingDate.valueOf())
         fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes()-5)
-        const image = await GenerateImage.coworkingEvent({
-            host:modal.user,
-            attendances:[],
-            coworkingDate:dateCoworking,
-            session:totalMinute,
-            title:name,
-            isLive:false
-        })
-        const attachment = new AttachmentBuilder(image,{name:`coworking_event_${modal.user.username}.png`})
+        const files = await CoworkingController.generateImageCoworking(modal.user,null,coworkingDate,totalMinute,name,false)
         const channelUpcomingSession = ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION)
-        channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),attachment))
+        channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
             .then(msg=>{
                 ChannelController.createThread(msg,name)
-                msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),attachment))
+                msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
                 const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
                 supabase.from("CoworkingEvents")
                 .insert({

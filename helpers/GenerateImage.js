@@ -573,8 +573,13 @@ class GenerateImage{
         const rectY = 510
         const size = 222.5
         
+        
+        const rectXFrame = 777
+        const rectYFrame = 495
+        const sizeFrame = 260
+        
         drawRotatedImage(context,hostAvatar,rectX,rectY, 4 * (Math.PI / 180),size)
-        // context.drawImage(frameAvatar,rectX,rectY,size,size)
+        context.drawImage(frameAvatar,rectXFrame,rectYFrame,sizeFrame,sizeFrame)
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
