@@ -278,6 +278,10 @@ so, you can learn or sharing from each others.`,
 					if(totalDay === 20){
 						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
 						MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
+						supabase.from("Users")
+							.update({type:'member'})
+							.eq('id',msg.author.id)
+							.then()
 					}
 					
 					if (goalName) {

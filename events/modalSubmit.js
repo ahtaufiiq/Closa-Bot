@@ -90,7 +90,7 @@ module.exports = {
 				const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)
 				const msgNotification = await channelNotifications.send(`${modal.user}`)
 				supabase.from("Users")
-					.update({notificationId:msgNotification.id})
+					.update({notificationId:msgNotification.id,type:'new member'})
 					.eq('id',modal.user.id)
 					.then()
 					
