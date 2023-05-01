@@ -515,8 +515,6 @@ class GenerateImage{
             return `${weekday} · ${Time.getHoursFromDate(date)}.${Time.getMinutesFromDate(date)} WIB · (${session} min)`
         }
         // import image
-        const upcomingDot = await loadImage(`./assets/images/coworking_red_dot.png`)
-        const liveDot = await loadImage(`./assets/images/coworking_green_dot.png`)
         const template = await loadImage(`./assets/images/coworking_template_${isLive? 'live' : 'upcoming'}.png`)
         const frameAvatar = await loadImage(`./assets/images/coworking_photo_frame.png`)
         const canvas = createCanvas(1080,810)
