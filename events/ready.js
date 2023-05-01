@@ -28,7 +28,7 @@ module.exports = {
 
 		GuidelineInfoController.updateAllGuideline(client)
 
-		PaymentController.remindMember(client)
+		// PaymentController.remindMember(client)
 		PaymentController.remindBeforeKickoffCohort(client)
 		// if(CLIENT_ID === "948546574550695936") return
 		VacationController.activateVacationTicket(client)
