@@ -530,8 +530,8 @@ class GenerateImage{
         context.font = "600 48px Archivo";
         context.fillText(FormatString.truncateString(title,28),321,179);
 
-        const [month,date] = Time.getFormattedDate(coworkingDate,false,'medium').split(/[ ,]/)
-        
+        let [month,date] = Time.getFormattedDate(coworkingDate,false,'medium').split(/[ ,]/)
+        if(Time.getDateOnly(coworkingDate) === Time.getTodayDateOnly()) date = "Today"
         context.fillStyle = "#2B2B2B"; 
         context.textAlign = 'center'
         context.font = "500 64px Inter";
