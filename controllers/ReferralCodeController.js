@@ -9,7 +9,6 @@ const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Defin
 const GenerateImage = require("../helpers/GenerateImage");
 const {AttachmentBuilder } = require("discord.js");
 const MemberController = require("./MemberController");
-const { AttachmentBuilder } = require("discord.js");
 class ReferralCodeController{
     static showModalRedeem(interaction){
         if(interaction.customId === 'redeem'){
