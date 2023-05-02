@@ -203,7 +203,6 @@ ${CoworkingMessage.progressTimer(totalMin,currentMin)}
 ${rules}
 
 \`hosted by\` ${MessageFormatting.tagUser(HostId)}
-
 ${contentGuests}`
     }
 
