@@ -513,7 +513,7 @@ class CoworkingController {
             }, Time.oneMinute() * 5);
         }
         supabase.from("CoworkingEvents")
-            .update({status:'upcoming',voiceRoomId:channel.id})
+            .update({status:'upcoming',voiceRoomId:voiceChannel.id})
             .eq('id',eventId)
             .then()
         return voiceChannel
