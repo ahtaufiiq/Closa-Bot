@@ -114,7 +114,7 @@ class RecurringMeetupController {
 	}
 
 	static linkCalendarWeeklySync(partyId,startDate){
-		startDate.setHours(Time.minus7Hours(startDate.getHours()))
+		startDate.setHours(Time.minus7Hours(startDate.getHours(),false))
 		
 		const endDate = new Date(startDate.valueOf())
 		endDate.setMinutes(endDate.getMinutes()+30)
