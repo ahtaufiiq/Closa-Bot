@@ -531,7 +531,7 @@ class CoworkingController {
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
                 ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
-                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id),attendance.UserId)
+                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user)),attendance.UserId)
                 })
 			}
 		})

@@ -133,8 +133,8 @@ Let's get ready & join <#${CHANNEL_CLOSA_CAFE}>
 ${MessageFormatting.linkToEvent(eventId)}`
     }
 
-    static remindFiveMinutesBeforeCoworking(userId,channelId){
-        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with user is about to start.
+    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname){
+        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
 Let's join → ${MessageFormatting.tagChannel(channelId)}
 
 please be on time to get your seat!
