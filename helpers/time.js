@@ -63,6 +63,15 @@ class Time {
             }
           }
     }
+
+    static getMinutesFromDate(date){
+        const minute = date.getMinutes()
+        return minute > 9 ? minute : `0${minute}`
+    }
+    static getHoursFromDate(date){
+        const hour = date.getHours()
+        return hour > 9 ? hour : `0${hour}`
+    }
     static getDate(customDate){
         const date= customDate ? new Date(customDate) : new Date()
         date.setHours(date.getHours()+Number(TIMEZONE))
@@ -100,27 +109,99 @@ class Time {
 
     static convertMonthInNumber(month){
         let listMonth = {
-            "january":0,
-            "february":1,
-            "march":2,
-            "april":3,
-            "may":4,
-            "june":5,
-            "july":6,
-            "august":7,
-            "september":8,
-            'october':9,
-            "november":10,
-            "december":11
+            "january": 0,
+            "february": 1,
+            "march": 2,
+            "april": 3,
+            "may": 4,
+            "june": 5,
+            "july": 6,
+            "august": 7,
+            "september": 8,
+            'october': 9,
+            "november": 10,
+            "december": 11,
+            "jan": 0,
+            "feb": 1,
+            "mar": 2,
+            "apr": 3,
+            "may": 4,
+            "jun": 5,
+            "jul": 6,
+            "aug": 7,
+            "sep": 8,
+            "oct": 9,
+            "nov": 10,
+            "dec": 11
         }
         const monthInNumber = listMonth[month.trim().toLowerCase()]
         
         return monthInNumber === undefined ? -1 : monthInNumber
     }
 
-    static minus7Hours(hour){
+    static convertToDate(string = "") {
+        string = string.trim().toLowerCase()
+        const result = {
+            error:null,
+            data:null,
+        }
+        const differentTime = string.includes(' wita') ? -1 : string.includes(' wit') ? -2 : 0
+        const isTomorrow = string.includes('tomorrow')
+        const isToday = string.includes('today')
+        const patternTime = /\d+[.:]\d+/
+        const time = string.match(patternTime)[0]
+        const [hours,minutes] = time.split(/[.:]/)
+        let coworkingDate = new Date()
+        
+        if(isTomorrow) {
+            coworkingDate.setDate(coworkingDate.getDate()+1)
+        }else if(isToday){
+            coworkingDate = new Date(Time.getTodayDateOnly())
+        }else{
+            const date = string.match(/(\d+)/)[0]
+            const month = string.match(/(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)/i)
+            if(!month){
+                result.error = 'month'
+                return result
+            }
+    
+            const monthInNumber = Time.convertMonthInNumber(month[0])
+            coworkingDate.setMonth(monthInNumber)
+            coworkingDate.setDate(date)
+        }
+        coworkingDate.setHours(Time.minus7Hours(Number(hours) + differentTime,false))
+        coworkingDate.setMinutes(minutes)
+        result.data = coworkingDate
+        return result
+    }
+
+    static getTotalMinutes(timeString) {
+        const regex = /(\d+)\s*hr(?:\s*(\d+)\s*min)?/g; // Regular expression pattern to match "1 hr", "1 hr 30 min", "30 min", "2hr", etc.
+        const matches = timeString.match(regex); // Array of matches
+      
+        if (matches && matches.length > 0) {
+            const parts = matches[0].split(" "); // Split the match by space to extract hours and minutes
+            const hours = parseInt(parts[0]); // Extract hours from the first part
+            const strMinute = parts[1] === 'hr' ? parts[2] : parts[1]
+            const minutes = strMinute ? parseInt(strMinute) : 0; // Extract minutes from the third part, or use 0 if not present
+            let totalMinutes = hours * 60 + minutes; // Calculate total minutes
+            return totalMinutes;
+        } else {
+          // If no matches found, check for 'min' without 'hr' separately
+          if (/\d+\s*min/.test(timeString)) {
+            const minutes = parseInt(timeString); // Extract minutes as numeric value
+            return minutes;
+          } else {
+            return NaN; // Return NaN if the format is invalid
+          }
+        }
+    }
+    
+    static minus7Hours(hour,isAbsolute=true){
     	hour = hour - Number(TIMEZONE)		
-        return hour < 0 ? 24 + hour : hour
+        if(isAbsolute) return hour < 0 ? 24 + hour : hour
+        else return hour
+        
     }
 
     static isYesterday(dateOnly) {

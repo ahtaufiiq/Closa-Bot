@@ -25,8 +25,6 @@ class FormatString {
         const word = str.trim()
         return word.charAt(0).toUpperCase() + word.slice(1)
     }
-
-    static 
 }
 
 module.exports = FormatString
