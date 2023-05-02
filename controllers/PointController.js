@@ -107,7 +107,7 @@ class PointController{
                 finalPoint = PointController.randomNumber(1,5)
                 break;
             case 'voice':
-                finalPoint = minute * 2
+                finalPoint = minute
                 break
             case 'goal':
                 finalPoint = PointController.randomNumber(100,300)

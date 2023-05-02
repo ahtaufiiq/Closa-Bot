@@ -10,8 +10,6 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
-const MemberController = require('./MemberController');
-const BoostMessage = require('../views/BoostMessage');
 const MessageComponent = require('../helpers/MessageComponent');
 const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
 class PartyController{
@@ -399,6 +397,12 @@ class PartyController{
 		let project = thread.name.split('by')[0]
 		const endPartyDate = LocalData.getData().deadlineGoal
 		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})
+	}
+
+	static async removeMemberPartyRoom(client,goalId,partyId,UserId){
+		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+		const thread = await ChannelController.getThread(channelGoals,goalId)
+		return await PartyController.deleteUserFromParty(UserId,partyId)
 	}
 
 	static async updateMessagePartyRoom(client,msgId,partyNumber){

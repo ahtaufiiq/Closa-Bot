@@ -193,6 +193,7 @@ module.exports = {
 					const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
 					const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 					focusRoomUser[userId] = {
+						date:Time.getTodayDateOnly(),
 						totalTimeToday,
 						dailyWorkTime,
 						selfVideo : newMember.selfVideo,
@@ -348,32 +349,33 @@ module.exports = {
 			const data = await FocusSessionController.getDetailFocusSession(userId)
 			const taskName = data?.taskName
 			const projectName = data.Projects.name
-			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
+
+			FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 				.then(async response=>{
 					if (totalTime >= 5) {
+						await supabase.rpc('incrementTotalSession',{row_id:userId})
 						await FocusSessionController.updateCoworkingPartner(userId)
-						const incrementVibePoint = totalTime * 2
+						const incrementVibePoint = totalTime 
 						PointController.addPoint(userId,'voice',totalTime)
-						const {coworkingPartner,dailyWorkTime,totalPoint,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
 							coworkingFriends:coworkingPartner,
 							dailyWorkTime,
 							projects:projectThisWeek,
-							tasks
+							tasks,
+							totalSession
 						})
-
-						const attachment = new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})
-						channelSessionLog.send({
-							content:`Here's your recap ${newMember.member.user}`, 
-							files:[
-								attachment
-							],
-							embeds:[
-								FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,newMember.member.user)
-							]
-						})
+						let totalTaskTime = 0
+						let totalTaskFocusTime = 0
+						for (let i = 0; i < tasks.length; i++) {
+							const task = tasks[i];
+							totalTaskTime += Number(task.totalTime)
+							totalTaskFocusTime += Number(task.focusTime)
+						}
+						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
+						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)

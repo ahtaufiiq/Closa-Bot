@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -26,13 +26,22 @@ const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
 const BoostController = require("../controllers/BoostController");
 const FocusSessionController = require("../controllers/FocusSessionController");
+const MemberController = require("../controllers/MemberController");
 
 module.exports = {
 	name: 'messageCreate',
 	async execute(msg) {
 		if(msg.author.bot) {
 			if(msg.channelId === CHANNEL_PAYMENT) {
-				await ChannelController.createThread(msg,'Payment')
+				await ChannelController.createThread(msg,'Sign Up')
+			}else if(msg.channelId === CHANNEL_FEATURE_REQUEST){
+				let titleThread
+				if(msg.content.includes('changelog')){
+					titleThread = `Changelog — ${msg.embeds[0].data.title}`
+				}else{
+					titleThread = `Post — ${msg.embeds[0].data.title}`
+				}
+				ChannelController.createThread(msg,titleThread)
 			}
 			return
 		}
@@ -265,6 +274,15 @@ so, you can learn or sharing from each others.`,
 						totalPoint, 
 						endLongestStreak
 					} = data.body
+
+					if(totalDay === 20){
+						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+						MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
+						supabase.from("Users")
+							.update({type:'member'})
+							.eq('id',msg.author.id)
+							.then()
+					}
 					
 					if (goalName) {
 						RequestAxios.get('todos/tracker/'+msg.author.id)

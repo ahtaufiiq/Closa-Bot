@@ -4,14 +4,13 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class GuidelineInfoMessage {
-    static guideline(userId,membership,isHaveProfile,isHaveReferral,showButtonTestimonial){
+    static guideline(userId,membership,isHaveProfile,isHaveReferral,showButtonTestimonial,totalReferral){
         const buttons = []
         if(!isHaveProfile) buttons.push(MessageComponent.addEmojiButton(`writeIntro_${userId}`,'Make an intro','👋'))
-        if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Refer Friends','🎁',"PRIMARY"))
+        if(isHaveReferral) buttons.push(MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Invite Friends','🎁',"PRIMARY"))
         if(showButtonTestimonial) buttons.push(MessageComponent.addEmojiButton(`submitTestimonialGuideline_${userId}`,'Testimonial','💌'))
         buttons.push(
             MessageComponent.addLinkEmojiButton("Community playbook",'https://closa.notion.site/Closa-f3937e68c57e46c4b028b69e8f1412b2','📒'),
-            MessageComponent.addLinkEmojiButton("Extend membership",'https://tally.so/r/wbRa2w','💳'),
         )
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! please follow the guideline below to begin`,
@@ -33,7 +32,11 @@ Instagram → https://twitter.com/joinclosa
 Newsletter → https://closa.substack.com
 
 **Membership Status**
-${membership ? `Active until → ${membership}` : 'Not started yet'}`)
+Active until → ∞
+
+**Invite Friends **
+${totalReferral} friends invited :gift:`)
+// ${membership ? `Active until → ${membership}` : 'Not started yet'}
             ],
             components:[MessageComponent.createComponent(
                 ...buttons

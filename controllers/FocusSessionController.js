@@ -72,6 +72,23 @@ class FocusSessionController {
                 focusRoomUser[userId].breakTime++
             }
 
+            if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
+                focusRoomUser[userId].date = Time.getTodayDateOnly()
+                const data = await FocusSessionController.getDetailFocusSession(userId)
+				const taskName = data?.taskName
+				const projectName = data.Projects.name
+				const projectId = data.Projects.id
+                const {totalTime,focusTime,breakTime} = focusRoomUser[userId]
+                FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName)
+				.then(async response=>{
+                    FocusSessionController.insertFocusSession(userId,taskName,projectId)
+                })
+
+                focusRoomUser[userId].yesterdayProgress = {
+                    totalTime,focusTime,breakTime
+                }
+            }
+
             if(!focusRoomUser[userId]?.isFocus && focusRoomUser[userId]?.breakCounter === 0){
                 focusRoomUser[userId].isFocus = true
                 ChannelController.deleteMessage(msgFocus)
@@ -105,7 +122,7 @@ class FocusSessionController {
 
     static async getDetailFocusSession(userId){
         const data = await supabase.from('FocusSessions')
-        .select('*,Projects(name)')
+        .select('*,Projects(id,name)')
         .eq('UserId',userId)
         .is('session',null)
         .single()
@@ -113,7 +130,12 @@ class FocusSessionController {
         return data.body
     }
 
-    static async updateTime(userId,totalTime,focusTime,breakTime,projectName){
+    static async updateTime(userId,totalTime,focusTime,breakTime,projectName,yesterdayProgress){
+        if(yesterdayProgress){
+            totalTime -= yesterdayProgress.totalTime
+            focusTime -= yesterdayProgress.focusTime
+            breakTime -= yesterdayProgress.breakTime
+        }
         supabase.rpc('incrementTotalTimeProject',{x:totalTime,row_id:userId,project_name:projectName})
             .then()
         return await supabase.from("FocusSessions")
@@ -146,67 +168,59 @@ class FocusSessionController {
 
                     await supabase.from('CoworkingPartners')
                         .upsert({
-                            id,currentTime:null,currentSession:2,updatedAt:Time.getDate()
+                            id,currentTime:null,currentSession:2,updatedAt:new Date()
                         })
                 }
             })
     }
 
     static async updateCoworkingPartner(userId){
-        supabase.from("CoworkingPartners")
+        const data = await supabase.from("CoworkingPartners")
             .select()
             .like('id',`%${userId}%`)
             .gt('currentSession',0)
-            .then(data => {
-                for (let i = 0; i < data.body.length; i++) {
-                    const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
-                    const date = Time.getDate(updatedAt)
-                    const dateOnly = Time.getDateOnly(date)
-                    if(currentSession === 2){
-                        const totalTimeCoworking = Time.getGapTime(date).totalInMinutes
-                        let coworkingStreak
-                        if(totalTimeCoworking >= 5){
-                            if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
-                                if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
-                                else coworkingStreak = currentStreak
-                            }else{
-                                coworkingStreak = 1
-                            }
-
-                            const value = {
-                                currentTime : totalTimeCoworking,
-                                totalTime: totalTime + totalTimeCoworking,
-                                lastCoworking: Time.getTodayDateOnly(),
-                                currentStreak: coworkingStreak,
-                                currentSession: 1
-                            }
-                            
-                            if(coworkingStreak > longestStreak){
-                                value.longestStreak = coworkingStreak
-                                value.endLongestStreak = Time.getTodayDateOnly()
-                            }
-    
-                            supabase.from("CoworkingPartners")
-                                .update(value)
-                                .eq('id',id)
-                                .then()
-                        }else{
-                            supabase.from("CoworkingPartners")
-                                .delete()
-                                .eq('id',id)
-                                .then()
-                        }
+        for (let i = 0; i < data.body.length; i++) {
+            const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
+            const date = Time.getDate(updatedAt)
+            const dateOnly = Time.getDateOnly(date)
+            if(currentSession === 2){
+                const totalTimeCoworking = Time.getGapTime(date,true).totalInMinutes
+                let coworkingStreak
+                if(totalTimeCoworking >= 5){
+                    if(Time.isValidCoworkingStreak(lastCoworking,dateOnly)){
+                        if(lastCoworking !== dateOnly) coworkingStreak = currentStreak + 1
+                        else coworkingStreak = currentStreak
                     }else{
-                        supabase.from("CoworkingPartners")
-                            .update({
-                                currentSession:0
-                            })
-                            .eq('id',id)
-                            .then()
+                        coworkingStreak = 1
                     }
 
+                    const value = {
+                        currentTime : totalTimeCoworking,
+                        totalTime: totalTime + totalTimeCoworking,
+                        lastCoworking: Time.getTodayDateOnly(),
+                        currentStreak: coworkingStreak,
+                        currentSession: 1
+                    }
+                    
+                    if(coworkingStreak > longestStreak){
+                        value.longestStreak = coworkingStreak
+                        value.endLongestStreak = Time.getTodayDateOnly()
+                    }
+
+                    await supabase.from("CoworkingPartners")
+                        .update(value)
+                        .eq('id',id)
                 }
-            })
+            }else{
+                supabase.from("CoworkingPartners")
+                    .update({
+                        currentSession:0
+                    })
+                    .eq('id',id)
+                    .then()
+            }
+
+        }
     }
 
     static async getAllCoworkingPartners(userId){
@@ -223,10 +237,10 @@ class FocusSessionController {
             FocusSessionController.getAllCoworkingPartners(userId),
             RequestAxios.get('voice/dailySummary/'+userId),
             RequestAxios.get('voice/weeklyProject/'+userId),
-            UserController.getDetail(userId,'dailyWorkTime,totalPoint')
+            UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession')
         ])
 
-        const {dailyWorkTime,totalPoint} = dataUser.body
+        const {dailyWorkTime,totalPoint,totalFocusSession} = dataUser.body
         const coworkingPartner = []
 
         for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
@@ -240,7 +254,7 @@ class FocusSessionController {
         }
 
         return {
-            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner
+            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner,totalSession:totalFocusSession
         }
 
     }

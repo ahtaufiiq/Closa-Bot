@@ -151,11 +151,11 @@ class GenerateImage{
 
     }
 
-    static async referralTicket(referralCode,expired){
+    static async referralTicket(referralCode){
         registerFont('./assets/fonts/IBMPlexMono-Regular.ttf',{family:'IBMPlexMono',weight:400})
         registerFont('./assets/fonts/DMMono-Medium.ttf',{family:'DMMono',weight:500})
         
-        const canvas = createCanvas(1213,913)
+        const canvas = createCanvas(1440,1440)
 
         const context = canvas.getContext('2d')
  
@@ -164,14 +164,8 @@ class GenerateImage{
         context.fillStyle = "#FAFAFB"; 
         context.font = "400 48px IBMPlexMono";
         context.textAlign = 'center'
-        context.fillText(referralCode, 607 , 478);
+        context.fillText(referralCode, 721 , 776);
         
-        context.fillStyle = "#888888"; 
-        context.font = "500 28px DMMono";
-        context.textAlign = 'end'
-        context.fillText(expired, 1155 , 108);
-
-          
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
@@ -219,8 +213,8 @@ class GenerateImage{
         if(totalReferral > 1){
             const template = await loadImage(`./assets/images/referral_cover_template${isDarkMode ? "":"_white"}.png`)
             context.drawImage(template,0,0)
-            context.font = "500 48px BaiJamjuree";
-            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1033 , 222.5);
+            context.font = "500 44px BaiJamjuree";
+            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1005 , 366);
 
         }else{
             const template = await loadImage(`./assets/images/referral_cover_oneInvite${isDarkMode ? "":"_white"}.png`) 
@@ -233,15 +227,15 @@ class GenerateImage{
         context.textAlign = 'center'
         context.font = "600 42px Archivo";
         const username = UserController.getNameFromUserDiscord(user)
-        context.fillText(username, 721 , 1330);
+        context.fillText(username, 719 , 1358);
 
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
 
-        const rectWidth = 124.6;
-        const rectHeight = 124;
-        const rectX = 657.6;
-        const rectY = 1140.9;
+        const rectWidth = 135.7;
+        const rectHeight = 135.7;
+        const rectX = 652;
+        const rectY = 1156;
         const cornerRadius = 43;
         
         this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);
@@ -257,6 +251,7 @@ class GenerateImage{
             context.beginPath()
             let maxLength = 350
             if(type === 'short') maxLength = 100
+            if(percentage >= 100) percentage = 100
             maxLength -= 6.3
             context.moveTo(x, y);
             context.lineTo(x + (maxLength * percentage / 100), y);
@@ -268,6 +263,7 @@ class GenerateImage{
         }
 
         function drawCircle(context, x, y, stroke,percentage) {
+            if(percentage === 0) return
             context.beginPath()
 
             context.arc(x, y, 43, 1.5 * Math.PI, (1.5 + (2 * percentage / 100)) * Math.PI);
@@ -330,7 +326,7 @@ class GenerateImage{
 
 
         //--- Work Hours ----//
-        const percentageWorkHours = totalTime > dailyWorkTime ? 100 : Math.round(totalTime/dailyWorkTime*100)
+        const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
         drawProgressBar(context,164,133,percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
@@ -357,11 +353,11 @@ class GenerateImage{
         context.textAlign = 'center'
         context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText(`${percentageFocus}%`, 82.3 , 336);
+        context.fillText(`${percentageFocus}%`, 86 , 336);
 
         context.fillStyle = "#31373D"; 
         context.font = "500 20px Archivo";
-        context.fillText(`${percentageBreak}%`, 330.6 , 336);
+        context.fillText(`${percentageBreak}%`, 336 , 336);
 
         context.textAlign = 'left'
         context.fillStyle = "#31373D"; 
@@ -457,9 +453,9 @@ class GenerateImage{
             if(coworkingFriend.streak > 1){
                 context.textAlign = 'end'
                 context.fillStyle = "#888888"; 
-                context.font = "500 16px Archivo";
-                context.drawImage(streakPartner,xCoordinatCoworker+4.5,yCoordinatCoworker + 52)
-                context.fillText(coworkingFriend.streak,xCoordinatCoworker+31.5,yCoordinatCoworker + 71);
+                context.font = "500 20px Archivo";
+                context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
+                context.fillText(coworkingFriend.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
             }
             counterCoordinatFrame += 0.01
             xCoordinatCoworker += 76.2

@@ -8,8 +8,8 @@ const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const LocalData = require("../helpers/LocalData");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateLink = require("../helpers/GenerateLink");
-const PartyController = require("./PartyController");
 const { PermissionFlagsBits, ChannelType } = require("discord.js");
+const MessageFormatting = require("../helpers/MessageFormatting");
 
 class RecurringMeetupController {
 	static async createPrivateVoiceChannel(client,channelName,allowedUsers=[]){
@@ -106,7 +106,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				const linkAddToCalendar = RecurringMeetupController.linkCalendarWeeklySync(partyId,meetupDate)
 				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar,tagPartyMembers))
 			}
@@ -181,7 +181,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				const meetupDate = Time.getDate(time)
 				meetupDate.setDate(meetupDate.getDate()+1)
 				const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
@@ -230,7 +230,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup(tagPartyMembers))
 			}
 		})
@@ -256,7 +256,7 @@ class RecurringMeetupController {
 			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup(tagPartyMembers))
 			}
 		})
@@ -331,7 +331,7 @@ class RecurringMeetupController {
 					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId,partyId)
 				}
 				const voiceChannelId = dataParty.body.voiceChannelId
-				const tagPartyMembers = PartyController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 			}
 		})
@@ -518,6 +518,11 @@ class RecurringMeetupController {
 				}
 			})
 					
+	}
+
+	static formatTagPartyMembers(members){
+		if(!members || members?.length === 0) return '@everyone'
+		else return members.map(member=>MessageFormatting.tagUser(member.UserId))
 	}
 }
 
