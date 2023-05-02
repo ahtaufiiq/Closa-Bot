@@ -219,6 +219,48 @@ module.exports = {
 							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 						})
 						focusRoomUser[userId].firstTime = false
+						CoworkingController.isHostCoworking(userId,joinedChannelId)
+							.then(async dataEvent=>{
+								if(dataEvent.body){
+									const {rules,totalMinute} = dataEvent.body
+									supabase.from("CoworkingEvents")
+										.update({status:'live'})
+										.eq('voiceRoomId',joinedChannelId)
+										.then()
+									listFocusRoom[joinedChannelId].status = 'live'
+									const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
+									const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
+									CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
+									let currentMin = totalMinute
+									const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
+									voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+										.then(msg=>{
+											const countdownCoworkingSession = setInterval(() => {
+												currentMin--
+												msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+												if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
+												else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
+												else if(currentMin === 2) voiceChat.send(CoworkingMessage.remindSessionEnded(2))
+												else if(currentMin === 0){
+													clearInterval(countdownCoworkingSession)
+													voiceChat.send(CoworkingMessage.remindSessionEnded())
+													setTimeout(() => {
+														voiceChat.delete()
+														coworkingEventMessage.delete()
+														ChannelController.getThread(channel,dataEvent.body.id)
+															.then(coworkingEventThread =>{
+																coworkingEventThread.delete()
+															})
+														supabase.from("CoworkingEvents")
+															.delete()
+															.eq('voiceRoomId',joinedChannelId)
+															.then()
+													}, 1000 * 15);
+												}
+											}, Time.oneMinute());
+										})
+								}
+							})
 					}
 					kickUser(userId,newMember.member.user,thread,focusRoomUser)
 						.then(()=>{
