@@ -233,11 +233,12 @@ module.exports = {
 									CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
 									let currentMin = totalMinute
 									const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
-									voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+									const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
+									voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 										.then(msg=>{
 											const countdownCoworkingSession = setInterval(() => {
 												currentMin--
-												msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+												msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 												if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
 												else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
 												else if(currentMin === 2) voiceChat.send(CoworkingMessage.remindSessionEnded(2))
@@ -311,11 +312,12 @@ module.exports = {
 							CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
 							let currentMin = totalMinute
 							const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
-							voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+							const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
+							voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 								.then(msg=>{
 									const countdownCoworkingSession = setInterval(() => {
-										currentMin--
-										msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin))
+										currentMin,sessionGuests--
+										msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 										if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
 										else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
 										else if(currentMin === 2) voiceChat.send(CoworkingMessage.remindSessionEnded(2))

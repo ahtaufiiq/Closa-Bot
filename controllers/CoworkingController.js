@@ -11,6 +11,7 @@ const MemberController = require('./MemberController');
 const UserController = require('./UserController');
 const GenerateImage = require('../helpers/GenerateImage');
 const InfoUser = require('../helpers/InfoUser');
+const MessageFormatting = require('../helpers/MessageFormatting');
 
 class CoworkingController {
     static showModalScheduleCoworking(interaction){
@@ -346,6 +347,18 @@ class CoworkingController {
         })
     }
 
+    static async getSessionGuests(eventId){
+        const data = await supabase.from("CoworkingAttendances")
+            .select("UserId")
+            .eq('EventId',eventId)
+        const sessionGuests = []
+        for (let i = 0; i < data.body?.length; i++) {
+            const {UserId} = data.body[i];
+            sessionGuests.push(MessageFormatting.tagUser(UserId))
+        }
+        return sessionGuests
+    }
+
     static async updateCoworkingMessage(msg,isLive=false){
         const eventId = msg.id
         const [dataEvent,dataAttendances] = await Promise.all([
@@ -471,9 +484,9 @@ class CoworkingController {
                     .select()
                     .eq('EventId',eventId)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
-                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,UserController.getNameFromUserDiscord(user),channel.id),user.id)
+                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
-                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,UserController.getNameFromUserDiscord(user),channel.id),attendance.UserId)
+                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id),attendance.UserId)
                 })
 			}
 		})

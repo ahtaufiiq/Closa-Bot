@@ -133,14 +133,9 @@ Let's get ready & join <#${CHANNEL_CLOSA_CAFE}>
 ${MessageFormatting.linkToEvent(eventId)}`
     }
 
-    static remindFiveMinutesBeforeCoworking(userId,hostName,channelId){
-        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with ${hostName} is about to start.
-Let's get ready:
-1. Write a specific task on ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
-2. Select your project inside your tasks thread.
-3. Join → ${MessageFormatting.tagChannel(channelId)}
-4. Turn on camera \`\`OR\`\` share screen to track your time.
-5. Mute your mic (during focus time).`
+    static remindFiveMinutesBeforeCoworking(userId,channelId){
+        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with user is about to start.
+Let's join → ${MessageFormatting.tagChannel(channelId)}`
     }
 
     static howToStartSession(HostId,min=10){
@@ -167,38 +162,39 @@ or this room will auto-delete.\n`:''}
     static guidelineCoworking(){
         return `**HOW TO BE PRODUCTIVE**
 
-**Prepare for your session.**
-\`\`1.\`\` Remove any other sources of interruption: close your door, turn off notifications, etc.
-\`\`2.\`\` Get water/coffee or use the restroom
-\`\`3.\`\` Join your session 2-5 min before it starts
-\`\`4.\`\` Turn on video. Please do not turn off your camera during the session or bot will auto-kick from the room in 2 min.
-    
-**Kick off your session.**
+**Prepare for your session.** 🔕
+Remove any other sources of interruption: 
+close your door, turn off notifications, etc.
+
+**Kick off your session.** 🚀
 \`\`1.\`\` Be friendly and greet your partner
-\`\`2.\`\` Ask your partner what they plan to accomplish in this session.
-\`\`3.\`\` Describe you specific task for 30s
+\`\`2.\`\` Describe your specific task for 30s to your partner.
 \`\`4.\`\` Post your plan in #session-goals (1 specific task/ session).
-\`\`5.\`\` Start working buy turn-on video.
-(if the time tracker doesn’t start then turn-off then turn-on your video/sharescreen back)
+\`\`5.\`\` Start working by turn-on video.
+(if the time tracker didn't start then turn-off then turn-on your video/sharescreen back)
 
-**Get to work.**
-\`\`1.\`\` Work quietly
-\`\`2.\`\` If you need a break: press break button & post in the room chat
+**Get to work.** 👩‍💻🧑‍💻
+\`\`1.\`\` Work quietly. You can listen to music but mute your audio first.
+\`\`2.\`\` If you need a break: press break button & let others know in the voice chat.
 
-**Wrap up.**
-\`\`1.\`\` Few minutes before the session ends. Stop & share what you've done with your partner.
-\`\`2.\`\` Be supportive and celebrate your productive session! 
-\`\`3.\`\` Share to ${MessageFormatting.tagChannel(CHANNEL_TODO)} after the session.
+**Wrap up.** 🙌
+\`\`1.\`\` 5 mins before the session ends. Stop & share what you've done with your partner!
+\`\`2.\`\` Celebrate & Share to ${MessageFormatting.tagChannel(CHANNEL_TODO)} of what you've done!
 
 \`\`notes:\`\` 
-\`\`\`• you can listen to music—mute your audio first.
-• Talk only allowed in the beginning & end of the session.
-• If you must step away, post on voice chat while keeping the camera open & back ASAP.
+\`\`\` 
+• Talk only allowed in the beginning & end of the session.
+• If you must step away, post on voice chat while keeping the camera open & back ASAP.
 \`\`\``
     }
 
-    static countdownCoworkingSession(HostId,rules,totalMin,currentMin){
-        return `Session started @everyone
+    static countdownCoworkingSession(HostId,rules,totalMin,currentMin,attendances){
+        let contentGuests = ''
+        const totalGuest = attendances.length
+        if(totalGuest > 0){
+            contentGuests = `\`guest${totalGuest>1?'s':''} : ${attendances.join(' ')}\``
+        }
+        return `Session started
 
 **${Time.convertTime(currentMin,'short')}** left
 ${CoworkingMessage.progressTimer(totalMin,currentMin)}
@@ -206,7 +202,9 @@ ${CoworkingMessage.progressTimer(totalMin,currentMin)}
 \`Agenda & Rules\`
 ${rules}
 
-\`hosted by\` ${MessageFormatting.tagUser(HostId)}`
+\`hosted by\` ${MessageFormatting.tagUser(HostId)}
+
+${contentGuests}`
     }
 
     static progressTimer(totalMin,currentMin){
