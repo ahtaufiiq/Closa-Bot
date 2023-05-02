@@ -192,7 +192,7 @@ close your door, turn off notifications, etc.
         let contentGuests = ''
         const totalGuest = attendances.length
         if(totalGuest > 0){
-            contentGuests = `\`guest${totalGuest>1?'s':''} : ${attendances.join(' ')}\``
+            contentGuests = `\`guest${totalGuest>1?'s':''} :\` ${attendances.join(' ')}`
         }
         return `Session started
 
