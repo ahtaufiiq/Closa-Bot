@@ -135,7 +135,10 @@ ${MessageFormatting.linkToEvent(eventId)}`
 
     static remindFiveMinutesBeforeCoworking(userId,channelId){
         return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with user is about to start.
-Let's join → ${MessageFormatting.tagChannel(channelId)}`
+Let's join → ${MessageFormatting.tagChannel(channelId)}
+
+please be on time to get your seat!
+the room will open for public when the session start & anyone can join.`
     }
 
     static howToStartSession(HostId,min=10){

@@ -97,14 +97,14 @@ module.exports = {
 								CoworkingController.updateCoworkingMessage(interaction.message)
 							})
 						msg.delete()
-						interaction.editReply("Cancel Book Coworking")
+						interaction.editReply("your schedule has been canceled.")
 					}else{
-						interaction.editReply("belum Book Coworking")
+						interaction.editReply("can't cancel the session you're not even booking.")
 					}
 					break;
 				case "bookCoworking":
 					if(targetUserId === interaction.user.id) return interaction.editReply("⚠️ Can't book your own coworking event")
-					interaction.editReply("Success Book")
+					interaction.editReply("you're in ✅ ")
 					const threadCoworking = await ChannelController.getThread(
 						ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION),
 						interaction.message.id

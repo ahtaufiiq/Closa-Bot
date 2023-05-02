@@ -450,7 +450,7 @@ The correct format:
 				if(!coworkingEvent.voiceRoomId){
 					CoworkingController.updateCoworkingMessage(msg,false)
 					if(Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 5){
-						CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id)
+						CoworkingController.createFocusRoom(modal.client,voiceRoomName,msg.id,totalSlot,true)
 					}else{
 						CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 					}
