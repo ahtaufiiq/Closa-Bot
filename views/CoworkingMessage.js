@@ -137,7 +137,7 @@ ${MessageFormatting.linkToEvent(eventId)}`
         return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
 Let's join → ${MessageFormatting.tagChannel(channelId)}
 
-please be on time to get your seat!
+please be on time to secure your seat!
 the room will open for public when the session start & anyone can join.`
     }
 
