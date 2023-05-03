@@ -50,13 +50,22 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
 		  )
         const components = []
         if(!isLive){
-            components.push(MessageComponent.createComponent(
-                MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
-                MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓'),
-                MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
-                MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
-                // MessageComponent.addLinkButton('Learn more','')
-            ))
+            if(link){
+                components.push(MessageComponent.createComponent(
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓'),
+                    MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
+                    MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
+                    // MessageComponent.addLinkButton('Learn more','')
+                ))
+            }else{
+                components.push(MessageComponent.createComponent(
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
+                    MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
+                    // MessageComponent.addLinkButton('Learn more','')
+                ))
+            }
         }
         const content = isLive ? `${MessageFormatting.tagUser(author.id)} just started ${eventName} — LIVE 🔴` :`${MessageFormatting.tagUser(author.id)} just scheduled a session`
         const titleEmbed = isLive ? `**Join** → ${MessageFormatting.tagChannel(voiceRoomId)}` : `${eventName} @ ${CoworkingMessage.formatCoworkingDate(coworkingDate)}`

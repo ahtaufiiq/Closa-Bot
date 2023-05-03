@@ -41,7 +41,8 @@ const GenerateImage = require("../helpers/GenerateImage");
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal) {
-		const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
+		try {
+			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
 		if(commandButton === 'selectDailyWorkGoal'){
 			await modal.deferReply()
 			const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
@@ -548,6 +549,10 @@ The correct format:
 			ChannelController.sendToNotification(modal.client,BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),user.id)
 
 			await modal.editReply(BoostMessage.successSendMessage(user))
+		}
+
+		} catch (error) {
+			ChannelController.sendError(error,)
 		}
 	},
 };
