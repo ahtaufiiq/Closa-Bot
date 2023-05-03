@@ -60,6 +60,9 @@ For the next step check your 🔔 **notification** → ${MessageFormatting.linkT
 
 Next, follow the step on your 🔔 **notification** → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
+
+
+
     static replyAlreadyJoinWaitingRoom(){
         return `⚠️ You've joined the waiting room.`
     }
@@ -185,21 +188,21 @@ You can type \`\`/remind highlight\`\` here, if you want to set your reminder in
 Thank you!`
     }
 
-    static warningReplaceExistingGoal(userId,accountabilityMode='party'){
+    static warningReplaceExistingGoal(userId){
         return {
-            content:`Are you sure want to take another ${accountabilityMode} mode? 
+            content:`Are you sure want to take another project? 
 Your future progress will be updated to your new project.`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`continueReplaceGoal_${userId}_${accountabilityMode}`,"Yes, continue"),
-                    MessageComponent.addButton(`cancelReplaceGoal_${userId}_${accountabilityMode}`,"No","SECONDARY"),
+                    MessageComponent.addButton(`continueReplaceGoal_${userId}`,"Yes, continue"),
+                    MessageComponent.addButton(`cancelReplaceGoal_${userId}`,"No","SECONDARY"),
                 )
             ]
         }
     }
 
-    static cancelReplaceGoal(accountabilityMode='party'){
-        return `New ${accountabilityMode} mode has been canceled.`
+    static cancelReplaceGoal(){
+        return `create new project has been canceled.`
     }
 
     static confirmationLeaveParty(userId,partyId){
