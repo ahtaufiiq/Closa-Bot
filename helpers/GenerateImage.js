@@ -544,19 +544,24 @@ class GenerateImage{
         context.font = "500 40px Inter";
         context.fillText(UserController.getNameFromUserDiscord(host),72,722);
 
+        if(attendances.length > 5){
+            context.fillText(`${attendances.length - 5}+`,778.5,371);
+        }
+
 
         
         const coworkerImageSize = 95;
+        let startPoint = attendances.length - 1
+        if(startPoint > 4) startPoint = 4
 
-        let xCoordinatCoworker = 322 + (85 * (attendances.length - 1))
+        let xCoordinatCoworker = 322 + (85 * startPoint)
         let yCoordinatCoworker = 307
 
 
-        for (let i = attendances.length - 1; i >= 0; i--) {
+        for (let i = startPoint; i >= 0; i--) {
             const photo = await loadImage(attendances[i])
             roundedRect(context,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
             drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
-            
             xCoordinatCoworker -= 85
         }
 

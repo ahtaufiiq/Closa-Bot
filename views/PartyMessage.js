@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js")
+const { EmbedBuilder, ButtonStyle } = require("discord.js")
 const { CHANNEL_NOTIFICATION, CHANNEL_HIGHLIGHT, GUILD_ID, CHANNEL_GOALS, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_REFLECTION, CHANNEL_CELEBRATE } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -148,7 +148,7 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`defaultReminder_${userId}`,"Yes, set at 07.30 WIB","PRIMARY"),
-                    MessageComponent.addEmojiButton(`customReminder_${userId}`,"Custom Reminder","SECONDARY",'⏰'),
+                    MessageComponent.addEmojiButton(`customReminder_${userId}`,"Custom Reminder",'⏰',ButtonStyle.Secondary),
                     MessageComponent.addButton(`noReminder_${userId}`,"No","SECONDARY"),
                 )
             ]
