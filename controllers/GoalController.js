@@ -24,15 +24,20 @@ class GoalController {
         interaction.message.delete()
     }
     static async modalSubmitPreferredCoworkingTime(modal){
-		await modal.deferReply()
-		const coworkingTime = modal.getTextInputValue('coworkingTime');
-		supabase.from("Users")
-			.update({preferredCoworkingTime:coworkingTime})
-			.eq('id',modal.user.id)
-			.then()
-        const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
-        await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id))
-        ChannelController.deleteMessage(modal.message)
+		try {
+			await modal.deferReply()
+			const coworkingTime = modal.getTextInputValue('coworkingTime');
+			supabase.from("Users")
+				.update({preferredCoworkingTime:coworkingTime})
+				.eq('id',modal.user.id)
+				.then()
+			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
+			await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id))
+			ChannelController.deleteMessage(modal.message)
+			
+		} catch (error) {
+			ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+		}
     }
 
     static showModalWriteGoal(interaction){
