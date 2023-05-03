@@ -4,6 +4,7 @@ const formatNumber = require('./formatNumber')
 const FormatString = require('./formatString')
 const InfoUser = require('./InfoUser')
 const Time = require('./time')
+const {split} = require('canvas-hypertxt')
 class GenerateImage{
     static async tracker(user,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
@@ -519,11 +520,6 @@ class GenerateImage{
         const context = canvas.getContext('2d')
         context.drawImage(template,-15.5,-11)
 
-
-
-
-
-
         context.fillStyle = "#31373D"; 
         context.font = "600 48px Archivo";
         context.fillText(FormatString.truncateString(title,28),321,179);
@@ -577,6 +573,66 @@ class GenerateImage{
         
         drawRotatedImage(context,hostAvatar,rectX,rectY, 4 * (Math.PI / 180),size)
         context.drawImage(frameAvatar,rectXFrame,rectYFrame,sizeFrame,sizeFrame)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+    static async project({user,project,goal,date}){
+        registerFont('./assets/fonts/PlusJakartaSans-Bold.ttf',{family:'JakartaSans'})
+        
+        
+        function renderWrappedTextCentered(context, value, width, x, y) {
+            // ideally don't do this every time, it is really slow.
+            const lines = split(context, value, "64px JakartaSans", width);
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                if(i === 3 && line.length > 4){
+                    line+="..."
+                }
+                context.fillText(line, x , y);
+                y += 76.8;
+                if(i === 3) break
+            }
+        }
+
+        const template = await loadImage(`./assets/images/project_template.png`)
+        
+        const canvas = createCanvas(1080,1080)
+        const context = canvas.getContext('2d')
+        context.drawImage(template,0,0)
+
+        context.textAlign = 'center'
+
+        context.fillStyle = "#00B264"; 
+        context.font = "42px JakartaSans";
+        
+        context.fillText(project,template.width/2,391)
+
+        context.fillStyle = "#2B2B2B"; 
+        context.font = "64px JakartaSans";
+        
+        renderWrappedTextCentered(context,goal,900,template.width/2,485)
+        
+        context.fillStyle = "#888888"; 
+        context.font = "36px JakartaSans";
+        context.textAlign = 'end'
+        context.fillText('by '+Time.getFormattedDate(date,false,'medium').toLowerCase(),1011,1010)
+        
+        context.textAlign = 'start'
+        context.fillStyle = "#7E7C7C"; 
+        context.fillText(UserController.getNameFromUserDiscord(user),239,1010)
+
+
+        const hostAvatar = await loadImage(InfoUser.getAvatar(user))
+        const sizeAvatar = 138
+        const coordinatX = 71.5
+        const coordinatY = 875.5
+        this.roundRect(context,coordinatX,coordinatY,sizeAvatar,sizeAvatar,32)
+        // context.lineWidth = 6.7
+        // context.strokeStyle = '#FAFAFB'
+        // context.strokeStyle = 'red'
+        context.clip()
+        context.drawImage(hostAvatar,coordinatX,coordinatY,sizeAvatar,sizeAvatar)
+
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }

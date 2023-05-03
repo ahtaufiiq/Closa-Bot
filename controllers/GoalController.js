@@ -12,30 +12,41 @@ const GoalMessage = require('../views/GoalMessage');
 const PartyController = require('./PartyController');
 const PointController = require('./PointController');
 const FormatString = require('../helpers/formatString');
+const UserController = require('./UserController');
+const GenerateImage = require('../helpers/GenerateImage');
+const { AttachmentBuilder } = require('discord.js');
 
 class GoalController {
 
-    static async interactionPickRole(interaction,role,type='party'){
-        await interaction.editReply(GoalMessage.pickYourGoalCategory(role,interaction.user.id,type))
+    static async interactionPickGoalCategory(interaction){
+        const deadlineGoal = GoalController.getDeadlineGoal()
+        await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id))
         interaction.message.delete()
     }
-
-    static async interactionPickGoalCategory(interaction,valueMenu){
-        const deadlineGoal = GoalController.getDeadlineGoal()
-        await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,deadlineGoal.description,interaction.user.id,valueMenu))
-        interaction.message.delete()
+    static async modalSubmitPreferredCoworkingTime(modal){
+		await modal.deferReply()
+		const coworkingTime = modal.getTextInputValue('coworkingTime');
+		supabase.from("Users")
+			.update({preferredCoworkingTime:coworkingTime})
+			.eq('id',modal.user.id)
+			.then()
+        const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
+        await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id))
+        ChannelController.deleteMessage(modal.message)
     }
 
     static showModalWriteGoal(interaction){
         if(interaction.customId.includes('writeGoal')){
+			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
 			.addComponents(
-				new TextInputComponent().setCustomId('project').setLabel("Project Name").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('about').setLabel("About Project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
-				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my everyday progress at").setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('project').setLabel("Project Name (up to 4 words)").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setPlaceholder("e.g. 10 design exploration & get 1 clients").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('about').setLabel("About project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
+				new TextInputComponent().setCustomId('deadline').setLabel("Project Deadline").setPlaceholder("e.g. 20 may").setStyle("SHORT").setDefaultValue(deadlineGoal.formattedDate).setRequired(true),
+				new TextInputComponent().setCustomId('shareProgressAt').setLabel("i'll try to share my progress at").setPlaceholder("e.g. 21.00").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
 			return true
@@ -43,83 +54,62 @@ class GoalController {
         return false
     }
 
-    static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,accountabilityMode,role,goalCategory}){
+	static showModalPreferredCoworkingTime(interaction){
+        if(interaction.customId.includes('scheduledCoworkingTimeGoal')){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Preferred coworking time 🕖👩‍💻👨‍💻")
+			.addComponents(
+				new TextInputComponent().setCustomId('coworkingTime').setLabel("Preferred daily coworking time (minimal one)").setPlaceholder("e.g. 08.00, 15.00, 20.00 wib").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
 
+	static showModalCustomDailyWorkTime(interaction){
+		const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Daily work time goal")
+			.addComponents(
+				new TextInputComponent().setCustomId('dailyWorkGoal').setLabel("Set your daily work time goal").setPlaceholder("e.g. 1 hr 30 min").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+	
+    }
+
+    static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,deadlineGoal}){
 		PartyController.setProgressReminder(interaction,shareProgressAt)
 		
-		if(accountabilityMode === 'party'){
-			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
-			const kickoffDate = Time.getFormattedDate(Time.getDate(LocalData.getData().kickoffDate))
-			const kickoffEventId = LocalData.getData().kickoffEventId
-			ChannelController.sendToNotification(
-				interaction.client,
-				MessageFormatting.linkToEvent(kickoffEventId),
-				interaction.user.id
-			)
 
-			await interaction.editReply(PartyMessage.remindUserAttendKicoff(interaction.user.id,kickoffDate,kickoffEventId))
-			interaction.message.delete()
-
-			await supabase.from("JoinParties")
-				.update({role,goalCategory,project,goal,about,shareProgressAt,alreadySetGoal:true})
-				.eq('UserId',interaction.user.id)
-				.eq('cohort',PartyController.getNextCohort())
-			
-			PartyController.updateMessageWaitingRoom(interaction.client)
-
-			const channelGeneral = ChannelController.getChannel(interaction.client,CHANNEL_GENERAL)
-			channelGeneral.send(`**${interaction.user} has joined ${MessageFormatting.tagChannel(CHANNEL_PARTY_ROOM)} & set a goal**`)
-		}else if(accountabilityMode.includes('joinParty')){
-			const msgGoalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
-			const partyId = accountabilityMode.split('joinParty')[1]
-			const dataParty = await supabase.from("PartyRooms")
-				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
-				.eq('id',partyId)
-				.single()
-			const members = dataParty.body?.MemberPartyRooms
-			const totalMember = members.length
-
-
-			if (totalMember === PartyController.getMaxPartyMember()) {
-				await interaction.editReply(PartyMessage.replyCannotJoinPartyFullAfterSetGoal(interaction.user.id))
-				return
-			}
-
-			const {deadlineGoal} = LocalData.getData()
-			supabase.from("MemberPartyRooms")
-				.insert({project,partyId,endPartyDate:deadlineGoal,UserId:interaction.user.id})
-				.then((data)=>{
-					PartyController.updateMessagePartyRoom(interaction.client,dataParty.body.msgId,partyId)
-				})
-			await interaction.editReply(PartyMessage.replyImmediatelyJoinParty(interaction.user.id,dataParty.body?.msgId))
-			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-			const partyThread = await ChannelController.getThread(channelParty,dataParty.body.msgId,partyId)
-			partyThread.send(PartyMessage.userJoinedParty(interaction.user.id))
-			ChannelController.deleteMessage(interaction.message)
-			PartyController.followGoalAccountabilityPartner(interaction.client,partyId,interaction.user.id,msgGoalId)
-		}else{
-			await interaction.editReply(PartyMessage.askUserWriteHighlight(interaction.user.id))
-			ChannelController.deleteMessage(interaction.message)
-			
-			GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode})
-		}
+		ChannelController.deleteMessage(interaction.message)
+		
+		const goalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,shareProgressAt,deadlineGoal})
+		await interaction.editReply(GoalMessage.replySuccessSubmitGoal(goalId))
 	}
 
-	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode}){
+	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,deadlineGoal}){
 		PointController.addPoint(user.id,'goal')
-
-		const deadlineGoal = GoalController.getDeadlineGoal()
-
+		const dataUser = await supabase.from('Users')
+			.select()
+			.eq('id',user.id)
+			.single()
+		const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+		const buffer = await GenerateImage.project({
+			user,project,goal,date:deadlineGoal
+		})
+		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
 		const msg = await channelGoals.send(GoalMessage.postGoal({
 			project,
 			goal,
 			about,
 			shareProgressAt,
-			role,
 			user:user,
 			deadlineGoal,
-			value:`${accountabilityMode}-${role}`
+			preferredCoworkingTime,
+			files
 		}))
 
 		const updatedData = await supabase.from("Goals")
@@ -130,15 +120,14 @@ class GoalController {
 
 		supabase.from('Goals')
 		.insert({
-			role,
 			goalCategory,
 			project,
 			goal,
 			about,
 			shareProgressAt,
 			id:msg.id,
-			deadlineGoal:deadlineGoal.deadlineDate,
-			isPartyMode:accountabilityMode === 'solo' ? false : true,
+			deadlineGoal:Time.getDateOnly(deadlineGoal),
+			isPartyMode:false,
 			alreadySetHighlight:false,
 			UserId:user.id,
 		})
@@ -176,7 +165,8 @@ class GoalController {
     static showModalEditGoal(interaction){
         if(interaction.customId.includes('editGoal')){
 			const project = interaction.message.embeds[0].title
-			const [{value:goal},{value:about},{value:descriptionShareProgress}] = interaction.message.embeds[0].fields
+			const [{value:goal},{value:about},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
+			const [month,dateOfMonth] = deadlineValue.split('(')[0].split(/[, ]/)
 			const [commandButton,userId] = interaction.customId.split('_')
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else goal.`})
 
@@ -185,10 +175,11 @@ class GoalController {
 			.setCustomId(interaction.customId)
 			.setTitle("Set your goal 🎯")
 			.addComponents(
-				new TextInputComponent().setCustomId('project').setLabel("Project Name").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("My goal is").setDefaultValue(goal).setPlaceholder("Write specific & measurable goal e.g: read 2 books").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('project').setLabel("Project Name (up to 4 words)").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setDefaultValue(goal).setPlaceholder("e.g. 10 design exploration & get 1 clients").setStyle("SHORT").setRequired(true),
 				new TextInputComponent().setCustomId('about').setLabel("About Project").setDefaultValue(about).setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
-				new TextInputComponent().setCustomId('shareProgressAt').setLabel("I'll share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g 21.00").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('deadline').setLabel("Project Deadline").setPlaceholder("e.g. 20 may").setStyle("SHORT").setDefaultValue(`${dateOfMonth} ${month}`).setRequired(true),
+				new TextInputComponent().setCustomId('shareProgressAt').setLabel("i'll try to share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g. 21.00").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
 			return true
@@ -212,9 +203,9 @@ class GoalController {
 			.select()
 			.eq('cohort',PartyController.getThisCohort())
 			.not('goal','is',null)
-			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
+			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt})=>{
 				const {user} = await MemberController.getMember(client,UserId)
-				GoalController.submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,role,accountabilityMode:'party'})
+				GoalController.submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt})
 			})
 		})
 	}
@@ -363,6 +354,32 @@ class GoalController {
 			result.description = 'kick-off'
 		}
 		return result
+	}
+    static getDayLeftBeforeDemoDay(){
+		const {celebrationDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const result = {
+			dayLeft:null,
+			deadlineDate:null,
+			formattedDate:''
+		}
+		
+		result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
+		result.deadlineDate = Time.getDate(celebrationDate)
+		const [month,dateOfMonth] = Time.getFormattedDate(result.deadlineDate,false,'medium').split(/[, ]+/)
+		result.formattedDate = `${dateOfMonth} ${month}`
+		
+		return result
+	}
+
+	static async interactionStartProject(interaction,targetUserId){
+		ChannelController.sendToNotification(
+			interaction.client,
+			GoalMessage.setDailyWorkTime(targetUserId),
+			targetUserId
+		)
+		const notificationId = await UserController.getNotificationId(targetUserId)
+		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId))
 	}
     
 }

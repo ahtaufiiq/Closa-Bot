@@ -35,12 +35,26 @@ const FocusSessionController = require("../controllers/FocusSessionController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const CoworkingMessage = require("../views/CoworkingMessage");
 const CoworkingController = require("../controllers/CoworkingController");
+const { AttachmentBuilder } = require("discord.js");
+const GenerateImage = require("../helpers/GenerateImage");
 
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal) {
 		const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-		if(commandButton === 'addNewProject'){
+		if(commandButton === 'selectDailyWorkGoal'){
+			await modal.deferReply()
+			const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
+			const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
+			supabase.from("Users")
+				.update({dailyWorkTime:totalMinute})
+				.eq('id',modal.user.id)
+				.then()
+			await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id))
+			ChannelController.deleteMessage(modal.message)
+		}else if(commandButton === 'scheduledCoworkingTimeGoal'){
+			GoalController.modalSubmitPreferredCoworkingTime(modal)
+		}else if(commandButton === 'addNewProject'){
 			await modal.deferReply()
 			const project = modal.getTextInputValue('project');
 			await supabase.from("Projects")
@@ -116,37 +130,52 @@ module.exports = {
 			}
 			
 		}else if(commandButton === "writeGoal"){
-			const [accountabilityMode,role,goalCategory] = value.split('-')
+			await modal.deferReply()
+
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
 			const shareProgressAt = modal.getTextInputValue('shareProgressAt');
-
-			await modal.deferReply()
+			const deadline = modal.getTextInputValue('deadline');
+			const deadlineGoal = Time.getDate(deadline)
+			deadlineGoal.setFullYear(Time.getDate().getFullYear())
 
 			await GoalController.interactionPostGoal(modal,{
-				goal,about,project,shareProgressAt,accountabilityMode,role,goalCategory
+				goal,about,project,shareProgressAt,deadlineGoal
 			})
 			ChannelController.deleteMessage(modal.message)
 		}else if(commandButton === "editGoal"){
-			const deadlineGoal = GoalController.getDeadlineGoal()
-			const role = value.split('-')[1]
+			await modal.deferReply({ephemeral:true})
+
 			const project = modal.getTextInputValue('project');
 			const goal = modal.getTextInputValue('goal');
 			const about = modal.getTextInputValue('about');
 			const shareProgressAt = Time.getTimeFromText(modal.getTextInputValue('shareProgressAt'))
-			await modal.deferReply({ephemeral:true})
+			const deadline = modal.getTextInputValue('deadline');
+			const deadlineGoal = Time.getDate(deadline)
+			deadlineGoal.setFullYear(Time.getDate().getFullYear())
+
+			const dataUser = await supabase.from('Users')
+				.select()
+				.eq('id',modal.user.id)
+				.single()
+			const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
+			
+			const buffer = await GenerateImage.project({
+				user:modal.user,project,goal,date:deadlineGoal
+			})
+			const files = [new AttachmentBuilder(buffer,{name:`${project}_${modal.user.username}.png`})]
 			
 			await modal.message.edit(GoalMessage.postGoal({
-				project,goal,about,shareProgressAt,role,user:modal.user,deadlineGoal,value
+				project,goal,about,shareProgressAt,user:modal.user,deadlineGoal,files,preferredCoworkingTime
 			}))
 			GoalController.updateDataGoal({
 				id:modal.message.id,
 				project,goal,about,shareProgressAt
 			})
-			await modal.editReply(`${modal.user} goal has been updated`)
+			await modal.editReply(`${modal.user} project has been updated`)
 			const thread = await ChannelController.getThread(modal.message.channel,modal.message.id)
-			thread.send(`${modal.user} edited the goal`)
+			thread.send(`${modal.user} edited the project`)
 		}else if(commandButton === "useTicketCustomDate"){
 			await modal.deferReply({ephemeral:true})
 			
