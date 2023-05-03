@@ -134,7 +134,7 @@ class PaymentController{
     static async setReminderJoinNextCohort(client,userId){
         const {kickoffDate} = LocalData.getData()
         const diffDay = Time.getDiffDay(Time.getDate(),Time.getDate(kickoffDate))
-        let dateOnly = diffDay >= 7 ? kickoffDate : Time.addDateByWeek(kickoffDate,5);
+        let dateOnly = diffDay >= 7 ? kickoffDate : Time.addDateByWeek(kickoffDate,7);
         const formattedDateKickoffCohort = Time.getFormattedDate(Time.getDate(dateOnly))
 
         const reminder5daysBeforeCohort = Time.getNextDate(-5,dateOnly)
