@@ -44,6 +44,7 @@ module.exports = {
 			if(PartyController.showModalCustomReminder(interaction)) return
 			if(GoalController.showModalWriteGoal(interaction)) return
 			if(GoalController.showModalEditGoal(interaction)) return 
+			if(GoalController.showModalPreferredCoworkingTime(interaction)) return 
 			if(VacationController.showModalCustomDate(interaction)) return
 			if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 			if(RecurringMeetupController.showModalExtendTime(interaction)) return
@@ -428,59 +429,18 @@ module.exports = {
 					interaction.editReply("Success leave party")
 					break;
 				case "continueReplaceGoal":
-					ChannelController.sendToNotification(
-						interaction.client,
-						GoalMessage.pickYourRole(targetUserId,value),
-						targetUserId
-					)
-					if (PartyController.isPartyMode(value)) {
-						const data = await supabase.from('JoinParties')
-						.select()
-						.eq("UserId",interaction.user.id)
-						.eq('cohort',PartyController.getNextCohort())
-						.single()
-						if (data.body) {
-							await interaction.editReply(PartyMessage.replyAlreadyJoinWaitingRoom())
-						}else{
-							const notificationId = await UserController.getNotificationId(targetUserId)
-							await interaction.editReply(PartyMessage.replySuccessStartPartyMode(notificationId))
-							await supabase.from("JoinParties")
-								.insert({
-									UserId:interaction.user.id,
-									cohort:PartyController.getNextCohort(),
-								})
-							PartyController.updateMessageWaitingRoom(interaction.client)
-						}
-					}else{
-						const notificationId = await UserController.getNotificationId(targetUserId)
-						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationId))
-					}
+					GoalController.interactionStartProject(interaction,targetUserId)
 					break;
 				case "cancelReplaceGoal":
 					await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
 					break;
-				case "startSoloMode":
+				case "startProject":
 					const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
 					if (alreadyHaveGoal) {
 						interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
 					}else{
-						ChannelController.sendToNotification(
-							interaction.client,
-							GoalMessage.pickYourRole(targetUserId,'solo'),
-							targetUserId
-						)
-						const notificationId = await UserController.getNotificationId(targetUserId)
-						await interaction.editReply(PartyMessage.replySuccessStartSoloMode(notificationId))
+						GoalController.interactionStartProject(interaction,targetUserId)
 					}
-					break;
-				case "roleDeveloper":
-					GoalController.interactionPickRole(interaction,'Developer',value)
-					break;
-				case "roleDesigner":
-					GoalController.interactionPickRole(interaction,'Designer',value)
-					break;
-				case "roleCreator":
-					GoalController.interactionPickRole(interaction,'Creator',value)
 					break;
 				case "defaultReminder":
 					await PartyController.interactionSetDefaultReminder(interaction,value)
@@ -589,13 +549,29 @@ module.exports = {
 				}
 			}else if(commandMenu === 'buyVacationTicket'){
 				await interaction.deferReply({ephemeral:true});
-			}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== "selectProject"){
+			}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject"){
 				await interaction.deferReply();
 			}
 			
 			const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 			const valueMenu = interaction.values[0]
 			switch (commandMenu) {
+				case "selectDailyWorkGoal":
+					if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
+
+					if(valueMenu === 'custom'){
+						GoalController.showModalCustomDailyWorkTime(interaction)
+					}else {
+						const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
+						await interaction.deferReply();
+						supabase.from("Users")
+							.update({dailyWorkTime:minWorkGoal})
+							.eq('id',interaction.user.id)
+							.then()
+						interaction.editReply(GoalMessage.preferredCoworkingTime(interaction.user.id))
+						ChannelController.deleteMessage(interaction.message)
+					}
+					break;
 				case "selectDailyWorkTime":
 					if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
 					await interaction.deferReply();

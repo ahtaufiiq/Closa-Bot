@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js")
-const { CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_GOALS } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -7,18 +7,88 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 
 class GoalMessage {
-    static askUserWriteGoal(dayLeft,descriptionDeadline,userId,valueMenu){
+
+    static initWelcomeStartProject(){
         return {
-            content:`**Set your goal for a passion project**
+            content:`**Set a goal for your project & commit to it :dart:**
 
-You have **${dayLeft} ${dayLeft > 1 ? "days": "day"} left** before the next cohort deadline (${descriptionDeadline} day).
+\`\`Pro tips: for extra accountability\`\`
+• Set a goal that can be quantify—so you know how to win your game.
+• Put a hard deadline to add pressure stay motivated (6 weeks recommended).
+• Share your project goal thumbnail to public tag \`\`@joinclosa\`\`.
 
-*Make sure to estimate your goal according community timeline above.*`,
+best of luck!
+✌️`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton('startProject',"Start Project")
+            )],
+            files:[]
+        }
+    }
+    static askUserWriteGoal(dayLeft,userId){
+        return {
+            content:`**Set goal for your project** :dart: 
+
+*We recommend to work on 6 weeks timeline to get meaningful result*
+
+For the project deadline you can follow:
+• the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"}\`\`
+• or set your own deadline for your project`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`writeGoal_${userId}_${valueMenu}`,"🎯 Set your goal")
+                    MessageComponent.addButton(`writeGoal_${userId}`,"🎯 Set project goal")
                 )
             ]
+        }
+    }
+
+    static replyStartSetGoal(notificationId){
+        return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}`
+    }
+
+	static setDailyWorkTime(userId){
+        
+        return {
+            content:`**How much time you want to work daily on your project?**`,
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addMenu( 
+                        `selectDailyWorkGoal_${userId}`,
+                        "- Select daily work time goal -",
+                        [
+                            {
+                                label: "25 min/day (Casual)",
+                                value: "25_25 min/day"
+                            },
+                            {
+                                label: "1 hour/day (Regular)",
+                                value: "60_1 hour/day"
+                            },
+                            {
+                                label: "2 hour/day (Serious) ",
+                                value: "120_2 hour/day"
+                            },
+                            {
+                                label: "4 hour/day (Intense)",
+                                value: "240_4 hour/day"
+                            },
+                            {
+                                label: '✎ Custom Time',
+                                value: 'custom'
+                            }
+                        ]
+                    ),
+                )
+            ]
+        }
+    }
+
+    static preferredCoworkingTime(userId){
+        return {
+            content:`**Schedule your preferred daily coworking time 🕖👩‍💻👨‍💻**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`scheduledCoworkingTimeGoal_${userId}`,"Schedule")
+            )]
         }
     }
 
@@ -90,60 +160,44 @@ p.s: *you can always change it in the next cohort*`,
         }
     }
 
-    static replySuccessSubmitGoal(dayLeft){
-        let textDayLeft = `${dayLeft} days`
-        if (dayLeft === 0) {
-            textDayLeft = 'Today' 
-        }else if(dayLeft === 1){
-            textDayLeft = "Tomorrow"
-        }
-        return `**Your goal are set!**
+    static replySuccessSubmitGoal(goalId){
 
-See you on our kick-off day! (in ${textDayLeft})
-You will be matched with other members on the kick-off day at 20.30 WIB`
+        return `Congrats on starting your project!
+Join the vibe & get that extra boost by sharing to your social.
+
+go to your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
+copy or download your project image
+share to your social & tag @joinclosa
+
+we will repost & reply to your post 🙌`
     }
 
-    static reviewYourGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
-        let typeAccountability = value.split('-')[0]
-        return {
-            content:"**REVIEW & SUBMIT YOUR GOAL 📝**\n↓",
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,typeAccountability,shareProgressAt,role,deadlineGoal,user}) ],
-            components:[
-                MessageComponent.createComponent(
-                    MessageComponent.addButton(`postGoal_${user.id}_${value}`, "🚀 SUBMIT"),
-                    MessageComponent.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
-                )
-            ]
-        }
-    }
-    static postGoal({project,goal,about,shareProgressAt,role,deadlineGoal,user,value}){
-        if(!value) value = `party-${role}`
-        let typeAccountability = value.split('-')[0]
+    static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files}){
         return {
             content:`${user} just started a new project 🔥`,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability,role,deadlineGoal,user}) ],
+            files,
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}) ],
             components: [MessageComponent.createComponent(
                 MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"),
-                MessageComponent.addButton(`editGoal_${user.id}_${value}`,"Edit","SECONDARY"),
+                MessageComponent.addButton(`editGoal_${user.id}`,"Edit","SECONDARY"),
             )]
         }
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,typeAccountability='party',role,deadlineGoal,user}){
-        let {dayLeft,deadlineDate} = deadlineGoal
-        const formattedDate = Time.getFormattedDate(Time.getDate(deadlineDate))
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}){
+        const dayLeft = Time.getDiffDay(Time.getDate(),deadlineGoal)
+        const deadlineDate = Time.getDateOnly(deadlineGoal)
+        const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new EmbedBuilder()
         .setColor("#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
-        .setThumbnail(InfoUser.getAvatar(user))
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
             { name: 'About project', value:FormatString.truncateString( about,1020) },
             { name: "I'll share my progress at", value:FormatString.truncateString( `${shareProgressAt} WIB every day`,1020) },
-            { name: "Accountability", value:FormatString.truncateString( typeAccountability === 'solo' ? "Solo Mode" : "Party Mode",1020) },
-            { name: "Role", value:FormatString.truncateString( role,1020) },
-            { name: "Community deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
+            { name: "Preferred coworking time", value:FormatString.truncateString( `${preferredCoworkingTime}`,1020) },
+            { name: "Project deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
         )
     }
 
