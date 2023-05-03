@@ -102,16 +102,20 @@ class ChannelController{
     }
 
     static async createThread(msg,threadName,byAuthor){
-        if (byAuthor) {
-            const maxLength = 90 - `by ${byAuthor}`.length
-            threadName = FormatString.truncateString(threadName,maxLength)+ ` by ${byAuthor}`
-        }else{
-            threadName = FormatString.truncateString(threadName,90)
+        try {
+            if (byAuthor) {
+                const maxLength = 90 - `by ${byAuthor}`.length
+                threadName = FormatString.truncateString(threadName,maxLength)+ ` by ${byAuthor}`
+            }else{
+                threadName = FormatString.truncateString(threadName,90)
+            }
+            
+            return await msg.startThread({
+                name: threadName,
+            });
+        } catch (error) {
+            
         }
-        
-        return await msg.startThread({
-            name: threadName,
-        });
     }
 
     static getEmojiByName(client,emojiName){
@@ -148,19 +152,23 @@ class ChannelController{
     }
 
     static async sendToNotification(client,messageContent,userId,notificationId){
-        const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
-        if(Array.isArray(messageContent)){
-            messageContent.forEach(msg=>{
-                notificationThread.send(msg)
-            })
-            supabase
-                .rpc('incrementTotalNotification', { x: messageContent.length, row_id: userId })
-                .then()
-        }else{
-            supabase
-                .rpc('incrementTotalNotification', { x: 1, row_id: userId })
-                .then()
-            return await notificationThread.send(messageContent)
+        try {
+            const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+            if(Array.isArray(messageContent)){
+                messageContent.forEach(msg=>{
+                    notificationThread.send(msg)
+                })
+                supabase
+                    .rpc('incrementTotalNotification', { x: messageContent.length, row_id: userId })
+                    .then()
+            }else{
+                supabase
+                    .rpc('incrementTotalNotification', { x: 1, row_id: userId })
+                    .then()
+                return await notificationThread.send(messageContent)
+            }
+        } catch (error) {
+            
         }
     }
 
