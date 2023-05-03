@@ -134,7 +134,7 @@ class GoalController {
 		.then()
 
 		if (updatedData.body) {
-			GoalController.updateGoal(client,updatedData.body,0)
+			GoalController.updateGoal(client,updatedData.body)
 		}
 
 		supabase.from("Projects")
@@ -243,14 +243,17 @@ class GoalController {
 		})
 	}
 
-	static async updateGoal(client,data,dayLeft){
+	static async updateGoal(client,data){
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
-		const user = await MemberController.getMember(client,data.UserId)
+		const {user} = await MemberController.getMember(client,data.UserId)
 		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-		const {role,project,goal,about,shareProgressAt,deadlineGoal,isPartyMode} = data
-		const value = `${isPartyMode ? 'party':'solo'}-${role}`
+		const {project,goal,about,shareProgressAt,deadlineGoal,preferredCoworkingTime} = data
 
-		existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,role,deadlineGoal:{deadlineDate:deadlineGoal,dayLeft},user:user,value}))
+		const buffer = await GenerateImage.project({
+			user,project,goal,date:Time.getDate(deadlineGoal)
+		})
+		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
+		existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
 	}
 
 	static async updateAllActiveGoal(client){
@@ -262,8 +265,7 @@ class GoalController {
 				.then(data=>{
 					if (data.body) {
 						data.body.forEach(goal=>{
-							const dayLeft = Time.getDayLeft(Time.getDate(goal.deadlineGoal))
-							GoalController.updateGoal(client,goal,dayLeft)
+							GoalController.updateGoal(client,goal)
 						})
 					}
 				})
