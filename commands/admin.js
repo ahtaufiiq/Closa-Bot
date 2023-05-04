@@ -9,6 +9,7 @@ const DailyStreakMessage = require('../views/DailyStreakMessage');
 const supabase = require('../helpers/supabaseClient');
 const { CHANNEL_PARTY_ROOM } = require('../helpers/config');
 const PartyMessage = require('../views/PartyMessage');
+const ReferralCodeController = require('../controllers/ReferralCodeController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -31,6 +32,12 @@ module.exports = {
 				.setName('party__remove_user')
 				.setDescription('remove user from party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('referral')
+				.setDescription('generate new referral')
+				.addUserOption(option => option.setName('user').setDescription('user'))
+				.addStringOption(option => option.setName('total').setDescription('total referral')))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		const command = interaction.options.getSubcommand()
@@ -98,6 +105,21 @@ module.exports = {
 			}else{
 				interaction.editReply('failed remove user from thread')
 			}
+		}else if(command === 'referral'){
+			const user = interaction.options.getUser('user')
+			const totalReferral = interaction.options.getString('total')
+			const targetUserId = user ? user?.id : interaction.user.id
+			const values = await ReferralCodeController.addNewReferral(
+				targetUserId,
+				totalReferral || 1
+			)
+			GuidelineInfoController.updateMessageGuideline(
+				interaction.client,
+				targetUserId
+			)
+
+			const referralCode = values.map(data=>data.referralCode)
+			interaction.editReply(referralCode.join('\n'))
 		}
 		
 	},
