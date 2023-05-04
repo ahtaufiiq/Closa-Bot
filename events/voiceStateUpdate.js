@@ -416,7 +416,7 @@ module.exports = {
 				}
 			}	
 		} catch (error) {
-			
+			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
 		}
 	},
 };

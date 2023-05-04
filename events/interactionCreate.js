@@ -653,7 +653,7 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			ChannelController.sendError(error,`interaction create ${interaction?.user?.id}`)
+			ChannelController.sendError(error,`interaction create ${interaction?.user?.id} ${interaction.customId}`)
 		}
 	},
 };
