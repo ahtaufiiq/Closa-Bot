@@ -328,7 +328,7 @@ module.exports = {
 								voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 									.then(msg=>{
 										const countdownCoworkingSession = setInterval(() => {
-											currentMin,sessionGuests--
+											currentMin--
 											msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
 											if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
 											else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
