@@ -44,48 +44,48 @@ module.exports = {
 				}
 			}
 	
-			if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
-				const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
-				if(dataEvent.body){
-					const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
-					voiceChat.send(CoworkingMessage.howToStartSession(userId))	
-						.then(msg=>{
-							let min = 10
-							const countdownEndSession = setInterval(() => {
-								if(listFocusRoom[joinedChannelId]?.status === 'live'){
-									clearInterval(countdownEndSession)
-									return msg.edit(CoworkingMessage.howToStartSession(userId,0))
-								}
-								min--
-								msg.edit(CoworkingMessage.howToStartSession(userId,min))
-								if(min === 0){
-									clearInterval(countdownEndSession)
-									supabase.from("CoworkingEvents")
-										.select()
-										.eq('voiceRoomId',joinedChannelId)
-										.single()
-										.then(async data=>{
-											if(data.body && data.body.status !== 'live'){
-												voiceChat.delete()
-												const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
-												ChannelController.getMessage(channel,data.body.id)
-													.then(coworkingEventMessage =>{
-														coworkingEventMessage.delete()
-													})
-												ChannelController.getThread(channel,data.body.id)
-													.then(coworkingEventThread =>{
-														coworkingEventThread.delete()
-													})
-											}
-										})
+			// if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
+				// const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
+				// if(dataEvent.body){
+				// 	const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
+				// 	voiceChat.send(CoworkingMessage.howToStartSession(userId))	
+				// 		.then(msg=>{
+				// 			let min = 10
+				// 			const countdownEndSession = setInterval(() => {
+				// 				if(listFocusRoom[joinedChannelId]?.status === 'live'){
+				// 					clearInterval(countdownEndSession)
+				// 					return msg.edit(CoworkingMessage.howToStartSession(userId,0))
+				// 				}
+				// 				min--
+				// 				msg.edit(CoworkingMessage.howToStartSession(userId,min))
+				// 				if(min === 0){
+				// 					clearInterval(countdownEndSession)
+				// 					supabase.from("CoworkingEvents")
+				// 						.select()
+				// 						.eq('voiceRoomId',joinedChannelId)
+				// 						.single()
+				// 						.then(async data=>{
+				// 							if(data.body && data.body.status !== 'live'){
+				// 								voiceChat.delete()
+				// 								const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
+				// 								ChannelController.getMessage(channel,data.body.id)
+				// 									.then(coworkingEventMessage =>{
+				// 										coworkingEventMessage.delete()
+				// 									})
+				// 								ChannelController.getThread(channel,data.body.id)
+				// 									.then(coworkingEventThread =>{
+				// 										coworkingEventThread.delete()
+				// 									})
+				// 							}
+				// 						})
 										
-								}
-							}, Time.oneMinute());
-						})
-				}else{
+				// 				}
+				// 			}, Time.oneMinute());
+				// 		})
+				// }else{
 					
-				}
-			}
+				// }
+			// }
 	
 			if(newMember?.channel?.name.includes("Party")){
 				const channelId = newMember.channel.id

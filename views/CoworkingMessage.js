@@ -142,12 +142,11 @@ Let's get ready & join <#${CHANNEL_CLOSA_CAFE}>
 ${MessageFormatting.linkToEvent(eventId)}`
     }
 
-    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname){
+    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
         return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
-Let's join → ${MessageFormatting.tagChannel(channelId)}
-
-please be on time to secure your seat!
-the room will open for public when the session start & anyone can join.`
+Let's get ready:
+join the voice room & follow the guidelines to host your session: 
+→ ${MessageFormatting.linkToMessage(channelId,msgId)}`
     }
 
     static howToStartSession(HostId,min=10){
