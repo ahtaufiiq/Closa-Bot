@@ -51,7 +51,7 @@ class MemberController{
         try {
             return await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
         } catch (error) {
-            return error            
+            return null            
         }
     }
 

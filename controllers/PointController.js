@@ -1,3 +1,4 @@
+const { ChannelType } = require("discord.js");
 const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, CHANNEL_TOPICS, CHANNEL_GOALS, CHANNEL_INTRO, CHANNEL_CELEBRATE, CHANNEL_SESSION_GOAL, CHANNEL_MEMES, CHANNEL_GENERAL, CHANNEL_FORUM } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
@@ -5,6 +6,11 @@ const UserController = require("./UserController");
 
 class PointController{
     static addPoint(UserId,type,minute,channelId){
+        if(type === ChannelType.GuildText){
+            if(channelId !== CHANNEL_SESSION_GOAL && channelId !== CHANNEL_GENERAL) return
+        }else if(type === ChannelType.PublicThread) return
+        else if(type === 'reaction') return
+        
         supabase.from("Points")
             .select()
             .eq("UserId",UserId)
@@ -13,7 +19,7 @@ class PointController{
                 const totalPoint = this.calculatePoint(type,minute,channelId)
                 let key,value 
                 switch (type) {
-                    case "GUILD_TEXT":
+                    case ChannelType.GuildText:
                         if (channelId === CHANNEL_GENERAL && Time.isMoreThanOneMinute(data.body?.lastTimeChatGeneral)) {
                             key = 'lastTimeChatGeneral'
                             value = new Date()
@@ -34,7 +40,7 @@ class PointController{
                             value = Time.getTodayDateOnly()
                         }
                         break;
-                    case "GUILD_PUBLIC_THREAD":
+                    case ChannelType.PublicThread:
                         if(Time.isMoreThanOneMinute(data.body?.lastTimeChatThread)){
                             key = 'lastTimeChatThread'
                             value = new Date()
