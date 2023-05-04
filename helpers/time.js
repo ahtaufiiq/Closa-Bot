@@ -176,6 +176,8 @@ class Time {
     }
 
     static getTotalMinutes(timeString) {
+        if(typeof timeString !== 'string') return 0
+        timeString = timeString?.toLowerCase()
         const regex = /(\d+)\s*hr(?:\s*(\d+)\s*min)?/g; // Regular expression pattern to match "1 hr", "1 hr 30 min", "30 min", "2hr", etc.
         const matches = timeString.match(regex); // Array of matches
       

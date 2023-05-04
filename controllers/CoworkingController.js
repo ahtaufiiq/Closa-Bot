@@ -497,6 +497,13 @@ class CoworkingController {
                     PermissionFlagsBits.Connect
                 ]
             })
+        }else{
+            permissionOverwrites.push({
+                id:guild.roles.everyone.id,
+                allow:[
+                    PermissionFlagsBits.Connect
+                ]
+            })
         }
         
         const voiceChannel = await guild.channels.create({
@@ -529,11 +536,40 @@ class CoworkingController {
                     .select()
                     .eq('EventId',eventId)
 				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id,newEvent.body.totalSlot)
+                const msg = await channel.send(CoworkingMessage.howToStartSession(newEvent.body.HostId,0))
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
-                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id),user.id)
+                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
-                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user)),attendance.UserId)
+                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user),msg.id),attendance.UserId)
                 })
+                // const userId = newEvent.body.HostId
+                // let min = 15
+                // const countdownEndSession = setInterval(() => {
+                //     min--
+                //     msg.edit(CoworkingMessage.howToStartSession(userId,min))
+                //     if(min === 0){
+                //         clearInterval(countdownEndSession)
+                //         supabase.from("CoworkingEvents")
+                //             .select()
+                //             .eq('voiceRoomId',channel.id)
+                //             .single()
+                //             .then(async data=>{
+                //                 if(data.body && data.body.status !== 'live'){
+                //                     voiceChat.delete()
+                //                     const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
+                //                     ChannelController.getMessage(channel,data.body.id)
+                //                         .then(coworkingEventMessage =>{
+                //                             coworkingEventMessage.delete()
+                //                         })
+                //                     ChannelController.getThread(channel,data.body.id)
+                //                         .then(coworkingEventThread =>{
+                //                             coworkingEventThread.delete()
+                //                         })
+                //                 }
+                //             })
+                            
+                //     }
+                // }, Time.oneMinute());
 			}
 		})
 	}
