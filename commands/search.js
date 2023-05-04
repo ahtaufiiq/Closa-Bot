@@ -5,6 +5,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const IntroMessage = require('../views/IntroMessage');
+const ChannelController = require('../controllers/ChannelController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -89,7 +90,7 @@ module.exports = {
 				})
 			}
 		} catch (error) {
-			
+			ChannelController.sendError(error,'command search')
 		}
 	},
 };
