@@ -116,6 +116,7 @@ class ReferralCodeController{
 
         await supabase.from("Referrals")
             .insert(values)
+        return values
     }
 
     static async generateReferral(client,user){
