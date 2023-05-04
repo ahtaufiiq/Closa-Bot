@@ -145,6 +145,7 @@ ${MessageFormatting.linkToEvent(eventId)}`
     static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
         return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
 Let's get ready:
+
 join the voice room & follow the guidelines to host your session: 
 → ${MessageFormatting.linkToMessage(channelId,msgId)}`
     }
