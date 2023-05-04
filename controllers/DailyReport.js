@@ -28,19 +28,19 @@ class DailyReport {
 
     }
     static async activeMember(client,userId){
-        const hasRole = await MemberController.hasRole(client,userId,ROLE_INACTIVE_MEMBER)
-		if (hasRole) {
-			const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
-			MemberController.changeRole(client,userId,ROLE_INACTIVE_MEMBER,ROLE_ACTIVE_MEMBER)
-			const data = await supabase.from("Points")
-				.select("*,Users(id,email,goalId)")
-				.eq('UserId',userId)
-				.single()
+        // const hasRole = await MemberController.hasRole(client,userId,ROLE_INACTIVE_MEMBER)
+		// if (hasRole) {
+		// 	const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
+		// 	MemberController.changeRole(client,userId,ROLE_INACTIVE_MEMBER,ROLE_ACTIVE_MEMBER)
+		// 	const data = await supabase.from("Points")
+		// 		.select("*,Users(id,email,goalId)")
+		// 		.eq('UserId',userId)
+		// 		.single()
 				
-			if(data.body){
-				channelStatus.send(StatusReportMessage.activeMemberReport(data.body.Users.id,data.body.Users?.email,data.body.Users.goalId,data.body.updatedAt))
-			}
-		}
+		// 	if(data.body){
+		// 		channelStatus.send(StatusReportMessage.activeMemberReport(data.body.Users.id,data.body.Users?.email,data.body.Users.goalId,data.body.updatedAt))
+		// 	}
+		// }
 
     }
 }
