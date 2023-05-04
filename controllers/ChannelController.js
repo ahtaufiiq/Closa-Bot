@@ -168,7 +168,7 @@ class ChannelController{
                 return await notificationThread.send(messageContent)
             }
         } catch (error) {
-            
+            ChannelController.sendError(error,`sendToNotification ${userId}`)
         }
     }
 

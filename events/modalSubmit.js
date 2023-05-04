@@ -552,7 +552,7 @@ The correct format:
 			}
 
 		} catch (error) {
-			ChannelController.sendError(error,)
+			ChannelController.sendError(error,`modalSubmit ${modal.user.id} ${modal.customId}`)
 		}
 	},
 };
