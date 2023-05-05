@@ -152,7 +152,7 @@ ${MessageFormatting.linkToEvent(eventId)}`
         return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
 Let's get ready:
 
-join the voice room & follow the guidelines ${hostname ? 'to host your session':'from your host'}: 
+join the voice room & follow the guidelines ${hostname ? 'from your host' : 'to host your session'}: 
 → ${MessageFormatting.linkToMessage(channelId,msgId)}`
     }
 
