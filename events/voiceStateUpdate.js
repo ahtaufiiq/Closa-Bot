@@ -242,12 +242,12 @@ module.exports = {
 												const countdownCoworkingSession = setInterval(() => {
 													currentMin--
 													msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
-													if(currentMin === 10) voiceChat.send(CoworkingMessage.remindSessionEnded(10))
-													else if(currentMin === 5) voiceChat.send(CoworkingMessage.remindSessionEnded(5))
-													else if(currentMin === 2) voiceChat.send(CoworkingMessage.remindSessionEnded(2))
+													if(currentMin === 10) msg.reply(CoworkingMessage.remindSessionEnded(10))
+													else if(currentMin === 5) msg.reply(CoworkingMessage.remindSessionEnded(5))
+													else if(currentMin === 2) msg.reply(CoworkingMessage.remindSessionEnded(2))
 													else if(currentMin === 0){
 														clearInterval(countdownCoworkingSession)
-														voiceChat.send(CoworkingMessage.remindSessionEnded())
+														msg.reply(CoworkingMessage.remindSessionEnded())
 														setTimeout(() => {
 															voiceChat.delete()
 															coworkingEventMessage.delete()
