@@ -7,7 +7,47 @@ const RequestAxios = require("../helpers/axios");
 const UserController = require("./UserController");
 const MemberController = require("./MemberController");
 const InfoUser = require("../helpers/InfoUser");
+const { ChannelType } = require("discord.js");
 class FocusSessionController {
+
+    static continueFocusTimer(client,focusRoomUser){
+        /**
+         * get focus session data if session is null and has msgFocusTimerId
+         * 
+         * get totalFocus, focusTime and break time from message
+         * get status is ended or not
+         * get state is focus or break
+         * 
+         */
+        supabase.from()
+        // focusRoomUser[userId] = {
+        //     date:Time.getTodayDateOnly(),
+        //     totalTimeToday,
+        //     dailyWorkTime,
+        //     selfVideo : newMember.selfVideo,
+        //     streaming : newMember.streaming,
+        //     threadId:data.threadId,
+        //     totalTime:0,
+        //     focusTime:0,
+        //     breakTime:0,
+        //     breakCounter:0,
+        //     isFocus:true,
+        //     status : 'processed',
+        //     firstTime:true,
+        // }
+    }
+
+    static updateMessageFocusTimerId(userId,msgFocusTimerId){
+        supabase.from('FocusSessions')
+            .update({msgFocusTimerId})
+            .is('session',null)
+            .eq('UserId',userId)
+            .then()
+    }
+
+    static async getActiveFocusTimer(){
+        return await supabase.from()
+    }
 
     static showModalAddNewProject(interaction,customId){
         const [commandButton,userId] = customId? customId.split('_') : interaction.customId.split('_')
@@ -114,10 +154,19 @@ class FocusSessionController {
         .eq('UserId',UserId)
         .is('session',null)
 
-        await supabase.from('FocusSessions')
+        return await supabase.from('FocusSessions')
             .insert({
                 threadId,taskName,ProjectId,UserId,
              })
+             .single()
+    }
+    static async updateProjectId(taskId,ProjectId){
+        return await supabase.from('FocusSessions')
+            .update({
+                ProjectId
+             })
+             .eq('id',taskId)
+             .single()
     }
 
     static async getDetailFocusSession(userId){

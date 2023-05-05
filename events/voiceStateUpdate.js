@@ -218,11 +218,7 @@ module.exports = {
 							const projectName = data.Projects.name
 							thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 							.then(async msgFocus=>{
-								supabase.from('FocusSessions')
-									.update({msgFocusTimerId:msgFocus.id})
-									.is('session',null)
-									.eq('UserId',userId)
-									.then()
+								FocusSessionController.updateMessageFocusTimerId(userId,msgFocus.id)
 								FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 							})
 							focusRoomUser[userId].firstTime = false
@@ -302,11 +298,7 @@ module.exports = {
 					const projectName = data.Projects.name
 					thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 						.then(async msgFocus=>{
-							supabase.from('FocusSessions')
-								.update({msgFocusTimerId:msgFocus.id})
-								.is('session',null)
-								.eq('UserId',userId)
-								.then()
+							FocusSessionController.updateMessageFocusTimerId(userId,msgFocus.id)
 							FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
 						})
 					focusRoomUser[userId].firstTime = false
@@ -399,6 +391,12 @@ module.exports = {
 								})
 						}
 						delete focusRoomUser[userId]
+						
+						const thread = await ChannelController.getThread(
+							ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+							channelIdFocusRecap
+						)
+						thread.setArchived(true)
 					})
 			}
 	
@@ -425,21 +423,23 @@ module.exports = {
 async function kickUser(userId,user,thread,focusRoomUser) {					
 	const time = Time.oneMinute() * 2
 	return new Promise((resolve,reject)=>{
-		setTimeout(() => {
+		setTimeout(async () => {
 			let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId] !== undefined) {
-					thread.send(`**Hi ${user}, please do one of these following:**
+					const msg = await thread.send(`**Hi ${user}, please do one of these following:**
 :video_camera:  \`\`turn on your video\`\` 
 or
 :computer:  \`\`screenshare to show accountability. \`\`
 
 Please do it within __2 minute__ before you get auto-kick from closa café. `)
+console.log('masuk 0');
 					setTimeout(() => {
 						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 						if (!selfVideo && !streaming) {
 							resolve("user didn't open camera or sharescreen")
 						}else{
+							ChannelController.deleteMessage(msg)
 							reject('user already open camera or sharescreen')
 						}
 					}, time);

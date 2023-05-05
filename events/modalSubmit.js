@@ -554,6 +554,64 @@ The correct format:
 				ChannelController.sendToNotification(modal.client,BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),user.id)
 
 				await modal.editReply(BoostMessage.successSendMessage(user))
+			}else if(commandButton === 'setHighlightReminder'){
+				const taskName = modal.getTextInputValue('taskName');
+				if (Time.haveTime(taskName)) {
+					await modal.deferReply();
+					const differentTime = taskName.toLowerCase().includes(' wita') ? -1 : taskName.toLowerCase().includes(' wit') ? -2 : 0
+					const isTomorrow = taskName.toLowerCase().includes('tomorrow') 
+					const time = Time.getTimeFromText(taskName)
+					const [hours,minutes] = time.split(/[.:]/)
+					const date = new Date()
+					let lastHighlight = Time.getTodayDateOnly()
+					if(isTomorrow) {
+						date.setDate(date.getDate()+1)
+						lastHighlight = Time.getTomorrowDateOnly()
+					}
+
+					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+					date.setMinutes(minutes-10)
+					supabase.from('Reminders')
+						.insert({
+							message:taskName,
+							time:date,
+							UserId:modal.user.id,
+						})
+						.then()
+					supabase.from("Highlights")
+						.insert({
+							description:taskName,
+							UserId:modal.user.id
+						})
+						.then()
+
+					const data = await supabase.from('Users')
+						.update({lastHighlight})
+						.eq('id',modal.user.id)
+						.single()
+					
+					ChannelController.sendToNotification(
+						modal.client,
+						HighlightReminderMessage.successScheduled(taskName.split("🔆")[1].trim()),
+						modal.user.id,
+						data.body.notificationId
+					)
+
+					schedule.scheduleJob(date,async function () {
+						ChannelController.sendToNotification(
+							modal.client,
+							HighlightReminderMessage.remindHighlightUser(modal.user.id,taskName),
+							modal.user.id,
+							data.body.notificationId
+						)
+					})
+					
+					PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
+					await modal.editReply(HighlightReminderMessage.successSetHighlightReminder(taskName))
+					ChannelController.deleteMessage(modal.message)
+				}else{
+					await modal.reply({content:HighlightReminderMessage.wrongFormat(modal.user),ephemeral:true})
+				}
 			}
 
 		} catch (error) {

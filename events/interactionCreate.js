@@ -139,6 +139,7 @@ module.exports = {
 						ChannelController.deleteMessage(msgFocusOld)
 						interaction.editReply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
 							.then(msgFocus=>{
+								FocusSessionController.updateMessageFocusTimerId(targetUserId,msgFocus.id)
 								FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
 								ChannelController.deleteMessage(interaction.message)
 							})
@@ -178,6 +179,7 @@ module.exports = {
 											ChannelController.deleteMessage(msgFocusOld)
 											msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
 												.then(msgFocus=>{
+													FocusSessionController.updateMessageFocusTimerId(targetUserId,msgFocus.id)
 													FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
 													ChannelController.deleteMessage(msg)
 														.then(()=> focusRoomUser[targetUserId].msgIdReplyBreak = null)
@@ -576,31 +578,37 @@ module.exports = {
 					case "selectDailyWorkTime":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
 						await interaction.deferReply();
-						const [projectId,taskName] = value.split('-')
+						const [projectId,taskId] = value.split('-')
 						const [min,labelMenu] = valueMenu.split('_')
-						const data = await supabase.from("Users")
+						supabase.from("Users")
 							.update({dailyWorkTime:min})
 							.eq('id',interaction.user.id)
+							.then()
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-						FocusSessionController.insertFocusSession(interaction.user.id,taskName,projectId,interaction.channelId)
-
+						FocusSessionController.updateProjectId(taskId,projectId)
 						await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
 						ChannelController.deleteMessage(interaction.message)
 						break;
 					case 'selectProject':
 						if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})
+						
 						if(valueMenu === 'addNewProject'){
 							FocusSessionController.showModalAddNewProject(interaction,`addNewProject_${targetUserId}_${value}`)
 						}else{
 							await interaction.deferReply();
+
+							const task = await supabase.from('FocusSessions')
+							.select()
+							.eq('id',value)
+							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 							if (dataUser.body?.dailyWorkTime) {
-								FocusSessionController.insertFocusSession(interaction.user.id,value,valueMenu,interaction.channelId)
+								FocusSessionController.updateProjectId(value,valueMenu)
 								const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(interaction.user.id)
 								await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user,haveCoworkingEvent?.voiceRoomId))
 							}else{
 								await interaction.editReply(
-									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,value)
+									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.body?.id)
 								)
 							}
 							ChannelController.deleteMessage(interaction.message)
