@@ -16,15 +16,18 @@ const WeeklyReflectionController = require('../controllers/WeeklyReflectionContr
 const SickDayController = require('../controllers/SickDayController');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 const CelebrationController = require('../controllers/CelebrationController');
+const FocusSessionController = require('../controllers/FocusSessionController');
 
 
 module.exports = {
 	name: 'ready',
 	once: true,
-	async execute(client) {
+	async execute(client,focusRoomUser) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
+		
+		FocusSessionController.continueFocusTimer(client,focusRoomUser)
 
 		GuidelineInfoController.updateAllGuideline(client)
 
@@ -69,7 +72,7 @@ module.exports = {
 
 		ReferralCodeController.resetTotalDaysThisCohort()
 
-		ReminderController.remindSetHighlight(client)
+		// ReminderController.remindSetHighlight(client)
 		ReminderController.remindHighlightUser(client)
 		ReminderController.remindPostProgress(client)
 		

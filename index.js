@@ -43,7 +43,7 @@ for (const file of eventFiles) {
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}else {
-		if(file === 'interactionCreate.js' || file === 'voiceStateUpdate.js'){
+		if(file === 'interactionCreate.js' || file === 'voiceStateUpdate.js' || file === 'ready.js'){
 			client.on(event.name, (...args) => event.execute(...args,focusRoomUser));
 		}else{
 			client.on(event.name, (...args) => event.execute(...args));
