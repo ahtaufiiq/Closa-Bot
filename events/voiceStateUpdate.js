@@ -383,7 +383,7 @@ module.exports = {
 						const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 						const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)
 						const msgFocus = await ChannelController.getMessage(channel,msgIdFocusRecap)
-						msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
+						await msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
 						if(focusRoomUser[userId]?.msgIdReplyBreak){
 							ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
 								.then(replyBreak=>{
