@@ -115,20 +115,20 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
         }
     }
 
-    static selectProject(userId,projectMenus,taskName){
+    static selectProject(userId,projectMenus,taskId){
         const components = []
 
         if(projectMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectProject_${userId}_${taskName}`,
+                    `selectProject_${userId}_${taskId}`,
                     "-Select project-",
                     projectMenus
                 ),
             ))
         }else{
             components.push(MessageComponent.createComponent(
-                MessageComponent.addButton(`addNewProject_${userId}_${taskName}`,"Add new project +").setEmoji('✨')
+                MessageComponent.addButton(`addNewProject_${userId}_${taskId}`,"Add new project +").setEmoji('✨')
             ))
         }
 
@@ -138,7 +138,7 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
         }
     }
 
-    static setDailyWorkTime(userId,projectId,taskName){
+    static setDailyWorkTime(userId,projectId,taskId){
         
         return {
             content:`**Last setup :sparkles: **
@@ -150,7 +150,7 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
-                        `selectDailyWorkTime_${userId}_${projectId}-${taskName}`,
+                        `selectDailyWorkTime_${userId}_${projectId}-${taskId}`,
                         "- Select daily work time goal -",
                         [
                             {

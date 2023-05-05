@@ -4,8 +4,26 @@ const Time = require("../helpers/time");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
-
+const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 class ReminderController{
+
+	static showModalSetHighlightReminder(interaction){
+		const [commandButton,userId] = interaction.customId.split('_')
+        if(commandButton === 'setHighlightReminder'){
+			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't set someone else highlight.`})
+
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set Reminder 🔔")
+			.addComponents(
+				new TextInputComponent().setCustomId('taskName').setLabel('Task name').setPlaceholder("e.g. design exploration at 20.00 wib").setStyle("SHORT").setRequired(true)
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
+
     static remindPostProgress(client){
         supabase.from('Users')
 		.select()

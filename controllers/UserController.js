@@ -17,6 +17,7 @@ class UserController{
 	}
 
 	static async updatePoint(pointLeft,userId){
+		if(pointLeft === null) return
         return await supabase.from("Users")
             .update({totalPoint:pointLeft})
             .eq('id',userId)
@@ -57,6 +58,7 @@ class UserController{
 	}
 
 	static async incrementTotalPoints(increment,id_user){
+		if(increment === null) return
 		return await supabase
 			.rpc('incrementTotalPoint', { increment, id_user })
     }

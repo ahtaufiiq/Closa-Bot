@@ -62,10 +62,13 @@ module.exports = {
 		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_SESSION_GOAL:
-				const threadSession = await ChannelController.createThread(msg,`focus log - ${msg.content}`)
+				const threadSession = await ChannelController.createThread(msg,`🔴 focus log - ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)
 				const projectMenus = FocusSessionController.getFormattedMenu(projects)
-				threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,msg.content))
+				FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
+					.then(data=>{
+						threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,data.body.id))
+					})
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternEmoji = /^🔆/
