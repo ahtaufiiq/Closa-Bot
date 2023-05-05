@@ -89,6 +89,12 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         return `${weekday} · ${Time.getHoursFromDate(date)}.${Time.getMinutesFromDate(date)} WIB · ${day} ${month.toUpperCase()}`
     }
 
+    static formatDateRescheduleCoworking(date){
+        let [weekday,month,day] = date.toLocaleDateString("en-US", { weekday: 'short', day:'2-digit',month:'short',}).split(/[, ]+/)
+        if(Time.getDateOnly(date) === Time.getTodayDateOnly()) weekday = 'Today'
+        return `${weekday}, ${day} ${month} at ${Time.getHoursFromDate(date)}.${Time.getMinutesFromDate(date)} WIB`
+    }
+
     static titleCoworkingNight(){
         return `Co-working Night 🧑‍💻👩‍💻☕️🌙 `
     }

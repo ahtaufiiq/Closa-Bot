@@ -448,7 +448,12 @@ The correct format:
 					value
 				)
 
-				ChannelController.createThread(msg,name)
+				const thread = await ChannelController.getThread(
+					ChannelController.getChannel(modal.client,CHANNEL_UPCOMING_SESSION),
+					value
+				)
+
+				thread.send(`${modal.user} just rescheduled the session to ${CoworkingMessage.formatDateRescheduleCoworking(Time.getDate(coworkingDate))}`)
 
 				const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
 				supabase.from("CoworkingEvents")
