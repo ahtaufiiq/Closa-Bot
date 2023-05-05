@@ -570,7 +570,9 @@ The correct format:
 					}
 
 					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
-					date.setMinutes(minutes-10)
+					const isLessThanTenMinutes = Time.getDiffTime(Time.getDate(),Time.getDate(coworkingDate)) < 10
+					if(!isLessThanTenMinutes) date.setMinutes(minutes-10)
+					
 					supabase.from('Reminders')
 						.insert({
 							message:taskName,
