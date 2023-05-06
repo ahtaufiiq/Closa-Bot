@@ -570,8 +570,9 @@ The correct format:
 					}
 
 					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
-					const isLessThanTenMinutes = Time.getDiffTime(Time.getDate(),date) < 10
-					if(!isLessThanTenMinutes) date.setMinutes(minutes-10)
+					date.setMinutes(minutes)
+					const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
+					if(isLessThanTenMinutes) date.setMinutes(minutes-10)
 					
 					supabase.from('Reminders')
 						.insert({
@@ -592,13 +593,6 @@ The correct format:
 						.eq('id',modal.user.id)
 						.single()
 					
-					ChannelController.sendToNotification(
-						modal.client,
-						HighlightReminderMessage.successScheduled(taskName.trim()),
-						modal.user.id,
-						data.body.notificationId
-					)
-
 					schedule.scheduleJob(date,async function () {
 						ChannelController.sendToNotification(
 							modal.client,
