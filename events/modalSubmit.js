@@ -602,7 +602,7 @@ The correct format:
 						)
 					})
 					
-					PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
+					// PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
 					const incrementPoint = PointController.calculatePoint('highlight')
 					UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 					await modal.editReply(HighlightReminderMessage.successSetHighlightReminder(taskName,modal.user.id,incrementPoint))
