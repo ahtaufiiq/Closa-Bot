@@ -594,15 +594,9 @@ The correct format:
 						.single()
 					
 					schedule.scheduleJob(date,async function () {
-						ChannelController.sendToNotification(
-							modal.client,
-							HighlightReminderMessage.remindHighlightUser(modal.user.id,taskName),
-							modal.user.id,
-							data.body.notificationId
-						)
+						PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
 					})
 					
-					// PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
 					const incrementPoint = PointController.calculatePoint('highlight')
 					UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 					await modal.editReply(HighlightReminderMessage.successSetHighlightReminder(taskName,modal.user.id,incrementPoint))

@@ -46,7 +46,7 @@ class CoworkingController {
             CoworkingController.getCoworkingEvent(interaction.message.id)
                 .then(data=>{
                     const {name,rules,date,totalMinute,totalSlot} = data.body
-                    const duration = Time.convertTime(totalMinute)
+                    const duration = Time.convertTime(totalMinute, "short")
                     const dateString = CoworkingController.formatDateToString(Time.getDate(date))
                     modal.addComponents(
                         new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Event Title").setStyle(TextInputStyle.Short).setValue(name).setRequired(true)),

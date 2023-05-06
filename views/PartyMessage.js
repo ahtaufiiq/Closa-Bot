@@ -139,9 +139,9 @@ looking forward for your <#${CHANNEL_TODO}> !
 https://tenor.com/view/usagyuuun-confetti-sorpresa-gif-13354314`
     }
 
-    static settingReminderHighlight(userId){
+    static settingReminderHighlight(userId,task){
         return {
-            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
+            content:`Hi ${MessageFormatting.tagUser(userId)} reminder: ${task} 
 
 Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
@@ -154,9 +154,9 @@ Do you want to be reminded to schedule your highlight at \`\`07.30 WIB\`\` every
             ]
         }
     }
-    static settingReminderHighlightExistingUser(userId,prevDefaultTime){
+    static settingReminderHighlightExistingUser(userId,prevDefaultTime,task){
         return {
-            content:`**Your highlight successfully scheduled! <@${userId}>** :white_check_mark:
+            content:`Hi ${MessageFormatting.tagUser(userId)} reminder: ${task} 
 
 Continue to set highlight reminder at \`\`${prevDefaultTime} WIB\`\` every day?
 > p.s: *91% of people who set highlight are would like to get things done.*`,
