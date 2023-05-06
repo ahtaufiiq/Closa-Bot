@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID, CHANNEL_WEEKLY_SCYNC_CATEGORY, CHANNEL_UPCOMING_SESSION } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID, CHANNEL_WEEKLY_SCYNC_CATEGORY, CHANNEL_UPCOMING_SESSION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -474,19 +474,13 @@ class CoworkingController {
         const guild = client.guilds.cache.get(GUILD_ID)
         const permissionOverwrites = []
         if(!isImmeadiatelyStart) {
-            permissionOverwrites.push({
-                id:guild.roles.everyone.id,
-                deny:[
-                    PermissionFlagsBits.Connect
-                ]
-            })
             for (let i = 0; i < dataEvent.body.CoworkingAttendances.length; i++) {
                 const userId = dataEvent.body.CoworkingAttendances[i].UserId;
                 const {user} = await MemberController.getMember(client,userId)
                 permissionOverwrites.push({
                     id:user.id,
                     allow:[
-                        PermissionFlagsBits.Connect
+                        PermissionFlagsBits.ViewChannel
                     ]
                 })
             }
@@ -494,16 +488,25 @@ class CoworkingController {
             permissionOverwrites.push({
                 id:user.id,
                 allow:[
-                    PermissionFlagsBits.Connect
+                    PermissionFlagsBits.ViewChannel
                 ]
             })
         }else{
-            permissionOverwrites.push({
-                id:guild.roles.everyone.id,
-                allow:[
-                    PermissionFlagsBits.Connect
-                ]
-            })
+            permissionOverwrites.push(
+                {
+                    id:ROLE_NEW_MEMBER,
+                    allow:[
+                        PermissionFlagsBits.ViewChannel
+                    ]
+                },
+                {
+                    id:ROLE_MEMBER,
+                    allow:[
+                        PermissionFlagsBits.ViewChannel
+                    ]
+                }
+            )
+            
         }
         
         const voiceChannel = await guild.channels.create({
@@ -515,8 +518,11 @@ class CoworkingController {
         })
         if(!isImmeadiatelyStart){
             setTimeout(() => {
-                voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id,{
-                    Connect:true
+                voiceChannel.permissionOverwrites.edit(ROLE_MEMBER,{
+                    ViewChannel:true
+                })
+                voiceChannel.permissionOverwrites.edit(ROLE_NEW_MEMBER,{
+                    ViewChannel:true
                 })
             }, Time.oneMinute() * 5);
         }
