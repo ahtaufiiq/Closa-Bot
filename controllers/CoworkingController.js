@@ -472,7 +472,14 @@ class CoworkingController {
             .single()
         
         const guild = client.guilds.cache.get(GUILD_ID)
-        const permissionOverwrites = []
+        const permissionOverwrites = [
+            {
+                id:guild.roles.everyone,
+                deny:[
+                    PermissionFlagsBits.ViewChannel
+                ]
+            },
+        ]
         if(!isImmeadiatelyStart) {
             for (let i = 0; i < dataEvent.body.CoworkingAttendances.length; i++) {
                 const userId = dataEvent.body.CoworkingAttendances[i].UserId;
