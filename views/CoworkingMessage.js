@@ -245,15 +245,15 @@ ${contentGuests}`
     static remindSessionEnded(type){
         switch (type) {
             case 10:
-                return `\`\`10 min\`\` before the session ended @everyone`
+                return `\`\`10 min\`\` before the session ended @here`
             case 5:
-                return `\`\`5 min\`\` before the session ended, let's celebrate together! :tada: @everyone`
+                return `\`\`5 min\`\` before the session ended, let's celebrate together! :tada: @here`
             case 2:
                 return `\`\`2 min\`\` before the session ended & room auto-delete.
 Feel free to take group photo before the session ended 📸
 tag @joinclosa & your friends to celebrate together ✨`
             default:
-                return `\`\`15s\`\` It's time say good bye to @everyone!👋`
+                return `\`\`15s\`\` It's time say good bye to @here!👋`
         }
     }
 }

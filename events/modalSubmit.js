@@ -554,7 +554,7 @@ The correct format:
 				ChannelController.sendToNotification(modal.client,BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),user.id)
 
 				await modal.editReply(BoostMessage.successSendMessage(user))
-			}else if(commandButton === 'setHighlightReminder'){
+			}else if(commandButton === 'setReminderHighlight'){
 				const taskName = modal.getTextInputValue('taskName');
 				if (Time.haveTime(taskName)) {
 					await modal.deferReply();
@@ -570,7 +570,10 @@ The correct format:
 					}
 
 					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
-					date.setMinutes(minutes-10)
+					date.setMinutes(minutes)
+					const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
+					if(isLessThanTenMinutes) date.setMinutes(minutes-10)
+					
 					supabase.from('Reminders')
 						.insert({
 							message:taskName,
@@ -590,13 +593,6 @@ The correct format:
 						.eq('id',modal.user.id)
 						.single()
 					
-					ChannelController.sendToNotification(
-						modal.client,
-						HighlightReminderMessage.successScheduled(taskName.split("🔆")[1].trim()),
-						modal.user.id,
-						data.body.notificationId
-					)
-
 					schedule.scheduleJob(date,async function () {
 						ChannelController.sendToNotification(
 							modal.client,
@@ -607,10 +603,13 @@ The correct format:
 					})
 					
 					PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
-					await modal.editReply(HighlightReminderMessage.successSetHighlightReminder(taskName))
+					const incrementPoint = PointController.calculatePoint('highlight')
+					UserController.incrementTotalPoints(incrementPoint,modal.user.id)
+					await modal.editReply(HighlightReminderMessage.successSetHighlightReminder(taskName,modal.user.id,incrementPoint))
 					ChannelController.deleteMessage(modal.message)
 				}else{
-					await modal.reply({content:HighlightReminderMessage.wrongFormat(modal.user),ephemeral:true})
+					await modal.deferReply({ephemeral:true})
+					modal.editReply({ephemeral:true,content:HighlightReminderMessage.wrongFormat(modal.user)})			
 				}
 			}
 

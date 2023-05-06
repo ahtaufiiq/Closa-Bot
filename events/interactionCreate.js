@@ -35,6 +35,7 @@ const FocusSessionMessage = require("../views/FocusSessionMessage");
 const CoworkingController = require("../controllers/CoworkingController");
 const CoworkingMessage = require("../views/CoworkingMessage");
 const InfoUser = require("../helpers/InfoUser");
+const ReminderController = require("../controllers/ReminderController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser) {
@@ -61,6 +62,7 @@ module.exports = {
 				if(FocusSessionController.showModalAddNewProject(interaction)) return
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
+				if(ReminderController.showModalSetHighlightReminder(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id

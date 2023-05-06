@@ -72,7 +72,7 @@ module.exports = {
 
 		ReferralCodeController.resetTotalDaysThisCohort()
 
-		// ReminderController.remindSetHighlight(client)
+		ReminderController.remindSetHighlight(client)
 		ReminderController.remindHighlightUser(client)
 		ReminderController.remindPostProgress(client)
 		

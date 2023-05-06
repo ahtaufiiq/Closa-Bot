@@ -1,4 +1,4 @@
-const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE, CHANNEL_UPCOMING_SESSION, CHANNEL_CREATE_SESSION } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const GenerateLink = require("../helpers/GenerateLink")
@@ -6,10 +6,13 @@ const Time = require("../helpers/time")
 class TodoReminderMessage{
     static progressReminder(userId){
         return {
-            content:`Hi <@${userId}>, how is your progress today? don't forget to share it on <#${CHANNEL_TODO}> channel!`,
-            components:[MessageComponent.createComponent(
-                TodoReminderMessage.buttonAddToCalendarShareProgress()
-            )]
+            content:`Hi @${MessageFormatting.tagUser(userId)}, how's your progress today? let's share on ${MessageFormatting.tagChannel(CHANNEL_TODO)}
+
+if you haven't work yet, join or host virtual coworking:
+• Join → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}
+• Host → ${MessageFormatting.tagChannel(CHANNEL_CREATE_SESSION)} (invite friends)
+
+It scientifically proven to help you stay focus & get more done.`
         }
     }
 

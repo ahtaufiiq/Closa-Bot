@@ -18,7 +18,7 @@ Reward: Up to 50 points :coin:`,
         }
     }
 
-    static successSetHighlightReminder(taskName,userId){
+    static successSetHighlightReminder(taskName,userId,totalPoint){
         return {
             content:`** ${MessageFormatting.tagUser(userId)} your reminder has been scheduled** :white_check_mark: 
 ↳ ${taskName}
@@ -27,7 +27,7 @@ Reward: Up to 50 points :coin:`,
 \`\`Join\`\` → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}
 \`\`Host\`\` → ${MessageFormatting.tagChannel(CHANNEL_CREATE_SESSION)} (invite your friends)
 
-:coin: **48** earned`
+:coin: **${totalPoint}** earned`
         }
     }
 
@@ -55,7 +55,7 @@ Reward: Up to 50 points :coin:`,
 
 
     static wrongFormat(author){
-        return `Hi ${author} please __add a specific time__ to your highlight to stay accountable!
+        return `Hi ${author} please __add a specific time__ to your reminder to stay accountable!
 For example: design exploration **at 19.00**`
     }
 

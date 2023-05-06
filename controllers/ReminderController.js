@@ -9,7 +9,7 @@ class ReminderController{
 
 	static showModalSetHighlightReminder(interaction){
 		const [commandButton,userId] = interaction.customId.split('_')
-        if(commandButton === 'setHighlightReminder'){
+        if(commandButton === 'setReminderHighlight'){
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't set someone else highlight.`})
 
 			const modal = new Modal()
