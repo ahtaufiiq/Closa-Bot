@@ -12,6 +12,7 @@ const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringMeetupController');
 const MessageComponent = require('../helpers/MessageComponent');
 const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
+const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 class PartyController{
 
 	static showModalCustomReminder(interaction){
@@ -440,7 +441,7 @@ class PartyController{
 	
 	}
 
-	static async sendNotifToSetHighlight(client,userId) {
+	static async sendNotifToSetHighlight(client,userId,task) {
 		supabase.from("Goals")
 			.select('id,alreadySetHighlight,Users(notificationId,reminderHighlight)')
 			.eq("UserId",userId)
@@ -456,10 +457,16 @@ class PartyController{
 						const {reminderHighlight,notificationId}= data.body.Users
 						ChannelController.sendToNotification(
 							client,
-							reminderHighlight ? PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight) : PartyMessage.settingReminderHighlight(userId),
+							reminderHighlight ? PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight,task) : PartyMessage.settingReminderHighlight(userId,task),
 							userId,
 							notificationId
 						)
+				}else{
+					ChannelController.sendToNotification(
+						client,
+						HighlightReminderMessage.remindHighlightUser(userId,taskName),
+						userId
+					)
 				}
 			})
 	}

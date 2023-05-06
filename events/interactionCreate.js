@@ -169,6 +169,10 @@ module.exports = {
 						const event = value ? `interaction_${replyBreak.id}`: 'interaction'
 						FocusSessionController.countdownFocusSession(msgFocusOld,taskName,projectName,focusRoomUser,targetUserId,event)
 						const intervalBreak = setInterval(() => {
+							if(!focusRoomUser[targetUserId]) {
+								clearInterval(intervalBreak)
+								ChannelController.deleteMessage(replyBreak)
+							}
 							if(focusRoomUser[targetUserId]?.msgIdReplyBreak != replyBreak.id) return clearInterval(intervalBreak)
 							if(focusRoomUser[targetUserId]?.breakCounter === 1) {
 								clearInterval(intervalBreak)
@@ -177,6 +181,7 @@ module.exports = {
 									.then(msg=>{
 										focusRoomUser[targetUserId].msgIdReplyBreak = msg.id
 										setTimeout(async () => {
+											if(!focusRoomUser[targetUserId]) return ChannelController.deleteMessage(msg)
 											if(focusRoomUser[targetUserId]?.msgIdReplyBreak != msg.id) return 
 											ChannelController.deleteMessage(msgFocusOld)
 											msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
