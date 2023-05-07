@@ -464,7 +464,7 @@ class PartyController{
 				}else{
 					ChannelController.sendToNotification(
 						client,
-						HighlightReminderMessage.remindHighlightUser(userId,taskName),
+						HighlightReminderMessage.remindHighlightUser(userId,task),
 						userId
 					)
 				}
