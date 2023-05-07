@@ -592,7 +592,7 @@ module.exports = {
 							.eq('id',interaction.user.id)
 							.then()
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-						FocusSessionController.updateProjectId(taskId,projectId)
+						await FocusSessionController.updateProjectId(taskId,projectId)
 						await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
 						ChannelController.deleteMessage(interaction.message)
 						break;
@@ -610,7 +610,7 @@ module.exports = {
 							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 							if (dataUser.body?.dailyWorkTime) {
-								FocusSessionController.updateProjectId(value,valueMenu)
+								await FocusSessionController.updateProjectId(value,valueMenu)
 								const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(interaction.user.id)
 								await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user,haveCoworkingEvent?.voiceRoomId))
 							}else{
