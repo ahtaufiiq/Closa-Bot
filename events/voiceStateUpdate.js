@@ -215,7 +215,7 @@ module.exports = {
 						if (newMember.selfVideo || newMember.streaming ){
 							const data = await FocusSessionController.getDetailFocusSession(userId)
 							const taskName = data?.taskName
-							const projectName = data.Projects.name
+							const projectName = data.Projects?.name
 							thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 							.then(async msgFocus=>{
 								FocusSessionController.updateMessageFocusTimerId(userId,msgFocus.id)
@@ -295,7 +295,7 @@ module.exports = {
 				}else if (focusRoomUser[userId]?.firstTime){
 					const data = await FocusSessionController.getDetailFocusSession(userId)
 					const taskName = data?.taskName
-					const projectName = data.Projects.name
+					const projectName = data.Projects?.name
 					thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
 						.then(async msgFocus=>{
 							FocusSessionController.updateMessageFocusTimerId(userId,msgFocus.id)
@@ -351,7 +351,7 @@ module.exports = {
 				const {totalTime,focusTime,breakTime} = focusRoomUser[userId]
 				const data = await FocusSessionController.getDetailFocusSession(userId)
 				const taskName = data?.taskName
-				const projectName = data.Projects.name
+				const projectName = data.Projects?.name
 	
 				FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 					.then(async response=>{
