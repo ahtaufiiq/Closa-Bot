@@ -27,13 +27,10 @@ module.exports = {
 	async execute(oldMember,newMember,focusRoomUser) {
 		try {
 			if(oldMember.member.user.bot) return
-			let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
-			let totalNewMember = newMember.channel? newMember.channel.members.size : 0
 	
 			const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channel?.id
-			const beforeJoinedChannelId = oldMember?.channel?.id
 	
 			if(!listFocusRoom[joinedChannelId]){
 				const event = await supabase.from("CoworkingEvents")
@@ -43,50 +40,7 @@ module.exports = {
 					status:'upcoming'
 				}
 			}
-	
-			// if(joinedChannelId && joinedChannelId !== CHANNEL_CLOSA_CAFE && beforeJoinedChannelId !== joinedChannelId){
-				// const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
-				// if(dataEvent.body){
-				// 	const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
-				// 	voiceChat.send(CoworkingMessage.howToStartSession(userId))	
-				// 		.then(msg=>{
-				// 			let min = 10
-				// 			const countdownEndSession = setInterval(() => {
-				// 				if(listFocusRoom[joinedChannelId]?.status === 'live'){
-				// 					clearInterval(countdownEndSession)
-				// 					return msg.edit(CoworkingMessage.howToStartSession(userId,0))
-				// 				}
-				// 				min--
-				// 				msg.edit(CoworkingMessage.howToStartSession(userId,min))
-				// 				if(min === 0){
-				// 					clearInterval(countdownEndSession)
-				// 					supabase.from("CoworkingEvents")
-				// 						.select()
-				// 						.eq('voiceRoomId',joinedChannelId)
-				// 						.single()
-				// 						.then(async data=>{
-				// 							if(data.body && data.body.status !== 'live'){
-				// 								voiceChat.delete()
-				// 								const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
-				// 								ChannelController.getMessage(channel,data.body.id)
-				// 									.then(coworkingEventMessage =>{
-				// 										coworkingEventMessage.delete()
-				// 									})
-				// 								ChannelController.getThread(channel,data.body.id)
-				// 									.then(coworkingEventThread =>{
-				// 										coworkingEventThread.delete()
-				// 									})
-				// 							}
-				// 						})
-										
-				// 				}
-				// 			}, Time.oneMinute());
-				// 		})
-				// }else{
-					
-				// }
-			// }
-	
+
 			if(newMember?.channel?.name.includes("Party")){
 				const channelId = newMember.channel.id
 				const partyId = newMember.channel.name.split(' ')[1]
@@ -399,20 +353,6 @@ module.exports = {
 						thread.setArchived(true)
 					})
 			}
-	
-			if (oldMember.channel !== null) {
-				let data = oldMember.channel.members.filter(user=>!user.bot)
-				totalOldMember = data.size
-			}
-			if (newMember.channel !== null) {
-				let data = newMember.channel.members.filter(user=>!user.bot)
-				totalNewMember = data.size
-				if (totalNewMember === 5 && totalNewMember !== totalOldMember && newMember.channelId === CHANNEL_CLOSA_CAFE) {
-					let msg = `@here there are 5 people in <#${CHANNEL_CLOSA_CAFE}> right now, let's vibin :beers:`
-					const channelGeneral = oldMember.guild.channels.cache.get(CHANNEL_GENERAL)
-					channelGeneral.send(msg)
-				}
-			}	
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
 		}
