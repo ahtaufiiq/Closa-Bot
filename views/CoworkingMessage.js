@@ -30,7 +30,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         endDate.setMinutes(endDate.getMinutes()+totalMinute)
         const availableSlot = totalSlot - 1 //author
         const spotLeft = availableSlot - totalAttendance
-        const isFull = availableSlot >= totalAttendance
+        const isFull = totalAttendance >= availableSlot
         if(totalAttendance === 0){
             footer = ` · ${availableSlot} spots left `
         }else if(isFull){
