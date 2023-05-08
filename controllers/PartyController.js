@@ -789,7 +789,7 @@ class PartyController{
 	}
 
 	static async handleOutsideMemberChatInPartyRoom(msg){
-		const [label,partyNumber] = msg.channel.name.split(' ')
+		const [label,partyNumber] = msg?.channel?.name?.split(' ')
 		if(label === "Party"){
 			const isMemberParty = await PartyController.isMemberParty(msg.author.id,partyNumber)
 			if (!isMemberParty) {
@@ -805,7 +805,7 @@ class PartyController{
 	}
 
 	static async handleMentionOutsideMemberInPartyRoom(msg){
-		const [label,partyNumber] = msg.channel.name.split(' ')
+		const [label,partyNumber] = msg?.channel?.name?.split(' ')
 		if(label === "Party" && msg.mentions.users.size > 0){
 			let isDeleteMessage = false
 			for (const [userId,user] of msg.mentions.users) {

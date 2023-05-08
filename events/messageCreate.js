@@ -59,7 +59,7 @@ module.exports = {
 			.eq('id',msg.author.id)
 			.then()
 			
-		const ChannelStreak = msg.guild.channels.cache.get(CHANNEL_STREAK)
+		const ChannelStreak = msg?.guild?.channels?.cache?.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
 			case CHANNEL_SESSION_GOAL:
 				const threadSession = await ChannelController.createThread(msg,`🔴 focus log - ${msg.content}`)
