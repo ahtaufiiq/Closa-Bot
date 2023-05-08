@@ -30,11 +30,13 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         endDate.setMinutes(endDate.getMinutes()+totalMinute)
         const availableSlot = totalSlot - 1 //author
         const spotLeft = availableSlot - totalAttendance
+        const isFull = availableSlot >= totalAttendance
         if(totalAttendance === 0){
             footer = ` · ${availableSlot} spots left `
-        }else if(availableSlot === totalAttendance){
+        }else if(isFull){
             if(totalAttendance === 1) footer = ` and other `
             else footer = ` and ${totalAttendance} others `
+            footer += '• room full'
         }else{
             if(totalAttendance === 1) footer = ` and other · ${spotLeft} spot${spotLeft > 1 ? 's':''} left`
             else footer = ` and ${totalAttendance} others · ${spotLeft} spot${spotLeft > 1 ? 's':''} left`
@@ -52,7 +54,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         if(!isLive){
             if(link){
                 components.push(MessageComponent.createComponent(
-                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,isFull ? 'Full':'Book').setDisabled(isFull),
                     MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓'),
                     MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
                     MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
@@ -60,7 +62,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
                 ))
             }else{
                 components.push(MessageComponent.createComponent(
-                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,isFull ? 'Full':'Book').setDisabled(isFull),
                     MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
                     MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
                     // MessageComponent.addLinkButton('Learn more','')

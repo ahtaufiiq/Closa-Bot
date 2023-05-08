@@ -475,15 +475,20 @@ The correct format:
 						}else{
 							CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 						}
-						await supabase.from("Reminders")
-							.delete()
-							.eq('message',msg.id)
-							
 						supabase.from("Reminders")
-							.insert([
-								{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
-								{ message:msg.id, time:coworkingDate, type:'CoworkingEvent'}
-							]).then()
+							.update({
+								time:fiveMinutesBefore
+							})
+							.eq('message',msg.id)
+							.eq('type','fiveMinutesBeforeCoworking')
+							.then()
+						supabase.from("Reminders")
+							.update({
+								time:coworkingDate
+							})
+							.eq('message',msg.id)
+							.eq('type','CoworkingEvent')
+							.then()
 					}
 
 				})

@@ -97,7 +97,7 @@ module.exports = {
 							supabase.from("CoworkingAttendances")
 								.delete()
 								.eq('id',dataAttendance.body.id)
-								.then(data=>{
+								.then(()=>{
 									CoworkingController.updateCoworkingMessage(interaction.message)
 								})
 							msg.delete()
@@ -119,11 +119,6 @@ module.exports = {
 									.insert({id:msg.id,UserId:interaction.user.id,EventId:interaction.message.id,avatarUrl:InfoUser.getAvatar(interaction.user)})
 									.then(()=>{
 										CoworkingController.updateCoworkingMessage(interaction.message)
-									})
-								CoworkingController.getCoworkingEvent(interaction.message.id)
-									.then(data=>{
-										const coworkingDate = new Date(data.body.time)
-										CoworkingController.addReminderCoworkingEvent(coworkingDate,interaction.user.id,interaction.message.id)
 									})
 							})
 						

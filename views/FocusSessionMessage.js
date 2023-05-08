@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js")
-const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_SESSION_GOAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -133,7 +133,7 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
         }
 
         return {
-            content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
+            content:`Select the project you want to work on ${MessageFormatting.tagUser(userId)}`,
             components
         }
     }
@@ -234,6 +234,10 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
             ]
         }
+    }
+
+    static askToWriteSessionGoal(userId){
+        return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
     }
 }
 
