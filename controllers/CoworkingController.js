@@ -568,7 +568,7 @@ class CoworkingController {
     }
 
     static async isAlreadyBookCoworkingEvent(UserId,EventId){
-        const data = await supabase.from('CoworkingEvents')
+        const data = await supabase.from('CoworkingAttendances')
             .select()
             .eq('UserId',UserId)
             .eq("EventId",EventId)
