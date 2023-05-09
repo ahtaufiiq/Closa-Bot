@@ -108,6 +108,8 @@ module.exports = {
 						break;
 					case "bookCoworking":
 						if(targetUserId === interaction.user.id) return interaction.editReply("⚠️ Can't book your own coworking event")
+						const isAlreadyBookCoworkingEvent = await CoworkingController.isAlreadyBookCoworkingEvent(interaction.user.id,interaction.message.id)
+						if(isAlreadyBookCoworkingEvent) return interaction.editReply('you already booked this event')
 						interaction.editReply("you're in ✅ ")
 						const threadCoworking = await ChannelController.getThread(
 							ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION),

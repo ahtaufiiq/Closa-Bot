@@ -566,6 +566,14 @@ class CoworkingController {
                 }
             })
     }
+
+    static async isAlreadyBookCoworkingEvent(UserId,EventId){
+        const data = await supabase.from('CoworkingEvents')
+            .select()
+            .eq('UserId',UserId)
+            .eq("EventId",EventId)
+        return data.body.length > 0
+    }
 }
 
 module.exports = CoworkingController
