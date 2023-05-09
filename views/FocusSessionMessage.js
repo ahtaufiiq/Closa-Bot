@@ -72,18 +72,11 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     }
 
-    static startFocusSession(author,voiceRoomId){
-        return `**Hi ${author}, follow the steps below to start your session: **
+    static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
+        return `hi ${MessageFormatting.tagUser(userId)}, now please ${isAlreadyJoinVoiceChannel ? '':`join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
+then `}**turn-on video** or **sharescreen** to get started & stay accountable.
 
-1. Join → <#${voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE}>
-2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
-3. Mute your mic during focus time.
-
-**Having a trouble? try one of these:**
-\`\`\`
-• Try to turn-off then turn-on either your video or sharescreen.
-• Make sure to write #session-goals first & then select your project before step 1.
-\`\`\``
+your time tracker will automatically start right after.`
 
     }
 
@@ -238,6 +231,13 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
 
     static askToWriteSessionGoal(userId){
         return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
+    }
+
+    static askToShareScreenOrVideo(userId){
+        return `**Hi ${MessageFormatting.tagUser(userId)}, please do one of these following:**
+:camera_with_flash: **turn on your video** or :computer: **sharescreen** to stay accountable
+
+please do it within **2 min** before you get auto-kick from the room.`
     }
 }
 

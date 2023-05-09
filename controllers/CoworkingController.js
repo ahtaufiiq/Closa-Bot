@@ -514,7 +514,7 @@ class CoworkingController {
         }
     }
 
-    static handleStartCoworkingTimer(userId,joinedChannelId,listFocusRoom,newMember){
+    static handleStartCoworkingTimer(userId,joinedChannelId,listFocusRoom,client){
         CoworkingController.isHostCoworking(userId,joinedChannelId)
             .then(async dataEvent=>{
                 if(dataEvent.body){
@@ -524,11 +524,11 @@ class CoworkingController {
                         .eq('voiceRoomId',joinedChannelId)
                         .then()
                     listFocusRoom[joinedChannelId].status = 'live'
-                    const channel = ChannelController.getChannel(newMember.client,CHANNEL_UPCOMING_SESSION)
+                    const channel = ChannelController.getChannel(client,CHANNEL_UPCOMING_SESSION)
                     const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
                     CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
                     let currentMin = totalMinute
-                    const voiceChat = await ChannelController.getChannel(newMember.client,joinedChannelId)
+                    const voiceChat = await ChannelController.getChannel(client,joinedChannelId)
                     const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
                     voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
                         .then(msg=>{

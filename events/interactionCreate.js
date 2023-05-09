@@ -38,7 +38,7 @@ const InfoUser = require("../helpers/InfoUser");
 const ReminderController = require("../controllers/ReminderController");
 module.exports = {
 	name: 'interactionCreate',
-	async execute(interaction,focusRoomUser) {
+	async execute(interaction,focusRoomUser,listFocusRoom) {
 		try {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {
@@ -587,8 +587,7 @@ module.exports = {
 							.eq('id',interaction.user.id)
 							.then()
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-						await FocusSessionController.updateProjectId(taskId,projectId)
-						await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
+						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
 						break;
 					case 'selectProject':
@@ -605,9 +604,7 @@ module.exports = {
 							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 							if (dataUser.body?.dailyWorkTime) {
-								await FocusSessionController.updateProjectId(value,valueMenu)
-								const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(interaction.user.id)
-								await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user,haveCoworkingEvent?.voiceRoomId))
+								FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,value,valueMenu,listFocusRoom)
 							}else{
 								await interaction.editReply(
 									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.body?.id)

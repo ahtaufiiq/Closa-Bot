@@ -12,6 +12,8 @@ class GoalMessage {
         return {
             content:`**Set a goal for your project & commit to it :dart:**
 
+read this first → https://tinyurl.com/4azetzep
+
 \`\`Pro tips: for extra accountability\`\`
 • Set a goal that can be quantify—so you know how to win your game.
 • Put a hard deadline to add pressure stay motivated (6 weeks recommended).
