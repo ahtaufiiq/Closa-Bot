@@ -113,6 +113,16 @@ module.exports = {
 							ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION),
 							interaction.message.id
 						)
+						supabase.from("CoworkingEvents")
+							.select('voiceRoomId')
+							.eq('id',interaction.message.id)
+							.single()
+							.then(data=>{
+								let {voiceRoomId} = data.body
+								if(voiceRoomId){
+									CoworkingController.updateFocusRoom(interaction.client,interaction.user,voiceRoomId)
+								}
+							})
 						threadCoworking.send(`${interaction.user} will attend the session`)
 							.then(msg=>{
 								supabase.from("CoworkingAttendances")

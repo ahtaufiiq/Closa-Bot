@@ -448,6 +448,13 @@ class CoworkingController {
         return voiceChannel
     }
 
+    static async updateFocusRoom(client,user,voiceRoomId){
+        const voiceChannel = ChannelController.getChannel(client,voiceRoomId)
+        voiceChannel.permissionOverwrites.edit(user.id,{
+            ViewChannel:true
+        })
+    }
+
 	static async remindFiveMinutesBeforeCoworking(client,time,eventId){
 		const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
 		schedule.scheduleJob(time,async function() {
