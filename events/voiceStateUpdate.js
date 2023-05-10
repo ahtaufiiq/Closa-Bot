@@ -82,7 +82,6 @@ module.exports = {
 						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom)
 					}else{
 						ChannelController.sendToNotification(newMember.client,FocusSessionMessage.askToWriteSessionGoal(userId),userId)
-						if(joinedChannelId === CHANNEL_CLOSA_CAFE) newMember.channel.send(FocusSessionMessage.askToWriteSessionGoal(userId))
 					}
 				})
 				
@@ -171,30 +170,31 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 			let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId]) {
-					ChannelController.sendToNotification(client,FocusSessionMessage.askToShareScreenOrVideo(userId),userId)
+					const isAlreadySetSessionGoal = !!threadId
+					ChannelController.sendToNotification(client,FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal),userId)
 					let msg
 					if(threadId){
 						const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
 						const thread = await ChannelController.getThread(channel,threadId)
-						thread.send(FocusSessionMessage.askToShareScreenOrVideo(userId))
+						thread.send(FocusSessionMessage.askToAccountability(userId))
 							.then(msgReminder =>{
 								msg = msgReminder
 							})
 					}else if(joinedChannelId === CHANNEL_CLOSA_CAFE){
 						const channel = ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
-						channel.send(FocusSessionMessage.askToShareScreenOrVideo(userId))
+						channel.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
 							.then(msgReminder =>{
 								msg = msgReminder
 							})
 					}
 					setTimeout(() => {
-						let {selfVideo,streaming} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
-						if (!selfVideo && !streaming) {
-							resolve("user didn't open camera or sharescreen")
+						let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
+						if ((selfVideo || streaming) && threadId) {
+							reject('user already open camera or sharescreen and set session goal')
 						}else{
-							if(msg) ChannelController.deleteMessage(msg)
-							reject('user already open camera or sharescreen')
+							resolve("user didn't open camera or sharescreen")
 						}
+						if(msg) ChannelController.deleteMessage(msg)
 					}, time);
 				}
 			}else{

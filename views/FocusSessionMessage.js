@@ -233,11 +233,19 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
         return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
     }
 
-    static askToShareScreenOrVideo(userId){
+    static askToAccountability(userId,alreadySetSessionGoal){
+        if(alreadySetSessionGoal){
         return `**Hi ${MessageFormatting.tagUser(userId)}, please do one of these following:**
 :camera_with_flash: **turn on your video** or :computer: **sharescreen** to stay accountable
 
 please do it within **2 min** before you get auto-kick from the room.`
+        }else{
+            return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
+1. set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task 
+2. :camera_with_flash: **turn on your video** or :computer: **sharescreen** to stay accountable
+
+please do it within **2 min** before you get auto-kick from the room.`
+        }
     }
 }
 
