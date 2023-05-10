@@ -74,7 +74,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
         return `hi ${MessageFormatting.tagUser(userId)}, now please ${isAlreadyJoinVoiceChannel ? '':`join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
-then `}:camera_with_flash: **turn-on video** or :computer: **sharescreen** to get started & stay accountable.
+then `}**turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
 
 your time tracker will automatically start right after.`
 
@@ -236,13 +236,13 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
     static askToAccountability(userId,alreadySetSessionGoal){
         if(alreadySetSessionGoal){
         return `Hi ${MessageFormatting.tagUser(userId)}, please do one of these following:
-:camera_with_flash: **turn on your video** or :computer: **sharescreen** to stay accountable
+**turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
 
 please do it within **2 min** before you get auto-kick from the room.`
         }else{
             return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
 1. set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task 
-2. :camera_with_flash: **turn on your video** or :computer: **sharescreen** to stay accountable
+2. **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
 
 please do it within **2 min** before you get auto-kick from the room.`
         }

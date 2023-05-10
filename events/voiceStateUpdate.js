@@ -29,7 +29,6 @@ module.exports = {
 			const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channelId
-	
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
 	
 			RecurringMeetupController.handleVoiceRoomWeeklySync(newMember,meetup,userId)
@@ -104,7 +103,6 @@ module.exports = {
 					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom)
 				}
 			}else if(isEndedFocusTime(listFocusRoom,focusRoomUser,oldMember?.channelId,joinedChannelId,userId)){
-				
 				const {totalTime,focusTime,breakTime,firstTime} = focusRoomUser[userId]
 				if(!firstTime){
 					const data = await FocusSessionController.getDetailFocusSession(userId)
@@ -154,8 +152,10 @@ module.exports = {
 					)
 					thread.setArchived(true)
 				}
+				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
+
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
 		}

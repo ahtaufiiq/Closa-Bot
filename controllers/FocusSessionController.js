@@ -150,11 +150,15 @@ class FocusSessionController {
         return (totalTime + totalTimeToday) === dailyWorkTime
     }
 
-    static async insertFocusSession(UserId,taskName,ProjectId,threadId){
-        await supabase.from('FocusSessions')
+    static async deleteFocusSession(UserId){
+        return await supabase.from('FocusSessions')
         .delete()
         .eq('UserId',UserId)
         .is('session',null)
+    }
+
+    static async insertFocusSession(UserId,taskName,ProjectId,threadId){
+        await FocusSessionController.deleteFocusSession(UserId)
 
         return await supabase.from('FocusSessions')
             .insert({
