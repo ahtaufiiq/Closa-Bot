@@ -74,7 +74,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
         return `hi ${MessageFormatting.tagUser(userId)}, now please ${isAlreadyJoinVoiceChannel ? '':`join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
-then `}**turn-on video** or **sharescreen** to get started & stay accountable.
+then `}:camera_with_flash: **turn-on video** or :computer: **sharescreen** to get started & stay accountable.
 
 your time tracker will automatically start right after.`
 
