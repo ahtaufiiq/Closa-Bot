@@ -176,7 +176,7 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 					if(threadId){
 						const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
 						const thread = await ChannelController.getThread(channel,threadId)
-						thread.send(FocusSessionMessage.askToAccountability(userId))
+						thread.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
 							.then(msgReminder =>{
 								msg = msgReminder
 							})
