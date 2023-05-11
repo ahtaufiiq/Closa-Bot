@@ -114,6 +114,7 @@ module.exports = {
 								if(threadEvent) threadEvent.delete()
 							}
 						}, Time.oneMinute());
+						ChannelController.deleteMessage(interaction.message)
 						break;
 					case 'showGuidelineCoworking':
 						interaction.editReply(CoworkingMessage.guidelineCoworking())
