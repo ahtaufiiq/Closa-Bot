@@ -601,6 +601,7 @@ module.exports = {
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
 						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
+						focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
 						break;
 					case 'selectProject':
 						if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})
@@ -616,8 +617,10 @@ module.exports = {
 							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 							if (dataUser.body?.dailyWorkTime) {
+								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
 								FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,value,valueMenu,listFocusRoom)
 							}else{
+								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'setDailyWorkTime'
 								await interaction.editReply(
 									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.body?.id)
 								)

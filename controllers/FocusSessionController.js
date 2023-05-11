@@ -357,8 +357,8 @@ class FocusSessionController {
 
     static isValidToStartFocusTimer(focusRoomUser,userId){
         if(!focusRoomUser[userId]) return false
-        let {selfVideo,streaming,firstTime,threadId} = focusRoomUser[userId]
-        return (selfVideo || streaming) && firstTime && threadId
+        let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal} = focusRoomUser[userId]
+        return (selfVideo || streaming) && firstTime && threadId && statusSetSessionGoal === 'done'
     }
 
     static async handleStartFocusSession(interaction,userId,focusRoomUser,taskId,ProjectId,listFocusRoom){

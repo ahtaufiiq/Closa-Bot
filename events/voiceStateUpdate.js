@@ -62,7 +62,8 @@ module.exports = {
 					isFocus:true,
 					status : 'processed',
 					firstTime:true,
-					joinedChannelId
+					joinedChannelId,
+					...focusRoomUser[userId]
 				}
 				kickUser(userId,newMember.client,joinedChannelId,focusRoomUser)
 				.then(()=>{
@@ -103,8 +104,8 @@ module.exports = {
 					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom)
 				}
 			}else if(isEndedFocusTime(listFocusRoom,focusRoomUser,oldMember?.channelId,joinedChannelId,userId)){
-				const {totalTime,focusTime,breakTime,firstTime} = focusRoomUser[userId]
-				if(!firstTime){
+				const {totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
+				if(!firstTime && statusSetSessionGoal === 'done'){
 					const data = await FocusSessionController.getDetailFocusSession(userId)
 					const taskName = data?.taskName
 					const projectName = data?.Projects?.name
@@ -155,7 +156,6 @@ module.exports = {
 				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
-
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
 		}
@@ -167,16 +167,18 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 	const time = Time.oneMinute() * 2
 	return new Promise((resolve,reject)=>{
 		setTimeout(async () => {
-			let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
+			let {selfVideo,streaming,threadId,statusSetSessionGoal} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
 			if (!selfVideo && !streaming) {
 				if (focusRoomUser[userId]) {
-					const isAlreadySetSessionGoal = !!threadId
-					ChannelController.sendToNotification(client,FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal),userId)
+					const isAlreadySetSessionGoal = statusSetSessionGoal === 'done'
+					if(statusSetSessionGoal !== 'setDailyWorkTime' && statusSetSessionGoal !== 'selectProject'){
+						ChannelController.sendToNotification(client,FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal),userId)
+					}
 					let msg
 					if(threadId){
 						const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
 						const thread = await ChannelController.getThread(channel,threadId)
-						thread.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
+						thread.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal,statusSetSessionGoal))
 							.then(msgReminder =>{
 								msg = msgReminder
 							})
@@ -205,7 +207,7 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 }
 
 function isFirsTimeJoinFocusRoom(listFocusRoom,focusRoomUser,joinedChannelId,userId) {
-	return listFocusRoom[joinedChannelId] && !focusRoomUser[userId]
+	return listFocusRoom[joinedChannelId] && !focusRoomUser[userId]?.joinedChannelId
 }
 
 function isEndedFocusTime(listFocusRoom,focusRoomUser,oldChannelId,joinedChannelId,userId) {

@@ -151,32 +151,64 @@ ${MessageFormatting.linkToEvent(eventId)}`
     }
 
     static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
-        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
-Let's get ready:
+        if(hostname){
+            return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with ${hostname} is about to start.
 
-join the voice room & follow the guidelines ${hostname ? 'from your host' : 'to host your session'}: 
+Let's get ready & join the voice room: 
 → ${MessageFormatting.linkToMessage(channelId,msgId)}`
+        }else{
+            return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session is about to start.
+
+Let's get ready:
+join the voice room & follow the guidelines to host your session: 
+→ ${MessageFormatting.linkToMessage(channelId,msgId)}`
+        }
     }
 
-    static howToStartSession(HostId,min=10){
+    static howToStartSession(HostId,min=5){
         return {
-            content:`:arrow_upper_right: **Start your session or Invite your friends** ${MessageFormatting.tagUser(HostId)}
-${min > 0 ? `\n**⏳ ${min} min** remaining to start the session
-or this room will auto-delete.\n`:''}
-**How to start the session?👨‍💻👩‍💻 **
-1. Write the task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
-2. Select your project inside the tasks thread.
-3. __Turn on camera__\`\` OR \`\`__sharescreen__ to start session & track time.
-4. Mute your mic (during focus session).
+            content:`👨‍💻👩‍💻 **Start your session or Invite your friends first** ${MessageFormatting.tagUser(HostId)}
 
-\`\`Troubleshoot\`\` 
-*turn-off & turn-on your video __or__ sharescreen if the time tracker didn't start*`,
+**Preparation** (__for host & guests__)
+1. Join voice & say hi!
+2. Write 1 specific task here → #session-goals
+3. Follow the closa bot until your time tracker running.
+
+**Kick-off the session** (__for host__):
+1. Make sure everyone turn-on video or sharescreen.
+2. When everyone is ready—start the room timer.
+3. Mute your mic (during focus session).
+
+**Enjoy your productive session!**
+\`\`note\`\`: *this room will auto-delete once the room timer ended.*
+
+${min > 0 ? `Waiting for host to start the session:
+⏳ **${min} min** or a new host will be assigned.`:""}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton('showGuidelineCoworking','Guideline','💡',ButtonStyle.Secondary)
+                    MessageComponent.addEmojiButton('startCoworkingRoom','Start Room Timer','⏱️',ButtonStyle.Success),
+                    MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
                 )
             ]
         }
+    }
+
+    static askNewHostCoworking(min,eventId){
+        return {
+            content: `One person need to become the new **host** to facilitate the session.
+waiting for a new host **${min} min** :hourglass_flowing_sand:`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton('assignNewHost','Assign me','🎙️')
+            )]
+        }
+    }
+
+    static selectedNewHostCoworking(userId,min){
+        return `${MessageFormatting.tagUser(userId)} assigned as a host.
+Please start the session within **${min} min** :hourglass_flowing_sand:
+or the room will auto-delete. 
+
+Follow the guideline above.`
     }
 
     static guidelineCoworking(){

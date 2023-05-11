@@ -233,7 +233,11 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
         return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
     }
 
-    static askToAccountability(userId,alreadySetSessionGoal){
+    static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){
+        let firstStep = `set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task `
+        if(statusSetSessionGoal === 'setDailyWorkTime') firstStep = '**please select daily work time above**'
+        else if(statusSetSessionGoal === 'selectProject') firstStep = '**please select the project above**'
+
         if(alreadySetSessionGoal){
         return `Hi ${MessageFormatting.tagUser(userId)}, please do one of these following:
 **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
@@ -241,7 +245,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
 please do it within **2 min** before you get auto-kick from the room.`
         }else{
             return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
-1. set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task 
+1. ${firstStep}
 2. **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
 
 please do it within **2 min** before you get auto-kick from the room.`
