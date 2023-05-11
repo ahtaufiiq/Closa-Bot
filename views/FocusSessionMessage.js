@@ -177,7 +177,9 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
 
     static messageBreakTime(time,userId){
         return {
-            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`,
+            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**
+            
+please keep your \`\`video\`\` or \`\`sharescreen\`\` **ON** to stay accountable.`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
                 MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
