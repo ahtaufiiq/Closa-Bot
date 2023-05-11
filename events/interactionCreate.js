@@ -68,7 +68,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -81,6 +81,40 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case 'startCoworkingRoom':
+						const coworkingEvent = await CoworkingController.getCoworkingEvent(value)
+						if(coworkingEvent.body?.HostId !== interaction.user.id) return await interaction.editReply('⚠️ only host can start room timer')
+						if(!CoworkingController.isValidToStartCoworkingTimer(focusRoomUser,interaction.user.id)){
+							return await interaction.editReply(CoworkingMessage.cannotStartTimer())
+						}
+						CoworkingController.handleStartCoworkingTimer(interaction.user.id,interaction.message.channelId,listFocusRoom,interaction.client)
+						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
+						break
+					case 'assignNewHost':
+						let minuteToHost = 5
+						await CoworkingController.updateHostId(interaction.user.id,value)
+						const msgNewHost = await interaction.editReply(CoworkingMessage.selectedNewHostCoworking(interaction.user.id,minuteToHost))
+						const countdownNewHost = setInterval(async () => {
+							minuteToHost--
+							const coworkingEventIsLive = await CoworkingController.coworkingEventIsLive(value)
+							if(coworkingEventIsLive){
+								ChannelController.deleteMessage(msgNewHost)
+								return clearInterval(countdownNewHost)
+							}
+							msgNewHost.edit(CoworkingMessage.selectedNewHostCoworking(interaction.user.id,minuteToHost))
+							if(minuteToHost === 0){
+								const event = await CoworkingController.getCoworkingEvent(value)
+								const {id,voiceRoomId} = event.body
+								const voiceRoom = ChannelController.getChannel(interaction.client,voiceRoomId)
+								if(voiceRoom) voiceRoom.delete()
+								const channelUpcomingSession = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
+								const msgEvent = await ChannelController.getMessage(channelUpcomingSession,id)
+								if(msgEvent) msgEvent.delete()
+								const threadEvent = await ChannelController.getThread(channelUpcomingSession,id)
+								if(threadEvent) threadEvent.delete()
+							}
+						}, Time.oneMinute());
+						break;
 					case 'showGuidelineCoworking':
 						interaction.editReply(CoworkingMessage.guidelineCoworking())
 						break;

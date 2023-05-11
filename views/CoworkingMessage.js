@@ -165,7 +165,7 @@ join the voice room & follow the guidelines to host your session:
         }
     }
 
-    static howToStartSession(HostId,min=5){
+    static howToStartSession(HostId,EventId,min=5){
         return {
             content:`👨‍💻👩‍💻 **Start your session or Invite your friends first** ${MessageFormatting.tagUser(HostId)}
 
@@ -186,7 +186,7 @@ ${min > 0 ? `Waiting for host to start the session:
 ⏳ **${min} min** or a new host will be assigned.`:""}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton('startCoworkingRoom','Start Room Timer','⏱️',ButtonStyle.Success),
+                    MessageComponent.addEmojiButton(`startCoworkingRoom_null_${EventId}`,'Start Room Timer','⏱️',ButtonStyle.Success),
                     MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
                 )
             ]
@@ -198,7 +198,7 @@ ${min > 0 ? `Waiting for host to start the session:
             content: `One person need to become the new **host** to facilitate the session.
 waiting for a new host **${min} min** :hourglass_flowing_sand:`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton('assignNewHost','Assign me','🎙️')
+                MessageComponent.addEmojiButton(`assignNewHost_null_${eventId}`,'Assign me','🎙️')
             )]
         }
     }
@@ -289,6 +289,12 @@ Feel free to take group photo 📸 & tag \`\`@joinclosa\`\` & your friends to ce
             default:
                 return `\`\`15s\`\` It's time say good bye to @here!👋`
         }
+    }
+
+    static cannotStartTimer(){
+        return `⚠️ **Can't start room timer**
+
+Set you ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}, join voice, & turn-on video or sharescreen to start your room timer.`
     }
 }
 module.exports = CoworkingMessage

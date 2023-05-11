@@ -361,6 +361,11 @@ class CoworkingController {
             .single()
     }
 
+    static async coworkingEventIsLive(eventId){
+        const dataEvent = await CoworkingController.getCoworkingEvent(eventId)
+        return dataEvent.body.status === 'live'
+    }
+
     static async setReminderFiveMinutesBeforeCoworking(client){
 		const data = await supabase.from("Reminders")
 			.select()
@@ -440,6 +445,8 @@ class CoworkingController {
                     ViewChannel:true
                 })
             }, Time.oneMinute() * 5);
+        }else{
+            CoworkingController.handleHowToStartSession(client,eventId,voiceChannel,dataEvent.body.HostId)
         }
         supabase.from("CoworkingEvents")
             .update({status:'upcoming',voiceRoomId:voiceChannel.id})
@@ -464,7 +471,7 @@ class CoworkingController {
                     .select()
                     .eq('EventId',eventId)
 				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id,newEvent.body.totalSlot)
-                const msg = await channel.send(CoworkingMessage.howToStartSession(newEvent.body.HostId,0))
+                const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
                 ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
@@ -473,6 +480,43 @@ class CoworkingController {
 			}
 		})
 	}
+
+    static async handleHowToStartSession(client,eventId,voiceChannel,HostId){
+        let minuteToStartSession = 5
+        const msg = await voiceChannel.send(CoworkingMessage.howToStartSession(HostId,eventId,minuteToStartSession))
+        const countdownStartSession = setInterval(async () => {
+            minuteToStartSession--
+            const coworkingEventIsLive = await CoworkingController.coworkingEventIsLive(eventId)
+            if(coworkingEventIsLive){
+                clearInterval(countdownStartSession)
+                return msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,0))
+            }
+            msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,minuteToStartSession))
+            if(minuteToStartSession === 0){
+                clearInterval(countdownStartSession)
+                let minuteAssignNewHost = 5
+                const msgAssignNewHost = await msg.channel.send(CoworkingMessage.askNewHostCoworking(minuteAssignNewHost,eventId))
+                const countdownAssignNewHost = setInterval(async () => {
+                    minuteAssignNewHost--
+                    const dataEvent = await CoworkingController.getCoworkingEvent(eventId)
+                    if(dataEvent.body.HostId !== HostId){
+                        clearInterval(countdownAssignNewHost)
+                        return ChannelController.deleteMessage(msgAssignNewHost)
+                    }
+                    msgAssignNewHost.edit(CoworkingMessage.askNewHostCoworking(minuteAssignNewHost,eventId))
+                    if(minuteAssignNewHost === 0) {
+                        clearInterval(countdownAssignNewHost)
+                        voiceChannel.delete()
+                        supabase.from("CoworkingEvents")
+                            .delete()
+                            .eq('id',eventId)
+                            .then()
+                    }
+                }, Time.oneMinute());
+            }
+        }, Time.oneMinute());
+        return msg
+    }
 
     static async haveCoworkingEvent(userId){
         const [dataAttendance,dataHost] = await Promise.all([
@@ -567,12 +611,24 @@ class CoworkingController {
             })
     }
 
+    static isValidToStartCoworkingTimer(focusRoomUser,userId){
+        if(!focusRoomUser[userId]) return false
+        let {selfVideo,streaming,firstTimeCoworkingTimer,threadId,statusSetSessionGoal} = focusRoomUser[userId]
+        return (selfVideo || streaming) && firstTimeCoworkingTimer && threadId && statusSetSessionGoal === 'done'
+    }
+
     static async isAlreadyBookCoworkingEvent(UserId,EventId){
         const data = await supabase.from('CoworkingAttendances')
             .select()
             .eq('UserId',UserId)
             .eq("EventId",EventId)
         return data.body.length > 0
+    }
+
+    static async updateHostId(newHostId,EventId){
+        return await supabase.from("CoworkingEvents")
+            .update({HostId:newHostId})
+            .eq("id",EventId)
     }
 }
 

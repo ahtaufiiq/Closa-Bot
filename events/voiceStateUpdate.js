@@ -49,6 +49,7 @@ module.exports = {
 				const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
 				const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 				focusRoomUser[userId] = {
+					timestamp:Time.getDate().getTime(),
 					date:Time.getTodayDateOnly(),
 					totalTimeToday,
 					dailyWorkTime,
@@ -62,6 +63,7 @@ module.exports = {
 					isFocus:true,
 					status : 'processed',
 					firstTime:true,
+					firstTimeCoworkingTimer:true,
 					joinedChannelId,
 					...focusRoomUser[userId]
 				}
@@ -79,7 +81,7 @@ module.exports = {
 					.single()
 					.then(async ({data})=>{
 					if (data) {
-						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom)
+						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser)
 					}else{
 						ChannelController.sendToNotification(newMember.client,FocusSessionMessage.askToWriteSessionGoal(userId),userId)
 					}
@@ -101,7 +103,7 @@ module.exports = {
 							})
 					}
 				}else if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
-					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom)
+					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser)
 				}
 			}else if(isEndedFocusTime(listFocusRoom,focusRoomUser,oldMember?.channelId,joinedChannelId,userId)){
 				const {totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
@@ -165,10 +167,11 @@ module.exports = {
 
 async function kickUser(userId,client,joinedChannelId,focusRoomUser) {			
 	const time = Time.oneMinute() * 2
+	const oldTimestamp = focusRoomUser[userId]?.timestamp
 	return new Promise((resolve,reject)=>{
 		setTimeout(async () => {
-			let {selfVideo,streaming,threadId,statusSetSessionGoal} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
-			if (!selfVideo && !streaming) {
+			let {selfVideo,streaming,threadId,statusSetSessionGoal,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
+			if (!selfVideo && !streaming && timestamp === oldTimestamp) {
 				if (focusRoomUser[userId]) {
 					const isAlreadySetSessionGoal = statusSetSessionGoal === 'done'
 					if(statusSetSessionGoal !== 'setDailyWorkTime' && statusSetSessionGoal !== 'selectProject'){
@@ -190,7 +193,8 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 							})
 					}
 					setTimeout(() => {
-						let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
+						let {selfVideo,streaming,threadId,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
+						if(oldTimestamp !== timestamp) return
 						if ((selfVideo || streaming) && threadId) {
 							reject('user already open camera or sharescreen and set session goal')
 						}else{

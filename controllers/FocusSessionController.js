@@ -336,7 +336,7 @@ class FocusSessionController {
         return totalTime
     }
 
-    static async startFocusTimer(client,threadId,userId,focusRoomUser,joinedChannelId,listFocusRoom){
+    static async startFocusTimer(client,threadId,userId,focusRoomUser){
         FocusSessionController.setCoworkingPartner(userId)
         const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
         const thread = await ChannelController.getThread(channel,threadId)
@@ -351,7 +351,6 @@ class FocusSessionController {
                 FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
             })
             focusRoomUser[userId].firstTime = false
-            CoworkingController.handleStartCoworkingTimer(userId,joinedChannelId,listFocusRoom,client)
         }
     }
 
@@ -369,7 +368,7 @@ class FocusSessionController {
             if(FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
                 const msgReply = await interaction.editReply('.')
                 ChannelController.deleteMessage(msgReply)
-                FocusSessionController.startFocusTimer(interaction.client,interaction.channelId,userId,focusRoomUser,focusRoomUser[userId].joinedChannelId,listFocusRoom)
+                FocusSessionController.startFocusTimer(interaction.client,interaction.channelId,userId,focusRoomUser)
             }else{
                 await interaction.editReply(FocusSessionMessage.startFocusSession(userId,haveCoworkingEvent?.voiceRoomId,true))
             }
