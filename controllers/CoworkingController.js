@@ -623,16 +623,16 @@ class CoworkingController {
                         })
 
                         //notify session just started to attendee who booked the session & haven't joined yet to join the session:
-                        supabase.from("CoworkingEvents")
+                        supabase.from("CoworkingAttendances")
                             .select()
                             .eq('EventId',id)
                             .is('alreadyJoined',false)
-                            .then(data=>{
-                                data.body.forEach(attendance=>{
+                            .then(data => {
+                                 data.body.forEach(attendance=>{
                                     ChannelController.sendToNotification(
                                         client,CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),attendance.UserId
                                     )
-                                })
+                                 })
                             })
                 }
             })

@@ -91,6 +91,7 @@ module.exports = {
 						}
 						CoworkingController.handleStartCoworkingTimer(interaction.user.id,interaction.message.channelId,listFocusRoom,interaction.client)
 						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
+						interaction.editReply('room timer just started')
 						interaction.message.edit({
 							components:[MessageComponent.createComponent(
 								MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
