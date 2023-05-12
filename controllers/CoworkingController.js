@@ -471,7 +471,7 @@ class CoworkingController {
                     .select()
                     .eq('EventId',eventId)
 				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id,newEvent.body.totalSlot)
-                const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel)
+                const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel,newEvent.body.HostId)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
                 ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),user.id)
                 dataAttendances.body.forEach(async attendance=>{
