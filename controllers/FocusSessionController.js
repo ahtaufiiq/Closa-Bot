@@ -363,7 +363,7 @@ class FocusSessionController {
     static async handleStartFocusSession(interaction,userId,focusRoomUser,taskId,ProjectId,listFocusRoom){
         await FocusSessionController.updateProjectId(taskId,ProjectId)
         const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(userId)
-        if(focusRoomUser[userId]){
+        if(focusRoomUser[userId]?.joinedChannelId){
             focusRoomUser[userId].threadId = interaction.channelId
             if(FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
                 const msgReply = await interaction.editReply('.')

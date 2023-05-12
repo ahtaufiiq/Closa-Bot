@@ -36,6 +36,8 @@ const CoworkingController = require("../controllers/CoworkingController");
 const CoworkingMessage = require("../views/CoworkingMessage");
 const InfoUser = require("../helpers/InfoUser");
 const ReminderController = require("../controllers/ReminderController");
+const MessageComponent = require("../helpers/MessageComponent");
+const { ButtonStyle } = require("discord.js");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -89,6 +91,11 @@ module.exports = {
 						}
 						CoworkingController.handleStartCoworkingTimer(interaction.user.id,interaction.message.channelId,listFocusRoom,interaction.client)
 						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
+						interaction.message.edit({
+							components:[MessageComponent.createComponent(
+								MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
+							)]
+						})
 						break
 					case 'assignNewHost':
 						let minuteToHost = 5

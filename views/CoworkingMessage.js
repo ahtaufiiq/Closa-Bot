@@ -16,7 +16,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('scheduleCoworking','Schedule','🗓️'),
-                // MessageComponent.addLinkButton('Learn more','')
+                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Daily-Coworking-80775e46f7c8440ca4b48062a6df9445')
             )]
         }
     }
@@ -294,7 +294,17 @@ Feel free to take group photo 📸 & tag \`\`@joinclosa\`\` & your friends to ce
     static cannotStartTimer(){
         return `⚠️ **Can't start room timer**
 
-Set you ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}, join voice, & turn-on video or sharescreen to start your room timer.`
+Set your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}, join voice, & turn-on video or sharescreen to start your room timer.`
+    }
+
+    static notifySessionJustStarted(userId,hostname,voiceRoomId){
+        return `Hi ${MessageFormatting.tagUser(userId)}, your session with ${hostname} just started.
+Let's join the session:
+1. Write a specific task on ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
+2. Select your project inside your tasks thread.
+3. Join the → ${MessageFormatting.tagChannel(voiceRoomId)}
+4. Turn on camera \`\`OR\`\` share screen to track your time.
+5. Mute your mic (during focus time).`
     }
 }
 module.exports = CoworkingMessage
