@@ -508,9 +508,21 @@ class CoworkingController {
                         clearInterval(countdownAssignNewHost)
                         voiceChannel.delete()
                         supabase.from("CoworkingEvents")
-                            .delete()
-                            .eq('id',eventId)
-                            .then()
+                        .delete()
+                        .eq('id',eventId)
+                        .then()
+
+                        const channelUpcomingSession = ChannelController.getChannel(client,CHANNEL_UPCOMING_SESSION)
+                        const [msgEvent,threadEvent] = await Promise.all([
+                            ChannelController.getMessage(
+                                channelUpcomingSession,eventId
+                            ),
+                            ChannelController.getThread(
+                                channelUpcomingSession,eventId
+                            )
+                        ])
+                        msgEvent.delete()
+                        threadEvent.delete()
                     }
                 }, Time.oneMinute());
             }
@@ -569,7 +581,9 @@ class CoworkingController {
         CoworkingController.isHostCoworking(userId,joinedChannelId)
             .then(async dataEvent=>{
                 if(dataEvent.body){
-                    const {rules,totalMinute} = dataEvent.body
+
+                    const {id,rules,totalMinute,voiceRoomName} = dataEvent.body
+                    const hostname = voiceRoomName.split('—')[1]
                     supabase.from("CoworkingEvents")
                         .update({status:'live'})
                         .eq('voiceRoomId',joinedChannelId)
@@ -607,6 +621,19 @@ class CoworkingController {
                                 }
                             }, Time.oneMinute());
                         })
+
+                        //notify session just started to attendee who booked the session & haven't joined yet to join the session:
+                        supabase.from("CoworkingEvents")
+                            .select()
+                            .eq('EventId',id)
+                            .is('alreadyJoined',false)
+                            .then(data=>{
+                                data.body.forEach(attendance=>{
+                                    ChannelController.sendToNotification(
+                                        client,CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),attendance.UserId
+                                    )
+                                })
+                            })
                 }
             })
     }
