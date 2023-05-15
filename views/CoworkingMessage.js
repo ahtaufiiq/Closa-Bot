@@ -150,18 +150,18 @@ Let's get ready & join <#${CHANNEL_CLOSA_CAFE}>
 ${MessageFormatting.linkToEvent(eventId)}`
     }
 
-    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
+    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname){
         if(hostname){
             return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with ${hostname} is about to start.
 
 Let's get ready & join the voice room: 
-→ ${MessageFormatting.linkToMessage(channelId,msgId)}`
+→ ${MessageFormatting.linkToChannel(channelId)}`
         }else{
             return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session is about to start.
 
 Let's get ready:
 join the voice room & follow the guidelines to host your session: 
-→ ${MessageFormatting.linkToMessage(channelId,msgId)}`
+→ ${MessageFormatting.linkToChannel(channelId)}`
         }
     }
 
@@ -171,7 +171,7 @@ join the voice room & follow the guidelines to host your session:
 
 **Preparation** (__for host & guests__)
 1. Join voice & say hi!
-2. Write 1 specific task here → #session-goals
+2. Write 1 specific task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
 3. Follow the closa bot until your time tracker running.
 
 **Kick-off the session** (__for host__):
@@ -299,12 +299,17 @@ Set your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}, join voice, & tu
 
     static notifySessionJustStarted(userId,hostname,voiceRoomId){
         return `Hi ${MessageFormatting.tagUser(userId)}, your session with ${hostname} just started.
-Let's join the session:
-1. Write a specific task on ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
-2. Select your project inside your tasks thread.
-3. Join the → ${MessageFormatting.tagChannel(voiceRoomId)}
-4. Turn on camera \`\`OR\`\` share screen to track your time.
-5. Mute your mic (during focus time).`
+join the your session room → ${MessageFormatting.tagChannel(voiceRoomId)}`
+    }
+
+    static scheduleNextSession(userId){
+        return {
+            content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you have a great session today!
+let's schedule your next session to stay consistent &  ✦`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`scheduleNextSession_${userId}`,'Schedule next session','✨')
+            )]
+        }
     }
 }
 module.exports = CoworkingMessage
