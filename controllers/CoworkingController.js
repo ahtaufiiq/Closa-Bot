@@ -596,7 +596,7 @@ class CoworkingController {
             let currentMin = totalMinute
             const voiceChat = await ChannelController.getChannel(interaction.client,joinedChannelId)
             const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
-            interaction.editReply(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
+            voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
                 .then(msg=>{
                     const countdownCoworkingSession = setInterval(() => {
                         currentMin--
