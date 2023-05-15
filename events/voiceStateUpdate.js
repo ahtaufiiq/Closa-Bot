@@ -193,8 +193,8 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 							})
 					}
 					setTimeout(() => {
-						let {selfVideo,streaming,threadId,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
-						if(oldTimestamp !== timestamp) return
+						let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
+						
 						if ((selfVideo || streaming) && threadId) {
 							reject('user already open camera or sharescreen and set session goal')
 						}else{
