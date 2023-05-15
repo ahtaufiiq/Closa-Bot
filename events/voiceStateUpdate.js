@@ -72,7 +72,7 @@ module.exports = {
 					newMember.disconnect()
 				})
 				.catch((err)=>{
-					focusRoomUser[userId].status = 'done'
+					if(focusRoomUser[userId]) focusRoomUser[userId].status = 'done'
 				})
 				supabase.from('FocusSessions')
 					.select()
@@ -99,7 +99,7 @@ module.exports = {
 								newMember.disconnect()	
 							})
 							.catch(()=>{
-								focusRoomUser[userId].status = 'done'
+								if(focusRoomUser[userId]) focusRoomUser[userId].status = 'done'
 							})
 					}
 				}else if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
