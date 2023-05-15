@@ -80,7 +80,6 @@ then **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get 
 your time tracker will automatically start right after.`
         }else{
             return `hi ${MessageFormatting.tagUser(userId)}, now please **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
-
 your time tracker will automatically start right after.`
         }
     }
