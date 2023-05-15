@@ -252,6 +252,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
 please do it within **2 min** before you get auto-kick from the room.`
         }else{
             return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
+            
 1. ${firstStep}
 2. **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
 
