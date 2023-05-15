@@ -237,11 +237,11 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
     }
 
     static askToWriteSessionGoal(userId){
-        return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
+        return `hi ${MessageFormatting.tagUser(userId)}, write 1 specific task to start your session → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
     }
 
     static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){
-        let firstStep = `set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task `
+        let firstStep = `write 1 specific task → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
         if(statusSetSessionGoal === 'setDailyWorkTime') firstStep = '**please select daily work time above**'
         else if(statusSetSessionGoal === 'selectProject') firstStep = '**please select the project above**'
 
