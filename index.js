@@ -1,6 +1,6 @@
 const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js')
 const fs = require('fs')
-const { TOKEN, SENTRY_DSN} = require('./helpers/config');
+const { TOKEN, SENTRY_DSN, CHANNEL_CLOSA_CAFE} = require('./helpers/config');
 const Sentry = require('@sentry/node')
 const Tracing = require('@sentry/tracing')
 const {ProfilingIntegration} = require('@sentry/profiling-node')
@@ -37,14 +37,16 @@ const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'
 
 const focusRoomUser = {
 }
-
+const listFocusRoom = {
+	[CHANNEL_CLOSA_CAFE]:true
+}
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}else {
-		if(file === 'interactionCreate.js' || file === 'voiceStateUpdate.js' || file === 'ready.js'){
-			client.on(event.name, (...args) => event.execute(...args,focusRoomUser));
+		if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'voiceStateUpdate.js' || file === 'ready.js'){
+			client.on(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
 		}else{
 			client.on(event.name, (...args) => event.execute(...args));
 		}

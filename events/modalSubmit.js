@@ -93,6 +93,7 @@ module.exports = {
 							.eq('referralCode',referralCode)
 							.then()
 					await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
+					await MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 
 					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
 					const referrer = await MemberController.getMember(modal.client,response.ownedBy)
@@ -111,7 +112,6 @@ module.exports = {
 						.eq('id',modal.user.id)
 						.then()
 						
-					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 					GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
 					await Promise.all([
 						ReferralCodeController.addNewReferral(modal.user.id,3),
@@ -475,15 +475,20 @@ The correct format:
 						}else{
 							CoworkingController.remindFiveMinutesBeforeCoworking(modal.client,fiveMinutesBefore,msg.id)
 						}
-						await supabase.from("Reminders")
-							.delete()
-							.eq('message',msg.id)
-							
 						supabase.from("Reminders")
-							.insert([
-								{ message:msg.id, time:fiveMinutesBefore, type:'fiveMinutesBeforeCoworking'},
-								{ message:msg.id, time:coworkingDate, type:'CoworkingEvent'}
-							]).then()
+							.update({
+								time:fiveMinutesBefore
+							})
+							.eq('message',msg.id)
+							.eq('type','fiveMinutesBeforeCoworking')
+							.then()
+						supabase.from("Reminders")
+							.update({
+								time:coworkingDate
+							})
+							.eq('message',msg.id)
+							.eq('type','CoworkingEvent')
+							.then()
 					}
 
 				})

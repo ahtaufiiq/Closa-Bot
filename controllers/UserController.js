@@ -70,6 +70,14 @@ class UserController{
 		if(data[user.id]) return data[user.id]
 		else return user.username
 	}
+
+	static async updateLastActive(userId){
+		return await supabase.from("Users")
+			.update({
+				lastActive:Time.getTodayDateOnly()
+			})
+			.eq('id',userId)
+	}
 }
 
 module.exports = UserController

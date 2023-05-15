@@ -22,7 +22,7 @@ const FocusSessionController = require('../controllers/FocusSessionController');
 module.exports = {
 	name: 'ready',
 	once: true,
-	async execute(client,focusRoomUser) {
+	async execute(client,focusRoomUser,listFocusRoom) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")

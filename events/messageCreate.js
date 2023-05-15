@@ -30,7 +30,7 @@ const MemberController = require("../controllers/MemberController");
 
 module.exports = {
 	name: 'messageCreate',
-	async execute(msg) {
+	async execute(msg,focusRoomUser) {
 		if(msg.author.bot) {
 			if(msg.channelId === CHANNEL_PAYMENT) {
 				await ChannelController.createThread(msg,'Sign Up')
@@ -68,6 +68,9 @@ module.exports = {
 				FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
 					.then(data=>{
 						threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,data.body.id))
+						if(!focusRoomUser[msg.author.id]) focusRoomUser[msg.author.id] = {}
+						focusRoomUser[msg.author.id].threadId = msg.id
+						focusRoomUser[msg.author.id].statusSetSessionGoal = 'selectProject'
 					})
 				break;
 			case CHANNEL_HIGHLIGHT:

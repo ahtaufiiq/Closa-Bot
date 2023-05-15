@@ -1,4 +1,4 @@
-const { GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, CHANNEL_WEEKLY_SCYNC_CATEGORY } = require("../helpers/config");
+const { GUILD_ID, CATEGORY_CHAT, CHANNEL_PARTY_ROOM, CHANNEL_WEEKLY_SCYNC_CATEGORY, CHANNEL_CLOSA_CAFE } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const ChannelController = require("./ChannelController");
 const MemberController = require("./MemberController");
@@ -523,6 +523,82 @@ class RecurringMeetupController {
 	static formatTagPartyMembers(members){
 		if(!members || members?.length === 0) return '@everyone'
 		else return members.map(member=>MessageFormatting.tagUser(member.UserId))
+	}
+
+	static handleVoiceRoomWeeklySync(newMember,meetup,userId){
+		if(newMember?.channel?.name.includes("Party")){
+			const channelId = newMember.channel.id
+			const partyId = newMember.channel.name.split(' ')[1]
+			if(!meetup[channelId]) meetup[channelId] = {}
+			if (!meetup[channelId][userId]) {
+				meetup[channelId][userId] = "Join"
+				supabase.from("WeeklyMeetups")
+					.update({isAttendMeetup:true})
+					.eq("UserId",userId)
+					.eq("PartyRoomId",partyId)
+					.gte("meetupDate",new Date().toUTCString())
+					.then()
+			}
+			if(newMember.channel.members.size >= 2 && !meetup[channelId].status){
+				meetup[channelId].status = 'start'
+				supabase.from("PartyRooms")
+					.select('msgId')
+					.eq('id',partyId)
+					.single()
+					.then(async data=>{
+						const channelParty = ChannelController.getChannel(newMember.client,CHANNEL_PARTY_ROOM)
+						const threadParty = await ChannelController.getThread(channelParty,data.body.msgId)
+						const dataParty = await supabase.from("PartyRooms")
+							.select()
+							.eq('id',partyId)
+							.single()
+						const voiceChannelId = dataParty.body.voiceChannelId
+						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
+						let totalExtendTime = 0
+						let minutes = 30
+
+						Promise.all([
+							threadParty.send(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId)),
+							voiceChannel.send(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+						])
+						.then(([msgThreadParty,msgVoiceChat])=>{
+							const timerMeetup = setInterval(async () => {
+								if(minutes <= 5){
+									const temporaryVoice = await supabase.from("TemporaryVoices")
+										.select()
+										.eq('id',voiceChannelId)
+										.single()
+									const extendTime = temporaryVoice.body?.extendTime
+									if(extendTime){
+										minutes += extendTime
+										totalExtendTime += extendTime
+										RecurringMeetupController.resetExtendTime(voiceChannelId)
+										msgVoiceChat.reply(RecurringMeetupMessage.successExtendTime(extendTime))
+									}
+								}
+								if (minutes > 0) {
+									minutes--
+									msgThreadParty.edit(RecurringMeetupMessage.countdownMeetup(minutes,voiceChannelId))
+									msgVoiceChat.edit(RecurringMeetupMessage.countdownMeetupVoiceChat(minutes))
+								}
+								if (minutes === 0) {
+									voiceChannel.send(RecurringMeetupMessage.reminderFifteenSecondsBeforeEnded())
+									setTimeout(async () => {
+										if(voiceChannel?.id !== CHANNEL_CLOSA_CAFE) await voiceChannel.delete()
+										delete meetup[channelId]
+										RecurringMeetupController.updateTotalExtendTime(voiceChannelId,totalExtendTime)
+									}, 1000 * 15);
+									clearInterval(timerMeetup)
+								}else if(minutes === 2){
+									voiceChannel.send(RecurringMeetupMessage.reminderTwoMinutesBeforeEnded())
+								}else if(minutes === 5){
+									voiceChannel.send(RecurringMeetupMessage.reminderFiveMinutesBeforeEnded(voiceChannelId))
+								}
+							}, 1000 * 60);
+						})
+					})
+			}
+		}
 	}
 }
 

@@ -8,6 +8,8 @@ const UserController = require("./UserController");
 const MemberController = require("./MemberController");
 const InfoUser = require("../helpers/InfoUser");
 const { ChannelType } = require("discord.js");
+const { CHANNEL_SESSION_GOAL } = require("../helpers/config");
+const CoworkingController = require("./CoworkingController");
 class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser){
@@ -148,11 +150,15 @@ class FocusSessionController {
         return (totalTime + totalTimeToday) === dailyWorkTime
     }
 
-    static async insertFocusSession(UserId,taskName,ProjectId,threadId){
-        await supabase.from('FocusSessions')
+    static async deleteFocusSession(UserId){
+        return await supabase.from('FocusSessions')
         .delete()
         .eq('UserId',UserId)
         .is('session',null)
+    }
+
+    static async insertFocusSession(UserId,taskName,ProjectId,threadId){
+        await FocusSessionController.deleteFocusSession(UserId)
 
         return await supabase.from('FocusSessions')
             .insert({
@@ -328,6 +334,47 @@ class FocusSessionController {
         }
 
         return totalTime
+    }
+
+    static async startFocusTimer(client,threadId,userId,focusRoomUser){
+        FocusSessionController.setCoworkingPartner(userId)
+        const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
+        const thread = await ChannelController.getThread(channel,threadId)
+        focusRoomUser[userId].threadId = threadId
+        if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId) ){
+            const data = await FocusSessionController.getDetailFocusSession(userId)
+            const taskName = data?.taskName
+            const projectName = data?.Projects?.name
+            thread.send(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
+            .then(async msgFocus=>{
+                FocusSessionController.updateMessageFocusTimerId(userId,msgFocus.id)
+                FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
+            })
+            focusRoomUser[userId].firstTime = false
+        }
+    }
+
+    static isValidToStartFocusTimer(focusRoomUser,userId){
+        if(!focusRoomUser[userId]) return false
+        let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal} = focusRoomUser[userId]
+        return (selfVideo || streaming) && firstTime && threadId && statusSetSessionGoal === 'done'
+    }
+
+    static async handleStartFocusSession(interaction,userId,focusRoomUser,taskId,ProjectId,listFocusRoom){
+        await FocusSessionController.updateProjectId(taskId,ProjectId)
+        const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(userId)
+        if(focusRoomUser[userId]?.joinedChannelId){
+            focusRoomUser[userId].threadId = interaction.channelId
+            if(FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
+                const msgReply = await interaction.editReply('.')
+                ChannelController.deleteMessage(msgReply)
+                FocusSessionController.startFocusTimer(interaction.client,interaction.channelId,userId,focusRoomUser)
+            }else{
+                await interaction.editReply(FocusSessionMessage.startFocusSession(userId,haveCoworkingEvent?.voiceRoomId,true))
+            }
+        }else{
+            await interaction.editReply(FocusSessionMessage.startFocusSession(userId,haveCoworkingEvent?.voiceRoomId))
+        }
     }
 }
 

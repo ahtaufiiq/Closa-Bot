@@ -36,9 +36,11 @@ const CoworkingController = require("../controllers/CoworkingController");
 const CoworkingMessage = require("../views/CoworkingMessage");
 const InfoUser = require("../helpers/InfoUser");
 const ReminderController = require("../controllers/ReminderController");
+const MessageComponent = require("../helpers/MessageComponent");
+const { ButtonStyle } = require("discord.js");
 module.exports = {
 	name: 'interactionCreate',
-	async execute(interaction,focusRoomUser) {
+	async execute(interaction,focusRoomUser,listFocusRoom) {
 		try {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {
@@ -68,7 +70,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -81,6 +83,47 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case 'startCoworkingRoom':
+						const coworkingEvent = await CoworkingController.getCoworkingEvent(value)
+						if(coworkingEvent.body?.HostId !== interaction.user.id) return await interaction.editReply('⚠️ only host can start room timer')
+						if(!CoworkingController.isValidToStartCoworkingTimer(focusRoomUser,interaction.user.id)){
+							return await interaction.editReply(CoworkingMessage.cannotStartTimer())
+						}
+						CoworkingController.handleStartCoworkingTimer(interaction.user.id,interaction.message.channelId,listFocusRoom,interaction.client)
+						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
+						interaction.editReply('room timer just started')
+						interaction.message.edit({
+							components:[MessageComponent.createComponent(
+								MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
+							)]
+						})
+						break
+					case 'assignNewHost':
+						let minuteToHost = 5
+						await CoworkingController.updateHostId(interaction.user.id,value)
+						const msgNewHost = await interaction.editReply(CoworkingMessage.selectedNewHostCoworking(interaction.user.id,minuteToHost))
+						const countdownNewHost = setInterval(async () => {
+							minuteToHost--
+							const coworkingEventIsLive = await CoworkingController.coworkingEventIsLive(value)
+							if(coworkingEventIsLive){
+								ChannelController.deleteMessage(msgNewHost)
+								return clearInterval(countdownNewHost)
+							}
+							msgNewHost.edit(CoworkingMessage.selectedNewHostCoworking(interaction.user.id,minuteToHost))
+							if(minuteToHost === 0){
+								const event = await CoworkingController.getCoworkingEvent(value)
+								const {id,voiceRoomId} = event.body
+								const voiceRoom = ChannelController.getChannel(interaction.client,voiceRoomId)
+								if(voiceRoom) voiceRoom.delete()
+								const channelUpcomingSession = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
+								const msgEvent = await ChannelController.getMessage(channelUpcomingSession,id)
+								if(msgEvent) msgEvent.delete()
+								const threadEvent = await ChannelController.getThread(channelUpcomingSession,id)
+								if(threadEvent) threadEvent.delete()
+							}
+						}, Time.oneMinute());
+						ChannelController.deleteMessage(interaction.message)
+						break;
 					case 'showGuidelineCoworking':
 						interaction.editReply(CoworkingMessage.guidelineCoworking())
 						break;
@@ -97,7 +140,7 @@ module.exports = {
 							supabase.from("CoworkingAttendances")
 								.delete()
 								.eq('id',dataAttendance.body.id)
-								.then(data=>{
+								.then(()=>{
 									CoworkingController.updateCoworkingMessage(interaction.message)
 								})
 							msg.delete()
@@ -108,22 +151,29 @@ module.exports = {
 						break;
 					case "bookCoworking":
 						if(targetUserId === interaction.user.id) return interaction.editReply("⚠️ Can't book your own coworking event")
+						const isAlreadyBookCoworkingEvent = await CoworkingController.isAlreadyBookCoworkingEvent(interaction.user.id,interaction.message.id)
+						if(isAlreadyBookCoworkingEvent) return interaction.editReply('you already booked this event')
 						interaction.editReply("you're in ✅ ")
 						const threadCoworking = await ChannelController.getThread(
 							ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION),
 							interaction.message.id
 						)
+						supabase.from("CoworkingEvents")
+							.select('voiceRoomId')
+							.eq('id',interaction.message.id)
+							.single()
+							.then(data=>{
+								let {voiceRoomId} = data.body
+								if(voiceRoomId){
+									CoworkingController.updateFocusRoom(interaction.client,interaction.user,voiceRoomId)
+								}
+							})
 						threadCoworking.send(`${interaction.user} will attend the session`)
 							.then(msg=>{
 								supabase.from("CoworkingAttendances")
 									.insert({id:msg.id,UserId:interaction.user.id,EventId:interaction.message.id,avatarUrl:InfoUser.getAvatar(interaction.user)})
 									.then(()=>{
 										CoworkingController.updateCoworkingMessage(interaction.message)
-									})
-								CoworkingController.getCoworkingEvent(interaction.message.id)
-									.then(data=>{
-										const coworkingDate = new Date(data.body.time)
-										CoworkingController.addReminderCoworkingEvent(coworkingDate,interaction.user.id,interaction.message.id)
 									})
 							})
 						
@@ -592,9 +642,9 @@ module.exports = {
 							.eq('id',interaction.user.id)
 							.then()
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
-						await FocusSessionController.updateProjectId(taskId,projectId)
-						await interaction.channel.send(FocusSessionMessage.startFocusSession(interaction.user))
+						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
+						focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
 						break;
 					case 'selectProject':
 						if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})
@@ -610,10 +660,10 @@ module.exports = {
 							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
 							if (dataUser.body?.dailyWorkTime) {
-								await FocusSessionController.updateProjectId(value,valueMenu)
-								const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(interaction.user.id)
-								await interaction.editReply(FocusSessionMessage.startFocusSession(interaction.user,haveCoworkingEvent?.voiceRoomId))
+								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
+								FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,value,valueMenu,listFocusRoom)
 							}else{
+								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'setDailyWorkTime'
 								await interaction.editReply(
 									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.body?.id)
 								)

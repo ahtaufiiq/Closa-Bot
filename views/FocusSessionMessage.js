@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js")
-const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_SESSION_GOAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -72,19 +72,17 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     }
 
-    static startFocusSession(author,voiceRoomId){
-        return `**Hi ${author}, follow the steps below to start your session: **
+    static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
+        if(isAlreadyJoinVoiceChannel){
+            return `hi ${MessageFormatting.tagUser(userId)}, now please **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
+            
+your time tracker will automatically start right after.`
+        }else{
+            return `hi ${MessageFormatting.tagUser(userId)}, now please join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
 
-1. Join → <#${voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE}>
-2. turn on __video __ \`\`OR\`\` __sharescreen __to track work time.
-3. Mute your mic during focus time.
-
-**Having a trouble? try one of these:**
-\`\`\`
-• Try to turn-off then turn-on either your video or sharescreen.
-• Make sure to write #session-goals first & then select your project before step 1.
-\`\`\``
-
+then **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
+your time tracker will automatically start right after.`
+        }
     }
 
     static messageTimer({focusTime,breakTime,totalTime,isFocus,dailyWorkTime,totalTimeToday},taskName,projectName,userId,isLive=true){
@@ -133,7 +131,7 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
         }
 
         return {
-            content:`**Select the project you want to work on** ${MessageFormatting.tagUser(userId)}`,
+            content:`Select the project you want to work on ${MessageFormatting.tagUser(userId)}`,
             components
         }
     }
@@ -184,7 +182,9 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
 
     static messageBreakTime(time,userId){
         return {
-            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**`,
+            content:`Your break has started ${MessageFormatting.tagUser(userId)}: **${Time.convertTime(time,'short')}** — **LIVE :red_circle:**
+            
+please keep your \`\`video\`\` or \`\`sharescreen\`\` **ON** to stay accountable.`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`continueFocus_${userId}`,'Continue Focus','⏱'),
                 MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_addBreak`,'5 min more','☕'),
@@ -233,6 +233,30 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
             embeds:[
                 FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
             ]
+        }
+    }
+
+    static askToWriteSessionGoal(userId){
+        return `hi ${MessageFormatting.tagUser(userId)}, write 1 specific task to start your session → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
+    }
+
+    static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){
+        let firstStep = `write 1 specific task → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
+        if(statusSetSessionGoal === 'setDailyWorkTime') firstStep = '**please select daily work time above**'
+        else if(statusSetSessionGoal === 'selectProject') firstStep = '**please select the project above**'
+
+        if(alreadySetSessionGoal){
+        return `Hi ${MessageFormatting.tagUser(userId)}, please do one of these following:
+**turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
+
+please do it within **2 min** before you get auto-kick from the room.`
+        }else{
+            return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
+            
+1. ${firstStep}
+2. **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
+
+please do it within **2 min** before you get auto-kick from the room.`
         }
     }
 }

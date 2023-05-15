@@ -19,9 +19,11 @@ module.exports = {
 			.then()
 		const message = await ChannelController.getMessage(channelNotifications,data.body.notificationId)
 		message.delete()
-		const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notificationId)
-		thread.delete()
+		if(data.body.notificationId){
+			const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notificationId)
+			thread.delete()
+			GuidelineInfoController.deleteData(member.user.id)
+		}
 
-		GuidelineInfoController.deleteData()
 	},
 };

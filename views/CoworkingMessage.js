@@ -16,7 +16,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('scheduleCoworking','Schedule','🗓️'),
-                // MessageComponent.addLinkButton('Learn more','')
+                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Daily-Coworking-80775e46f7c8440ca4b48062a6df9445')
             )]
         }
     }
@@ -30,11 +30,13 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         endDate.setMinutes(endDate.getMinutes()+totalMinute)
         const availableSlot = totalSlot - 1 //author
         const spotLeft = availableSlot - totalAttendance
+        const isFull = totalAttendance >= availableSlot
         if(totalAttendance === 0){
             footer = ` · ${availableSlot} spots left `
-        }else if(availableSlot === totalAttendance){
+        }else if(isFull){
             if(totalAttendance === 1) footer = ` and other `
             else footer = ` and ${totalAttendance} others `
+            footer += '• room full'
         }else{
             if(totalAttendance === 1) footer = ` and other · ${spotLeft} spot${spotLeft > 1 ? 's':''} left`
             else footer = ` and ${totalAttendance} others · ${spotLeft} spot${spotLeft > 1 ? 's':''} left`
@@ -52,7 +54,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
         if(!isLive){
             if(link){
                 components.push(MessageComponent.createComponent(
-                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,isFull ? 'Full':'Book').setDisabled(isFull),
                     MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓'),
                     MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
                     MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
@@ -60,7 +62,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
                 ))
             }else{
                 components.push(MessageComponent.createComponent(
-                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,'Book'),
+                    MessageComponent.addButton(`bookCoworking_${author.id}_${eventId}`,isFull ? 'Full':'Book').setDisabled(isFull),
                     MessageComponent.addButton(`editCoworking_${author.id}_${eventId}`,'Edit',ButtonStyle.Secondary),
                     MessageComponent.addButton(`cancelBookCoworking_${author.id}_${eventId}`,'Cancel',ButtonStyle.Secondary),
                     // MessageComponent.addLinkButton('Learn more','')
@@ -149,32 +151,64 @@ ${MessageFormatting.linkToEvent(eventId)}`
     }
 
     static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
-        return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session${hostname?` with ${hostname}`:''} is about to start.
-Let's get ready:
+        if(hostname){
+            return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with ${hostname} is about to start.
 
-join the voice room & follow the guidelines ${hostname ? 'from your host' : 'to host your session'}: 
+Let's get ready & join the voice room: 
+→ ${MessageFormatting.linkToChannel(channelId)}`
+        }else{
+            return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session is about to start.
+
+Let's get ready:
+join the voice room & follow the guidelines to host your session: 
 → ${MessageFormatting.linkToMessage(channelId,msgId)}`
+        }
     }
 
-    static howToStartSession(HostId,min=10){
+    static howToStartSession(HostId,EventId,min=5){
         return {
-            content:`:arrow_upper_right: **Start your session or Invite your friends** ${MessageFormatting.tagUser(HostId)}
-${min > 0 ? `\n**⏳ ${min} min** remaining to start the session
-or this room will auto-delete.\n`:''}
-**How to start the session?👨‍💻👩‍💻 **
-1. Write the task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
-2. Select your project inside the tasks thread.
-3. __Turn on camera__\`\` OR \`\`__sharescreen__ to start session & track time.
-4. Mute your mic (during focus session).
+            content:`👨‍💻👩‍💻 **Start your session or Invite your friends first** ${MessageFormatting.tagUser(HostId)}
 
-\`\`Troubleshoot\`\` 
-*turn-off & turn-on your video __or__ sharescreen if the time tracker didn't start*`,
+**Preparation** (__for host & guests__)
+1. Join voice & say hi!
+2. Write 1 specific task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
+3. Follow the closa bot until your time tracker running.
+
+**Kick-off the session** (__for host__):
+1. Make sure everyone turn-on video or sharescreen.
+2. When everyone is ready—start the room timer.
+3. Mute your mic (during focus session).
+
+**Enjoy your productive session!**
+\`\`note\`\`: *this room will auto-delete once the room timer ended.*
+
+${min > 0 ? `Waiting for host to start the session:
+⏳ **${min} min** or a new host will be assigned.`:""}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton('showGuidelineCoworking','Guideline','💡',ButtonStyle.Secondary)
+                    MessageComponent.addEmojiButton(`startCoworkingRoom_null_${EventId}`,'Start Room Timer','⏱️',ButtonStyle.Success),
+                    MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
                 )
             ]
         }
+    }
+
+    static askNewHostCoworking(min,eventId){
+        return {
+            content: `One person need to become the new **host** to facilitate the session.
+waiting for a new host **${min} min** :hourglass_flowing_sand:`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`assignNewHost_null_${eventId}`,'Assign me','🤝')
+            )]
+        }
+    }
+
+    static selectedNewHostCoworking(userId,min){
+        return `${MessageFormatting.tagUser(userId)} assigned as a host.
+Please start the room timer within **${min} min** :hourglass_flowing_sand:
+or the room will auto-delete. 
+
+Follow the guideline above.`
     }
 
     static guidelineCoworking(){
@@ -254,6 +288,27 @@ let's celebrate together & share your ${MessageFormatting.tagChannel(CHANNEL_TOD
 Feel free to take group photo 📸 & tag \`\`@joinclosa\`\` & your friends to celebrate together ✨`
             default:
                 return `\`\`15s\`\` It's time say good bye to @here!👋`
+        }
+    }
+
+    static cannotStartTimer(){
+        return `⚠️ **Can't start room timer**
+
+Set your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}, join voice, & turn-on video or sharescreen to start your room timer.`
+    }
+
+    static notifySessionJustStarted(userId,hostname,voiceRoomId){
+        return `Hi ${MessageFormatting.tagUser(userId)}, your session with ${hostname} just started.
+join the your session room → ${MessageFormatting.tagChannel(voiceRoomId)}`
+    }
+
+    static scheduleNextSession(userId){
+        return {
+            content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you have a great session today!
+let's schedule your next session to stay consistent &  ✦`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`scheduleNextSession_${userId}`,'Schedule next session','✨')
+            )]
         }
     }
 }
