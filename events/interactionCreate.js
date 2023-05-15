@@ -70,7 +70,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'startCoworkingRoom' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -89,14 +89,15 @@ module.exports = {
 						if(!CoworkingController.isValidToStartCoworkingTimer(focusRoomUser,interaction.user.id)){
 							return await interaction.editReply(CoworkingMessage.cannotStartTimer())
 						}
-						CoworkingController.handleStartCoworkingTimer(interaction.user.id,interaction.message.channelId,listFocusRoom,interaction.client)
-						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
-						interaction.editReply('room timer just started')
-						interaction.message.edit({
+						await interaction.message.edit({
 							components:[MessageComponent.createComponent(
 								MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
 							)]
 						})
+						CoworkingController.handleStartCoworkingTimer(interaction,listFocusRoom)
+						
+						interaction.editReply('room timer just started')
+						focusRoomUser[interaction.user.id].firstTimeCoworkingTimer = false
 						break
 					case 'assignNewHost':
 						let minuteToHost = 5
