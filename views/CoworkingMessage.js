@@ -165,7 +165,10 @@ join the voice room & follow the guidelines to host your session:
         }
     }
 
-    static howToStartSession(HostId,EventId,min=5){
+    static howToStartSession(HostId,EventId,min=5,isLive=false){
+        const buttons = []
+        if(!isLive) buttons.push(MessageComponent.addEmojiButton(`startCoworkingRoom_null_${EventId}`,'Start Room Timer','⏱️',ButtonStyle.Success))
+        buttons.push(MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary))
         return {
             content:`👨‍💻👩‍💻 **Start your session or Invite your friends first** ${MessageFormatting.tagUser(HostId)}
 
@@ -186,8 +189,7 @@ ${min > 0 ? `Waiting for host to start the session:
 ⏳ **${min} min** or a new host will be assigned.`:""}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addEmojiButton(`startCoworkingRoom_null_${EventId}`,'Start Room Timer','⏱️',ButtonStyle.Success),
-                    MessageComponent.addEmojiButton('showGuidelineCoworking','Learn more','💡',ButtonStyle.Secondary)
+                    ...buttons
                 )
             ]
         }

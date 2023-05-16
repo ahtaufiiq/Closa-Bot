@@ -489,7 +489,7 @@ class CoworkingController {
             const coworkingEventIsLive = await CoworkingController.coworkingEventIsLive(eventId)
             if(coworkingEventIsLive){
                 clearInterval(countdownStartSession)
-                return msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,0))
+                return msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,0,true))
             }
             msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,minuteToStartSession))
             if(minuteToStartSession === 0){
