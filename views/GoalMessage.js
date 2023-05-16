@@ -14,17 +14,12 @@ class GoalMessage {
 
 read this first → https://tinyurl.com/4azetzep
 
-\`\`Pro tips: for extra accountability\`\`
-• Set a goal that can be quantify—so you know how to win your game.
-• Put a hard deadline to add pressure stay motivated (6 weeks recommended).
-• Share your project goal thumbnail to public tag \`\`@joinclosa\`\`.
-
 best of luck!
 ✌️`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('startProject',"Start Project")
+                MessageComponent.addButton('startProject',"Start Project"),
+                MessageComponent.addLinkButton('Read me','https://tinyurl.com/4azetzep')
             )],
-            files:[]
         }
     }
     static askUserWriteGoal(dayLeft,userId){

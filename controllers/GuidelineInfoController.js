@@ -2,6 +2,7 @@ const { CHANNEL_NOTIFICATION } = require("../helpers/config")
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
 const GuidelineInfoMessage = require("../views/GuidelineInfoMessage")
+const OnboardingMessage = require("../views/OnboardingMessage")
 const ChannelController = require("./ChannelController")
 const ReferralCodeController = require("./ReferralCodeController")
 const UserController = require("./UserController")
@@ -11,9 +12,13 @@ class GuidelineInfoController {
     static async generateGuideline(client,userId,notificationId){
         const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
  
-        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,totalReferral} = await GuidelineInfoController.getData(userId)
+        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,totalReferral,onboardingStep} = await GuidelineInfoController.getData(userId)
+        let msgContent 
+        
+        if(onboardingStep) msgContent = OnboardingMessage.step(userId,onboardingStep)
+        else msgContent = GuidelineInfoMessage.guideline(userId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral)
 
-		const msgGuideline = await notificationThread.send(GuidelineInfoMessage.guideline(userId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
+		const msgGuideline = await notificationThread.send(msgContent)
 		GuidelineInfoController.addNewData(userId,msgGuideline.id)
     }
 
@@ -62,7 +67,7 @@ class GuidelineInfoController {
     static async getData(UserId){
         const [data, isHaveReferral,isHaveProfile,totalReferral] = await Promise.all([
             supabase.from("GuidelineInfos")
-                .select("*,Users(endMembership)")
+                .select("*,Users(endMembership,onboardingStep)")
                 .eq('UserId',UserId)
                 .single(),
             GuidelineInfoController.isHaveReferral(UserId),
@@ -72,7 +77,8 @@ class GuidelineInfoController {
         if(!data.body) return {isHaveReferral,isHaveProfile,totalReferral}
         
         const {id,showSubmitTestimonial,totalNotification} = data.body
-        let endMembership = data.body.Users.endMembership
+        let {endMembership,onboardingStep} = data.body.Users
+        if(onboardingStep !== 'done') return {onboardingStep,msgGuidelineId:id,}
         if(endMembership) endMembership = Time.getFormattedDate(Time.getDate(endMembership),false,'long')
 
         return {
@@ -95,10 +101,13 @@ class GuidelineInfoController {
     }
 
     static async updateMessageGuideline(client,UserId){
-        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral} = await GuidelineInfoController.getData(UserId)
+        const {isHaveReferral,isHaveProfile,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral,onboardingStep} = await GuidelineInfoController.getData(UserId)
         const threadNotification = await ChannelController.getNotificationThread(client,UserId)
         const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-        msg.edit(GuidelineInfoMessage.guideline(UserId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
+
+        if(onboardingStep) msg.edit(OnboardingMessage.step(UserId,onboardingStep))
+        else msg.edit(GuidelineInfoMessage.guideline(UserId,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
+        
     }
 
     static async updateAllGuideline(client){
@@ -112,19 +121,25 @@ class GuidelineInfoController {
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
             dataUser.body.forEach(async ({Users:{id,notificationId}})=>{
                 try {
-                    const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral} = await GuidelineInfoController.getData(id)
+                    const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral,onboardingStep} = await GuidelineInfoController.getData(id)
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
                     
                     GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
                     GuidelineInfoController.resetDataTotalNotification(id)
                     const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-                    msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
+
+                    if(onboardingStep) msg.edit(OnboardingMessage.step(id,onboardingStep))
+                    else msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
                 } catch (error) {
                     ChannelController.sendError(error,id)
                 }
 
             })
         })
+    }
+
+    static async incrementTotalNotification(total,UserId){
+        return await supabase.rpc('incrementTotalNotification', { x: total, row_id: UserId })
     }
 }
 

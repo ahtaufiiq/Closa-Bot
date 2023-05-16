@@ -2,7 +2,7 @@ const DailyReport = require('../controllers/DailyReport');
 const CoworkingController = require('../controllers/CoworkingController');
 const PointController = require('../controllers/PointController');
 const RequestAxios = require('../helpers/axios');
-const {CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_UPCOMING_SESSION} = require('../helpers/config');
+const {CHANNEL_SESSION_LOG, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_SESSION_GOAL, CHANNEL_TODO, CHANNEL_PARTY_ROOM, CHANNEL_UPCOMING_SESSION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROGRESS} = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const FocusSessionMessage = require('../views/FocusSessionMessage');
@@ -14,6 +14,9 @@ const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
 const UserController = require('../controllers/UserController');
 const CoworkingMessage = require('../views/CoworkingMessage');
+const OnboardingController = require('../controllers/OnboardingController');
+const MemberController = require('../controllers/MemberController');
+const OnboardingMessage = require('../views/OnboardingMessage');
 
 let closaCafe = {
 
@@ -137,6 +140,16 @@ module.exports = {
 						}
 						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
 						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
+
+						const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(oldMember.client,userId)
+						if(isHasRoleOnboardingCoworking){
+							MemberController.removeRole(oldMember.client,userId,ROLE_ONBOARDING_COWORKING)
+							MemberController.addRole(oldMember.client,userId,ROLE_ONBOARDING_PROGRESS)
+							setTimeout(() => {
+								ChannelController.sendToNotification(oldMember.client,OnboardingMessage.thirdQuest(userId),userId)
+								OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
+							}, Time.oneMinute());
+						}
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)

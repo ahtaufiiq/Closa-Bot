@@ -17,6 +17,7 @@ const SickDayController = require('../controllers/SickDayController');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 const CelebrationController = require('../controllers/CelebrationController');
 const FocusSessionController = require('../controllers/FocusSessionController');
+const OnboardingController = require('../controllers/OnboardingController');
 
 
 module.exports = {
@@ -26,7 +27,9 @@ module.exports = {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
-		
+
+		OnboardingController.reminderStartOnboarding(client)
+
 		FocusSessionController.continueFocusTimer(client,focusRoomUser)
 
 		GuidelineInfoController.updateAllGuideline(client)

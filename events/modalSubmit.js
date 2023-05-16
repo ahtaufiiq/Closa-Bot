@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -37,6 +37,8 @@ const CoworkingMessage = require("../views/CoworkingMessage");
 const CoworkingController = require("../controllers/CoworkingController");
 const { AttachmentBuilder } = require("discord.js");
 const GenerateImage = require("../helpers/GenerateImage");
+const OnboardingMessage = require("../views/OnboardingMessage");
+const OnboardingController = require("../controllers/OnboardingController");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -71,6 +73,7 @@ module.exports = {
 			}else if (commandButton === 'modalReferral') {
 				await modal.deferReply({ephemeral:true});
 				const referralCode = modal.getTextInputValue('referral');
+				console.log('masuk');
 				const [isEligibleToRedeemRederral,isFirstTimeRedeemReferral,response] = await Promise.all([
 					ReferralCodeController.isEligibleToRedeemRederral(modal.user.id),
 					ReferralCodeController.isFirstTimeRedeemReferral(modal.user.id),
@@ -87,12 +90,14 @@ module.exports = {
 					await modal.editReply(ReferralCodeMessage.cannotRedeemMoreThanOne());
 					return
 				}
+				console.log('response',response);
 				if (response.valid) {
 					supabase.from("Referrals")
 							.update({isRedeemed:true,redeemedBy:modal.user.id})
 							.eq('referralCode',referralCode)
 							.then()
 					await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
+					// await MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 
 					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
 					const referrer = await MemberController.getMember(modal.client,response.ownedBy)
@@ -103,21 +108,22 @@ module.exports = {
 					])
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
+					console.log('thread');
+					OnboardingController.welcomeOnboarding(modal.client,modal.user)
 
-					const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)
-					const msgNotification = await channelNotifications.send(`${modal.user}`)
-					supabase.from("Users")
-						.update({notificationId:msgNotification.id,type:'new member'})
-						.eq('id',modal.user.id)
-						.then()
+					// const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)
+					// const msgNotification = await channelNotifications.send(`${modal.user}`)
+					// supabase.from("Users")
+					// 	.update({notificationId:msgNotification.id,type:'new member'})
+					// 	.eq('id',modal.user.id)
+					// 	.then()
 						
-					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
-					GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
-					await Promise.all([
-						ReferralCodeController.addNewReferral(modal.user.id,3),
-						ChannelController.createThread(msgNotification,modal.user.username)
-					])
-					GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
+					// GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
+					// await Promise.all([
+					// 	ReferralCodeController.addNewReferral(modal.user.id,3),
+					// 	ChannelController.createThread(msgNotification,modal.user.username)
+					// ])
+					// GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
 				}else{
 					switch (response.description) {
 						case "redeemed":
@@ -145,6 +151,19 @@ module.exports = {
 					goal,about,project,shareProgressAt,deadlineGoal
 				})
 				ChannelController.deleteMessage(modal.message)
+
+				const isHasRoleOnboardingProject = await OnboardingController.isHasRoleOnboardingProject(modal.client,modal.user.id)
+				if(isHasRoleOnboardingProject){
+					MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
+					MemberController.addRole(modal.client,modal.user.id,ROLE_ONBOARDING_COWORKING)
+					MemberController.removeRole(modal.client,modal.user.id,ROLE_ONBOARDING_PROJECT)
+					setTimeout(() => {
+						ChannelController.sendToNotification(
+							modal.client,OnboardingMessage.secondQuest(modal.user.id),modal.user.id
+						)
+						OnboardingController.updateOnboardingStep(modal.client,modal.user.id,'secondQuest')
+					}, Time.oneMinute());
+				}
 			}else if(commandButton === "editGoal"){
 				await modal.deferReply({ephemeral:true})
 

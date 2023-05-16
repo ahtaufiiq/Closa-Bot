@@ -150,7 +150,7 @@ Let's get ready & join <#${CHANNEL_CLOSA_CAFE}>
 ${MessageFormatting.linkToEvent(eventId)}`
     }
 
-    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname){
+    static remindFiveMinutesBeforeCoworking(userId,channelId,hostname,msgId){
         if(hostname){
             return `Hi ${MessageFormatting.tagUser(userId)}, in 5 minutes your session with ${hostname} is about to start.
 
@@ -161,7 +161,7 @@ Let's get ready & join the voice room:
 
 Let's get ready:
 join the voice room & follow the guidelines to host your session: 
-→ ${MessageFormatting.linkToChannel(channelId)}`
+→ ${MessageFormatting.linkToMessage(channelId,msgId)}`
         }
     }
 
@@ -198,14 +198,14 @@ ${min > 0 ? `Waiting for host to start the session:
             content: `One person need to become the new **host** to facilitate the session.
 waiting for a new host **${min} min** :hourglass_flowing_sand:`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`assignNewHost_null_${eventId}`,'Assign me','🎙️')
+                MessageComponent.addEmojiButton(`assignNewHost_null_${eventId}`,'Assign me','🤝')
             )]
         }
     }
 
     static selectedNewHostCoworking(userId,min){
         return `${MessageFormatting.tagUser(userId)} assigned as a host.
-Please start the session within **${min} min** :hourglass_flowing_sand:
+Please start the room timer within **${min} min** :hourglass_flowing_sand:
 or the room will auto-delete. 
 
 Follow the guideline above.`

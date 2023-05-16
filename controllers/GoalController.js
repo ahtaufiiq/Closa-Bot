@@ -24,9 +24,9 @@ class GoalController {
         interaction.message.delete()
     }
     static async modalSubmitPreferredCoworkingTime(modal){
+		await modal.deferReply()
+		const coworkingTime = modal.getTextInputValue('coworkingTime');
 		try {
-			await modal.deferReply()
-			const coworkingTime = modal.getTextInputValue('coworkingTime');
 			supabase.from("Users")
 				.update({preferredCoworkingTime:coworkingTime})
 				.eq('id',modal.user.id)
@@ -111,7 +111,6 @@ class GoalController {
 
     static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,deadlineGoal}){
 		PartyController.setProgressReminder(interaction,shareProgressAt)
-		
 
 		ChannelController.deleteMessage(interaction.message)
 		
