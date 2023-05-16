@@ -148,7 +148,7 @@ module.exports = {
 							setTimeout(() => {
 								ChannelController.sendToNotification(oldMember.client,OnboardingMessage.thirdQuest(userId),userId)
 								OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
-							}, Time.oneMinute());
+							}, 1000 * 15);
 						}
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]

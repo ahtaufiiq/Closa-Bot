@@ -68,7 +68,7 @@ then click continue to open access to more channels.`,
 
 Start your project & set a goal ${MessageFormatting.tagUser(userId)}`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('replyFirstQuest','Start now')
+                MessageComponent.addButton('replyFirstQuest','Start')
             )]
         }
     }

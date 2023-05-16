@@ -162,7 +162,7 @@ module.exports = {
 							modal.client,OnboardingMessage.secondQuest(modal.user.id),modal.user.id
 						)
 						OnboardingController.updateOnboardingStep(modal.client,modal.user.id,'secondQuest')
-					}, Time.oneMinute());
+					}, 1000 * 15);
 				}
 			}else if(commandButton === "editGoal"){
 				await modal.deferReply({ephemeral:true})

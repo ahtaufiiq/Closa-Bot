@@ -166,7 +166,7 @@ so, you can learn or sharing from each others.`,
 									OnboardingMessage.completedQuest(msg.author.id,files),
 									msg.author.id
 								)
-							}, Time.oneMinute());
+							}, 1000 * 15);
 						}
 					})
 				BoostController.deleteBoostMessage(msg.client,msg.author.id)
