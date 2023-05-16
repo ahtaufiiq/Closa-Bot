@@ -15,18 +15,19 @@ class OnboardingController {
         await MemberController.addRole(client,user.id,ROLE_ONBOARDING_WELCOME)
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
 		const msg = await channelNotifications.send(`${user}`)
-		ChannelController.createThread(msg,user.username)
-			.then(async thread=>{
-				const msgGuideline = await thread.send(OnboardingMessage.welcomeMessage(user.id))
-                GuidelineInfoController.addNewData(user.id,msgGuideline.id)
-			})
-        
         await supabase.from("Users")
 			.update({
                 notificationId:msg.id,
                 onboardingStep:'welcome',
             })
 			.eq('id',user.id)
+		ChannelController.createThread(msg,user.username)
+			.then(async thread=>{
+				const msgGuideline = await thread.send(OnboardingMessage.welcomeMessage(user.id))
+                GuidelineInfoController.addNewData(user.id,msgGuideline.id)
+			})
+        
+        
     }
 
     static async startOnboarding(interaction){
@@ -38,8 +39,8 @@ class OnboardingController {
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
 
         MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
+        OnboardingController.deleteReminderToStartOnboarding()
         if(value === 'fromReminder'){
-            OnboardingController.deleteReminderToStartOnboarding()
             ChannelController.deleteMessage(interaction.message)
         }else if(value === 'guideline'){
             GuidelineInfoController.incrementTotalNotification(1,UserId)

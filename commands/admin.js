@@ -7,9 +7,10 @@ const UserController = require('../controllers/UserController');
 const Time = require('../helpers/time');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const supabase = require('../helpers/supabaseClient');
-const { CHANNEL_PARTY_ROOM } = require('../helpers/config');
+const { CHANNEL_PARTY_ROOM, ROLE_NEW_MEMBER, ROLE_ONBOARDING_WELCOME, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_LATER, ROLE_ONBOARDING_PROGRESS, ROLE_ONBOARDING_PROJECT, MY_ID } = require('../helpers/config');
 const PartyMessage = require('../views/PartyMessage');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
+const MemberController = require('../controllers/MemberController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -31,6 +32,11 @@ module.exports = {
 			subcommand
 				.setName('party__remove_user')
 				.setDescription('remove user from party')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('reset__onboarding')
+				.setDescription('reset onboarding')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
@@ -120,6 +126,34 @@ module.exports = {
 
 			const referralCode = values.map(data=>data.referralCode)
 			interaction.editReply(referralCode.join('\n'))
+		}else if(command === 'reset__onboarding'){
+			const user = interaction.options.getUser('user')
+			const targetUser = user ? user : interaction.user
+			await Promise.all([
+				supabase.from('Users')
+					.update({onboardingStep:null})
+					.eq('id',targetUser.id),
+				supabase.from("GuidelineInfos")
+					.delete()
+					.eq("UserId",targetUser.id),
+				supabase.from("Referrals")
+					.delete()
+					.eq('redeemedBy',targetUser.id),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_NEW_MEMBER),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_WELCOME),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_COWORKING),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_LATER),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_PROGRESS),
+				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_PROJECT),
+			])
+
+			const values = await ReferralCodeController.addNewReferral(
+				targetUser.id === MY_ID ? '693373626451361854' : MY_ID,
+				1
+			)
+
+			const referralCode = values.map(data=>data.referralCode)
+			interaction.editReply(`use this referral code \n${referralCode.join('\n')}`)
 		}
 		
 	},
