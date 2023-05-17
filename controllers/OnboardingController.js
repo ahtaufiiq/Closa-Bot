@@ -33,7 +33,7 @@ class OnboardingController {
     static async startOnboarding(interaction){
         const UserId = interaction.user.id
         const value = interaction.customId.split("_")[2]
-        OnboardingController.updateOnboardingStep(interaction.client,UserId,'firstQuest')
+        await OnboardingController.updateOnboardingStep(interaction.client,UserId,'firstQuest')
 
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_LATER)
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
@@ -42,10 +42,9 @@ class OnboardingController {
         OnboardingController.deleteReminderToStartOnboarding()
         if(value === 'fromReminder'){
             ChannelController.deleteMessage(interaction.message)
-        }else if(value === 'guideline'){
-            GuidelineInfoController.incrementTotalNotification(1,UserId)
         }
-        await interaction.editReply(OnboardingMessage.introQuest(UserId))
+        const reply = await interaction.editReply('.')
+        ChannelController.deleteMessage(reply)
     }
 
     static async continueFirstQuest(interaction){
@@ -126,7 +125,7 @@ class OnboardingController {
             .update({onboardingStep:step})
             .eq('id',UserId)
             
-        GuidelineInfoController.updateMessageGuideline(client,UserId)
+        return await GuidelineInfoController.updateMessageGuideline(client,UserId)
 
     }
 }

@@ -12,7 +12,7 @@ class OnboardingMessage {
 
     static guidelineInfoQuest(userId,step){
         const buttons = [MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')]
-        if(step === 'firstQuest') buttons.push(MessageComponent.addButton(`continueFirstQuest_${userId}_guideline`,"Get Started"))
+        if(step === 'firstQuest') buttons.push(MessageComponent.addButton(`continueFirstQuest_${userId}_guideline`,"Continue"))
         if(step === 'secondQuest') buttons.push(MessageComponent.addButton(`continueSecondQuest_${userId}_guideline`,"Continue Quest 2"))
         if(step === 'thirdQuest') buttons.push(MessageComponent.addButton(`continueThirdQuest_${userId}_guideline`,"Continue Quest 3"))
         return {
