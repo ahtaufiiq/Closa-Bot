@@ -114,6 +114,10 @@ class FocusSessionController {
                 focusRoomUser[userId].breakTime++
             }
 
+            if(focusRoomUser[userId].totalTime === 50 && focusRoomUser[userId].breakTime === 0){
+                msgFocus.channel.send(FocusSessionMessage.smartBreakReminder(userId))
+            }
+
             if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
                 focusRoomUser[userId].date = Time.getTodayDateOnly()
                 const data = await FocusSessionController.getDetailFocusSession(userId)

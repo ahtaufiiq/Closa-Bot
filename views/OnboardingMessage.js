@@ -1,7 +1,7 @@
 const { ButtonStyle } = require("discord.js")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
-const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK } = require("../helpers/config")
 
 class OnboardingMessage {
 
@@ -149,6 +149,31 @@ if you want to start soon go to ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE
     static turnOffReminderOnboarding(){
         return `Seems like this notification didn't work for you.
 so we will turn it off. 🔕`
+    }
+
+    static guidelines(){
+        return {
+            content:`\`\`\`START HERE\`\`\`
+1. ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)} at closa and set your goal.
+
+**REPEAT STEPS 2 to 4 EVERY DAY** :repeat: 
+*this is what will make you stay productive each day at closa:*
+
+2. Coworking — join ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}  or schedule a session on ${MessageFormatting.tagChannel(CHANNEL_CREATE_SESSION)} / ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}
+
+3. Set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} — write 1 specific task you want to get done.
+
+4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others :heart:
+
+5. ${MessageFormatting.tagChannel(CHANNEL_STREAK)} – Try to keep your streak and don't miss your progress twice in a row. 
+
+The key to stay consistent when you're not feeling it:
+> *** small progress is still progress***`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`startOnboarding_${userId}_guideline`,"Get started"),
+                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')
+            )]
+        }
     }
 }
 

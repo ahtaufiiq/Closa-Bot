@@ -249,7 +249,7 @@ module.exports = {
 						const dataFocusSession = await FocusSessionController.getDetailFocusSession(targetUserId)
 						const taskName = dataFocusSession?.taskName
 						const projectName = dataFocusSession?.Projects?.name
-						if(value === 'addBreak') {
+						if(value === 'addBreak' || value === 'smartBreak') {
 							ChannelController.deleteMessage(interaction.message)
 						}
 
