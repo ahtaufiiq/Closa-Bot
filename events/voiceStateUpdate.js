@@ -75,7 +75,7 @@ module.exports = {
 					newMember.disconnect()
 				})
 				.catch((err)=>{
-					focusRoomUser[userId].status = 'done'
+					if(focusRoomUser[userId]) focusRoomUser[userId].status = 'done'
 				})
 				supabase.from('FocusSessions')
 					.select()
@@ -102,7 +102,7 @@ module.exports = {
 								newMember.disconnect()	
 							})
 							.catch(()=>{
-								focusRoomUser[userId].status = 'done'
+								if(focusRoomUser[userId]) focusRoomUser[userId].status = 'done'
 							})
 					}
 				}else if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
@@ -206,8 +206,8 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 							})
 					}
 					setTimeout(() => {
-						let {selfVideo,streaming,threadId,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
-						if(oldTimestamp !== timestamp) return
+						let {selfVideo,streaming,threadId} = focusRoomUser[userId] || {selfVideo:false,streaming:false,threadId:null}
+						
 						if ((selfVideo || streaming) && threadId) {
 							reject('user already open camera or sharescreen and set session goal')
 						}else{

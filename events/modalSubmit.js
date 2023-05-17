@@ -95,9 +95,9 @@ module.exports = {
 					supabase.from("Referrals")
 							.update({isRedeemed:true,redeemedBy:modal.user.id})
 							.eq('referralCode',referralCode)
-							.then()
 					await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
 					// await MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
+
 
 					const channelConfirmation = ChannelController.getChannel(modal.client,CHANNEL_WELCOME)
 					const referrer = await MemberController.getMember(modal.client,response.ownedBy)
@@ -124,6 +124,7 @@ module.exports = {
 					// 	ChannelController.createThread(msgNotification,modal.user.username)
 					// ])
 					// GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
+
 				}else{
 					switch (response.description) {
 						case "redeemed":

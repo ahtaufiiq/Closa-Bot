@@ -74,13 +74,13 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
         if(isAlreadyJoinVoiceChannel){
+            return `hi ${MessageFormatting.tagUser(userId)}, now please **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
+            
+your time tracker will automatically start right after.`
+        }else{
             return `hi ${MessageFormatting.tagUser(userId)}, now please join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
 
 then **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
-your time tracker will automatically start right after.`
-        }else{
-            return `hi ${MessageFormatting.tagUser(userId)}, now please **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
-
 your time tracker will automatically start right after.`
         }
     }
@@ -237,11 +237,11 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
     }
 
     static askToWriteSessionGoal(userId){
-        return `hi ${MessageFormatting.tagUser(userId)}, please write your ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} to start your session.`
+        return `hi ${MessageFormatting.tagUser(userId)}, write 1 specific task to start your session → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
     }
 
     static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){
-        let firstStep = `set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} by writing 1 specific task `
+        let firstStep = `write 1 specific task → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
         if(statusSetSessionGoal === 'setDailyWorkTime') firstStep = '**please select daily work time above**'
         else if(statusSetSessionGoal === 'selectProject') firstStep = '**please select the project above**'
 
@@ -252,6 +252,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
 please do it within **2 min** before you get auto-kick from the room.`
         }else{
             return `Hi ${MessageFormatting.tagUser(userId)}, please do the following steps:
+            
 1. ${firstStep}
 2. **turn on your video** :camera_with_flash: or **sharescreen** :computer: to stay accountable
 
