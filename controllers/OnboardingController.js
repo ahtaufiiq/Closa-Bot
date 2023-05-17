@@ -39,7 +39,7 @@ class OnboardingController {
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
 
         MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
-        OnboardingController.deleteReminderToStartOnboarding()
+        OnboardingController.deleteReminderToStartOnboarding(UserId)
         if(value === 'fromReminder'){
             ChannelController.deleteMessage(interaction.message)
         }
