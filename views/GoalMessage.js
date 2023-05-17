@@ -24,7 +24,7 @@ best of luck!
     }
     static askUserWriteGoal(dayLeft,userId){
         return {
-            content:`**Set goal for your project** :dart: 
+            content:`**Set a goal for your project** :dart: 
 
 *We recommend to work on 6 weeks timeline to get meaningful result*
 
