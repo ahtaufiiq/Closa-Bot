@@ -33,15 +33,17 @@ you can watch this video first`,
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa!
 
-> a place where you work on your ideas from start to finish 
-> Join daily coworking, get more done, & meet new friends.
+> a place where you work on your ideas from start to finish.
+> Join daily coworking, meet new friends, & get more done.
 
-Are you ready to work on your ideas?`,
-            components: [MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
-                MessageComponent.addButton(`startOnboarding_${userId}_guideline`,"Get started"),
-                MessageComponent.addButton('startOnboardingLater',"I'll start later",ButtonStyle.Secondary)
-            )]
+**Are you ready to work on your ideas?**`,
+            components: [
+                MessageComponent.createComponent(MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`startOnboarding_${userId}_guideline`,"Get started"),
+                    MessageComponent.addButton('startOnboardingLater',"I'll start later",ButtonStyle.Secondary)
+                )
+            ]
         }
     }
 
@@ -81,7 +83,7 @@ Start your project & set a goal ${MessageFormatting.tagUser(userId)}`,
         return {
             content:`:scroll: **Quest (2/3)**
 
-Join a coworking session to work on your project ${MessageFormatting.tagUser(userId)}`,
+Now, join or schedule a coworking session to work on your project ${MessageFormatting.tagUser(userId)}`,
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('replySecondQuest','Join')
@@ -134,7 +136,7 @@ if you want to start sooner, you can follow closa ${MessageFormatting.tagChannel
             content:`Hi ${MessageFormatting.tagUser(userId)}, are you ready to work on your idea today?`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`startOnboarding_${userId}_fromReminder`,'Yes'),
-                MessageComponent.addButton(`remindOnboardingAgain_${userId}`,'Maybe later',ButtonStyle.Secondary)
+                MessageComponent.addButton(`remindOnboardingAgain_${userId}`,"I'll start later",ButtonStyle.Secondary)
             )]
         }
     }

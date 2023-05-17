@@ -115,7 +115,7 @@ class GoalController {
 		ChannelController.deleteMessage(interaction.message)
 		
 		const goalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,shareProgressAt,deadlineGoal})
-		await interaction.editReply(GoalMessage.replySuccessSubmitGoal(goalId))
+		await interaction.editReply(GoalMessage.replySuccessSubmitGoal(interaction.user.id,goalId))
 	}
 
 	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,deadlineGoal}){

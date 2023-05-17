@@ -157,16 +157,10 @@ p.s: *you can always change it in the next cohort*`,
         }
     }
 
-    static replySuccessSubmitGoal(goalId){
+    static replySuccessSubmitGoal(userId,goalId){
+        return `Congrats on starting your project ${MessageFormatting.tagUser(userId)}! 🎉
 
-        return `Congrats on starting your project!
-Join the vibe & get that extra boost by sharing to your social.
-
-go to your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
-copy or download your project image
-share to your social & tag @joinclosa
-
-we will repost & reply to your post 🙌`
+here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}`
     }
 
     static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files}){
