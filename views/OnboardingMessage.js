@@ -135,7 +135,7 @@ if you want to start sooner, you can follow closa ${MessageFormatting.tagChannel
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)}, are you ready to work on your idea today?`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`startOnboarding_${userId}_fromReminder`,'Yes'),
+                MessageComponent.addButton(`startOnboarding_${userId}_fromReminder`,'Get started'),
                 MessageComponent.addButton(`remindOnboardingAgain_${userId}`,"I'll start later",ButtonStyle.Secondary)
             )]
         }
