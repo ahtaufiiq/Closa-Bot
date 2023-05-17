@@ -14,22 +14,17 @@ class GoalMessage {
 
 read this first → https://tinyurl.com/4azetzep
 
-\`\`Pro tips: for extra accountability\`\`
-• Set a goal that can be quantify—so you know how to win your game.
-• Put a hard deadline to add pressure stay motivated (6 weeks recommended).
-• Share your project goal thumbnail to public tag \`\`@joinclosa\`\`.
-
 best of luck!
 ✌️`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('startProject',"Start Project")
+                MessageComponent.addButton('startProject',"Start Project"),
+                MessageComponent.addLinkButton('Read me','https://tinyurl.com/4azetzep')
             )],
-            files:[]
         }
     }
     static askUserWriteGoal(dayLeft,userId){
         return {
-            content:`**Set goal for your project** :dart: 
+            content:`**Set a goal for your project** :dart: 
 
 *We recommend to work on 6 weeks timeline to get meaningful result*
 
@@ -162,16 +157,10 @@ p.s: *you can always change it in the next cohort*`,
         }
     }
 
-    static replySuccessSubmitGoal(goalId){
+    static replySuccessSubmitGoal(userId,goalId){
+        return `Congrats on starting your project ${MessageFormatting.tagUser(userId)}! 🎉
 
-        return `Congrats on starting your project!
-Join the vibe & get that extra boost by sharing to your social.
-
-go to your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
-copy or download your project image
-share to your social & tag @joinclosa
-
-we will repost & reply to your post 🙌`
+here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}`
     }
 
     static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files}){

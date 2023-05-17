@@ -13,16 +13,13 @@ class GuidelineInfoMessage {
             MessageComponent.addLinkEmojiButton("Community playbook",'https://closa.notion.site/Closa-f3937e68c57e46c4b028b69e8f1412b2','📒'),
         )
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! please follow the guideline below to begin`,
+            content:`Hi ${MessageFormatting.tagUser(userId)}, here's the community guideline to help you get the most out of closa:`,
             embeds:[
                 new EmbedBuilder()
                     .setColor('fafafb')
                     .setThumbnail('https://pbs.twimg.com/profile_images/1497990921874403329/qLmIBav9_400x400.jpg')
                     .setTitle("🗒 Closa Guidelines ")
-                    .setDescription(`**New to Closa? **
-Start here → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}
-
-**Command Guides** 
+                    .setDescription(`**Command Guides** 
 try to type "/" to see what bot can do for you on channel: ${MessageFormatting.tagChannel(CHANNEL_COMMAND)}
 
 **Official links**
