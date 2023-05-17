@@ -33,7 +33,7 @@ you can watch this video first`,
         return {
             content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa!
 
-> a place where you work on your ideas from start to finish.
+> A place where you work on your ideas from start to finish.
 > Join daily coworking, meet new friends, & get more done.
 
 **Are you ready to work on your ideas?**`,
