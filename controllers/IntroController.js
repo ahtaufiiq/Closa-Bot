@@ -6,7 +6,7 @@ class IntroController{
     static showModalWriteIntro(interaction){
 		const [commandButton,userId] = interaction.customId.split('_')
         if(commandButton === 'writeIntro'){
-			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't write someone else intro.`})
+			if(interaction.user.id !== userId && userId !== undefined) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't write someone else intro.`})
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Make an intro 👋")
