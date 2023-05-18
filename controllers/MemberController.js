@@ -5,10 +5,8 @@ class MemberController{
 
     static async addRole(client,userId,roleId) {
         const role = await MemberController.getRole(client,roleId)
-        client.guilds.cache.get(GUILD_ID).members.fetch(userId)
-            .then(user=>{
-                user.roles.add(role)
-            })
+        const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
+        return await user.roles.add(role)
     }
 
     static async getTotalMember(){

@@ -38,6 +38,9 @@ const InfoUser = require("../helpers/InfoUser");
 const ReminderController = require("../controllers/ReminderController");
 const MessageComponent = require("../helpers/MessageComponent");
 const { ButtonStyle } = require("discord.js");
+const OnboardingController = require("../controllers/OnboardingController");
+const OnboardingMessage = require("../views/OnboardingMessage");
+const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -70,7 +73,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -83,6 +86,40 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case 'replyFirstQuest':
+						await interaction.editReply(OnboardingMessage.replyFirstQuest())
+						break;
+					case 'replySecondQuest':
+						await interaction.editReply(OnboardingMessage.replySecondQuest())
+						break;
+					case 'replyThirdQuest':
+						await interaction.editReply(OnboardingMessage.replyThirdQuest())
+						break;
+					case 'continueFirstQuest':
+						await interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
+						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
+						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
+						break;
+					case 'continueSecondQuest':
+						await interaction.editReply(OnboardingMessage.secondQuest(interaction.user.id))
+						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
+						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
+						break;
+					case 'continueThirdQuest':
+						await interaction.editReply(OnboardingMessage.thirdQuest(interaction.user.id))
+						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
+						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
+						break;
+					case 'startOnboarding':
+						OnboardingController.startOnboarding(interaction)
+						break;
+					case 'remindOnboardingAgain':
+						await interaction.editReply(OnboardingMessage.remindOnboardingAgain())
+						ChannelController.deleteMessage(interaction.message)
+						break
+					case 'startOnboardingLater':
+						OnboardingController.onboardingLater(interaction)
+						break;
 					case 'startCoworkingRoom':
 						const coworkingEvent = await CoworkingController.getCoworkingEvent(value)
 						if(coworkingEvent.body?.HostId !== interaction.user.id) return await interaction.editReply('⚠️ only host can start room timer')
@@ -212,7 +249,7 @@ module.exports = {
 						const dataFocusSession = await FocusSessionController.getDetailFocusSession(targetUserId)
 						const taskName = dataFocusSession?.taskName
 						const projectName = dataFocusSession?.Projects?.name
-						if(value === 'addBreak') {
+						if(value === 'addBreak' || value === 'smartBreak') {
 							ChannelController.deleteMessage(interaction.message)
 						}
 

@@ -96,13 +96,12 @@ We'll send you once a month based on your active participation at closa.`
 
     static notifSuccessRedeem(user,referrer,totalMember,totalInvitedByReferrer){
         return { 
-            content:`${user} joined via referral code from ${referrer}` , 
             embeds: [
                 new EmbedBuilder()
                     .setColor('#00B264')
                     .setTitle(`Welcome to closa ${user.username}!`)
                     .setThumbnail(InfoUser.getAvatar(user))
-                    .setDescription(`Members number #${totalMember}`)
+                    .setDescription(`Members number #${totalMember} \n${user}`)
                     .setFooter({
                         iconURL:InfoUser.getAvatar(referrer),
                         text:`${totalInvitedByReferrer} ${totalInvitedByReferrer > 1 ? "Friends" : "Friend"} invited by ${referrer.username}`

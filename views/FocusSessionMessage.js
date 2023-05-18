@@ -259,6 +259,26 @@ please do it within **2 min** before you get auto-kick from the room.`
 please do it within **2 min** before you get auto-kick from the room.`
         }
     }
+
+    static smartBreakReminder(userId){
+        return {
+            content:`Ready to take a break? ${MessageFormatting.tagUser(userId)}
+more than 50 minutes passed since you started working.
+take frequent breaks to improve your productivity.
+
+\`\`\`
+You can pick a few:
+• Take a few deep breath, inhale 3s exhale 4s..
+• Drink some water & grab your snack.
+• Give you eye a rest, see the sky far-off your screen.
+\`\`\`
+\`\`Pick your break time, before the next session\`\``,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_smartBreak`,'5 min break','☕'),
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_smartBreak`,'15 min break','🍱')
+            )]
+        }
+    }
 }
 
 module.exports=FocusSessionMessage

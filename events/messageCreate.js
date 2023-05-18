@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -27,6 +27,8 @@ const MemeController = require("../controllers/MemeController");
 const BoostController = require("../controllers/BoostController");
 const FocusSessionController = require("../controllers/FocusSessionController");
 const MemberController = require("../controllers/MemberController");
+const OnboardingController = require("../controllers/OnboardingController");
+const OnboardingMessage = require("../views/OnboardingMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -148,6 +150,25 @@ so, you can learn or sharing from each others.`,
 					)
 					return
 				}
+				OnboardingController.isHasRoleOnboardingProgress(msg.client,msg.author.id)
+					.then(isHasRoleOnboardingProgress=>{
+						if(isHasRoleOnboardingProgress){
+							MemberController.removeRole(msg.client,msg.author.id,ROLE_ONBOARDING_PROGRESS)
+							OnboardingController.updateOnboardingStep(msg.client,msg.author.id,'done')
+							setTimeout(async () => {
+								const files = []
+								const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(msg.author.id)
+								const coverWhite = await GenerateImage.referralCover(totalReferralCode,msg.author,false)
+								files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${msg.author.username}.png`}))
+
+								ChannelController.sendToNotification(
+									msg.client,
+									OnboardingMessage.completedQuest(msg.author.id,files),
+									msg.author.id
+								)
+							}, 1000 * 15);
+						}
+					})
 				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 				
 				const { data, error } = await supabase
