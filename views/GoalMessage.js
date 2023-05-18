@@ -12,13 +12,13 @@ class GoalMessage {
         return {
             content:`**Set a goal for your project & commit to it :dart:**
 
-read this first → https://tinyurl.com/4azetzep
+read this first → https://tinyurl.com/bde9jyd2
 
 best of luck!
 ✌️`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('startProject',"Start Project"),
-                MessageComponent.addLinkButton('Read me','https://tinyurl.com/4azetzep')
+                MessageComponent.addLinkButton('Read me','https://tinyurl.com/bde9jyd2')
             )],
         }
     }
