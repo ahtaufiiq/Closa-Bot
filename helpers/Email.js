@@ -100,6 +100,33 @@ class Email {
           }
         );
     }
+
+    static sendEmailEarlyAccess(name,email,code){
+        var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+        var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
+        sendSmtpEmail = {
+          sender: { name:"Apri",email: "apri@closa.me" },
+          to: [
+            {
+              email,
+              name
+            }
+          ],
+          "templateId":12,
+          "params":{
+            name,
+            code
+         },
+        };
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(
+          function (data) {
+            console.log("API called successfully. Returned data: " , data);
+          },
+          function (error) {
+            console.error(error);
+          }
+        );
+    }
 }
 
 module.exports = Email
