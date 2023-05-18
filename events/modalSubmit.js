@@ -108,20 +108,11 @@ module.exports = {
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
 
-					// const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)
-					// const msgNotification = await channelNotifications.send(`${modal.user}`)
-					// supabase.from("Users")
-					// 	.update({notificationId:msgNotification.id,type:'new member'})
-					// 	.eq('id',modal.user.id)
-					// 	.then()
-						
-					// GuidelineInfoController.updateMessageGuideline(modal.client,response.ownedBy)
-					// await Promise.all([
-					// 	ReferralCodeController.addNewReferral(modal.user.id,3),
-					// 	ChannelController.createThread(msgNotification,modal.user.username)
-					// ])
-					// GuidelineInfoController.generateGuideline(modal.client,modal.user.id,msgNotification.id)
-
+					supabase.from("Users")
+						.update({type:'new member'})
+						.eq('id',modal.user.id)
+						.then()
+				
 				}else{
 					switch (response.description) {
 						case "redeemed":
