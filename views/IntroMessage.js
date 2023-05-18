@@ -4,6 +4,16 @@ const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 
 class IntroMessage {
+
+    static initIntroChannel(){
+        return {
+            content:`Introduce yourself to the community so people can learn more about you ✨`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton('writeIntro','Make an intro','👋')
+            )]
+        }
+    }
+
     static postIntro({name,about,expertise,needHelp,social,user}){
         return {
             content:`Welcome ${user}!`,

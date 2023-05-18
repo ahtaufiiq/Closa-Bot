@@ -122,12 +122,16 @@ class GuidelineInfoController {
             dataUser.body.forEach(async ({Users:{id,notificationId}})=>{
                 try {
                     const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral,onboardingStep} = await GuidelineInfoController.getData(id)
+                    if(!onboardingStep) return
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
-                    
+                    if(!threadNotification) return 
+                    if(threadNotification.archived) {
+                        await threadNotification.setArchived(false)
+                    }
                     GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
                     GuidelineInfoController.resetDataTotalNotification(id)
                     const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-
+                    if(!msg) return 
                     if(onboardingStep) msg.edit(OnboardingMessage.step(id,onboardingStep))
                     else msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
                 } catch (error) {
