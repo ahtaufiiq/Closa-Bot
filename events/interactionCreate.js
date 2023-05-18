@@ -99,7 +99,7 @@ module.exports = {
 						}else if(onboardingStep === 'thirdQuest'){
 							await interaction.editReply(OnboardingMessage.replyThirdQuest())
 						}else{
-							interaction.editReply('you already completed first quest')
+							interaction.editReply("You've completed your onboarding quest previously ✅ ")
 						}
 						break;
 					case 'replyFirstQuest':

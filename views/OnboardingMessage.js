@@ -92,9 +92,9 @@ Now, join or schedule a coworking session to work on your project ${MessageForma
     }
 
     static replySecondQuest(){
-        return `Here's how:
-• join now ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}
-• or schedule here → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}`
+        return `**Join coworking session here:**
+• join now → ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}
+• or see schedule → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}`
     }
 
     static thirdQuest(userId){
