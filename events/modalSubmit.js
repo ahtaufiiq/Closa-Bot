@@ -73,7 +73,6 @@ module.exports = {
 			}else if (commandButton === 'modalReferral') {
 				await modal.deferReply({ephemeral:true});
 				const referralCode = modal.getTextInputValue('referral');
-				console.log('masuk');
 				const [isEligibleToRedeemRederral,isFirstTimeRedeemReferral,response] = await Promise.all([
 					ReferralCodeController.isEligibleToRedeemRederral(modal.user.id),
 					ReferralCodeController.isFirstTimeRedeemReferral(modal.user.id),
@@ -90,7 +89,6 @@ module.exports = {
 					await modal.editReply(ReferralCodeMessage.cannotRedeemMoreThanOne());
 					return
 				}
-				console.log('response',response);
 				if (response.valid) {
 					supabase.from("Referrals")
 							.update({isRedeemed:true,redeemedBy:modal.user.id})
@@ -108,7 +106,6 @@ module.exports = {
 					])
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
-					console.log('thread');
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
 
 					// const channelNotifications = ChannelController.getChannel(modal.client,CHANNEL_NOTIFICATION)

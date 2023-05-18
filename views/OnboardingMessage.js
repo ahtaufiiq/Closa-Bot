@@ -170,7 +170,7 @@ so we will turn it off. 🔕`
 The key to stay consistent when you're not feeling it:
 > *** small progress is still progress***`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`startOnboarding_${userId}_guideline`,"Get started"),
+                MessageComponent.addButton(`onboardingFromGuideline`,"Get started"),
                 MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')
             )]
         }

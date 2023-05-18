@@ -86,6 +86,22 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "onboardingFromGuideline":
+						const dataOnboarding = await supabase.from("Users")
+							.select('onboardingStep')
+							.eq('id',interaction.user.id)
+							.single()
+						const {onboardingStep} = dataOnboarding.body
+						if(onboardingStep === 'welcome' || onboardingStep === 'firstQuest'){
+							interaction.editReply(OnboardingMessage.replyFirstQuest())
+						}else if(onboardingStep === 'secondQuest'){
+							await interaction.editReply(OnboardingMessage.replySecondQuest())
+						}else if(onboardingStep === 'thirdQuest'){
+							await interaction.editReply(OnboardingMessage.replyThirdQuest())
+						}else{
+							interaction.editReply('you already completed first quest')
+						}
+						break;
 					case 'replyFirstQuest':
 						await interaction.editReply(OnboardingMessage.replyFirstQuest())
 						break;

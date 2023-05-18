@@ -17,7 +17,6 @@ module.exports = {
 		if(user.bot) return
 		await DailyReport.activeMember(reaction.client,user.id)
 		PointController.addPoint(user.id,'reaction',0,reaction.message.channelId)
-		console.log('reaction',`${reaction.emoji}`);
 		if(reaction.message.channelId === CHANNEL_PAYMENT && `${reaction.emoji}`=== '✅'){
 			const msg = await ChannelController.getMessage(
 				ChannelController.getChannel(reaction.client,CHANNEL_PAYMENT),
@@ -26,7 +25,6 @@ module.exports = {
 			const embed = msg.embeds[0]
 			let email = ''
 			let nickname = ''
-			console.log(embed.fields);
 			for (let i = 0; i < embed.fields.length; i++) {
 				const {name,value} = embed.fields[i];
 				if(name.toLowerCase().includes('email')){
