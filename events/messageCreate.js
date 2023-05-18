@@ -155,12 +155,12 @@ so, you can learn or sharing from each others.`,
 						if(isHasRoleOnboardingProgress){
 							MemberController.removeRole(msg.client,msg.author.id,ROLE_ONBOARDING_PROGRESS)
 							OnboardingController.updateOnboardingStep(msg.client,msg.author.id,'done')
+							ReferralCodeController.addNewReferral(msg.author.id,3)
 							setTimeout(async () => {
 								const files = []
 								const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(msg.author.id)
 								const coverWhite = await GenerateImage.referralCover(totalReferralCode,msg.author,false)
 								files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${msg.author.username}.png`}))
-
 								ChannelController.sendToNotification(
 									msg.client,
 									OnboardingMessage.completedQuest(msg.author.id,files),
