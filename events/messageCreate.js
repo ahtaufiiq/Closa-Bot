@@ -66,6 +66,12 @@ module.exports = {
 			
 		const ChannelStreak = msg?.guild?.channels?.cache?.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
+			case CHANNEL_TESTIMONIAL:
+				let titleTestimonial = `${msg.content.trimStart().split('\n')[0]}`
+				if(FormatString.notCharacter(titleTestimonial[0])) titleTestimonial = titleTestimonial.slice(1).trimStart()
+
+				ChannelController.createThread(msg,titleTestimonial)
+				break;
 			case CHANNEL_SESSION_GOAL:
 				const threadSession = await ChannelController.createThread(msg,`🔴 focus log - ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)
