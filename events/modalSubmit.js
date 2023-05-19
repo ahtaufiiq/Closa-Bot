@@ -608,7 +608,7 @@ The correct format:
 						.single()
 					
 					schedule.scheduleJob(date,async function () {
-						PartyController.sendNotifToSetHighlight(modal.client,modal.user.id)
+						PartyController.sendNotifToSetHighlight(modal.client,modal.user.id,taskName)
 					})
 					
 					const incrementPoint = PointController.calculatePoint('highlight')
