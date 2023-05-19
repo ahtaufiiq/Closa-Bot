@@ -631,7 +631,7 @@ class CoworkingController {
                     .then(data => {
                             data.body.forEach(attendance=>{
                             ChannelController.sendToNotification(
-                                client,CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),attendance.UserId
+                                interaction.client,CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),attendance.UserId
                             )
                             })
                     })

@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS, CHANNEL_TESTIMONIAL} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -44,6 +44,9 @@ module.exports = {
 					titleThread = `Post — ${msg.embeds[0].data.title}`
 				}
 				ChannelController.createThread(msg,titleThread)
+			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
+				const titleThread = msg.content.split('<@')[0] + msg.mentions.users.first().username
+				ChannelController.createThread(msg,titleThread)
 			}
 			return
 		}
@@ -63,6 +66,12 @@ module.exports = {
 			
 		const ChannelStreak = msg?.guild?.channels?.cache?.get(CHANNEL_STREAK)
 		switch (msg.channelId) {
+			case CHANNEL_TESTIMONIAL:
+				let titleTestimonial = `${msg.content.trimStart().split('\n')[0]}`
+				if(FormatString.notCharacter(titleTestimonial[0])) titleTestimonial = titleTestimonial.slice(1).trimStart()
+
+				ChannelController.createThread(msg,titleTestimonial)
+				break;
 			case CHANNEL_SESSION_GOAL:
 				const threadSession = await ChannelController.createThread(msg,`🔴 focus log - ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)

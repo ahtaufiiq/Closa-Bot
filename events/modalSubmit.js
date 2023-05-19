@@ -93,6 +93,7 @@ module.exports = {
 					supabase.from("Referrals")
 							.update({isRedeemed:true,redeemedBy:modal.user.id})
 							.eq('referralCode',referralCode)
+							.then()
 					await modal.editReply(ReferralCodeMessage.replySuccessRedeem());
 					// await MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER)
 
