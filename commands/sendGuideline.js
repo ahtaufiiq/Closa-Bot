@@ -1,5 +1,6 @@
 const { PermissionFlagsBits,SlashCommandBuilder } = require('discord.js');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
+const supabase = require('../helpers/supabaseClient');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -14,6 +15,9 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true});
 		const user = interaction.options.getUser('user')
+		await supabase.from("GuidelineInfos")
+			.delete()
+			.eq("UserId",user.id)
 		await GuidelineInfoController.generateGuideline(interaction.client,user.id)
 		interaction.editReply('success send guideline to user')
 	},
