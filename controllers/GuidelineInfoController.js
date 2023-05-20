@@ -57,11 +57,21 @@ class GuidelineInfoController {
     }
 
     static async addNewData(UserId,msgGuidelineId){
-        return await supabase.from("GuidelineInfos")
-            .insert({
-                UserId,
-                id:msgGuidelineId,
-            })
+        const data = await supabase.from("GuidelineInfos")
+            .select()
+            .eq('UserId',UserId)
+            .single()
+        if(data.body){
+            return await supabase.from("GuidelineInfos")
+                .update({id:msgGuidelineId})
+                .eq("UserId",UserId)
+        }else{
+            return await supabase.from("GuidelineInfos")
+                .insert({
+                    UserId,
+                    id:msgGuidelineId,
+                })
+        }
     }
 
     static async getData(UserId){
