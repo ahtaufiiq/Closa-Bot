@@ -48,7 +48,7 @@ class GoalController {
 			.setTitle("Set your goal 🎯")
 			.addComponents(
 				new TextInputComponent().setCustomId('project').setLabel("Project Name (up to 4 words)").setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setPlaceholder("e.g. 10 design explorations & get 1 client / build todo app & get 1000 users / create 20 content & get 100K impressions, etc.").setStyle("LONG").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setPlaceholder("e.g. 10 design & get 1 client / build todo app & get 1000 users / 20 content & get 100K impressions").setStyle("LONG").setRequired(true),
 				new TextInputComponent().setCustomId('about').setLabel("About project").setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
 				new TextInputComponent().setCustomId('deadline').setLabel("Project Deadline").setPlaceholder("e.g. 20 may").setStyle("SHORT").setDefaultValue(deadlineGoal.formattedDate).setRequired(true),
 				new TextInputComponent().setCustomId('shareProgressAt').setLabel("i'll try to share my progress at").setPlaceholder("e.g. 21.00").setStyle("SHORT").setRequired(true),
@@ -73,7 +73,7 @@ class GoalController {
 			.setTitle("Set your goal 🎯")
 			.addComponents(
 				new TextInputComponent().setCustomId('project').setLabel("Project Name (up to 4 words)").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setDefaultValue(goal).setPlaceholder("e.g. 10 design exploration & get 1 clients").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setDefaultValue(goal).setPlaceholder("e.g. 10 design & get 1 client / build todo app & get 1000 users / 20 content & get 100K impressions").setStyle("LONG").setRequired(true),
 				new TextInputComponent().setCustomId('about').setLabel("About Project").setDefaultValue(about).setPlaceholder("Tell a bit about this project").setStyle("LONG").setRequired(true),
 				new TextInputComponent().setCustomId('deadline').setLabel("Project Deadline").setPlaceholder("e.g. 20 may").setStyle("SHORT").setDefaultValue(`${dateOfMonth} ${month}`).setRequired(true),
 				new TextInputComponent().setCustomId('shareProgressAt').setLabel("i'll try to share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g. 21.00").setStyle("SHORT").setRequired(true),
