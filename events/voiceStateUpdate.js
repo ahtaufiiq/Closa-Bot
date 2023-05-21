@@ -28,7 +28,7 @@ module.exports = {
 	async execute(oldMember,newMember,focusRoomUser,listFocusRoom) {
 		try {
 			if(oldMember.member.user.bot) return
-	
+			let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
 			const channelSessionLog = oldMember.guild.channels.cache.get(CHANNEL_SESSION_LOG)
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channelId
@@ -109,6 +109,11 @@ module.exports = {
 					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser)
 				}
 			}else if(isEndedFocusTime(listFocusRoom,focusRoomUser,oldMember?.channelId,joinedChannelId,userId)){
+				if(oldMember.channelId === CHANNEL_CLOSA_CAFE){
+					if (totalOldMember === 0 && !focusRoomUser[userId]?.firstTime) {
+						CoworkingController.handleLastUserLeaveEvent(oldMember.client)
+					}
+				}
 				const {totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
 				if(!firstTime && statusSetSessionGoal === 'done'){
 					const data = await FocusSessionController.getDetailFocusSession(userId)

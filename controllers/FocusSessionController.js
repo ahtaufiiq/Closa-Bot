@@ -8,7 +8,7 @@ const UserController = require("./UserController");
 const MemberController = require("./MemberController");
 const InfoUser = require("../helpers/InfoUser");
 const { ChannelType } = require("discord.js");
-const { CHANNEL_SESSION_GOAL } = require("../helpers/config");
+const { CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE } = require("../helpers/config");
 const CoworkingController = require("./CoworkingController");
 class FocusSessionController {
 
@@ -355,6 +355,7 @@ class FocusSessionController {
                 FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,'voice')						
             })
             focusRoomUser[userId].firstTime = false
+            if(focusRoomUser[userId]?.joinedChannelId === CHANNEL_CLOSA_CAFE) CoworkingController.handleStartEvent(client)
         }
     }
 

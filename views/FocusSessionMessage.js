@@ -237,7 +237,10 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
     }
 
     static askToWriteSessionGoal(userId){
-        return `hi ${MessageFormatting.tagUser(userId)}, write 1 specific task to start your session → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}`
+        return `Hi ${MessageFormatting.tagUser(userId)} to start your session, follow these steps:
+1. write 1 specific task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
+2. select your project inside session thread
+3. __turn-on video__ :camera_with_flash: or __sharescreen__ :computer: to stay accountable. **required*`
     }
 
     static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){

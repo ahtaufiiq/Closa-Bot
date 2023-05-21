@@ -64,18 +64,22 @@ class CoworkingController {
         return false
     }
 
-    //startTime = 'now' || 'tomorrow'
-    static async createEventDiscord(client,type='morning',startTime){
-        let name = type === 'morning' ? CoworkingMessage.titleCoworkingMorning() : CoworkingMessage.titleCoworkingNight()
-        let description = type === 'morning' ? CoworkingMessage.descriptionCoworkingMorning() : CoworkingMessage.descriptionCoworkingNight()
-        let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession(type,startTime)
-        let scheduledEndTime = CoworkingController.getEndTimeCoworkingSession(type,startTime)
+    static getStartTimeCoworkingSession(){
+        const date = new Date()
+        date.setMinutes(date.getMinutes() + 15)
+        return date
+    }
+
+    static async createEventDiscord(client){
+        let name = "coworking 👩‍💻🧑‍💻✅"
+        let description = `• Feel free to drop in anytime.
+• Before leaving, say good bye in voice chat.`
+        let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession()
         
         return await CoworkingController.scheduleEvent(client,{
             name,
             description,
             scheduledStartTime,
-            scheduledEndTime,
             entityType:GuildScheduledEventEntityType.Voice,
             channel:ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
         })
@@ -122,7 +126,7 @@ class CoworkingController {
         try {
             const event =  await client.guilds.cache.get(GUILD_ID).scheduledEvents.fetch(eventId)	
             if (!event.isActive()) {
-                 event.setStatus(GuildScheduledEventStatus.Active)
+                 return await event.setStatus(GuildScheduledEventStatus.Active)
             }
         } catch (error) {
             
@@ -146,53 +150,6 @@ class CoworkingController {
         return date
     }
 
-    static getStartTimeCoworkingSession(type='morning',startTime){
-        const date = new Date()
-        const isStartNow = startTime === 'now'
-        if(type === 'morning'){
-            if (isStartNow) {
-                date.setMinutes(date.getMinutes() + 15)
-                if (date.getTime() > this.getEndTimeCoworkingSession("morning").getTime()) {
-                    date.setMinutes(this.getEndTimeCoworkingSession("morning").getMinutes()-1)
-                }
-            }else{
-                date.setHours(Time.minus7Hours(7))
-                date.setMinutes(0)
-            }
-        }else{
-            if (isStartNow) {
-                date.setMinutes(date.getMinutes() + 15)
-                if (date.getTime() > this.getEndTimeCoworkingSession('night').getTime()) {
-                    date.setMinutes(this.getEndTimeCoworkingSession('night').getMinutes()-1)
-                }
-            }else{
-                date.setHours(Time.minus7Hours(20))
-                date.setMinutes(0)
-            }
-        }
-
-        if(startTime === 'tomorrow') CoworkingController.addOneDay(date)
-        
-        return date
-    }
-    static getEndTimeCoworkingSession(type ='morning',startTime){
-        const date = new Date()
-        if(type==='morning'){
-            date.setHours(Time.minus7Hours(11))
-            date.setMinutes(30)
-        }else{
-            date.setHours(Time.minus7Hours(22))
-            date.setMinutes(0)
-        }
-
-        if(startTime === 'tomorrow') CoworkingController.addOneDay(date)
-        return date
-    }
-
-    static isNotTuesday(){
-        return Time.getDay() !== "Tuesday"
-    }
-
     static formatDateToString(date){
         let [weekday,month,day] = date.toLocaleDateString("en-US", { weekday: 'short', day:'2-digit',month:'short',}).split(/[, ]+/)
         let hours = date.getHours()
@@ -204,15 +161,6 @@ class CoworkingController {
         }else{
             return `${day} ${month} at ${hours}.${minutes} WIB`
         }
-    }
-
-    static isRangeMorningSession(){
-        const time = new Date().getTime()
-        return time > CoworkingController.getStartTimeCoworkingSession().getTime() && time < CoworkingController.getEndTimeCoworkingSession().getTime() && CoworkingController.isNotTuesday()
-    }
-    static isRangeNightSession(){
-        const time = new Date().getTime()
-        return time >= CoworkingController.getStartTimeCoworkingSession('night').getTime() && time < CoworkingController.getEndTimeCoworkingSession('night').getTime() && CoworkingController.isNotTuesday()
     }
 
     static async getAllEvent(client){
@@ -656,6 +604,46 @@ class CoworkingController {
         return await supabase.from("CoworkingEvents")
             .update({HostId:newHostId})
             .eq("id",EventId)
+    }
+
+    static isWeeklyEventClosa(){
+        const date = Time.getDate()
+        const time = date.getTime()
+        if(date.getDay() === 2){
+            const startEventClosa = Time.getDate()
+            startEventClosa.setHours(20)
+            startEventClosa.setMinutes(0)
+
+            const endEventClosa = Time.getDate()
+            endEventClosa.setHours(21)
+            endEventClosa.setMinutes(0)
+
+            return time >= startEventClosa.getTime() && time <= endEventClosa.getTime()
+        }
+        return false
+    }
+
+    static async handleStartEvent(client){
+        const data = LocalData.getData()
+        if (!CoworkingController.isWeeklyEventClosa()) {
+            const event = await CoworkingController.getDetailEvent(client,data.coworking)
+            const isActive = event.status === GuildScheduledEventStatus.Active
+            if (!isActive) {
+                const event = await CoworkingController.createEventDiscord(client)
+                data.coworking = event.id
+                LocalData.writeData(data)
+                CoworkingController.startEvent(client,event.id)
+            }
+        }
+    }
+
+    static handleLastUserLeaveEvent(client){
+        setTimeout(async () => {
+            const data = LocalData.getData()
+            const event = await CoworkingController.getDetailEvent(client,data.coworking)
+            const isFinished = event.status === GuildScheduledEventStatus.Active
+            if(!isFinished) this.stopEvent(client,data.coworking)
+        }, 1000 * 5);
     }
 }
 
