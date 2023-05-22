@@ -1,6 +1,6 @@
 const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
-const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS, CHANNEL_TESTIMONIAL} = require("../helpers/config");
+const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS, CHANNEL_TESTIMONIAL, CHANNEL_STATUS} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const DailyStreakMessage = require("../views/DailyStreakMessage");
@@ -207,6 +207,10 @@ so, you can learn or sharing from each others.`,
 					const msgGoal = await thread.send(
 						GoalMessage.shareProgress(msg,files,totalDay)
 					)
+					if(totalDay === 1){
+						const channelStatus = ChannelController.getChannel(msg.client,CHANNEL_STATUS)
+						channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))
+					}
 					msgGoalId = msgGoal.id
 				}else{
 					ChannelController.sendToNotification(
