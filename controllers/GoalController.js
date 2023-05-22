@@ -163,7 +163,7 @@ class GoalController {
 		.then()
 
 		if (updatedData.body) {
-			GoalController.updateGoal(client,updatedData.body)
+			GoalController.updateGoal(client,updatedData.body,preferredCoworkingTime)
 		}
 
 		supabase.from("Projects")
@@ -247,11 +247,11 @@ class GoalController {
 		})
 	}
 
-	static async updateGoal(client,data){
+	static async updateGoal(client,data,preferredCoworkingTime){
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
 		const {user} = await MemberController.getMember(client,data.UserId)
 		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-		const {project,goal,about,shareProgressAt,deadlineGoal,preferredCoworkingTime} = data
+		const {project,goal,about,shareProgressAt,deadlineGoal} = data
 
 		const buffer = await GenerateImage.project({
 			user,project,goal,date:Time.getDate(deadlineGoal)
@@ -269,7 +269,7 @@ class GoalController {
 				.then(data=>{
 					if (data.body) {
 						data.body.forEach(goal=>{
-							GoalController.updateGoal(client,goal)
+							GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
 						})
 					}
 				})
@@ -323,7 +323,7 @@ class GoalController {
     }
 
 	static async getAllActiveGoal(){
-		const data = await supabase.from("Goals").select().gte('deadlineGoal',Time.getTodayDateOnly())
+		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly())
 		return data
 	}
 
