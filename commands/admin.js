@@ -11,6 +11,7 @@ const { CHANNEL_PARTY_ROOM, ROLE_NEW_MEMBER, ROLE_ONBOARDING_WELCOME, ROLE_ONBOA
 const PartyMessage = require('../views/PartyMessage');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const MemberController = require('../controllers/MemberController');
+const GoalController = require('../controllers/GoalController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -32,6 +33,11 @@ module.exports = {
 			subcommand
 				.setName('party__remove_user')
 				.setDescription('remove user from party')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('update__goal')
+				.setDescription('update goal')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
@@ -154,6 +160,13 @@ module.exports = {
 
 			const referralCode = values.map(data=>data.referralCode)
 			interaction.editReply(`use this referral code \n${referralCode.join('\n')}`)
+		}else if(command === 'update__goal'){
+			const user = interaction.options.getUser('user')
+			const data = await supabase.from("Goals")
+				.select("*,Users(preferredCoworkingTime)")
+				.eq("UserId",user.id)
+
+			GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
 		}
 		
 	},
