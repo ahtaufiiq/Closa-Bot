@@ -252,12 +252,11 @@ class GoalController {
 		const {user} = await MemberController.getMember(client,data.UserId)
 		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
 		const {project,goal,about,shareProgressAt,deadlineGoal} = data
-
 		const buffer = await GenerateImage.project({
 			user,project,goal,date:Time.getDate(deadlineGoal)
 		})
 		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
-		existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
+		await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
 	}
 
 	static async updateAllActiveGoal(client){
@@ -266,13 +265,23 @@ class GoalController {
         ruleUpdateGoal.minute = 1
         schedule.scheduleJob(ruleUpdateGoal,function(){
 			GoalController.getAllActiveGoal()
-				.then(data=>{
+				.then(async data=>{
 					if (data.body) {
-						data.body.forEach(goal=>{
-							GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
-						})
+						for (let i = 0; i < data.body.length; i++) {
+							await GoalController.wait()
+							const goal = data.body[i];
+							await GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
+						}
 					}
 				})
+		})
+	}
+
+	static wait(){
+		return new Promise((resolve,reject)=>{
+			setTimeout(() => {
+			resolve('wait')
+			}, 3000);
 		})
 	}
 
