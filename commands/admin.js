@@ -166,7 +166,8 @@ module.exports = {
 				.select("*,Users(preferredCoworkingTime)")
 				.eq("UserId",user.id)
 
-			GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
+			await GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
+			interaction.editReply('success update goal')
 		}
 		
 	},
