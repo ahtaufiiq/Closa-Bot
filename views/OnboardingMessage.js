@@ -86,7 +86,8 @@ Start your project & set a goal ${MessageFormatting.tagUser(userId)}`,
 Now, join or schedule a coworking session to work on your project ${MessageFormatting.tagUser(userId)}`,
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('replySecondQuest','Join')
+                MessageComponent.addButton('replySecondQuest','Join'),
+                MessageComponent.addLinkButton('Watch video (2 mins)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30').setEmoji('▶️')
             )]
         }
     }
