@@ -132,12 +132,27 @@ feel free to give your friends early access to closa`,
 if you want to start sooner, you can follow closa ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`
     }
 
-    static reminderToStartOnboarding(userId){
+    static reminderToStartOnboarding(userId,onboardingStep){
+        let textButton = 'Get started'
+        let command = 'startOnboarding'
+        let content = `Hi ${MessageFormatting.tagUser(userId)}, are you ready to work on your idea today?`
+        if(onboardingStep === 'firstQuest') command = 'continueFirstQuest'
+        else if(onboardingStep === 'secondQuest'){
+            command = 'continueSecondQuest'
+            content = `Hi ${MessageFormatting.tagUser(userId)}, let's continue on quest (2/3): join your first coworking session`
+            textButton = 'Join'
+        }else if(onboardingStep === 'thirdQuest'){
+            command = 'continueThirdQuest'
+            content = `Hi ${MessageFormatting.tagUser(userId)}, let's continue the final step: share your first progress! ${MessageFormatting.tagUser(userId)} 🥳`
+            textButton = 'Share Progress'
+        }
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)}, are you ready to work on your idea today?`,
+            content,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`startOnboarding_${userId}_fromReminder`,'Get started'),
-                MessageComponent.addButton(`remindOnboardingAgain_${userId}`,"I'll start later",ButtonStyle.Secondary)
+                MessageComponent.addButton(`${command}_${userId}_fromReminder`,textButton),
+                onboardingStep === 'secondQuest' 
+                    ? MessageComponent.addLinkButton('watch demo (3 min)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30 ').setEmoji('▶️') 
+                    : MessageComponent.addButton(`remindOnboardingAgain_${userId}`,"I'll start later",ButtonStyle.Secondary)
             )]
         }
     }

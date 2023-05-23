@@ -165,6 +165,7 @@ so, you can learn or sharing from each others.`,
 							MemberController.removeRole(msg.client,msg.author.id,ROLE_ONBOARDING_PROGRESS)
 							OnboardingController.updateOnboardingStep(msg.client,msg.author.id,'done')
 							ReferralCodeController.addNewReferral(msg.author.id,3)
+							OnboardingController.deleteReminderToStartOnboarding(msg.author.id)
 							setTimeout(async () => {
 								const files = []
 								const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(msg.author.id)
