@@ -16,6 +16,7 @@ or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCO
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton('scheduleCoworking','Schedule','🗓️'),
+                MessageComponent.addLinkButton('Watch video (2 mins)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30').setEmoji('▶️'),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Daily-Coworking-80775e46f7c8440ca4b48062a6df9445')
             )]
         }

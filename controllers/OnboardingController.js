@@ -34,12 +34,12 @@ class OnboardingController {
         const UserId = interaction.user.id
         const value = interaction.customId.split("_")[2]
         await OnboardingController.updateOnboardingStep(interaction.client,UserId,'firstQuest')
+        OnboardingController.addReminderToStartOnboarding(UserId)
 
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_LATER)
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
 
         MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
-        OnboardingController.deleteReminderToStartOnboarding(UserId)
         if(value === 'fromReminder'){
             ChannelController.deleteMessage(interaction.message)
         }
@@ -57,7 +57,6 @@ class OnboardingController {
         MemberController.addRole(interaction.client,UserId,ROLE_NEW_MEMBER)
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
 
-        OnboardingController.addReminderToStartOnboarding(UserId)
         interaction.editReply(OnboardingMessage.replyStartLater())
         GuidelineInfoController.incrementTotalNotification(1,UserId)
     }
@@ -94,13 +93,13 @@ class OnboardingController {
         ruleRemindOnboarding.minute = 20
         schedule.scheduleJob(ruleRemindOnboarding,async function(){
             supabase.from("Reminders")
-                .select('*,Users(notificationId)')
+                .select('*,Users(notificationId,onboardingStep)')
                 .or('type.eq.reminderStartOnboarding,type.eq.turnOffReminderOnboarding')
                 .eq('message',Time.getTodayDateOnly())
                 .then(data=>{
-                    data.body?.forEach(({Users:{notificationId},type,UserId})=>{
+                    data.body?.forEach(({Users:{notificationId,onboardingStep},type,UserId})=>{
                         let msgContent
-                        if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId)
+                        if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId,onboardingStep)
                         else msgContent = OnboardingMessage.turnOffReminderOnboarding()
                         ChannelController.sendToNotification(client,msgContent,UserId,notificationId)
                     })
