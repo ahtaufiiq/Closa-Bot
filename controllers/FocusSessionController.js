@@ -259,8 +259,8 @@ class FocusSessionController {
                         totalTime: totalTime + totalTimeCoworking,
                         lastCoworking: Time.getTodayDateOnly(),
                         currentStreak: coworkingStreak,
-                        currentSession: 1
                     }
+                    FocusSessionController.decreaseCurrentSession(id)
                     
                     if(coworkingStreak > longestStreak){
                         value.longestStreak = coworkingStreak
@@ -272,15 +272,16 @@ class FocusSessionController {
                         .eq('id',id)
                 }
             }else{
-                supabase.from("CoworkingPartners")
-                    .update({
-                        currentSession:0
-                    })
-                    .eq('id',id)
-                    .then()
+                FocusSessionController.decreaseCurrentSession(id)
             }
 
         }
+    }
+
+    static decreaseCurrentSession(id){
+        supabase
+        .rpc('incrementCurrentSession', { x:-1,id_table:id })
+        .then()
     }
 
     static async getAllCoworkingPartners(userId){
