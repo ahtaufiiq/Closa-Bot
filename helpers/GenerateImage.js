@@ -590,7 +590,7 @@ class GenerateImage{
             const lines = split(context, value, "64px JakartaSans", width);
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
-                if(i === 3 && line.length > 4){
+                if(i === 3 && lines.length > 4){
                     line+="..."
                 }
                 context.fillText(line, x , y);
