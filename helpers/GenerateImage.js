@@ -584,19 +584,30 @@ class GenerateImage{
     static async project({user,project,goal,date}){
         registerFont('./assets/fonts/PlusJakartaSans-Bold.ttf',{family:'JakartaSans'})
         
-        
-        function renderWrappedTextCentered(context, value, width, x, y) {
-            // ideally don't do this every time, it is really slow.
-            const lines = split(context, value, "64px JakartaSans", width);
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i];
-                if(i === 3 && lines.length > 4){
-                    line+="..."
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(/[ \n]/);
+            let line = '';
+            let currentY = y;
+            let counter = 0
+            for (let i = 0; i < words.length; i++) {
+              const testLine = line + words[i] + ' ';
+              const metrics = context.measureText(testLine);
+              const testWidth = metrics.width;
+          
+              if (testWidth > maxWidth && i > 0) {
+                counter++
+                if(counter === 4){
+                    line += '...'
+                    break
                 }
-                context.fillText(line, x , y);
-                y += 76.8;
-                if(i === 3) break
+                context.fillText(line, x, currentY);
+                line = words[i] + ' ';
+                currentY += lineHeight;
+              } else {
+                line = testLine;
+              }
             }
+            context.fillText(line, x, currentY);
         }
 
         const template = await loadImage(`./assets/images/project_template.png`)
@@ -614,8 +625,7 @@ class GenerateImage{
 
         context.fillStyle = "#2B2B2B"; 
         context.font = "64px JakartaSans";
-        
-        renderWrappedTextCentered(context,goal,900,template.width/2,485)
+        wrapText(context,goal,template.width/2,485,900,76.8)
         
         context.fillStyle = "#888888"; 
         context.font = "36px JakartaSans";
@@ -632,9 +642,6 @@ class GenerateImage{
         const coordinatX = 71.5
         const coordinatY = 875.5
         this.roundRect(context,coordinatX,coordinatY,sizeAvatar,sizeAvatar,32)
-        // context.lineWidth = 6.7
-        // context.strokeStyle = '#FAFAFB'
-        // context.strokeStyle = 'red'
         context.clip()
         context.drawImage(hostAvatar,coordinatX,coordinatY,sizeAvatar,sizeAvatar)
 
