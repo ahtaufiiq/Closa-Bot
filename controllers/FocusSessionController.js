@@ -220,6 +220,7 @@ class FocusSessionController {
             .select()
             .is('session',null)
             .neq('UserId',userId)
+            .not('msgFocusTimerId','is',null)
             .then(async data => {
                 for (let i = 0; i < data.body.length; i++) {
                     const {UserId} = data.body[i];
