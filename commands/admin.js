@@ -162,9 +162,7 @@ module.exports = {
 			interaction.editReply(`use this referral code \n${referralCode.join('\n')}`)
 		}else if(command === 'update__goal'){
 			const user = interaction.options.getUser('user')
-			const data = await supabase.from("Goals")
-				.select("*,Users(preferredCoworkingTime)")
-				.eq("UserId",user.id)
+			const data = await GoalController.getActiveGoal(user.id)
 
 			await GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
 			interaction.editReply('success update goal')

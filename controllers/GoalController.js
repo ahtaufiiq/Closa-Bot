@@ -322,6 +322,10 @@ class GoalController {
         return threadGoal
     }
 
+	static async getActiveGoal(UserId){
+		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly()).eq("UserId",UserId).order('createdAt',{ascending:false}).limit(1).single()
+		return data
+	}
 	static async getAllActiveGoal(){
 		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly())
 		return data
