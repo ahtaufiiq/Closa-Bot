@@ -110,7 +110,17 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
     }
 
     static replyThirdQuest(){
-        return `share your daily progress here → ${MessageFormatting.tagChannel(CHANNEL_TODO)}`
+        return `**copy & follow the template below then share your daily progress here → ${MessageFormatting.tagChannel(CHANNEL_TODO)}:
+\`\`\`
+✅ Today:  *title of what you've done*
+
+> replace this section with your story.
+> - *add more details here in a story telling format—like you post a tweet/story*
+> - *avoid just listing of what you've done without a story/context*
+> - *you can attach image/gif/video to show more about your progress.*
+
+➡️ Next → *your next plan*
+\`\`\``
     }
 
     static completedQuest(userId,files){
