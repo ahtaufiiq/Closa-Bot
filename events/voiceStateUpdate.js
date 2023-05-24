@@ -121,9 +121,9 @@ module.exports = {
 					const projectName = data?.Projects?.name
 		
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
+					await FocusSessionController.updateCoworkingPartner(userId)
 					if (totalTime >= 5) {
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
-						await FocusSessionController.updateCoworkingPartner(userId)
 						const incrementVibePoint = totalTime 
 						PointController.addPoint(userId,'voice',totalTime)
 						const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
