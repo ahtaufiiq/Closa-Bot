@@ -123,7 +123,7 @@ class FocusSessionController {
                 focusRoomUser[userId].breakCounter--
                 focusRoomUser[userId].breakTime++
             }
-            if(FocusSessionController.isTimeToBreak(focusRoomUser[userId].currentFocus,5)){
+            if(FocusSessionController.isTimeToBreak(focusRoomUser[userId].currentFocus,50)){
                 if(focusRoomUser[userId].msgIdSmartBreakReminder){
                     const msgBreakReminder = await ChannelController.getMessage(
                         msgFocus.channel,
