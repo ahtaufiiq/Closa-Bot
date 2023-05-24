@@ -375,6 +375,7 @@ class GenerateImage{
         let koordinatTask = 482
         let koordinatProgressTask = 474
         for (let i = 0; i < tasks.length; i++) {
+            if(i === 3) break
             const task = tasks[i];
             const percentage = Math.round(+task.totalTime / totalTime * 100) 
             context.fillStyle = "#31373D"; 
@@ -411,6 +412,7 @@ class GenerateImage{
 
         // Project 1
         for (let i = 0; i < projects.length; i++) {
+            if(i === 3) break
             const project = projects[i];
             const percentage = Math.round(+project.totalTime / totalProjectTime * 100) 
 
