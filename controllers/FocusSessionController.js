@@ -115,14 +115,27 @@ class FocusSessionController {
             }
 
             focusRoomUser[userId].totalTime++
-            if(focusRoomUser[userId]?.isFocus) focusRoomUser[userId].focusTime++
-            else {
+            if(focusRoomUser[userId]?.isFocus){
+                focusRoomUser[userId].focusTime++
+                focusRoomUser[userId].currentFocus++
+            }else {
+                focusRoomUser[userId].currentFocus = 0
                 focusRoomUser[userId].breakCounter--
                 focusRoomUser[userId].breakTime++
             }
-
-            if(focusRoomUser[userId].totalTime === 50 && focusRoomUser[userId].breakTime === 0){
-                msgFocus.channel.send(FocusSessionMessage.smartBreakReminder(userId))
+            if(FocusSessionController.isTimeToBreak(focusRoomUser[userId].currentFocus,5)){
+                if(focusRoomUser[userId].msgIdSmartBreakReminder){
+                    const msgBreakReminder = await ChannelController.getMessage(
+                        msgFocus.channel,
+                        focusRoomUser[userId].msgIdSmartBreakReminder
+                    )
+                    ChannelController.deleteMessage(msgBreakReminder)
+                }
+                msgFocus.channel.send(FocusSessionMessage.smartBreakReminder(userId,focusRoomUser[userId].currentFocus))
+                    .then(msgReminderBreak=>{
+                        focusRoomUser[userId].msgIdReplyBreak = msgReminderBreak.id
+                        focusRoomUser[userId].msgIdSmartBreakReminder = msgReminderBreak.id
+                    })
             }
 
             if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
@@ -155,6 +168,10 @@ class FocusSessionController {
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
         }, Time.oneMinute());
+    }
+
+    static isTimeToBreak(currentFocus,breakReminder){
+        return currentFocus !== 0 && currentFocus % breakReminder === 0
     }
 
     static isReachedDailyWorkTime({totalTime,totalTimeToday,dailyWorkTime}){

@@ -263,10 +263,10 @@ please do it within **2 min** before you get auto-kick from the room.`
         }
     }
 
-    static smartBreakReminder(userId){
+    static smartBreakReminder(userId,min=50){
         return {
             content:`Ready to take a break? ${MessageFormatting.tagUser(userId)}
-more than 50 minutes passed since you started working.
+more than ${min} minutes passed since you started working.
 take frequent breaks to improve your productivity.
 
 \`\`\`

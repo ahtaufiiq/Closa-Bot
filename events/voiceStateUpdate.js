@@ -59,6 +59,7 @@ module.exports = {
 					selfVideo : newMember.selfVideo,
 					streaming : newMember.streaming,
 					threadId:null,
+					currentFocus:0,
 					totalTime:0,
 					focusTime:0,
 					breakTime:0,
@@ -162,7 +163,7 @@ module.exports = {
 					await msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
 					if(focusRoomUser[userId]?.msgIdReplyBreak){
 						ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
-							.then(replyBreak=>{
+							.then(replyBreak => {
 								ChannelController.deleteMessage(replyBreak)
 							})
 					}
@@ -172,12 +173,13 @@ module.exports = {
 						channelIdFocusRecap
 					)
 					thread.setArchived(true)
+					FocusSessionController.deleteFocusSession(userId)
 				}
-				FocusSessionController.deleteFocusSession(userId)
 				if(focusRoomUser[userId]?.firstTime){
-					focusRoomUser[userId]?.joinedChannelId = null
-					focusRoomUser[userId]?.selfVideo = null
-					focusRoomUser[userId]?.streaming = null
+					delete focusRoomUser[userId].joinedChannelId 
+					delete focusRoomUser[userId].selfVideo 
+					delete focusRoomUser[userId].streaming 
+					delete focusRoomUser[userId].timestamp
 				}else delete focusRoomUser[userId]
 			}
 		} catch (error) {
@@ -193,6 +195,7 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 	return new Promise((resolve,reject)=>{
 		setTimeout(async () => {
 			let {selfVideo,streaming,threadId,statusSetSessionGoal,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
+			console.log(timestamp , oldTimestamp,timestamp === oldTimestamp);
 			if (!selfVideo && !streaming && timestamp === oldTimestamp) {
 				if (focusRoomUser[userId]) {
 					const isAlreadySetSessionGoal = statusSetSessionGoal === 'done'
