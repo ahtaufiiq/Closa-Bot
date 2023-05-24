@@ -46,6 +46,13 @@ class FocusSessionController {
             .eq('UserId',userId)
             .then()
     }
+    static updateVoiceRoomId(userId,VoiceRoomId){
+        supabase.from('FocusSessions')
+            .update({VoiceRoomId})
+            .is('session',null)
+            .eq('UserId',userId)
+            .then()
+    }
 
     static async getActiveFocusTimer(){
         return await supabase.from()
@@ -215,10 +222,11 @@ class FocusSessionController {
             .eq(userId)
     }
 
-    static async setCoworkingPartner(userId){
+    static async setCoworkingPartner(userId,VoiceRoomId){
         supabase.from("FocusSessions")
             .select()
             .is('session',null)
+            .eq("VoiceRoomId",VoiceRoomId)
             .neq('UserId',userId)
             .not('msgFocusTimerId','is',null)
             .then(async data => {
@@ -343,11 +351,12 @@ class FocusSessionController {
     }
 
     static async startFocusTimer(client,threadId,userId,focusRoomUser){
-        FocusSessionController.setCoworkingPartner(userId)
         const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
         const thread = await ChannelController.getThread(channel,threadId)
         focusRoomUser[userId].threadId = threadId
         if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId) ){
+            FocusSessionController.updateVoiceRoomId(userId,focusRoomUser[userId]?.joinedChannelId)
+            FocusSessionController.setCoworkingPartner(userId,focusRoomUser[userId]?.joinedChannelId)
             const data = await FocusSessionController.getDetailFocusSession(userId)
             const taskName = data?.taskName
             const projectName = data?.Projects?.name
