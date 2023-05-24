@@ -46,6 +46,13 @@ class FocusSessionController {
             .eq('UserId',userId)
             .then()
     }
+    static updateVoiceRoomId(userId,VoiceRoomId){
+        supabase.from('FocusSessions')
+            .update({VoiceRoomId})
+            .is('session',null)
+            .eq('UserId',userId)
+            .then()
+    }
 
     static async getActiveFocusTimer(){
         return await supabase.from()
@@ -108,14 +115,27 @@ class FocusSessionController {
             }
 
             focusRoomUser[userId].totalTime++
-            if(focusRoomUser[userId]?.isFocus) focusRoomUser[userId].focusTime++
-            else {
+            if(focusRoomUser[userId]?.isFocus){
+                focusRoomUser[userId].focusTime++
+                focusRoomUser[userId].currentFocus++
+            }else {
+                focusRoomUser[userId].currentFocus = 0
                 focusRoomUser[userId].breakCounter--
                 focusRoomUser[userId].breakTime++
             }
-
-            if(focusRoomUser[userId].totalTime === 50 && focusRoomUser[userId].breakTime === 0){
-                msgFocus.channel.send(FocusSessionMessage.smartBreakReminder(userId))
+            if(FocusSessionController.isTimeToBreak(focusRoomUser[userId].currentFocus,50)){
+                if(focusRoomUser[userId].msgIdSmartBreakReminder){
+                    const msgBreakReminder = await ChannelController.getMessage(
+                        msgFocus.channel,
+                        focusRoomUser[userId].msgIdSmartBreakReminder
+                    )
+                    ChannelController.deleteMessage(msgBreakReminder)
+                }
+                msgFocus.channel.send(FocusSessionMessage.smartBreakReminder(userId,focusRoomUser[userId].currentFocus))
+                    .then(msgReminderBreak=>{
+                        focusRoomUser[userId].msgIdReplyBreak = msgReminderBreak.id
+                        focusRoomUser[userId].msgIdSmartBreakReminder = msgReminderBreak.id
+                    })
             }
 
             if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
@@ -148,6 +168,10 @@ class FocusSessionController {
                 msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId))
             }
         }, Time.oneMinute());
+    }
+
+    static isTimeToBreak(currentFocus,breakReminder){
+        return currentFocus !== 0 && currentFocus % breakReminder === 0
     }
 
     static isReachedDailyWorkTime({totalTime,totalTimeToday,dailyWorkTime}){
@@ -215,10 +239,11 @@ class FocusSessionController {
             .eq(userId)
     }
 
-    static async setCoworkingPartner(userId){
+    static async setCoworkingPartner(userId,VoiceRoomId){
         supabase.from("FocusSessions")
             .select()
             .is('session',null)
+            .eq("VoiceRoomId",VoiceRoomId)
             .neq('UserId',userId)
             .not('msgFocusTimerId','is',null)
             .then(async data => {
@@ -343,11 +368,12 @@ class FocusSessionController {
     }
 
     static async startFocusTimer(client,threadId,userId,focusRoomUser){
-        FocusSessionController.setCoworkingPartner(userId)
         const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
         const thread = await ChannelController.getThread(channel,threadId)
         focusRoomUser[userId].threadId = threadId
         if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId) ){
+            FocusSessionController.updateVoiceRoomId(userId,focusRoomUser[userId]?.joinedChannelId)
+            FocusSessionController.setCoworkingPartner(userId,focusRoomUser[userId]?.joinedChannelId)
             const data = await FocusSessionController.getDetailFocusSession(userId)
             const taskName = data?.taskName
             const projectName = data?.Projects?.name

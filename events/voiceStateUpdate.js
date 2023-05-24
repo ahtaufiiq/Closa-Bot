@@ -59,6 +59,7 @@ module.exports = {
 					selfVideo : newMember.selfVideo,
 					streaming : newMember.streaming,
 					threadId:null,
+					currentFocus:0,
 					totalTime:0,
 					focusTime:0,
 					breakTime:0,
@@ -121,9 +122,9 @@ module.exports = {
 					const projectName = data?.Projects?.name
 		
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
+					await FocusSessionController.updateCoworkingPartner(userId)
 					if (totalTime >= 5) {
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
-						await FocusSessionController.updateCoworkingPartner(userId)
 						const incrementVibePoint = totalTime 
 						PointController.addPoint(userId,'voice',totalTime)
 						const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
@@ -162,7 +163,7 @@ module.exports = {
 					await msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
 					if(focusRoomUser[userId]?.msgIdReplyBreak){
 						ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
-							.then(replyBreak=>{
+							.then(replyBreak => {
 								ChannelController.deleteMessage(replyBreak)
 							})
 					}
@@ -172,9 +173,14 @@ module.exports = {
 						channelIdFocusRecap
 					)
 					thread.setArchived(true)
+					FocusSessionController.deleteFocusSession(userId)
 				}
-				FocusSessionController.deleteFocusSession(userId)
-				delete focusRoomUser[userId]
+				if(focusRoomUser[userId]?.firstTime){
+					delete focusRoomUser[userId].joinedChannelId 
+					delete focusRoomUser[userId].selfVideo 
+					delete focusRoomUser[userId].streaming 
+					delete focusRoomUser[userId].timestamp
+				}else delete focusRoomUser[userId]
 			}
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
@@ -189,6 +195,7 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 	return new Promise((resolve,reject)=>{
 		setTimeout(async () => {
 			let {selfVideo,streaming,threadId,statusSetSessionGoal,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
+			console.log(timestamp , oldTimestamp,timestamp === oldTimestamp);
 			if (!selfVideo && !streaming && timestamp === oldTimestamp) {
 				if (focusRoomUser[userId]) {
 					const isAlreadySetSessionGoal = statusSetSessionGoal === 'done'
