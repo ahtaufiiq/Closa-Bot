@@ -123,7 +123,11 @@ class PartyController{
 		setTimeout(() => {
 			members.forEach(async member=>{
 				const {UserId} =  member
-				ChannelController.sendToNotification(client,PartyMessage.reminderSetHighlightAfterJoinParty(UserId),UserId)
+				ChannelController.sendToNotification(
+					client,
+					PartyMessage.reminderSetHighlightAfterJoinParty(UserId),
+					UserId
+				)
 			})
 		}, 1000 * 60 * 15);
 	}

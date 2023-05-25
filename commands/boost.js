@@ -31,7 +31,11 @@ module.exports = {
 			PointController.addPoint(interaction.user.id,'boost')
 		}
 		const totalBoost = await BoostController.incrementTotalBoost(interaction.user.id,user.id)
-		ChannelController.sendToNotification(interaction.client,BoostMessage.sendBoost(user,interaction.user,totalBoost,message),user.id)
+		ChannelController.sendToNotification(
+			interaction.client,
+			BoostMessage.sendBoost(user,interaction.user,totalBoost,message),
+			user.id
+		)
 
 		await interaction.editReply(BoostMessage.successSendMessage(user))
 	},

@@ -421,10 +421,18 @@ class CoworkingController {
 				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id,newEvent.body.totalSlot)
                 const {user} = await MemberController.getMember(client,newEvent.body.HostId)
                 dataAttendances.body.forEach(async attendance=>{
-                    ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user)),attendance.UserId)
+                    ChannelController.sendToNotification(
+                        client,
+                        CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user)),
+                        attendance.UserId
+                    )
                 })
                 const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel,newEvent.body.HostId)
-                ChannelController.sendToNotification(client,CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),user.id)
+                ChannelController.sendToNotification(
+                    client,
+                    CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),
+                    user.id
+                )
 			}
 		})
 	}
@@ -579,7 +587,9 @@ class CoworkingController {
                     .then(data => {
                             data.body.forEach(attendance=>{
                             ChannelController.sendToNotification(
-                                interaction.client,CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),attendance.UserId
+                                interaction.client,
+                                CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),
+                                attendance.UserId
                             )
                             })
                     })

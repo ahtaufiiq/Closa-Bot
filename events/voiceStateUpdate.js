@@ -48,14 +48,16 @@ module.exports = {
 			}
 
 			if(isFirsTimeJoinFocusRoom(listFocusRoom,focusRoomUser,joinedChannelId,userId)){
-				const dataUser = await UserController.getDetail(userId,'dailyWorkTime')
+				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder')
 				const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
+				const breakReminder = Number(dataUser.body?.breakReminder)
 				const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 				focusRoomUser[userId] = {
 					timestamp:Time.getDate().getTime(),
 					date:Time.getTodayDateOnly(),
 					totalTimeToday,
 					dailyWorkTime,
+					breakReminder,
 					selfVideo : newMember.selfVideo,
 					streaming : newMember.streaming,
 					threadId:null,
@@ -87,7 +89,11 @@ module.exports = {
 					if (data) {
 						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser)
 					}else{
-						ChannelController.sendToNotification(newMember.client,FocusSessionMessage.askToWriteSessionGoal(userId),userId)
+						ChannelController.sendToNotification(
+							newMember.client,
+							FocusSessionMessage.askToWriteSessionGoal(userId),
+							userId
+						)
 					}
 				})
 				
@@ -152,7 +158,11 @@ module.exports = {
 							MemberController.removeRole(oldMember.client,userId,ROLE_ONBOARDING_COWORKING)
 							MemberController.addRole(oldMember.client,userId,ROLE_ONBOARDING_PROGRESS)
 							setTimeout(() => {
-								ChannelController.sendToNotification(oldMember.client,OnboardingMessage.thirdQuest(userId),userId)
+								ChannelController.sendToNotification(
+									oldMember.client,
+									OnboardingMessage.thirdQuest(userId),
+									userId
+								)
 								OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
 							}, 1000 * 15);
 						}
@@ -195,12 +205,15 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 	return new Promise((resolve,reject)=>{
 		setTimeout(async () => {
 			let {selfVideo,streaming,threadId,statusSetSessionGoal,timestamp} = focusRoomUser[userId] || {selfVideo:false,streaming:false}
-			console.log(timestamp , oldTimestamp,timestamp === oldTimestamp);
 			if (!selfVideo && !streaming && timestamp === oldTimestamp) {
 				if (focusRoomUser[userId]) {
 					const isAlreadySetSessionGoal = statusSetSessionGoal === 'done'
 					if(statusSetSessionGoal !== 'setDailyWorkTime' && statusSetSessionGoal !== 'selectProject'){
-						ChannelController.sendToNotification(client,FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal),userId)
+						ChannelController.sendToNotification(
+							client,
+							FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal),
+							userId
+						)
 					}
 					let msg
 					if(threadId){

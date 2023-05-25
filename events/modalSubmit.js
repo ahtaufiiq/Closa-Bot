@@ -42,10 +42,30 @@ const OnboardingController = require("../controllers/OnboardingController");
 
 module.exports = {
 	name: 'modalSubmit',
-	async execute(modal) {
+	async execute(modal,focusRoomUser) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-			if(commandButton === 'selectDailyWorkGoal'){
+			if(commandButton === 'settingBreakReminder'){
+				await modal.deferReply({ephemeral:true})
+				const breakTime = modal.getTextInputValue('breakTime');
+				const totalMinute = Time.getTotalMinutes(breakTime)
+				supabase.from("Users")
+					.update({breakReminder:totalMinute})
+					.eq('id',modal.user.id)
+					.then()
+				if(focusRoomUser[modal.user.id]) focusRoomUser[modal.user.id].breakReminder = totalMinute
+				modal.editReply(FocusSessionMessage.successSettingBreakTime(totalMinute))
+			}else if(commandButton === 'setDailyWorkTime'){
+				await modal.deferReply({ephemeral:true})
+				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
+				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
+				if(focusRoomUser[modal.user.id]) focusRoomUser[modal.user.id].dailyWorkTime = totalMinute
+				supabase.from("Users")
+					.update({dailyWorkTime:totalMinute})
+					.eq('id',modal.user.id)
+					.then()
+				await modal.editReply(FocusSessionMessage.successSetDailyWorkTime(totalMinute))
+			}else if(commandButton === 'selectDailyWorkGoal'){
 				await modal.deferReply()
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
 				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
@@ -565,7 +585,11 @@ The correct format:
 					PointController.addPoint(modal.user.id,'personalBoost')
 				}
 				const totalBoost = await BoostController.incrementTotalBoost(modal.user.id,user.id)
-				ChannelController.sendToNotification(modal.client,BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),user.id)
+				ChannelController.sendToNotification(
+					modal.client,
+					BoostMessage.sendBoostToInactiveMember(user,modal.user,totalBoost,message),
+					user.id
+				)
 
 				await modal.editReply(BoostMessage.successSendMessage(user))
 			}else if(commandButton === 'setReminderHighlight'){

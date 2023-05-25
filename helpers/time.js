@@ -46,7 +46,7 @@ class Time {
         }
         
         function formatMinute(minute) {
-            if(type === 'short') return `${minute} min`   
+            if(type === 'short' || type === 'medium') return `${minute} min`   
             if (minute==1) {
                 return `${minute} minute`   
             }else{
@@ -190,12 +190,8 @@ class Time {
             return totalMinutes;
         } else {
           // If no matches found, check for 'min' without 'hr' separately
-          if (/\d+\s*min/.test(timeString)) {
             const minutes = parseInt(timeString); // Extract minutes as numeric value
             return minutes;
-          } else {
-            return NaN; // Return NaN if the format is invalid
-          }
         }
     }
     
