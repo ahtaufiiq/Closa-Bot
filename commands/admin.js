@@ -46,6 +46,12 @@ module.exports = {
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('point')
+				.setDescription('update total point')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
+				.addStringOption(option => option.setName('point').setDescription("total point").setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('referral')
 				.setDescription('generate new referral')
 				.addUserOption(option => option.setName('user').setDescription('user'))
@@ -166,6 +172,14 @@ module.exports = {
 
 			await GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
 			interaction.editReply('success update goal')
+		}else if(command === 'point'){
+			const user = interaction.options.getUser('user')
+			const point = interaction.options.getString('point')
+
+			await supabase.from("Users")
+				.update({totalPoint:+point})
+				.eq('id',user.id)
+			interaction.editReply('success update total point')
 		}
 		
 	},

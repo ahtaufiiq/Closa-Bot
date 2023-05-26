@@ -1,5 +1,6 @@
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
+const ChannelController = require("./ChannelController")
 
 class UserController{
 	static async updateLastSafety(dateOnly,userId){
@@ -17,7 +18,7 @@ class UserController{
 	}
 
 	static async updatePoint(pointLeft,userId){
-		if(pointLeft === null) return
+		if(!pointLeft) return ChannelController.sendError(`update point ${pointLeft} - ${userId}`)
         return await supabase.from("Users")
             .update({totalPoint:pointLeft})
             .eq('id',userId)
@@ -58,7 +59,7 @@ class UserController{
 	}
 
 	static async incrementTotalPoints(increment,id_user){
-		if(increment === null) return
+		if(!increment) return ChannelController.sendError(`update point ${pointLeft} - ${userId}`)
 		return await supabase
 			.rpc('incrementTotalPoint', { increment, id_user })
     }
