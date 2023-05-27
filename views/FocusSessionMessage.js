@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js")
+const { EmbedBuilder, ButtonStyle } = require("discord.js")
 const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_SESSION_GOAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -90,7 +90,8 @@ your time tracker will automatically start right after.`
         if(isLive && isFocus){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`breakFiveMinute_${userId}`,'5 min break','☕'),
-                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱')
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}`,'15 min break','🍱'),
+                MessageComponent.addEmojiButton(`settingFocusTimer_${userId}`,'Settings','⚙️',ButtonStyle.Secondary),
             ))
         }
         return {
@@ -137,7 +138,7 @@ cc: ${MessageFormatting.tagUser(userId)}`:''}`,
     }
 
     static setDailyWorkTime(userId,projectId,taskId){
-        
+
         return {
             content:`**Last setup :sparkles: **
 
@@ -166,8 +167,7 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
                             {
                                 label: "4 hour/day (Intense)",
                                 value: "240_4 hour/day"
-                            },
-                            
+                            }
                         ]
                     ),
                 )
@@ -175,9 +175,8 @@ Let's set your default **daily work time goal** to prevent from overworking ${Me
         }
     }
 
-    static successSetDailyWorkTime(labelMenu){
-        const time = labelMenu ? labelMenu.split('(')[0] : ''
-        return`**✅ Your daily work time goal has been set to ${time}**`
+    static successSetDailyWorkTime(min){
+        return`**✅ Your daily work time goal has been set to ${Time.convertTime(min,'medium')}/day**`
     }
 
     static messageBreakTime(time,userId){
@@ -278,9 +277,25 @@ You can pick a few:
 \`\`Pick your break time, before the next session\`\``,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`breakFiveMinute_${userId}_smartBreak`,'5 min break','☕'),
-                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_smartBreak`,'15 min break','🍱')
+                MessageComponent.addEmojiButton(`breakFifteenMinute_${userId}_smartBreak`,'15 min break','🍱'),
+                MessageComponent.addEmojiButton(`settingFocusTimer_${userId}`,'Settings','⚙️',ButtonStyle.Secondary),
             )]
         }
+    }
+
+    static settings(minuteBreakReminder){
+        return {
+            content:`Set your default time for:`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton('settingDailyGoal','🎯 Daily Goal',ButtonStyle.Secondary),
+                MessageComponent.addButton(`settingBreakReminder_null_${Time.convertTime(minuteBreakReminder,'short')}`,'☕️ Break Reminder',ButtonStyle.Secondary),
+
+            )]
+        }
+    }
+
+    static successSettingBreakTime(min=50){
+        return `**✅ Break notification set to ${min} min after focus time started**`
     }
 }
 

@@ -58,6 +58,20 @@ class FocusSessionController {
         return await supabase.from()
     }
 
+    static showModalSettingBreakReminder(interaction){
+        const [commandButton,userId,value] = interaction.customId.split('_')
+        if(commandButton === 'settingBreakReminder'){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set break time")
+			.addComponents(
+				new TextInputComponent().setCustomId('breakTime').setLabel("Send the break notification after").setStyle("SHORT").setDefaultValue(value).setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
     static showModalAddNewProject(interaction,customId){
         const [commandButton,userId] = customId? customId.split('_') : interaction.customId.split('_')
         if(commandButton === 'addNewProject'){
@@ -123,7 +137,7 @@ class FocusSessionController {
                 focusRoomUser[userId].breakCounter--
                 focusRoomUser[userId].breakTime++
             }
-            if(FocusSessionController.isTimeToBreak(focusRoomUser[userId].currentFocus,50)){
+            if(FocusSessionController.isTimeToBreak(focusRoomUser,userId)){
                 if(focusRoomUser[userId].msgIdSmartBreakReminder){
                     const msgBreakReminder = await ChannelController.getMessage(
                         msgFocus.channel,
@@ -170,8 +184,8 @@ class FocusSessionController {
         }, Time.oneMinute());
     }
 
-    static isTimeToBreak(currentFocus,breakReminder){
-        return currentFocus !== 0 && currentFocus % breakReminder === 0
+    static isTimeToBreak(focusRoomUser,userId){
+        return focusRoomUser[userId].currentFocus !== 0 && focusRoomUser[userId].currentFocus % focusRoomUser[userId].breakReminder === 0
     }
 
     static isReachedDailyWorkTime({totalTime,totalTimeToday,dailyWorkTime}){
@@ -387,6 +401,11 @@ class FocusSessionController {
         }
     }
 
+    static isValidToStartNewTask(focusRoomUser,userId){
+        if(!focusRoomUser[userId]) return false
+        let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal} = focusRoomUser[userId]
+        return (selfVideo || streaming) && !firstTime && threadId && statusSetSessionGoal === 'done'
+    }
     static isValidToStartFocusTimer(focusRoomUser,userId){
         if(!focusRoomUser[userId]) return false
         let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal} = focusRoomUser[userId]
@@ -398,6 +417,33 @@ class FocusSessionController {
         const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(userId)
         if(focusRoomUser[userId]?.joinedChannelId){
             focusRoomUser[userId].threadId = interaction.channelId
+            if(FocusSessionController.isValidToStartNewTask(focusRoomUser,userId)){
+                const {msgIdFocusRecap,channelIdFocusRecap,totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
+                await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
+                const channel = await ChannelController.getChannel(interaction.client,channelIdFocusRecap)
+                const msgFocus = await ChannelController.getMessage(channel,msgIdFocusRecap)
+                await msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
+                if(focusRoomUser[userId]?.msgIdReplyBreak){
+                    ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
+                        .then(replyBreak => {
+                            ChannelController.deleteMessage(replyBreak)
+                        })
+                }
+                
+                const thread = await ChannelController.getThread(
+                    ChannelController.getChannel(interaction.client,CHANNEL_SESSION_GOAL),
+                    channelIdFocusRecap
+                )
+                thread.setArchived(true)
+                FocusSessionController.deleteFocusSession(userId)
+                /**
+                 * Edit focus timer to ended
+                 * update time focus session
+                 * set thread to archived
+                 * 
+                 * start new focus timer
+                 */
+            }
             if(FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
                 const msgReply = await interaction.editReply('.')
                 ChannelController.deleteMessage(msgReply)

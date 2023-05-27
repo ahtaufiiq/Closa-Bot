@@ -65,13 +65,14 @@ module.exports = {
 				if(IntroController.showModalWriteIntro(interaction)) return
 				if(IntroController.showModalEditIntro(interaction)) return
 				if(FocusSessionController.showModalAddNewProject(interaction)) return
+				if(FocusSessionController.showModalSettingBreakReminder(interaction)) return
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
-				if(commandButton === 'buyOneVacationTicket'){
+				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer'){
 					await interaction.deferReply({ephemeral:true});
 				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
@@ -86,6 +87,12 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "settingDailyGoal":
+						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
+						break;
+					case 'settingFocusTimer':
+						interaction.editReply(FocusSessionMessage.settings(focusRoomUser[interaction.user.id]?.breakReminder||50))
+						break;
 					case "onboardingFromGuideline":
 						const dataOnboarding = await supabase.from("Users")
 							.select('onboardingStep')
@@ -669,15 +676,29 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningReplyYourself())
 						return	
 					}
-				}else if(commandMenu === 'buyVacationTicket'){
+				}else if(commandMenu === 'buyVacationTicket' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject"){
+				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject"){
 					await interaction.deferReply();
 				}
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case 'setDailyWorkTime':
+						if(valueMenu === 'custom'){
+							GoalController.showModalCustomDailyWorkTime(interaction)
+						}else {
+							await interaction.deferReply({ephemeral:true});
+							const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
+							supabase.from("Users")
+								.update({dailyWorkTime:minWorkGoal})
+								.eq('id',interaction.user.id)
+								.then()
+							if(focusRoomUser[interaction.user.id]) focusRoomUser[interaction.user.id].dailyWorkTime = +minWorkGoal
+							interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(minWorkGoal))
+						}
+						break;
 					case "selectDailyWorkGoal":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
 
@@ -703,7 +724,7 @@ module.exports = {
 							.update({dailyWorkTime:min})
 							.eq('id',interaction.user.id)
 							.then()
-						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(labelMenu))
+						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(min))
 						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
 						focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'

@@ -43,14 +43,15 @@ For the project deadline you can follow:
         return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
 
-	static setDailyWorkTime(userId){
-        
+	static setDailyWorkTime(userId,fromSetting){
+        let command = `selectDailyWorkGoal`
+        if(fromSetting) command = `setDailyWorkTime`
         return {
             content:`**How much time you want to work daily on your project?**`,
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
-                        `selectDailyWorkGoal_${userId}`,
+                        `${command}_${userId}`,
                         "- Select daily work time goal -",
                         [
                             {

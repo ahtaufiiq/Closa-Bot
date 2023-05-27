@@ -1,3 +1,4 @@
+const { CHANNEL_TESTIMONIAL } = require("../helpers/config")
 const getRandomValue = require("../helpers/getRandomValue")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -64,6 +65,15 @@ ${getRandomValue(copywritingReply)}
 → ${testimonialLink}`,
             components
         }
+    }
+
+    static successPostVibes(userId){
+        return `congrats on your milestones! ${MessageFormatting.tagUser(userId)} :partying_face: 
+
+let's support each other on ${CHANNEL_TESTIMONIAL} as well.
+you can like, share, or reply to other posts on public :Heart:
+
+*this act of giving back will help our community grow to the better*`
     }
 
 

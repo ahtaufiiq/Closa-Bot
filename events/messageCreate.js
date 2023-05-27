@@ -29,6 +29,7 @@ const FocusSessionController = require("../controllers/FocusSessionController");
 const MemberController = require("../controllers/MemberController");
 const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
+const TestimonialMessage = require("../views/TestimonialMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -69,7 +70,11 @@ module.exports = {
 			case CHANNEL_TESTIMONIAL:
 				let titleTestimonial = `${msg.content.trimStart().split('\n')[0]}`
 				if(FormatString.notCharacter(titleTestimonial[0])) titleTestimonial = titleTestimonial.slice(1).trimStart()
-
+				ChannelController.sendToNotification(
+					msg.client,
+					TestimonialMessage.successPostVibes(msg.author.id),
+					msg.author.id
+				)
 				ChannelController.createThread(msg,titleTestimonial)
 				break;
 			case CHANNEL_SESSION_GOAL:
