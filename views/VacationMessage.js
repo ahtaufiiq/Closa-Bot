@@ -33,7 +33,7 @@ class VacationMessage {
 
 —————————————
 
-**500 points /each**
+**250 points /each**
 
 **${totalTicket} ticket sold**`)
                 .setImage("https://media.giphy.com/media/3ohzAttVwOSM1vCdK8/giphy.gif")
@@ -85,7 +85,7 @@ To get vibe points you can contribute to community by doing certain activities.`
         const optionsMenu = optionsTicket.map(option=>{
             const isEligible = maxVacationTicket >= option
             return {
-                label: `${isEligible ? "🎫":"🔒"} ${option} day for ${option * 500} Points ${isEligible ? "":"(locked)"}`,
+                label: `${isEligible ? "🎫":"🔒"} ${option} day for ${option * 250} Points ${isEligible ? "":"(locked)"}`,
                 value: `${option}${isEligible ? "":"-locked"}`
             }
         })
@@ -130,7 +130,7 @@ To get vibe points you can contribute to community by doing certain activities.`
 
     static confirmationBuyOneVacationTicket(userId){
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)}, are you sure to buy 1 vacation ticket for 500 points?`,
+            content:`Hi ${MessageFormatting.tagUser(userId)}, are you sure to buy 1 vacation ticket for 250 points?`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`confirmBuyOneVacationTicket_${userId}`,"Yes"),
                 MessageComponent.addButton('cancelBuyTicket',"Nevermind","SECONDARY")

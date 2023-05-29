@@ -161,7 +161,7 @@ if you want to start sooner, you can follow closa ${MessageFormatting.tagChannel
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`${command}_${userId}_fromReminder`,textButton),
                 onboardingStep === 'secondQuest' 
-                    ? MessageComponent.addLinkButton('watch demo (3 min)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30 ').setEmoji('▶️') 
+                    ? MessageComponent.addLinkButton('watch demo (3 min)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30').setEmoji('▶️') 
                     : MessageComponent.addButton(`remindOnboardingAgain_${userId}`,"I'll start later",ButtonStyle.Secondary)
             )]
         }

@@ -67,7 +67,7 @@ class VacationController{
             const thread = await ChannelController.getThread(channelGoal,goalId)
             goalName = thread.name.split('by')[0]
         }
-        if(data.body?.totalPoint >= 500){
+        if(data.body?.totalPoint >= 250){
             VacationController.updateMessageTotalTicketSold(interaction.client,1)
 
             supabase.from('VacationTickets')
@@ -79,7 +79,7 @@ class VacationController{
                 })
                 .then()
             VacationController.addSafetyDotIfMissOnce(interaction.user.id,lastDone)
-            const pointLeft = totalPoint - 500
+            const pointLeft = totalPoint - 250
             UserController.updatePoint(pointLeft,interaction.user.id)
             const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
 
@@ -157,7 +157,7 @@ class VacationController{
                     })
                     .then()
 
-                const pointLeft = totalPoint - 500
+                const pointLeft = totalPoint - 250
                 UserController.updatePoint(pointLeft,interaction.user.id)
                 if(startDate === Time.getTodayDateOnly()){
                     const channelStreak = ChannelController.getChannel(interaction.client,CHANNEL_STREAK)
@@ -372,7 +372,7 @@ class VacationController{
     }
 
     static calculatePriceVacationTicket(totalTicket){
-        return totalTicket * 500
+        return totalTicket * 250
     }
 }
 
