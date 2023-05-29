@@ -7,7 +7,7 @@ const UserController = require("./UserController");
 class PointController{
     static addPoint(UserId,type,minute,channelId){
         if(type === ChannelType.GuildText){
-            if(channelId !== CHANNEL_SESSION_GOAL && channelId !== CHANNEL_GENERAL) return
+            if(channelId !== CHANNEL_SESSION_GOAL && channelId !== CHANNEL_GENERAL && channelId !== CHANNEL_TODO) return
         }else if(type === ChannelType.PublicThread) return
         else if(type === 'reaction') return
         
