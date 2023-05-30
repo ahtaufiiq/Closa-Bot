@@ -248,15 +248,15 @@ so, you can learn or sharing from each others.`,
 				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
-				.then((data) => {
-					supabase.from("Todos")
+				.then(async (data) => {
+					await supabase.from("Todos")
 						.insert({
 							attachments,
 							msgGoalId,
 							description:msg.content,
 							UserId:msg.author.id,
 							msgProgressId:msg.id,
-						}).then()
+						})
 
 					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")

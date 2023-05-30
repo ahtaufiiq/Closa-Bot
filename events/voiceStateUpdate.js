@@ -17,6 +17,7 @@ const CoworkingMessage = require('../views/CoworkingMessage');
 const OnboardingController = require('../controllers/OnboardingController');
 const MemberController = require('../controllers/MemberController');
 const OnboardingMessage = require('../views/OnboardingMessage');
+const ReferralCodeController = require('../controllers/ReferralCodeController');
 
 let closaCafe = {
 
@@ -156,15 +157,35 @@ module.exports = {
 						const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(oldMember.client,userId)
 						if(isHasRoleOnboardingCoworking){
 							MemberController.removeRole(oldMember.client,userId,ROLE_ONBOARDING_COWORKING)
-							MemberController.addRole(oldMember.client,userId,ROLE_ONBOARDING_PROGRESS)
-							setTimeout(() => {
-								ChannelController.sendToNotification(
-									oldMember.client,
-									OnboardingMessage.thirdQuest(userId),
-									userId
-								)
-								OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
-							}, 1000 * 15);
+							UserController.getDetail(userId,'lastDone')
+								.then(data=>{
+									if(data.body.lastDone){
+										OnboardingController.updateOnboardingStep(oldMember.client,userId,'done')
+										ReferralCodeController.addNewReferral(userId,3)
+										OnboardingController.deleteReminderToStartOnboarding(userId)
+										setTimeout(async () => {
+											const files = []
+											const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(userId)
+											const coverWhite = await GenerateImage.referralCover(totalReferralCode,newMember.member,false)
+											files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${newMember.member.username}.png`}))
+											ChannelController.sendToNotification(
+												oldMember.client,
+												OnboardingMessage.completedQuest(userId,files),
+												userId
+											)
+										}, 1000 * 15);
+									}else{
+										MemberController.addRole(oldMember.client,userId,ROLE_ONBOARDING_PROGRESS)
+										setTimeout(() => {
+											ChannelController.sendToNotification(
+												oldMember.client,
+												OnboardingMessage.thirdQuest(userId),
+												userId
+											)
+											OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
+										}, 1000 * 15);
+									}
+								})
 						}
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
@@ -185,12 +206,13 @@ module.exports = {
 					thread.setArchived(true)
 					FocusSessionController.deleteFocusSession(userId)
 				}
-				if(focusRoomUser[userId]?.firstTime){
-					delete focusRoomUser[userId].joinedChannelId 
-					delete focusRoomUser[userId].selfVideo 
-					delete focusRoomUser[userId].streaming 
-					delete focusRoomUser[userId].timestamp
-				}else delete focusRoomUser[userId]
+				// if(focusRoomUser[userId]?.firstTime){
+				// 	delete focusRoomUser[userId].joinedChannelId 
+				// 	delete focusRoomUser[userId].selfVideo 
+				// 	delete focusRoomUser[userId].streaming 
+				// 	delete focusRoomUser[userId].timestamp
+				// }else 
+				delete focusRoomUser[userId]
 			}
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
