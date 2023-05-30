@@ -206,12 +206,13 @@ module.exports = {
 					thread.setArchived(true)
 					FocusSessionController.deleteFocusSession(userId)
 				}
-				if(focusRoomUser[userId]?.firstTime){
-					delete focusRoomUser[userId].joinedChannelId 
-					delete focusRoomUser[userId].selfVideo 
-					delete focusRoomUser[userId].streaming 
-					delete focusRoomUser[userId].timestamp
-				}else delete focusRoomUser[userId]
+				// if(focusRoomUser[userId]?.firstTime){
+				// 	delete focusRoomUser[userId].joinedChannelId 
+				// 	delete focusRoomUser[userId].selfVideo 
+				// 	delete focusRoomUser[userId].streaming 
+				// 	delete focusRoomUser[userId].timestamp
+				// }else 
+				delete focusRoomUser[userId]
 			}
 		} catch (error) {
 			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
