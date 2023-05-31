@@ -89,7 +89,7 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
 					case "claimReward":
-						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId))
+						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value))
 						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
@@ -666,6 +666,18 @@ module.exports = {
 						const msgTestimonial = await channelTestimonial.send(interaction.message.content)
 						ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
 						await interaction.editReply("Testimonial has been posted")
+						if(value){
+							const [type,achievement] = value.split('-')
+							const {point} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
+							await UserController.incrementTotalPoints(+point,targetUserId)
+							const dataUser = await UserController.getDetail(targetUserId,'totalPoint')
+							const totalPoint = dataUser.body.totalPoint
+							ChannelController.sendToNotification(
+								interaction.client,
+								AchievementBadgeMessage.approvedCelebration(targetUserId,type,achievement,totalPoint),
+								targetUserId
+							)
+						}
 						break;
 					default:
 						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

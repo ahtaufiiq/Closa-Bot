@@ -273,7 +273,7 @@ The correct format:
 				const link = modal.getTextInputValue('link');
 				const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
 				if(commandButton === 'submitTestimonialAchievement'){
-					const msg = await channelTestimonial.send(AchievementBadgeMessage.postCelebrationUser(modal.user.id,link,true))
+					const msg = await channelTestimonial.send(AchievementBadgeMessage.postCelebrationUser(modal.user.id,link,true,value))
 					ChannelController.createThread(msg,`from ${modal.user.username}`)
 					await modal.editReply(AchievementBadgeMessage.replySubmitLink())
 				} 

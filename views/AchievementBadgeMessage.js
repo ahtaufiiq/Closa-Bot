@@ -145,7 +145,7 @@ let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTI
         }
     }
 
-    static howToClaimReward(userId){
+    static howToClaimReward(userId,value){
         return {
             content:`Here's how to claim your reward:
 1. Copy the image above & celebrate it on social (e.g. twitter)
@@ -156,7 +156,7 @@ let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTI
 We'll reply to your post & celebrate together! 🥳`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkButton('Share on Twitter',"https://twitter.com/intent/tweet"),
-                MessageComponent.addButton(`submitTestimonialAchievement_${userId}`,"Submit link"),
+                MessageComponent.addButton(`submitTestimonialAchievement_${userId}_${value}`,"Submit link"),
             )]
         }
     }
@@ -172,12 +172,12 @@ if your submission is valid you'll receive the reward soon.`
 ${celebrationLink}`
     }
 
-    static postCelebrationUser(userId,celebrationLink,isShowButton=false){
+    static postCelebrationUser(userId,celebrationLink,isShowButton=false,value){
         const components = []
         if(isShowButton) {
             components.push(MessageComponent.createComponent(
-                MessageComponent.addButton(`postTestimonial_${userId}_celebration`,'Post'),
-                MessageComponent.addButton(`customReplyTestimonial_${userId}_celebration`,'Custom Reply',"SECONDARY")
+                MessageComponent.addButton(`postTestimonial_${userId}_${value}`,'Post'),
+                MessageComponent.addButton(`customReplyTestimonial_${userId}_${value}`,'Custom Reply',"SECONDARY")
             ))
         }
         return {
@@ -186,6 +186,23 @@ Let's celebrate together!
 ↓ 
 ${celebrationLink}`,
             components
+        }
+    }
+
+    static approvedCelebration(userId,type,achievement,totalPoint){
+        const {point} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
+        return {
+            content:`Here's your reward ${MessageFormatting.tagUser(userId)}, once again congrats! 🔥
+
+Thank you for spreading the words about closa as well :love_letter::sparkles:
+It helps us grow the community & supported the team.`,
+            embeds:[
+                new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
+                .setDescription(`Total **${totalPoint}** (+${point}) :coin:`)
+                .setAuthor({name:`You just earned +${point} :coin:`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
+            ],
         }
     }
 }
