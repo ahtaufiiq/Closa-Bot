@@ -484,7 +484,6 @@ class GenerateImage{
             context.arcTo(x, y + height, x, y + height - radius, radius);
             context.lineTo(x, y + radius);
             context.arcTo(x, y, x + radius, y, radius);
-            
         }
           
           // Function to draw a rounded image using the rounded rectangle path and clipping
@@ -647,6 +646,164 @@ class GenerateImage{
         context.clip()
         context.drawImage(hostAvatar,coordinatX,coordinatY,sizeAvatar,sizeAvatar)
 
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+
+    static async coworkingStreakBadge(totalStreak,totalSession,totalTime,user,partner){
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+        }
+        
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.lineWidth = 12
+            context.strokeStyle = getGradientColor(x, y, x , y + 100,totalStreak)
+            context.shadowColor = 'rgba(0, 0, 0, 0.45)';
+            context.shadowOffsetY = 4.17
+            context.shadowBlur = 4.17;
+            context.stroke()
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+
+        function getGradientColor(x0,y0,x1,y1,streak) {
+            const gradientStreak = {
+                7:{start:'#E9F1F9',end:'#BDC4CB'},
+                30:{start:'#F2E499',end:'#A49F78'},
+                100:{start:'#99F2D2',end:'#659B8E'},
+                200:{start:'#CFD4FF',end:'#8E8CF9'},
+                365:{start:'#E9F1F9',end:'#BDC4CB'},
+            }
+            const gradient = context.createLinearGradient(x0, y0, x1 , y1);
+            gradient.addColorStop(0,gradientStreak[streak].start );
+            gradient.addColorStop(1, gradientStreak[streak].end);
+            return gradient
+        }
+        const canvas = createCanvas(1440,1920)
+
+        const context = canvas.getContext('2d')
+ 
+        const template = await loadImage(`./assets/images/coworking_streak_${totalStreak}_badge.png`)
+        context.drawImage(template,0,0)
+        context.fillStyle = "#161F26"; 
+        context.font = "500 36px Inter";
+        const username = UserController.getNameFromUserDiscord(user)
+        context.fillText(username, 191.5 , 1744.8);
+        const usernamePartner = UserController.getNameFromUserDiscord(partner)
+        context.fillText(usernamePartner, 191.5 , 1788.9);
+
+
+        const xSession = 1157.4
+        const ySession = 1397
+        context.textAlign = 'end'
+
+        context.fillStyle = getGradientColor(xSession,ySession-25,xSession,ySession + 60,totalStreak)
+        context.font = "600 48px Archivo";
+        context.fillText(`${totalSession} sessions`, xSession, ySession);
+        const totalTimeInHour = Math.floor(totalTime / 60)
+        const coworkingTime = totalTimeInHour < 1 ? `${totalTime} minutes` : `${totalTimeInHour} hour${totalTimeInHour > 1 ? 's':''}`
+        context.fillText(coworkingTime, xSession, ySession + 52);
+
+        const rectWidth = 90;
+        const rectHeight = 90;
+        const rectX = 991;
+        const rectY = 1242;
+        const cornerRadius = 45;
+        
+        const photoUser = await loadImage(InfoUser.getAvatar(user))
+        const photoPartner = await loadImage(InfoUser.getAvatar(partner))
+        drawRoundedImage(context,photoPartner,rectX + 71,rectY,rectWidth,rectHeight,cornerRadius)
+        drawRoundedImage(context,photoUser,rectX,rectY,rectWidth,rectHeight,cornerRadius)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+
+    static async coworkingTimeBadge(user,totalSession,type){
+        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+        }
+        
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.lineWidth = 12
+            context.strokeStyle = getGradientColor(x, y, x , y + 100,type)
+            context.shadowColor = 'rgba(0, 0, 0, 0.45)';
+            context.shadowOffsetY = 4.17
+            context.shadowBlur = 4.17;
+            context.stroke()
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+
+        function getGradientColor(x0,y0,x1,y1,type) {
+            const gradientType = {
+                '1000min':{start:'#E9F1F9',end:'#BDC4CB'},
+                '50hr':{start:'#F2E499',end:'#A49F78'},
+                '100hr':{start:'#F2E499',end:'#A49F78'},
+                '300hr':{start:'#99F2D2',end:'#659B8E'},
+                '500hr':{start:'#CFD4FF',end:'#8E8CF9'},
+                '1000hr':{start:'#1CEFFF',middle:'#F2E499',end:'#F4C4F3'},
+            }
+            const gradient = context.createLinearGradient(x0, y0, x1 , y1);
+            gradient.addColorStop(0,gradientType[type].start );
+            if(type === '1000hr') gradient.addColorStop(0.5,gradientType[type].middle );
+            gradient.addColorStop(1, gradientType[type].end);
+            return gradient
+        }
+        const canvas = createCanvas(1440,1920)
+
+        const context = canvas.getContext('2d')
+ 
+        const template = await loadImage(`./assets/images/coworking_time_${type}_badge.png`)
+        context.drawImage(template,0,0)
+        context.fillStyle = "#161F26"; 
+        context.font = "500 40px Inter";
+        const username = UserController.getNameFromUserDiscord(user)
+        context.fillText(username, 192 , 1788);
+
+        const xSession = 1164.5
+        const ySession = 1461
+        context.textAlign = 'end'
+
+        context.fillStyle = getGradientColor(xSession,ySession-25,xSession,ySession + 60,type)
+        context.font = "600 48px Archivo";
+        context.fillText(`${totalSession} sessions`, xSession, ySession);
+
+        const rectWidth = 94;
+        const rectHeight = 94;
+        const rectX = 1063;
+        const rectY = 1300.5;
+        const cornerRadius = 45;
+        
+        const photoUser = await loadImage(InfoUser.getAvatar(user))
+        drawRoundedImage(context,photoUser,rectX,rectY,rectWidth,rectHeight,cornerRadius)
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }

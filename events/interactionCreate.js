@@ -41,6 +41,7 @@ const { ButtonStyle } = require("discord.js");
 const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -74,7 +75,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'claimReward' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -87,6 +88,11 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "claimReward":
+						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId))
+						GuidelineInfoController.incrementTotalNotification(1,targetUserId)
+						interaction.message.edit({components:[]})
+						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
 						break;

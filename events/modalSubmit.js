@@ -39,6 +39,7 @@ const { AttachmentBuilder } = require("discord.js");
 const GenerateImage = require("../helpers/GenerateImage");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const OnboardingController = require("../controllers/OnboardingController");
+const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -272,9 +273,10 @@ The correct format:
 				const testimonialLink = modal.getTextInputValue('link');
 				const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
 				const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,testimonialLink,true))
-				await modal.editReply(TestimonialMessage.successSubmitTestimonial())
+				if(commandButton === 'submitTestimonialAchievement') await modal.editReply(AchievementBadgeMessage.replySubmitLink())
+				else await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 				ChannelController.createThread(msg,`from ${modal.user.username}`)
-				if(commandButton === 'submitTestimonial') ChannelController.deleteMessage(modal.message)
+				if(commandButton === 'submitTestimonial' || commandButton === 'submitTestimonialAchievement') ChannelController.deleteMessage(modal.message)
 				await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
 				GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
 				TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)

@@ -1,7 +1,7 @@
 const schedule = require('node-schedule');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const MemberController = require('./MemberController');
-const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK, TIMEZONE} = require('../helpers/config');
+const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, CHANNEL_STREAK, TIMEZONE, ROLE_200STREAK, CHANNEL_ACHIEVEMENTS} = require('../helpers/config');
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
@@ -14,32 +14,6 @@ const PartyController = require('./PartyController');
 const PartyMessage = require('../views/PartyMessage');
 const MessageComponent = require('../helpers/MessageComponent');
 class DailyStreakController {
-    
-    static async achieveDailyStreak(client,ChannelReminder,dailyStreak,author){
-		let data 
-        if (dailyStreak === 7) {
-            data = {content:`Welcome to <@&${ROLE_7STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(7)]}
-            MemberController.addRole(client, author.id, ROLE_7STREAK)
-        }else if (dailyStreak === 30) {
-            data = {content:`Welcome to <@&${ROLE_30STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(30)]}
-            MemberController.addRole(client, author.id, ROLE_30STREAK)
-        }else if (dailyStreak === 100) {
-            data = {content:`Welcome to <@&${ROLE_100STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(100)]}
-            MemberController.addRole(client, author.id, ROLE_100STREAK)
-        }else if (dailyStreak === 365) {
-            data = {content:`Welcome to <@&${ROLE_365STREAK}> ${author}! :partying_face: :tada: `,embeds:[DailyStreakMessage.notifyDailyStreak(365)]}
-            MemberController.addRole(client, author.id, ROLE_365STREAK)
-        }
-
-		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
-		const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${author.username}.png`})
-		data.files = [attachment]
-		
-		const msg = await ChannelReminder.send(data)
-		ChannelController.createThread(msg,`Congrats ${author.username}!`)
-
-		PartyController.shareToPartyRoom(client,author.id,PartyMessage.shareAchievementBadge(author,dailyStreak,[attachment]))
-    }
 
     static remindMissOneDay(client){
         let ruleReminderMissOneDay = new schedule.RecurrenceRule();

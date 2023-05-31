@@ -14,9 +14,12 @@ class DailyStreakMessage{
         if (longestStreak>=365) {
             color = '#ffcc00'
             url = 'https://cdn.discordapp.com/attachments/746601801150758962/746682286530887780/708780647157858324.gif'
-        }else if (longestStreak>=100) {
+        }else if (longestStreak>=200) {
             color = '#5856ff'
             url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
+        }else if (longestStreak>=100) {
+            color = '#99F2D2'
+            url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
         }else if (longestStreak>=30) {
             color = '#FF3B30'
             url = 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'

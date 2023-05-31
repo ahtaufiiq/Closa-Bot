@@ -73,7 +73,8 @@ class CoworkingController {
     static async createEventDiscord(client){
         let name = "coworking 👩‍💻🧑‍💻✅"
         let description = `• Feel free to drop in anytime.
-• Before leaving, say good bye in voice chat.`
+• Before leaving, say good bye in voice chat.
+• if you're turning on camera, make sure others can see you :)`
         let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession()
         
         return await CoworkingController.scheduleEvent(client,{

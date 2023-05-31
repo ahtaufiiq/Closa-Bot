@@ -212,7 +212,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
         return new EmbedBuilder()
                 .setColor("#FEFEFE")
                 .setDescription(`Total points: ${totalPoint} (+${increment}) :coin:`)
-                .setAuthor({name:`+${increment} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif "})
+                .setAuthor({name:`+${increment} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
                 .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
 

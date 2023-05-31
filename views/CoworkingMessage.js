@@ -314,5 +314,20 @@ let's schedule your next session to stay consistent &  ✦`,
             )]
         }
     }
+
+    static coworkingStreakAlert(user,partner,streak){
+        return {
+            content:`hi ${user}, your coworking streak with ${partner.username} in danger (🔥${streak}x Streak).
+Let's do coworking session together today.
+
+set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} & invite ${partner.username} to ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}`,
+            embeds:[
+                new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setFooter({text:`${partner.username} · 🔥${streak}x day streak`, iconURL:InfoUser.getAvatar(partner)})
+            ]
+            
+        }
+    }
 }
 module.exports = CoworkingMessage
