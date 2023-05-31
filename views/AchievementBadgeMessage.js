@@ -81,7 +81,6 @@ check your notification & claim your reward for 12000 🪙`
             '500hr':{content:`Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,descriptionEmbed:`please check your notification & claim your reward for 10000 🪙\nyour deserve it!`,color:`#5856ff`},
             '1000hr':{content:`@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(userId)}`,titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,descriptionEmbed:`please check your notification & claim your 15000 🪙`,color:`#ffcc00`},
         }
-        console.log(type);
         const {content,color,titleEmbed,descriptionEmbed} = data[type]
         return {
 			content,
@@ -127,8 +126,8 @@ check your notification & claim your reward for 12000 🪙`
         return {
             content:`Congrats on your milestone! 🔥 ${user}
 
-let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTIMONIAL)}
-*this reward valid until 23.59 today*`,
+here's a special reward for you! :coin:
+*only valid until 23.59 today*`,
             embeds:[
                 new EmbedBuilder()
                 .setColor("#FEFEFE")
@@ -192,7 +191,7 @@ ${celebrationLink}`,
     static approvedCelebration(userId,type,achievement,totalPoint){
         const {point} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
-            content:`Here's your reward ${MessageFormatting.tagUser(userId)}, once again congrats! 🔥
+            content:`Here's your achievement reward ${MessageFormatting.tagUser(userId)}, once again congrats! 🔥
 
 Thank you for spreading the words about closa as well :love_letter::sparkles:
 It helps us grow the community & supported the team.`,
@@ -201,8 +200,11 @@ It helps us grow the community & supported the team.`,
                 .setColor("#FEFEFE")
                 .setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
                 .setDescription(`Total **${totalPoint}** (+${point}) :coin:`)
-                .setAuthor({name:`You just earned +${point} :coin:`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
+                .setAuthor({name:`You just earned +${point} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
             ],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2')
+            )]
         }
     }
 }
