@@ -120,7 +120,8 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
 > - *you can attach image/gif/video to show more about your progress.*
 
 ➡️ Next → *your next plan*
-\`\`\``
+\`\`\`
+after sharing your progress, give supportive reactions to others as well :Heart:`
     }
 
     static completedQuest(userId,files){
