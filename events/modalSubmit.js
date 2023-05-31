@@ -268,18 +268,24 @@ The correct format:
 				await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅`)
 
 			}else if(commandButton.includes("submitTestimonial")){
-				if(commandButton === 'submitTestimonialGuideline') await modal.deferReply({ephemeral:true})
+				if(commandButton === 'submitTestimonialGuideline' || commandButton === 'submitTestimonialAchievement') await modal.deferReply({ephemeral:true})
 				else await modal.deferReply()
-				const testimonialLink = modal.getTextInputValue('link');
+				const link = modal.getTextInputValue('link');
 				const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
-				const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,testimonialLink,true))
-				if(commandButton === 'submitTestimonialAchievement') await modal.editReply(AchievementBadgeMessage.replySubmitLink())
-				else await modal.editReply(TestimonialMessage.successSubmitTestimonial())
-				ChannelController.createThread(msg,`from ${modal.user.username}`)
-				if(commandButton === 'submitTestimonial' || commandButton === 'submitTestimonialAchievement') ChannelController.deleteMessage(modal.message)
-				await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
-				GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
-				TestimonialController.addTestimonialUser(modal.user.id,testimonialLink)
+				if(commandButton === 'submitTestimonialAchievement'){
+					const msg = await channelTestimonial.send(AchievementBadgeMessage.postCelebrationUser(modal.user.id,link,true))
+					ChannelController.createThread(msg,`from ${modal.user.username}`)
+					await modal.editReply(AchievementBadgeMessage.replySubmitLink())
+				} 
+				else {
+					const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,link,true))
+					ChannelController.createThread(msg,`from ${modal.user.username}`)
+					await modal.editReply(TestimonialMessage.successSubmitTestimonial())
+					await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
+					GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
+					TestimonialController.addTestimonialUser(modal.user.id,link)
+					if(commandButton === 'submitTestimonial' ) ChannelController.deleteMessage(modal.message)
+				}
 			}else if(commandButton === "writeReflection" ){
 				await modal.deferReply({
 					ephemeral: modal.channel.id === CHANNEL_ANNOUNCEMENT
@@ -454,7 +460,8 @@ The correct format:
 				const testimonialUser = modal.message.mentions.users.first()
 				const reply = modal.getTextInputValue('reply');
 
-				modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
+				if(value === 'celebration') modal.message.edit(AchievementBadgeMessage.reviewTestimonial(testimonialLink,reply))
+				else modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
 				modal.editReply('change custom reply')
 			}else if(commandButton === 'scheduleCoworking'){
 				await modal.deferReply({ephemeral:true})

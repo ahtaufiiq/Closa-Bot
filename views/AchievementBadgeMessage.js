@@ -165,6 +165,29 @@ We'll reply to your post & celebrate together! 🥳`,
         return `**nice work!** 🔥
 if your submission is valid you'll receive the reward soon.`
     }
+
+    static reviewTestimonial(celebrationLink,reply){
+        return `${reply}
+↓ 
+${celebrationLink}`
+    }
+
+    static postCelebrationUser(userId,celebrationLink,isShowButton=false){
+        const components = []
+        if(isShowButton) {
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton(`postTestimonial_${userId}_celebration`,'Post'),
+                MessageComponent.addButton(`customReplyTestimonial_${userId}_celebration`,'Custom Reply',"SECONDARY")
+            ))
+        }
+        return {
+            content:`${MessageFormatting.tagUser(userId)} just joined the hype 🔥
+Let's celebrate together!
+↓ 
+${celebrationLink}`,
+            components
+        }
+    }
 }
 
 module.exports = AchievementBadgeMessage

@@ -3,6 +3,7 @@ const supabase = require('../helpers/supabaseClient');
 const TestimonialMessage = require('../views/TestimonialMessage');
 const ChannelController = require('./ChannelController');
 const GuidelineInfoController = require('./GuidelineInfoController');
+const MessageFormatting = require('../helpers/MessageFormatting');
 class TestimonialController{
     static showModalSubmitTestimonial(interaction){
         const [commandButton,userId] = interaction.customId.split('_')
@@ -32,12 +33,14 @@ class TestimonialController{
     }
 
     static showModalCustomReply(interaction){
-        if(interaction.customId === "customReplyTestimonial"){
+        const [commandButton,userId,value] = interaction.customId.split('_')
+        if(commandButton === "customReplyTestimonial"){
+            const defaultValue = interaction.message.content.split('↓')[0]
             const modal = new Modal()
             .setCustomId(interaction.customId)
-            .setTitle("Testimonial Reply")
+            .setTitle(`${value ? "Celebration" : "Testimonial"} reply`)
             .addComponents(
-                new TextInputComponent().setCustomId('reply').setLabel("Reply").setStyle("LONG").setRequired(true),
+                new TextInputComponent().setCustomId('reply').setLabel("Reply").setDefaultValue(value ? defaultValue : '').setStyle("LONG").setRequired(true),
             )
             showModal(modal, { client: interaction.client, interaction: interaction});
             return true
