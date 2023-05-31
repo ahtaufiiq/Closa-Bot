@@ -16,7 +16,7 @@ class TestimonialController{
             )
             showModal(modal, { client: interaction.client, interaction: interaction});
             return true
-        }else if(commandButton === "submitTestimonial" || commandButton === 'submitTestimonialGuideline' || ){
+        }else if(commandButton === "submitTestimonial" || commandButton === 'submitTestimonialGuideline'){
             if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't submit someone else testimonial.`})
             const modal = new Modal()
             .setCustomId(interaction.customId)
