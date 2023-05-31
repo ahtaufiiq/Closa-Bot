@@ -148,7 +148,7 @@ let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTI
     static howToClaimReward(userId){
         return {
             content:`Here's how to claim your reward:
-1. Copy the image above & share it on social (e.g. twitter)
+1. Copy the image above & celebrate it on social (e.g. twitter)
 2. Don't forget to tag \`\`@joinclosa\`\`
 3. Make sure your profile is not private (so we can confirm it)
 4. Copy the link of your post & submit the link below

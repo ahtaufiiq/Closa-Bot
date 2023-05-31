@@ -6,7 +6,17 @@ const GuidelineInfoController = require('./GuidelineInfoController');
 class TestimonialController{
     static showModalSubmitTestimonial(interaction){
         const [commandButton,userId] = interaction.customId.split('_')
-        if(commandButton === "submitTestimonial" || commandButton === 'submitTestimonialGuideline' || commandButton === 'submitTestimonialAchievement'){
+        if(commandButton === 'submitTestimonialAchievement'){
+            if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't submit someone else testimonial.`})
+            const modal = new Modal()
+            .setCustomId(interaction.customId)
+            .setTitle("🔗 Submit Celebration Link")
+            .addComponents(
+                new TextInputComponent().setCustomId('link').setLabel("Celebration Link").setPlaceholder("Link to your celebration..").setStyle("SHORT").setRequired(true),
+            )
+            showModal(modal, { client: interaction.client, interaction: interaction});
+            return true
+        }else if(commandButton === "submitTestimonial" || commandButton === 'submitTestimonialGuideline' || ){
             if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't submit someone else testimonial.`})
             const modal = new Modal()
             .setCustomId(interaction.customId)

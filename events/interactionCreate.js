@@ -73,9 +73,9 @@ module.exports = {
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
-				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer'){
+				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'claimReward' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -90,8 +90,6 @@ module.exports = {
 				switch (commandButton) {
 					case "claimReward":
 						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId))
-						GuidelineInfoController.incrementTotalNotification(1,targetUserId)
-						interaction.message.edit({components:[]})
 						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
