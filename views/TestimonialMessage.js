@@ -35,7 +35,7 @@ Thank you for participating!`
     }
 
     static reviewTestimonial(userId,testimonialLink,reply){
-        return `${MessageFormatting.tagUser(userId)} just joined the vibe
+        return `${MessageFormatting.tagUser(userId)} just joined the hype
 ${reply}
 
 ↓ 
@@ -60,7 +60,7 @@ ${testimonialLink}`
             ))
         }
         return {
-            content:`${MessageFormatting.tagUser(userId)} just joined the vibe
+            content:`${MessageFormatting.tagUser(userId)} just joined the hype
 
 ↓ 
 ${testimonialLink}`,

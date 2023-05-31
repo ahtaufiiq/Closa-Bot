@@ -47,7 +47,7 @@ module.exports = {
 				}
 				ChannelController.createThread(msg,titleThread)
 			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
-				const titleThread = `${msg.mentions.users.first().username} just joined the vibe`
+				const titleThread = `${msg.mentions.users.first().username} just joined the hype`
 				ChannelController.createThread(msg,titleThread)
 			}
 			return

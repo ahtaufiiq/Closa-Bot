@@ -38,7 +38,7 @@ check your notification & claim your reward for 12000 🪙`
 			content,
 			embeds:[new EmbedBuilder()
 				.setColor(color)
-				.setThumbnail('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif')
+                .setThumbnail(AchievementBadgeMessage.achievementBadgePoint().streak[streak].url)
 				.setTitle(titleEmbed)
 				.setDescription(descriptionEmbed)],
 			files
@@ -125,7 +125,7 @@ check your notification & claim your reward for 12000 🪙`
     static claimVibePoint(user,achievement,files,type='streak'){
         const {point,description} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
-            content:`Congrats on your milestone! ${user}
+            content:`Congrats on your milestone! 🔥 ${user}
 
 let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTIMONIAL)}
 *this reward valid until 23.59 today*`,
@@ -147,15 +147,16 @@ let's celebrate together & join the ${MessageFormatting.tagChannel(CHANNEL_TESTI
 
     static howToClaimReward(userId){
         return {
-            content:`Here's how to claim your reward?
-1. Join the ${MessageFormatting.tagChannel(CHANNEL_TESTIMONIAL)} by sharing your achievement on social
-2. You can pick either twitter/instagram/linkedin
+            content:`Here's how to claim your reward:
+1. Copy the image above & share it on social (e.g. twitter)
+2. Don't forget to tag \`\`@joinclosa\`\`
 3. Make sure your profile is not private (so we can confirm it)
-4. don't forget to tag \`\`@joinclosa\`\`
-4. Copy the link of the post & submit below`,
+4. Copy the link of your post & submit the link below
+
+We'll reply to your post & celebrate together! 🥳`,
             components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Share on Twitter',"https://twitter.com/intent/tweet"),
                 MessageComponent.addButton(`submitTestimonialAchievement_${userId}`,"Submit link"),
-                MessageComponent.addLinkButton('Share on Twitter',"https://twitter.com/intent/tweet")
             )]
         }
     }
