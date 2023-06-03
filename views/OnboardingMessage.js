@@ -173,9 +173,11 @@ if you want to start sooner, you can follow closa ${MessageFormatting.tagChannel
 if you want to start soon go to ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`
     }
 
-    static turnOffReminderOnboarding(){
-        return `Seems like this notification didn't work for you.
-so we will turn it off. 🔕`
+    static turnOffReminderOnboarding(userId){
+        return `Hi ${MessageFormatting.tagUser(userId)}, we've sent you reminders in the past 7 days (to work on your ideas). 
+Seems you're not ready yet—so we'll open access to all channels for you 🔓
+
+if you want to get started anytime soon please follow → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`
     }
 
     static guidelines(){

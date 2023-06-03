@@ -35,6 +35,16 @@ Keep your streak earn the badge.`)
 				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
 				files.push(attachment)
 			}
+			if(longestStreak >= 200){
+				const buffer = await GenerateImage.streakBadge(200,interaction.user)
+				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
+				files.push(attachment)
+			}
+			if(longestStreak >= 365){
+				const buffer = await GenerateImage.streakBadge(365,interaction.user)
+				const attachment = new AttachmentBuilder(buffer,{name:`streak_badge_${interaction.user.username}.png`})
+				files.push(attachment)
+			}
 			
 			await interaction.editReply({
 				content:`**🏅 Here's your achievements badge:**

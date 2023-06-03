@@ -279,18 +279,21 @@ ${contentGuests}`
         return progressTimer
     }
 
-    static remindSessionEnded(type){
+    static remindSessionEnded(tagPeople,type){
         switch (type) {
             case 10:
-                return `\`\`10 min\`\` before the session ended @here`
+                return `\`\`10 min\`\` before the session ended 
+cc ${tagPeople}`
             case 5:
                 return `\`\`5 min\`\` before the session ended
-let's celebrate together & share your ${MessageFormatting.tagChannel(CHANNEL_TODO)}! :tada: @here`
+let's celebrate together & share your ${MessageFormatting.tagChannel(CHANNEL_TODO)}! :tada: 
+cc ${tagPeople}`
             case 2:
-                return `\`\`2 min\`\` before the session ended & room will auto-delete. @here
-Feel free to take group photo 📸 & tag \`\`@joinclosa\`\` & your friends to celebrate together ✨`
+                return `\`\`2 min\`\` before the session ended & room will auto-delete. 
+Feel free to take group photo 📸 & tag \`\`@joinclosa\`\` & your friends to celebrate together ✨
+cc ${tagPeople}`
             default:
-                return `\`\`15s\`\` It's time say good bye to @here!👋`
+                return `\`\`15s\`\` It's time say good bye to ${tagPeople}!👋`
         }
     }
 
@@ -312,6 +315,21 @@ let's schedule your next session to stay consistent &  ✦`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`scheduleNextSession_${userId}`,'Schedule next session','✨')
             )]
+        }
+    }
+
+    static coworkingStreakAlert(user,partner,streak){
+        return {
+            content:`hi ${user}, your coworking streak with ${partner.username} in danger (🔥${streak}x Streak).
+Let's do coworking session together today.
+
+set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} & invite ${partner.username} to ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}`,
+            embeds:[
+                new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setFooter({text:`${partner.username} · 🔥${streak}x day streak`, iconURL:InfoUser.getAvatar(partner)})
+            ]
+            
         }
     }
 }

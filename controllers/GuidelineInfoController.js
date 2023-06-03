@@ -129,7 +129,8 @@ class GuidelineInfoController {
                 .select('*,Users(id,notificationId)')
                 .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
-            dataUser.body.forEach(async ({Users:{id,notificationId}})=>{
+            for (let i = 0; i < dataUser.body.length; i++) {
+                const {Users:{id,notificationId}} = dataUser.body[i];
                 try {
                     const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral,onboardingStep} = await GuidelineInfoController.getData(id)
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
@@ -146,8 +147,8 @@ class GuidelineInfoController {
                 } catch (error) {
                     ChannelController.sendError(error,id)
                 }
-
-            })
+                
+            }
         })
     }
 

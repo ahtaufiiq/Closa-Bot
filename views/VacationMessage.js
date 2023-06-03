@@ -203,13 +203,15 @@ Points left: **${pointLeft} :coin:**`
         ]
         const randomGif = getRandomValue(endedVacationGif)
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)}, I hope you are having enough vacation day!
-It’s time to set your ${MessageFormatting.tagChannel(CHANNEL_HIGHLIGHT)} and make your progress today.`,
+            content:`it's time to schedule your work on your project & make your progress today.`,
             embeds: [
                 new EmbedBuilder()
                 .setColor("#00B264")
                 .setImage(randomGif)
-            ]
+            ],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`setReminderHighlight_${userId}`,'Set reminder')
+            )]
         }
     }
 }

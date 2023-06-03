@@ -41,6 +41,7 @@ const { ButtonStyle } = require("discord.js");
 const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -72,7 +73,7 @@ module.exports = {
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
-				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer'){
+				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
 					await interaction.deferReply({ephemeral:true});
 				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
@@ -87,6 +88,9 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "claimReward":
+						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value))
+						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
 						break;
@@ -207,7 +211,26 @@ module.exports = {
 							msg.delete()
 							interaction.editReply("your schedule has been canceled.")
 						}else{
-							interaction.editReply("can't cancel the session you're not even booking.")
+							const dataHost = await supabase.from("CoworkingEvents")
+							.select()
+							.eq('HostId',interaction.user.id)
+							.eq('id',value)
+							.single()
+							if(dataHost.body){
+								supabase.from("CoworkingEvents")
+									.delete()
+									.eq('id',dataHost.body.id)
+									.then()
+								const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
+								const msg = await ChannelController.getMessage(channel,dataHost.body.id)
+								ChannelController.deleteMessage(msg)
+								interaction.editReply("your schedule has been canceled.")
+								if(dataHost.body.voiceRoomId){
+									ChannelController.getChannel(interaction.client,dataHost.body.voiceRoomId).delete()
+								}
+							}else{
+								interaction.editReply("can't cancel the session you're not even booking.")
+							}
 						}
 						break;
 					case "bookCoworking":
@@ -662,6 +685,18 @@ module.exports = {
 						const msgTestimonial = await channelTestimonial.send(interaction.message.content)
 						ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
 						await interaction.editReply("Testimonial has been posted")
+						if(value){
+							const [type,achievement] = value.split('-')
+							const {point} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
+							await UserController.incrementTotalPoints(+point,targetUserId)
+							const dataUser = await UserController.getDetail(targetUserId,'totalPoint')
+							const totalPoint = dataUser.body.totalPoint
+							ChannelController.sendToNotification(
+								interaction.client,
+								AchievementBadgeMessage.approvedCelebration(targetUserId,type,achievement,totalPoint),
+								targetUserId
+							)
+						}
 						break;
 					default:
 						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))

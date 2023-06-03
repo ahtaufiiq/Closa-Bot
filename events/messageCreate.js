@@ -30,6 +30,7 @@ const MemberController = require("../controllers/MemberController");
 const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
+const AchievementBadgeController = require("../controllers/AchievementBadgeController");
 
 module.exports = {
 	name: 'messageCreate',
@@ -46,7 +47,7 @@ module.exports = {
 				}
 				ChannelController.createThread(msg,titleThread)
 			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
-				const titleThread = msg.content.split('<@')[0] + msg.mentions.users.first().username
+				const titleThread = `${msg.mentions.users.first().username} just joined the hype`
 				ChannelController.createThread(msg,titleThread)
 			}
 			return
@@ -346,12 +347,12 @@ so, you can learn or sharing from each others.`,
 								})
 								
 								if(endLongestStreak === Time.getTodayDateOnly()){
-									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,msg.author)
+									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
 									}
 								}else {
-									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 365) {
-										DailyStreakController.achieveDailyStreak(msg.client,ChannelStreak,currentStreak,msg.author)
+									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
 									}
 								}
 							})

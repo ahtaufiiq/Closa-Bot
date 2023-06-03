@@ -100,7 +100,10 @@ class OnboardingController {
                     data.body?.forEach(({Users:{notificationId,onboardingStep},type,UserId})=>{
                         let msgContent
                         if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId,onboardingStep)
-                        else msgContent = OnboardingMessage.turnOffReminderOnboarding()
+                        else {
+                            msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
+                            MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
+                        }
                         ChannelController.sendToNotification(client,msgContent,UserId,notificationId)
                     })
                 })
