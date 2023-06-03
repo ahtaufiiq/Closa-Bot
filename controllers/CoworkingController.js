@@ -312,7 +312,8 @@ class CoworkingController {
 
     static async coworkingEventIsLive(eventId){
         const dataEvent = await CoworkingController.getCoworkingEvent(eventId)
-        return dataEvent.body.status === 'live'
+        if(!dataEvent.body) return null //handle kalau data event udah dihapus
+        return dataEvent.body?.status === 'live'  
     }
 
     static async setReminderFiveMinutesBeforeCoworking(client){
@@ -444,6 +445,7 @@ class CoworkingController {
         const countdownStartSession = setInterval(async () => {
             minuteToStartSession--
             const coworkingEventIsLive = await CoworkingController.coworkingEventIsLive(eventId)
+            if(coworkingEventIsLive === null) return clearInterval(countdownStartSession)
             if(coworkingEventIsLive){
                 clearInterval(countdownStartSession)
                 return msg.edit(CoworkingMessage.howToStartSession(HostId,eventId,0,true))
@@ -555,15 +557,16 @@ class CoworkingController {
             const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
             voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
                 .then(msg=>{
+                    const tagPeople = `${MessageFormatting.tagUser(userId)} ${sessionGuests.join(' ')}`
                     const countdownCoworkingSession = setInterval(() => {
                         currentMin--
                         msg.edit(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
-                        if(currentMin === 10) msg.reply(CoworkingMessage.remindSessionEnded(10))
-                        else if(currentMin === 5) msg.reply(CoworkingMessage.remindSessionEnded(5))
-                        else if(currentMin === 2) msg.reply(CoworkingMessage.remindSessionEnded(2))
+                        if(currentMin === 10) msg.reply(CoworkingMessage.remindSessionEnded(tagPeople,10))
+                        else if(currentMin === 5) msg.reply(CoworkingMessage.remindSessionEnded(tagPeople,5))
+                        else if(currentMin === 2) msg.reply(CoworkingMessage.remindSessionEnded(tagPeople,2))
                         else if(currentMin === 0){
                             clearInterval(countdownCoworkingSession)
-                            msg.reply(CoworkingMessage.remindSessionEnded())
+                            msg.reply(CoworkingMessage.remindSessionEnded(tagPeople))
                             setTimeout(() => {
                                 voiceChat.delete()
                                 coworkingEventMessage.delete()

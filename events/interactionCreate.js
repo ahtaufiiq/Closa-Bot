@@ -211,7 +211,26 @@ module.exports = {
 							msg.delete()
 							interaction.editReply("your schedule has been canceled.")
 						}else{
-							interaction.editReply("can't cancel the session you're not even booking.")
+							const dataHost = await supabase.from("CoworkingEvents")
+							.select()
+							.eq('HostId',interaction.user.id)
+							.eq('id',value)
+							.single()
+							if(dataHost.body){
+								supabase.from("CoworkingEvents")
+									.delete()
+									.eq('id',dataHost.body.id)
+									.then()
+								const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
+								const msg = await ChannelController.getMessage(channel,dataHost.body.id)
+								ChannelController.deleteMessage(msg)
+								interaction.editReply("your schedule has been canceled.")
+								if(dataHost.body.voiceRoomId){
+									ChannelController.getChannel(interaction.client,dataHost.body.voiceRoomId).delete()
+								}
+							}else{
+								interaction.editReply("can't cancel the session you're not even booking.")
+							}
 						}
 						break;
 					case "bookCoworking":

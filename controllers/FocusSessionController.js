@@ -10,6 +10,7 @@ const InfoUser = require("../helpers/InfoUser");
 const { ChannelType } = require("discord.js");
 const { CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE } = require("../helpers/config");
 const CoworkingController = require("./CoworkingController");
+const AchievementBadgeController = require("./AchievementBadgeController");
 class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser){
@@ -273,15 +274,16 @@ class FocusSessionController {
             })
     }
 
-    static async updateCoworkingPartner(userId){
+    static async updateCoworkingPartner(client,userId){
         const data = await supabase.from("CoworkingPartners")
             .select()
             .like('id',`%${userId}%`)
             .gt('currentSession',0)
         for (let i = 0; i < data.body.length; i++) {
-            const {id,currentTime,totalTime,currentSession,updatedAt,lastCoworking,currentStreak,longestStreak} = data.body[i];
+            const {id,currentTime,totalSession,totalTime,updatedAt,lastCoworking,currentStreak,currentSession,longestStreak,endLongestStreak} = data.body[i];
             const date = Time.getDate(updatedAt)
             const dateOnly = Time.getDateOnly(date)
+            FocusSessionController.decreaseCurrentSession(id)
             if(currentSession === 2){
                 const totalTimeCoworking = Time.getGapTime(date,true).totalInMinutes
                 let coworkingStreak
@@ -292,16 +294,40 @@ class FocusSessionController {
                     }else{
                         coworkingStreak = 1
                     }
+                    // if(longestStreak !== coworkingStreak){
+                        
+                    //     if(coworkingStreak === 7 || coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
+                    //         const [idUser,idPartner] = id.split('_')
+                    //         Promise.all([
+                    //             MemberController.getMember(client,idUser),
+                    //             MemberController.getMember(client,idPartner),
+                    //         ])
+                    //         .then(([{user},{user:partner}])=>{
+                    //             AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
+                    //         })
+                    //     }
+                    // }else if(longestStreak === coworkingStreak && endLongestStreak !== Time.getTodayDateOnly()) {
+                    //     if(coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
+                    //         const [idUser,idPartner] = id.split('_')
+                    //         Promise.all([
+                    //             MemberController.getMember(client,idUser),
+                    //             MemberController.getMember(client,idPartner),
+                    //         ])
+                    //         .then(([{user},{user:partner}])=>{
+                    //             AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
+                    //         })
+                    //     }
+                    // }
 
                     const value = {
                         currentTime : totalTimeCoworking,
                         totalTime: totalTime + totalTimeCoworking,
+                        totalSession: totalSession + 1,
                         lastCoworking: Time.getTodayDateOnly(),
                         currentStreak: coworkingStreak,
                     }
-                    FocusSessionController.decreaseCurrentSession(id)
                     
-                    if(coworkingStreak > longestStreak){
+                    if(coworkingStreak >= longestStreak){
                         value.longestStreak = coworkingStreak
                         value.endLongestStreak = Time.getTodayDateOnly()
                     }
@@ -310,10 +336,7 @@ class FocusSessionController {
                         .update(value)
                         .eq('id',id)
                 }
-            }else{
-                FocusSessionController.decreaseCurrentSession(id)
             }
-
         }
     }
 
@@ -329,14 +352,16 @@ class FocusSessionController {
             .gte('lastCoworking',Time.getDateOnly(Time.getNextDate(-1)))
             .like('id',`%${userId}%`)
             .order('currentStreak',{ascending:false})
+            .order('updatedAt',{ascending:false})
             .limit(5)
     }
 
-    static async getRecapFocusSession(client,userId){
+    static async getRecapFocusSession(client,userId,dateOnly){
+        const queryDate = dateOnly ? `?date=${dateOnly}` : ''
         const [dataCoworkingPartner, tasks, projectThisWeek,dataUser] = await Promise.all([
             FocusSessionController.getAllCoworkingPartners(userId),
-            RequestAxios.get('voice/dailySummary/'+userId),
-            RequestAxios.get('voice/weeklyProject/'+userId),
+            RequestAxios.get(`voice/dailySummary/${userId}${queryDate}`),
+            RequestAxios.get(`voice/weeklyProject/${userId}${queryDate}`),
             UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession')
         ])
 
@@ -388,6 +413,7 @@ class FocusSessionController {
         if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId) ){
             FocusSessionController.updateVoiceRoomId(userId,focusRoomUser[userId]?.joinedChannelId)
             FocusSessionController.setCoworkingPartner(userId,focusRoomUser[userId]?.joinedChannelId)
+            if(focusRoomUser[userId]) focusRoomUser[userId].startTimerDate = Time.getTodayDateOnly()
             const data = await FocusSessionController.getDetailFocusSession(userId)
             const taskName = data?.taskName
             const projectName = data?.Projects?.name
