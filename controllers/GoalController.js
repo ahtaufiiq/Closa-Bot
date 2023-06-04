@@ -15,6 +15,7 @@ const FormatString = require('../helpers/formatString');
 const UserController = require('./UserController');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
+const ReminderController = require('./ReminderController');
 
 class GoalController {
 
@@ -26,11 +27,15 @@ class GoalController {
     static async modalSubmitPreferredCoworkingTime(modal){
 		await modal.deferReply()
 		const coworkingTime = modal.getTextInputValue('coworkingTime');
+		const time = Time.getTimeFromText(coworkingTime)
 		try {
-			supabase.from("Users")
-				.update({preferredCoworkingTime:coworkingTime})
-				.eq('id',modal.user.id)
-				.then()
+			if(time){
+				ReminderController.setHighlightReminder(modal.client,time,modal.user.id)
+				supabase.from("Users")
+					.update({preferredCoworkingTime:coworkingTime})
+					.eq('id',modal.user.id)
+					.then()
+			}
 			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
 			await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id))
 			ChannelController.deleteMessage(modal.message)

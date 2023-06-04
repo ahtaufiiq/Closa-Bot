@@ -7,6 +7,7 @@ const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const ChannelController = require('../controllers/ChannelController');
 const MessageComponent = require('../helpers/MessageComponent');
+const ReminderController = require('../controllers/ReminderController');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -51,37 +52,7 @@ module.exports = {
 		switch (command) {
 			case 'highlight':
 				if (data.reminderHighlight !== time) {
-					supabase.from("Users")
-						.update({reminderHighlight:time})
-						.eq('id',userId)
-						.single()
-						.then(async ({data:user})=>{
-							let ruleReminderHighlight = new schedule.RecurrenceRule();
-							ruleReminderHighlight.hour = Time.minus7Hours(hours)
-							ruleReminderHighlight.minute = minutes
-							const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
-								supabase.from('Users')
-								.select()
-								.eq('id',user.id)
-								.single()
-								.then(async ({data})=>{
-									if (data) {
-										if (user.reminderHighlight !== data.reminderHighlight) {
-											scheduleReminderHighlight.cancel()
-										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
-											const {id:userId,notificationId} = data;
-											ChannelController.sendToNotification(
-												interaction.client,
-												HighlightReminderMessage.highlightReminder(userId),
-												userId,
-												notificationId
-											)
-										}
-									}
-								})
-							
-							})
-						})
+					ReminderController.setHighlightReminder(interaction.client,time,interaction.user.id)
 				}
 				
 				await interaction.reply({

@@ -8,7 +8,9 @@ class Time {
 
     static getTimeFromText(text){
         const patternTime = /\d+[.:]\d+/
-        return text.match(patternTime)[0]
+        const result = text.match(patternTime)
+        if(Array.isArray(result)) return result[0]
+        else return null
     }
     static getDiffDay(fromDate,toDate){
         const diff = toDate.getTime() - fromDate.getTime()

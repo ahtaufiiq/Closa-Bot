@@ -130,6 +130,49 @@ class ReminderController{
 				}
 			})
     }
+
+	static async setHighlightReminder(client,time,userId){
+		const {data} = await supabase.from("Users")
+		.select()
+		.eq('id',userId)
+		.single()
+
+	const [hours,minutes] = time.split(/[.:]/)
+	
+	if (data.reminderHighlight !== time) {
+		supabase.from("Users")
+			.update({reminderHighlight:time})
+			.eq('id',userId)
+			.single()
+			.then(async ({data:user})=>{
+				let ruleReminderHighlight = new schedule.RecurrenceRule();
+				ruleReminderHighlight.hour = Time.minus7Hours(hours)
+				ruleReminderHighlight.minute = minutes
+				const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
+					supabase.from('Users')
+					.select()
+					.eq('id',user.id)
+					.single()
+					.then(async ({data})=>{
+						if (data) {
+							if (user.reminderHighlight !== data.reminderHighlight) {
+								scheduleReminderHighlight.cancel()
+							}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10)){
+								const {id:userId,notificationId} = data;
+								ChannelController.sendToNotification(
+									client,
+									HighlightReminderMessage.highlightReminder(userId),
+									userId,
+									notificationId
+								)
+							}
+						}
+					})
+				
+				})
+			})
+	}
+	}
 }
 
 module.exports = ReminderController
