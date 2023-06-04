@@ -148,6 +148,7 @@ class ReminderController{
 				let ruleReminderHighlight = new schedule.RecurrenceRule();
 				ruleReminderHighlight.hour = Time.minus7Hours(hours)
 				ruleReminderHighlight.minute = minutes
+				
 				const scheduleReminderHighlight = schedule.scheduleJob(ruleReminderHighlight,function(){
 					supabase.from('Users')
 					.select()

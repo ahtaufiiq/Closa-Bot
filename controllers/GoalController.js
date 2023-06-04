@@ -27,9 +27,15 @@ class GoalController {
     static async modalSubmitPreferredCoworkingTime(modal){
 		await modal.deferReply()
 		const coworkingTime = modal.getTextInputValue('coworkingTime');
-		const time = Time.getTimeFromText(coworkingTime)
+		let preferredCoworkingTime = Time.getTimeFromText(coworkingTime)
+		const differentTime = coworkingTime.toLowerCase().includes(' wita') ? -1 :coworkingTime.toLowerCase().includes(' wit') ? -2 : 0
 		try {
-			if(time){
+			if(preferredCoworkingTime){
+				const date = Time.getDate()
+				const [hours,minutes] = preferredCoworkingTime.split(/[.:]/)
+				date.setHours(hours - differentTime,minutes-30)
+				const time = `${date.getHours()}.${date.getMinutes()}`
+				
 				ReminderController.setHighlightReminder(modal.client,time,modal.user.id)
 				supabase.from("Users")
 					.update({preferredCoworkingTime:coworkingTime})
