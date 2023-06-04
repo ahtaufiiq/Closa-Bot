@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js")
-const { CHANNEL_TODO } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_STREAK } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -65,7 +65,7 @@ You can check the badge on your profile.`
     static missYesterdayProgress(userId){
         return 	{
             content:`Hi ${MessageFormatting.tagUser(userId)} **yesterday you forgot to update your ${MessageFormatting.tagChannel(CHANNEL_TODO)}.**
-But don't worry—you are not losing your #🔥streak :v:
+But don't worry—you are not losing your ${MessageFormatting.tagChannel(CHANNEL_STREAK)} :v:
 
 \`\`To keep your streak you can:\`\`
 • Continue post your progress today.
