@@ -10,12 +10,22 @@ module.exports = {
 			subcommand
 				.setName('guideline')
 				.setDescription('send guideline to notification')
-				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
+				.addUserOption(option => option.setName('user').setDescription('user')))
 		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 	async execute(interaction) {
 		await interaction.deferReply({ephemeral:true});
 		const user = interaction.options.getUser('user')
-		await GuidelineInfoController.generateGuideline(interaction.client,user.id)
+		if(!user){
+			
+			const data = await supabase.from("Users")
+				.select('id,notificationId')
+				.eq('notificationId',interaction.channelId)
+				.single()
+			const {id,notificationId} = data.body
+			await GuidelineInfoController.generateGuideline(interaction.client,id,notificationId)
+		}else{
+			await GuidelineInfoController.generateGuideline(interaction.client,user.id)
+		}
 		interaction.editReply('success send guideline to user')
 	},
 };
