@@ -122,7 +122,7 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
 
 ➡️ Next → *your next plan*
 \`\`\`
-after sharing your progress, give supportive reactions to others as well <:Heart:821048012419235921>`
+after sharing your progress, give supportive reactions to others as well ❤️`
     }
 
     static completedQuest(userId,files){
@@ -193,7 +193,7 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
 3. Set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} — write 1 specific task you want to get done.
 
-4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others <:Heart:821048012419235921>
+4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others ❤️
 
 5. ${MessageFormatting.tagChannel(CHANNEL_STREAK)} – Try to keep your streak and don't miss your progress twice in a row. 
 
