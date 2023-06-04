@@ -71,7 +71,7 @@ ${getRandomValue(copywritingReply)}
         return `congrats on your milestones! ${MessageFormatting.tagUser(userId)} :partying_face: 
 
 let's support each other on ${MessageFormatting(CHANNEL_TESTIMONIAL)} as well.
-you can like, share, or reply to other posts on public :Heart:
+you can like, share, or reply to other posts on public <:Heart:821048012419235921>
 
 *this act of giving back will help our community grow to the better*`
     }

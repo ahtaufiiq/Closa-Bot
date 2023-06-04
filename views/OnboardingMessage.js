@@ -114,14 +114,15 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
 \`\`\`
 ✅ Today:  *title of what you've done*
 
-> replace this section with your story.
-> - *add more details here in a story telling format—like you post a tweet/story*
-> - *avoid just listing of what you've done without a story/context*
-> - *you can attach image/gif/video to show more about your progress.*
+> replace this section with your all of your progress recap of the day:
+> *Recap all of your progress in 1 post, it's enough, no need to post multiple times a day.*
+> *Post in a story telling format—like you talk with your friends*
+> *Don't just posting a list of task done without context/story format*
+> *You can attach image/gif/video to show more about your progress.*
 
 ➡️ Next → *your next plan*
 \`\`\`
-after sharing your progress, give supportive reactions to others as well :Heart:`
+after sharing your progress, give supportive reactions to others as well <:Heart:821048012419235921>`
     }
 
     static completedQuest(userId,files){
@@ -192,7 +193,7 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
 3. Set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} — write 1 specific task you want to get done.
 
-4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others :heart:
+4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others <:Heart:821048012419235921>
 
 5. ${MessageFormatting.tagChannel(CHANNEL_STREAK)} – Try to keep your streak and don't miss your progress twice in a row. 
 
