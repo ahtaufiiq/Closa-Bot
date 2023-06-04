@@ -762,7 +762,10 @@ module.exports = {
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(min))
 						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
-						focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
+						if(focusRoomUser[interaction.user.id]){
+							focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
+							focusRoomUser[interaction.user.id].dailyWorkTime = min
+						}
 						break;
 					case 'selectProject':
 						if(interaction.user.id !== targetUserId)return interaction.reply({content:`**You can't select project someone else.**`,ephemeral:true})

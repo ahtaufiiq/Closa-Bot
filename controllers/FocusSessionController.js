@@ -155,6 +155,7 @@ class FocusSessionController {
 
             if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
                 focusRoomUser[userId].date = Time.getTodayDateOnly()
+                focusRoomUser[userId].yesterdayTotalTime = focusRoomUser[userId].totalTime
                 const data = await FocusSessionController.getDetailFocusSession(userId)
 				const taskName = data?.taskName
 				const projectName = data.Projects.name
@@ -294,30 +295,30 @@ class FocusSessionController {
                     }else{
                         coworkingStreak = 1
                     }
-                    // if(longestStreak !== coworkingStreak){
+                    if(longestStreak !== coworkingStreak){
                         
-                    //     if(coworkingStreak === 7 || coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
-                    //         const [idUser,idPartner] = id.split('_')
-                    //         Promise.all([
-                    //             MemberController.getMember(client,idUser),
-                    //             MemberController.getMember(client,idPartner),
-                    //         ])
-                    //         .then(([{user},{user:partner}])=>{
-                    //             AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
-                    //         })
-                    //     }
-                    // }else if(longestStreak === coworkingStreak && endLongestStreak !== Time.getTodayDateOnly()) {
-                    //     if(coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
-                    //         const [idUser,idPartner] = id.split('_')
-                    //         Promise.all([
-                    //             MemberController.getMember(client,idUser),
-                    //             MemberController.getMember(client,idPartner),
-                    //         ])
-                    //         .then(([{user},{user:partner}])=>{
-                    //             AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
-                    //         })
-                    //     }
-                    // }
+                        if(coworkingStreak === 7 || coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
+                            const [idUser,idPartner] = id.split('_')
+                            Promise.all([
+                                MemberController.getMember(client,idUser),
+                                MemberController.getMember(client,idPartner),
+                            ])
+                            .then(([{user},{user:partner}])=>{
+                                AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
+                            })
+                        }
+                    }else if(longestStreak === coworkingStreak && endLongestStreak !== Time.getTodayDateOnly()) {
+                        if(coworkingStreak === 30 || coworkingStreak === 100 || coworkingStreak === 200 || coworkingStreak === 365) {
+                            const [idUser,idPartner] = id.split('_')
+                            Promise.all([
+                                MemberController.getMember(client,idUser),
+                                MemberController.getMember(client,idPartner),
+                            ])
+                            .then(([{user},{user:partner}])=>{
+                                AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
+                            })
+                        }
+                    }
 
                     const value = {
                         currentTime : totalTimeCoworking,
@@ -413,7 +414,6 @@ class FocusSessionController {
         if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId) ){
             FocusSessionController.updateVoiceRoomId(userId,focusRoomUser[userId]?.joinedChannelId)
             FocusSessionController.setCoworkingPartner(userId,focusRoomUser[userId]?.joinedChannelId)
-            if(focusRoomUser[userId]) focusRoomUser[userId].startTimerDate = Time.getTodayDateOnly()
             const data = await FocusSessionController.getDetailFocusSession(userId)
             const taskName = data?.taskName
             const projectName = data?.Projects?.name
