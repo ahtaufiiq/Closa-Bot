@@ -151,7 +151,7 @@ module.exports = {
 										oldMember.client,
 										totalFocusSession,
 										typeCoworkingTime,
-										oldMember.member
+										oldMember.member.user
 									)
 									supabase.from("Users").update({badgeCoworkingTime:typeCoworkingTime}).eq('id',userId).then()
 								}
