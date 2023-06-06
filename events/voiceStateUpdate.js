@@ -161,7 +161,7 @@ module.exports = {
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
 						const yesterdayTotalTime = focusRoomUser[userId]?.yesterdayTotalTime
 						const incrementVibePoint = totalTime - (yesterdayTotalTime || 0)
-						PointController.addPoint(userId,'voice',totalTime)
+						PointController.addPoint(userId,'voice',incrementVibePoint)
 						if(yesterdayTotalTime){
 							const yesterdayDateOnly = Time.getDateOnly(Time.getNextDate(-1))
 							const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId,yesterdayDateOnly)
