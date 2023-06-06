@@ -183,7 +183,7 @@ class GenerateImage{
         context.fillStyle = "#161F26"; 
         context.font = "600 42px Archivo";
         const username = UserController.getNameFromUserDiscord(user)
-        context.fillText(username, 300 , 1786);
+        context.fillText(FormatString.truncateString(username,20), 300 , 1786);
 
 		const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
@@ -247,7 +247,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({user,dailyWorkTime,tasks,projects,totalSession,coworkingFriends}){
+    static async dailySummary({user,dailyWorkTime,tasks,projects,totalSession,coworkingFriends,dateOnly}){
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
             let maxLength = 350
@@ -313,7 +313,7 @@ class GenerateImage{
 
         context.fillStyle = "#31373D"; 
         context.font = "600 24px Archivo";
-        context.fillText(UserController.getNameFromUserDiscord(user), 117.2 , 57);
+        context.fillText(FormatString.truncateString(UserController.getNameFromUserDiscord(user),16), 117.2 , 57);
         
         context.fillStyle = "#888888"; 
         context.font = "400 18px Archivo";
@@ -322,7 +322,7 @@ class GenerateImage{
         context.textAlign = 'right'
 
         context.font = "400 20px Archivo";
-        context.fillText(Time.getFormattedDate(Time.getDate(),false,'long'), 514.5 , 84);
+        context.fillText(Time.getFormattedDate(Time.getDate(dateOnly),false,'long'), 514.5 , 84);
         context.textAlign = 'left'
 
 
@@ -635,7 +635,7 @@ class GenerateImage{
         
         context.textAlign = 'start'
         context.fillStyle = "#7E7C7C"; 
-        context.fillText(UserController.getNameFromUserDiscord(user),239,1010)
+        context.fillText(FormatString.truncateString(UserController.getNameFromUserDiscord(user),20),239,1010)
 
 
         const hostAvatar = await loadImage(InfoUser.getAvatar(user))
