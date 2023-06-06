@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js')
+const { Client, Collection, GatewayIntentBits, Partials, WebhookClient } = require('discord.js')
 const fs = require('fs')
 const { TOKEN, SENTRY_DSN, CHANNEL_CLOSA_CAFE} = require('./helpers/config');
 const Sentry = require('@sentry/node')
@@ -9,6 +9,7 @@ const client = new Client({
 	partials: [Partials.Channel,Partials.Message,Partials.Reaction],
 });
 const discordModals = require('discord-modals'); // Define the discord-modals package!
+const Time = require('./helpers/time');
 discordModals(client);
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -37,15 +38,22 @@ const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'
 
 const focusRoomUser = {
 }
+
+setInterval(() => {
+	if(Object.keys(focusRoomUser).length > 0){
+		fs.writeFileSync(`focusRoom/${Time.getTimeOnly(Time.getDate())}`,JSON.stringify(focusRoomUser,null,2))
+	}
+}, 1000 * 60);
 const listFocusRoom = {
 	[CHANNEL_CLOSA_CAFE]:true
 }
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
+		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
+		else client.once(event.name, (...args) => event.execute(...args));
 	}else {
-		if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'modalSubmit.js' || file === 'voiceStateUpdate.js' || file === 'ready.js'){
+		if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'modalSubmit.js' || file === 'voiceStateUpdate.js' ){
 			client.on(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
 		}else{
 			client.on(event.name, (...args) => event.execute(...args));
