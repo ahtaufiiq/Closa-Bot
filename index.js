@@ -41,7 +41,15 @@ const focusRoomUser = {
 
 setInterval(() => {
 	if(Object.keys(focusRoomUser).length > 0){
-		fs.writeFileSync(`focusRoom/${Time.getTimeOnly(Time.getDate())}`,JSON.stringify(focusRoomUser,null,2))
+		const dateOnly = Time.getTodayDateOnly()
+		const stringTime = Time.getTimeOnly(Time.getDate())
+		if(!fs.existsSync('focusRoom')) fs.mkdirSync('focusRoom')
+		if(!fs.existsSync(`focusRoom/${dateOnly}`)) fs.mkdirSync(`focusRoom/${dateOnly}`)
+		if(!fs.existsSync(`focusRoom/${dateOnly}/${stringTime}`)) fs.mkdirSync(`focusRoom/${dateOnly}/${stringTime}`)
+
+		for (const UserId in focusRoomUser) {
+			fs.writeFileSync(`focusRoom/${dateOnly}/${stringTime}/${UserId}.json`,JSON.stringify(focusRoomUser[UserId],null,2))
+		}
 	}
 }, 1000 * 60);
 const listFocusRoom = {
