@@ -59,7 +59,7 @@ class UserController{
 	}
 
 	static async incrementTotalPoints(increment,id_user){
-		if(!increment) return ChannelController.sendError(`update point ${pointLeft} - ${userId}`)
+		if(!increment) return ChannelController.sendError(`update point ${increment} - ${userId}`)
 		return await supabase
 			.rpc('incrementTotalPoint', { increment, id_user })
     }

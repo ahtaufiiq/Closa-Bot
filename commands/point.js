@@ -23,9 +23,8 @@ module.exports = {
 
 		UserController.incrementTotalPoints(amount,user.id)
 		
-		
-		ChannelController.getChannel(interaction.client,CHANNEL_GENERAL).send(
-			PointMessage.successAddPoint(user,message,amount)
+		ChannelController.sendToNotification(
+			interaction.client,PointMessage.successAddPoint(user,message,amount),user.id
 		)
 		await interaction.editReply(`add ${amount} point to ${user}`)
 	},

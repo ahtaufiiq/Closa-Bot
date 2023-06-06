@@ -284,15 +284,19 @@ module.exports = {
 					case "breakFifteenMinute":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't break focus session someone else")
 						let minute = commandButton === 'breakFiveMinute' ? 5 : 15
-						focusRoomUser[targetUserId].isFocus = false
-						focusRoomUser[targetUserId].breakCounter += minute
-						if(focusRoomUser[targetUserId].msgIdSmartBreakReminder){
-							const msgSmartReminder = await ChannelController.getMessage(
-								interaction.channel,
-								focusRoomUser[targetUserId].msgIdSmartBreakReminder
-							)
-							if(value !== 'smartBreak') ChannelController.deleteMessage(msgSmartReminder)
-							delete focusRoomUser[targetUserId].msgIdSmartBreakReminder
+						if(focusRoomUser[targetUserId]){
+							focusRoomUser[targetUserId].isFocus = false
+							focusRoomUser[targetUserId].breakCounter += minute
+							if(focusRoomUser[targetUserId].msgIdSmartBreakReminder){
+								const msgSmartReminder = await ChannelController.getMessage(
+									interaction.channel,
+									focusRoomUser[targetUserId].msgIdSmartBreakReminder
+								)
+								if(value !== 'smartBreak') ChannelController.deleteMessage(msgSmartReminder)
+								delete focusRoomUser[targetUserId].msgIdSmartBreakReminder
+							}
+						}else{
+							ChannelController.sendError('focusRoomUser Undefined ' + targetUserId,JSON.stringify(focusRoomUser[targetUserId],null,2))
 						}
 						const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)
 						const [msgFocusOld,replyBreak] = await Promise.all([
