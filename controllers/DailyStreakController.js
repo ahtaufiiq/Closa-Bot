@@ -255,12 +255,12 @@ class DailyStreakController {
 
 	static async getNearestStreakFriends(UserId,currentStreak){
 		const data = await supabase.from("Users")
-		.select('id,avatarURL,currentStreak')
-		.eq('currentStreak',currentStreak)
-		.neq('id',UserId)
-		.gt('currentStreak',0)
-		.limit(5)
-
+			.select('id,avatarURL,currentStreak')
+			.eq('currentStreak',currentStreak)
+			.neq('id',UserId)
+			.not('avatarURL','is',null)
+			.gt('currentStreak',0)
+			.limit(5)
 		const sisa = 5 - data.body.length
 		let counter = 0
 		const friends = data.body
@@ -270,6 +270,7 @@ class DailyStreakController {
 					.select('id,avatarURL,currentStreak')
 					.gt('currentStreak',currentStreak)
 					.neq('id',UserId)
+					.not('avatarURL','is',null)
 					.limit(sisa)
 					.order('currentStreak'),
 				supabase.from("Users")
@@ -277,6 +278,7 @@ class DailyStreakController {
 					.lt('currentStreak',currentStreak)
 					.gt('currentStreak',0)
 					.neq('id',UserId)
+					.not('avatarURL','is',null)
 					.limit(sisa)
 					.order('currentStreak',{ascending:false})
 				])

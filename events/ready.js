@@ -1,4 +1,4 @@
-const {GUILD_ID, MY_ID, CHANNEL_GOALS, CHANNEL_STATUS, ROLE_INACTIVE_MEMBER, CHANNEL_TODO, CLIENT_ID} = require('../helpers/config')
+const {GUILD_ID, MY_ID, CHANNEL_GOALS, CHANNEL_STATUS, ROLE_INACTIVE_MEMBER, CHANNEL_TODO, CLIENT_ID, CHANNEL_COMMAND} = require('../helpers/config')
 const WeeklyReport = require('../controllers/WeeklyReport');
 const PaymentController = require('../controllers/PaymentController');
 const DailyStreakController = require('../controllers/DailyStreakController');
@@ -82,6 +82,7 @@ module.exports = {
 		DailyStreakController.remindMissOneDay(client)
 		DailyStreakController.remindAboutToLoseStreak(client)
 		DailyStreakController.sendRepairStreak(client)
+		DailyStreakController.resetDailyStreak()
 
 		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
 
