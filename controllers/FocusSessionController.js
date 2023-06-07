@@ -304,7 +304,7 @@ class FocusSessionController {
                                 MemberController.getMember(client,idPartner),
                             ])
                             .then(([{user},{user:partner}])=>{
-                                AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner)
+                                AchievementBadgeController.achieveCoworkingStreak(client,coworkingStreak,totalSession,totalTime,user,partner,true)
                             })
                         }
                     }else if(longestStreak === coworkingStreak && endLongestStreak !== Time.getTodayDateOnly()) {

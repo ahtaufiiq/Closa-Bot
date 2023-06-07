@@ -341,7 +341,7 @@ so, you can learn or sharing from each others.`,
 
 								if(endLongestStreak === Time.getTodayDateOnly()){
 									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
+										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
 									}
 								}else {
 									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {

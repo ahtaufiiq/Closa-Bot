@@ -6,7 +6,7 @@ const InfoUser = require("../helpers/InfoUser")
 
 class AchievementBadgeMessage{
 
-    static progressStreak(userId,streak,files){
+    static embedAchievementProgressStreak(userId,streak){
         let color = '#fefefe'
         let content = `Welcome to **${MessageFormatting.tagRole(ROLE_7STREAK)}** ${MessageFormatting.tagUser(userId)} 🥳`
         let titleEmbed = "Thank you for staying consistent on your project!"
@@ -34,18 +34,14 @@ Check your notification & claim your reward for 7000 🪙`
             descriptionEmbed = `Now you have god tier fire animation on your streak 🔥
 check your notification & claim your reward for 12000 🪙`
         }
-        return {
-			content,
-			embeds:[new EmbedBuilder()
-				.setColor(color)
-                .setThumbnail(AchievementBadgeMessage.achievementBadgePoint().streak[streak].url)
-				.setTitle(titleEmbed)
-				.setDescription(descriptionEmbed)],
-			files
-		}
+        return new EmbedBuilder()
+            .setColor(color)
+            .setThumbnail(AchievementBadgeMessage.achievementBadgePoint().streak[streak].url)
+            .setTitle(titleEmbed)
+            .setDescription(descriptionEmbed)
     }
 
-    static coworkingStreak(userId,partnerId,streak,files){
+    static embedAchievementCoworkingStreak(userId,partnerId,streak){
         let color = '#fefefe'
         let content = `Congrats for both of you ${MessageFormatting.tagUser(userId)} & ${MessageFormatting.tagUser(partnerId)} for **${streak} day coworking streak!** 🥳`
         let titleEmbed = "Let's stay consistent together!"
@@ -62,17 +58,13 @@ check your notification & claim your reward for 12000 🪙`
             content = `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(userId)} & ${MessageFormatting.tagUser(partnerId)} for **365 day coworking streak!** 👑👑`
             titleEmbed = `Thank you for being an example & the legend to all of us! 🫡 👑`
         }
-        return {
-			content,
-			embeds:[new EmbedBuilder()
-				.setColor(color)
-				.setTitle(titleEmbed)
-				.setDescription(descriptionEmbed)],
-			files
-		}
+        return new EmbedBuilder()
+            .setColor(color)
+            .setTitle(titleEmbed)
+            .setDescription(descriptionEmbed)
     }
 
-    static coworkingTime(userId,type,files){
+    static embedAchievementCoworkingTime(userId,type){
         const data = {
             '1000min':{content:`Congrats on your first **1000 minutes** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳`,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 300 🪙`,color:'#fefefe'},
             '50hr':{content:`Congrats on your **50 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 1000 🪙`,color:`#FF3B30`},
@@ -81,15 +73,11 @@ check your notification & claim your reward for 12000 🪙`
             '500hr':{content:`Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,descriptionEmbed:`please check your notification & claim your reward for 10000 🪙\nyour deserve it!`,color:`#5856ff`},
             '1000hr':{content:`@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(userId)}`,titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,descriptionEmbed:`please check your notification & claim your 15000 🪙`,color:`#ffcc00`},
         }
-        const {content,color,titleEmbed,descriptionEmbed} = data[type]
-        return {
-			content,
-			embeds:[new EmbedBuilder()
-				.setColor(color)
-				.setTitle(titleEmbed)
-				.setDescription(descriptionEmbed)],
-			files
-		}
+        const {color,titleEmbed,descriptionEmbed} = data[type]
+        return new EmbedBuilder()
+            .setColor(color)
+            .setTitle(titleEmbed)
+            .setDescription(descriptionEmbed)
     }
 
     static typeCoworkingTime = {
@@ -125,14 +113,14 @@ check your notification & claim your reward for 12000 🪙`
         const {point,description} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
             content:`Congrats on your milestone! 🔥 ${user}
-
 here's a special reward for you! :coin:
-*only valid until 23.59 today*`,
+
+note: **this reward only valid until 23.59 today**`,
             embeds:[
                 new EmbedBuilder()
                 .setColor("#FEFEFE")
                 .setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
-                .setDescription(description)
+                .setDescription(description + "\nyou can claim this reward before 23.59 today.")
                 .setAuthor({name:`CLAIM ${point} POINTS`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
                 .setFooter({text:`${user.username}`, iconURL:InfoUser.getAvatar(user)})
             ],
