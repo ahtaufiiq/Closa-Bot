@@ -6,46 +6,36 @@ const InfoUser = require("../helpers/InfoUser")
 
 class AchievementBadgeMessage{
 
-    static embedAchievementProgressStreak(userId,streak){
+    static embedAchievementProgressStreak(streak){
         let color = '#fefefe'
-        let content = `Welcome to **${MessageFormatting.tagRole(ROLE_7STREAK)}** ${MessageFormatting.tagUser(userId)} 🥳`
         let titleEmbed = "Thank you for staying consistent on your project!"
-        let descriptionEmbed = `Now you have better fire animation on your streak 🔥
-Check your notification & claim your reward for 250 🪙`
+        let descriptionEmbed = `Now you have better fire animation on your streak 🔥`
         if(streak === 30){
             color = '#FF3B30'
-            content = `Welcome to **${MessageFormatting.tagRole(ROLE_30STREAK)}** ${MessageFormatting.tagUser(userId)} 🥳🎉`
-            descriptionEmbed = `Now you have better fire animation on your streak 🔥
-Check your notification & claim your reward for 1000 🪙`
+            descriptionEmbed = `Now you have better fire animation on your streak 🔥`
         }else if(streak === 100) {
             color = '#99F2D2'
-            content = `Welcome to **${MessageFormatting.tagRole(ROLE_100STREAK)}** ${MessageFormatting.tagUser(userId)} 🔥🔥🔥`
-            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
-Check your notification & claim your reward for 3500 🪙`
+            descriptionEmbed = `Now you have skull fire animation on your streak 🔥`
         }else if(streak === 200) {
             color = '#5856ff'
-            content = `Welcome to **${MessageFormatting.tagRole(ROLE_200STREAK)}** ${MessageFormatting.tagUser(userId)} 🔥🔥🔥🔥🔥🔥`
-            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
-Check your notification & claim your reward for 7000 🪙`
+            descriptionEmbed = `Now you have skull fire animation on your streak 🔥`
         }else if(streak === 365) {
             color = '#ffcc00'
-            content = `@everyone **LET'S GIVE AN HONOR TO ${MessageFormatting.tagUser(userId)} FOR :crown: 365 DAY STREAK MILESTONE**  🔥 🔥 🔥 `
             titleEmbed = `Thank you for being an example & a legend to all of us! `
-            descriptionEmbed = `Now you have god tier fire animation on your streak 🔥
-check your notification & claim your reward for 12000 🪙`
+            descriptionEmbed = `Now you have god tier fire animation on your streak 🔥`
         }
-        return new EmbedBuilder()
+        return [
+            new EmbedBuilder()
             .setColor(color)
-            .setThumbnail(AchievementBadgeMessage.achievementBadgePoint().streak[streak].url)
+            .setThumbnail(AchievementBadgeMessage.achievementBadgePoint().progressStreak[streak].url)
             .setTitle(titleEmbed)
             .setDescription(descriptionEmbed)
+        ]
     }
 
-    static embedAchievementCoworkingStreak(userId,partnerId,streak){
+    static embedAchievementCoworkingStreak(streak){
         let color = '#fefefe'
-        let content = `Congrats for both of you ${MessageFormatting.tagUser(userId)} & ${MessageFormatting.tagUser(partnerId)} for **${streak} day coworking streak!** 🥳`
         let titleEmbed = "Let's stay consistent together!"
-        let descriptionEmbed = `check your notification & claim your reward for ${AchievementBadgeMessage.achievementBadgePoint().streak[streak].point} 🪙`
         if(streak === 30){
             color = '#FF3B30'
         }else if(streak === 100) {
@@ -55,29 +45,30 @@ check your notification & claim your reward for 12000 🪙`
             titleEmbed = "One more tier to become a true legend, let's go!"
         }else if(streak === 365) {
             color = '#ffcc00'
-            content = `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(userId)} & ${MessageFormatting.tagUser(partnerId)} for **365 day coworking streak!** 👑👑`
             titleEmbed = `Thank you for being an example & the legend to all of us! 🫡 👑`
         }
-        return new EmbedBuilder()
+        return [
+            new EmbedBuilder()
             .setColor(color)
             .setTitle(titleEmbed)
-            .setDescription(descriptionEmbed)
+        ]
     }
 
-    static embedAchievementCoworkingTime(userId,type){
+    static embedAchievementCoworkingTime(type){
         const data = {
-            '1000min':{content:`Congrats on your first **1000 minutes** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳`,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 300 🪙`,color:'#fefefe'},
-            '50hr':{content:`Congrats on your **50 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 1000 🪙`,color:`#FF3B30`},
-            '100hr':{content:`Congrats on your **100 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`What a milestones! let's stay productive & take more challenge!`,descriptionEmbed:`check your notification & claim your reward for 2000 🪙`,color:`#FF3B30`},
-            '300hr':{content:`Congrats on your **300 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`300 hours is a true dedication working on your project! keep it up.`,descriptionEmbed:`check your notification & claim your reward for 7000 🪙`,color:`#99F2D2`},
-            '500hr':{content:`Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(userId)} 🥳🎉`,titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,descriptionEmbed:`please check your notification & claim your reward for 10000 🪙\nyour deserve it!`,color:`#5856ff`},
-            '1000hr':{content:`@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(userId)}`,titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,descriptionEmbed:`please check your notification & claim your 15000 🪙`,color:`#ffcc00`},
+            '1000min':{titleEmbed:`Let's stay consistent & productive!`,color:'#fefefe'},
+            '50hr':{titleEmbed:`Let's stay consistent & productive!`,color:`#FF3B30`},
+            '100hr':{titleEmbed:`What a milestones! let's stay productive & take more challenge!`,color:`#FF3B30`},
+            '300hr':{titleEmbed:`300 hours is a true dedication working on your project! keep it up.`,color:`#99F2D2`},
+            '500hr':{titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,color:`#5856ff`},
+            '1000hr':{titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,color:`#ffcc00`},
         }
-        const {color,titleEmbed,descriptionEmbed} = data[type]
-        return new EmbedBuilder()
+        const {color,titleEmbed} = data[type]
+        return [
+            new EmbedBuilder()
             .setColor(color)
             .setTitle(titleEmbed)
-            .setDescription(descriptionEmbed)
+        ]
     }
 
     static typeCoworkingTime = {
@@ -91,7 +82,14 @@ check your notification & claim your reward for 12000 🪙`
 
     static achievementBadgePoint(){
         return {
-            streak:{
+            progressStreak:{
+                7:{point:250,description:"it's equal to 4+ hr of cowork",color: '#FF3B30',url: 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'},
+                30:{point:1000,description:"it's equal to 16+ hr of cowork",color: '#FF3B30',url: 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'},
+                100:{point:3500,description:"it's equal to 58+ hr of cowork",color: '#99F2D2',url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'},
+                200:{point:7000,description:"it's equal to 116+ hr of cowork",color: '#5856ff',url: 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'},
+                365:{point:12000,description:"it's equal to 200+ hr of cowork",color: '#ffcc00',url: 'https://cdn.discordapp.com/attachments/746601801150758962/746682286530887780/708780647157858324.gif'},
+            },
+            coworkingStreak:{
                 7:{point:250,description:"it's equal to 4+ hr of cowork",color: '#FF3B30',url: 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'},
                 30:{point:1000,description:"it's equal to 16+ hr of cowork",color: '#FF3B30',url: 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'},
                 100:{point:3500,description:"it's equal to 58+ hr of cowork",color: '#99F2D2',url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'},
@@ -109,7 +107,7 @@ check your notification & claim your reward for 12000 🪙`
         }
     }
 
-    static claimVibePoint(user,achievement,files,type='streak'){
+    static claimVibePoint(user,achievement,files,type='progressStreak'){
         const {point,description} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
             content:`Congrats on your milestone! 🔥 ${user}

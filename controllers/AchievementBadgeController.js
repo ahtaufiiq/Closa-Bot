@@ -20,7 +20,7 @@ class AchievementBadgeController{
     
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(author,dailyStreak,files,'streak'),
+                AchievementBadgeMessage.claimVibePoint(author,dailyStreak,files,'progressStreak'),
                 author.id
             )
         }, 1000 * 15);
@@ -47,12 +47,12 @@ class AchievementBadgeController{
         setTimeout(async () => {
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(user,streak,files,'streak'),
+                AchievementBadgeMessage.claimVibePoint(user,streak,files,'coworkingStreak'),
                 user.id
             )
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'streak'),
+                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak'),
                 partner.id
             )
         }, 1000 * 15);
@@ -84,15 +84,15 @@ class AchievementBadgeController{
         }, 1000 * 15);
 
         const roles = {
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["1000min"]]:{new:ROLE_1000MIN},
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["50hr"]]:{new:ROLE_50HOURS,old:ROLE_1000MIN},
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["100hr"]]:{new:ROLE_100HOURS,old:ROLE_50HOURS},
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["300hr"]]:{new:ROLE_300HOURS,old:ROLE_100HOURS},
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["500hr"]]:{new:ROLE_500HOURS,old:ROLE_300HOURS},
-            [AchievementBadgeMessage.achievementBadgePoint().coworkingTime["1000hr"]]:{new:ROLE_365COWORK,old:ROLE_500HOURS}
+            "1000min":{new:ROLE_1000MIN},
+            "50hr":{new:ROLE_50HOURS,old:ROLE_1000MIN},
+            "100hr":{new:ROLE_100HOURS,old:ROLE_50HOURS},
+            "300hr":{new:ROLE_300HOURS,old:ROLE_100HOURS},
+            "500hr":{new:ROLE_500HOURS,old:ROLE_300HOURS},
+            "1000hr":{new:ROLE_365COWORK,old:ROLE_500HOURS}
         }
-        const newRole = roles[streak].new
-        const oldRole = roles[streak].old
+        const newRole = roles[badgeType].new
+        const oldRole = roles[badgeType].old
         if(newRole){
             MemberController.addRole(client,user.id,newRole)
         }

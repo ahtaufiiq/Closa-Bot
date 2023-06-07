@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION } = require("../helpers/config");
+const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -685,9 +685,7 @@ module.exports = {
 							components:[]
 						})
 						const testimonialUser = interaction.message.mentions.users.first()
-						const channelTestimonial = ChannelController.getChannel(interaction.client,CHANNEL_TESTIMONIAL)
-						const msgTestimonial = await channelTestimonial.send(interaction.message.content)
-						ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+						const channelAchievements = ChannelController.getChannel(interaction.client,CHANNEL_ACHIEVEMENTS)
 						await interaction.editReply("Testimonial has been posted")
 						if(value){
 							const [type,achievement] = value.split('-')
@@ -700,6 +698,19 @@ module.exports = {
 								AchievementBadgeMessage.approvedCelebration(targetUserId,type,achievement,totalPoint),
 								targetUserId
 							)
+							const embeds = type ==='coworkingTime' ? AchievementBadgeMessage.embedAchievementCoworkingTime(achievement)
+									: type === 'coworkingStreak' ? AchievementBadgeMessage.embedAchievementCoworkingStreak(achievement)
+									: AchievementBadgeMessage.embedAchievementProgressStreak(achievement)
+
+							const msgTestimonial = await channelAchievements.send({
+								content:interaction.message.content,
+							})
+							 
+							const thread = await ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+							thread.send({embeds})
+						}else{
+							const msgTestimonial = await channelAchievements.send(interaction.message.content)
+							ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
 						}
 						break;
 					default:
