@@ -332,20 +332,13 @@ so, you can learn or sharing from each others.`,
 					}
 					
 					if (goalName) {
-						RequestAxios.get('todos/tracker/'+msg.author.id)
-							.then(async progressRecently=>{
-								const avatarUrl = InfoUser.getAvatar(msg.author)
-								const buffer = await GenerateImage.tracker(msg.author,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
-								
-
-								const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${msg.author.username}.png`})
+						DailyStreakController.generateHabitBuilder(msg.client,msg.author)
+							.then(async files=>{
 								await ChannelStreak.send({
 									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
-									files:[
-										attachment
-									]
+									files
 								})
-								
+
 								if(endLongestStreak === Time.getTodayDateOnly()){
 									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
 										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)

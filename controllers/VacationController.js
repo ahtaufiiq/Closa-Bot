@@ -86,14 +86,10 @@ class VacationController{
             UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
             await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
 
-            RequestAxios.get('todos/tracker/'+interaction.user.id)
-            .then(async progressRecently=>{
-                const avatarUrl = InfoUser.getAvatar(interaction.user)
-
-                const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,0,true)
-                const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${interaction.user.username}.png`})
-                channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,0,true))
-            })
+            DailyStreakController.generateHabitBuilder(interaction.client,interaction.user,true,0,true)
+                .then(files=>{
+                    channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,files,0,true))
+                })
 
             UserController.updateOnVacation(true,interaction.user.id)
             PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
@@ -166,16 +162,12 @@ class VacationController{
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
                     PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
                     VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
-                    RequestAxios.get('todos/tracker/'+interaction.user.id)
-                        .then(async progressRecently=>{
-                            const avatarUrl = InfoUser.getAvatar(interaction.user)
 
+                    DailyStreakController.generateHabitBuilder(interaction.client,interaction.user,true,vacationTicketLeft,isBuyOneVacation)
+                        .then(files=>{
                             const vacationTicketLeft = totalTicket - 1
                             const isBuyOneVacation = totalTicket === 1
-            
-                            const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,true,vacationTicketLeft,isBuyOneVacation)
-                            const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${interaction.user.username}.png`})
-                            channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,attachment,vacationTicketLeft,isBuyOneVacation))
+                            channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,files,vacationTicketLeft,isBuyOneVacation))
                         })
 
                     UserController.updateOnVacation(true,interaction.user.id)
@@ -226,15 +218,11 @@ class VacationController{
                 VacationController.addSafetyDotIfMissOnce(userId,lastDone)
                 UserController.updateLastSafety(Time.getTodayDateOnly(),userId)
                 await DailyStreakController.addSafetyDot(userId,new Date())
-                
-                RequestAxios.get('todos/tracker/'+userId)
-                .then(async progressRecently=>{
-                    const avatarUrl = InfoUser.getAvatar(user)
 
-                    const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,true,vacationLeft)
-                    const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
-                    channelStreak.send(VacationMessage.onVacationMode(user.id,attachment,vacationLeft))
-                })
+                DailyStreakController.generateHabitBuilder(client,user,true,vacationLeft)
+                    .then(files=>{
+                        channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,files,vacationLeft))
+                    })
 
 
                 UserController.updateOnVacation(true,userId)

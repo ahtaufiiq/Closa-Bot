@@ -91,7 +91,7 @@ Points left: **${pointLeft} :coin:**`
         }
     }
 
-    static shareStreak(userId,attachment,sickLeft=0,isBuyOneSickTicket=false){
+    static shareStreak(userId,files,sickLeft=0,isBuyOneSickTicket=false){
         let textDayLeft = 'last day'
         if(isBuyOneSickTicket) textDayLeft = 'rest day'
         else if(sickLeft > 0) {
@@ -101,9 +101,7 @@ Points left: **${pointLeft} :coin:**`
         return {
             content:`${MessageFormatting.tagUser(userId)} on sick leave 🤢
 \`\`${textDayLeft}\`\``,
-            files:[
-                attachment
-            ]
+            files
         }
     }
 

@@ -4,6 +4,8 @@ const { GUILD_ID, CHANNEL_GOALS, CHANNEL_STREAK, CHANNEL_GENERAL, CHANNEL_COMMAN
 const GenerateImage = require('../helpers/GenerateImage');
 const InfoUser = require('../helpers/InfoUser');
 const supabase = require('../helpers/supabaseClient');
+const Time = require('../helpers/time');
+const DailyStreakController = require('../controllers/DailyStreakController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,9 +24,10 @@ module.exports = {
 
 		if (user.bot) return await interaction.editReply("you can't tag bot 🙂")
 		const {data} = await supabase.from("Users")
-			.select('goalId,longestStreak,totalDay,totalPoint')
+			.select('goalId,lastDone,lastSafety,currentStreak,longestStreak,totalDay,totalPoint')
 			.eq('id',user.id)
 			.single()
+
 		let goalName = ''
 	
 		if (data?.goalId) {
@@ -33,20 +36,10 @@ module.exports = {
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
-			RequestAxios.get('todos/tracker/'+user.id)
-			.then(async progressRecently=>{
-				const avatarUrl = InfoUser.getAvatar(user)
-				const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
-				const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
-				await interaction.editReply({
-					files:[
-						attachment
-					]
-				})
+			const files = await DailyStreakController.generateHabitBuilder(interaction.client,user)
+			await interaction.editReply({
+				files
 			})
-
 		}
-
-				
 	},
 };

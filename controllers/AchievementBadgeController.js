@@ -14,14 +14,9 @@ class AchievementBadgeController{
 		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
 		const files = [new AttachmentBuilder(buffer,{name:`streak_badge_${author.username}.png`})]
 		
-		const channelAchievement = ChannelController.getChannel(client,CHANNEL_ACHIEVEMENTS)
         setTimeout(async () => {
-            const msg = await channelAchievement.send(AchievementBadgeMessage.progressStreak(author.id,dailyStreak,files))
-            ChannelController.createThread(msg,`Congrats ${author.username}!`)
-    
             PartyController.shareToPartyRoom(client,author.id,PartyMessage.shareAchievementBadge(author,dailyStreak,files))
     
-            // send to notification to claim reward
             ChannelController.sendToNotification(
                 client,
                 AchievementBadgeMessage.claimVibePoint(author,dailyStreak,files,'streak'),
@@ -34,13 +29,7 @@ class AchievementBadgeController{
         const buffer = await GenerateImage.coworkingStreakBadge(streak,totalSession,totalTime,user,partner)
 		const files = [new AttachmentBuilder(buffer,{name:`coworking_streak_${user.username}&${partner.username}.png`})]
 		
-		const channelAchievement = ChannelController.getChannel(client,CHANNEL_ACHIEVEMENTS)
-
         setTimeout(async () => {
-            const msg = await channelAchievement.send(AchievementBadgeMessage.coworkingStreak(user.id,partner.id,streak,files))
-            ChannelController.createThread(msg,`Congrats ${user.username} & ${partner.username}!`)
-    
-            // send to notification to claim reward
             ChannelController.sendToNotification(
                 client,
                 AchievementBadgeMessage.claimVibePoint(user,streak,files,'streak'),
@@ -58,12 +47,7 @@ class AchievementBadgeController{
         const buffer = await GenerateImage.coworkingTimeBadge(user,totalSession,badgeType)
 		const files = [new AttachmentBuilder(buffer,{name:`coworking_time_${user.username}.png`})]
 		
-		const channelAchievement = ChannelController.getChannel(client,CHANNEL_ACHIEVEMENTS)
         setTimeout(async () => {
-            const msg = await channelAchievement.send(AchievementBadgeMessage.coworkingTime(user.id,badgeType,files))
-            ChannelController.createThread(msg,`Congrats ${user.username}!`)
-    
-            // send to notification to claim reward
             ChannelController.sendToNotification(
                 client,
                 AchievementBadgeMessage.claimVibePoint(user,badgeType,files,'coworkingTime'),
