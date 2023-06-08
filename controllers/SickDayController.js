@@ -91,15 +91,11 @@ class SickDayController{
             UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
             await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
 
-            RequestAxios.get('todos/tracker/'+interaction.user.id)
-            .then(async progressRecently=>{
-                const avatarUrl = InfoUser.getAvatar(interaction.user)
-                const sickTicketLeft = totalTicket - 1
-                const buffer = await GenerateImage.tracker(interaction.user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,pointLeft,false,0,true,true)
-                const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${interaction.user.username}.png`})
-                channelStreak.send(SickDayMessage.shareStreak(interaction.user.id,attachment,sickTicketLeft,totalTicket===1))
-            })
-
+            DailyStreakController.generateHabitBuilder(interaction.client,interaction.user,false,0,true,true)
+                .then(files=>{
+                    const sickTicketLeft = totalTicket - 1
+                    channelStreak.send(SickDayMessage.shareStreak(interaction.user.id,files,sickTicketLeft,totalTicket===1))
+                })
             UserController.updateOnVacation(true,interaction.user.id)
             SickDayController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             PartyController.updateDataProgressRecap(interaction.user.id,'sick')
@@ -137,14 +133,10 @@ class SickDayController{
                 UserController.updateLastSafety(Time.getTodayDateOnly(),userId)
                 await DailyStreakController.addSafetyDot(userId,new Date())
                 
-                RequestAxios.get('todos/tracker/'+userId)
-                .then(async progressRecently=>{
-                    const avatarUrl = InfoUser.getAvatar(user)
-
-                    const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint,false,sickLeft,false,true)
-                    const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
-                    channelStreak.send(SickDayMessage.shareStreak(user.id,attachment,sickLeft))
-                })
+                DailyStreakController.generateHabitBuilder(client,user,false,sickLeft,false,true)
+                    .then(files=>{
+                        channelStreak.send(SickDayMessage.shareStreak(user.id,files,sickLeft))
+                    })
             }
         })
     }

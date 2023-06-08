@@ -70,7 +70,7 @@ ${getRandomValue(copywritingReply)}
     static successPostVibes(userId){
         return `congrats on your milestones! ${MessageFormatting.tagUser(userId)} :partying_face: 
 
-let's support each other on ${MessageFormatting(CHANNEL_TESTIMONIAL)} as well.
+let's support each other on ${MessageFormatting.tagChannel(CHANNEL_TESTIMONIAL)} as well.
 you can like, share, or reply to other posts on public ❤️
 
 *this act of giving back will help our community grow to the better*`

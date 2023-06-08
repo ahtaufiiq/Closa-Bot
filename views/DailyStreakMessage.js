@@ -18,7 +18,7 @@ class DailyStreakMessage{
             color = '#5856ff'
             url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
         }else if (longestStreak>=100) {
-            color = '#99F2D2'
+            color = '#49FFF4'
             url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
         }else if (longestStreak>=30) {
             color = '#FF3B30'
@@ -40,6 +40,38 @@ class DailyStreakMessage{
             return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`🔥 ${streak}x day ${textStreak}!`.toUpperCase()})
+            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
+        }
+    }
+    static longestStreak(longestStreak,user){
+        let url 
+        let color = '#fefefe'
+        if (longestStreak>=365) {
+            color = '#ffcc00'
+            url = 'https://cdn.discordapp.com/attachments/746601801150758962/746682286530887780/708780647157858324.gif'
+        }else if (longestStreak>=200) {
+            color = '#5856ff'
+            url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
+        }else if (longestStreak>=100) {
+            color = '#49FFF4'
+            url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
+        }else if (longestStreak>=30) {
+            color = '#FF3B30'
+            url = 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'
+        }else if (longestStreak>=7) {
+            color = '#FF3B30'
+            url = 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'
+        }
+        const avatarUrl = InfoUser.getAvatar(user)
+        if (longestStreak>=7) {
+            return new EmbedBuilder()
+            .setColor(color)
+            .setAuthor({name:`${longestStreak}x day LONGEST STREAK!`.toUpperCase(),iconURL:url})
+            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
+        }else{
+            return new EmbedBuilder()
+            .setColor(color)
+            .setAuthor({name:`🔥 ${longestStreak}x day LONGEST STREAK!`.toUpperCase()})
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }
     }
@@ -87,28 +119,6 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
                 MessageComponent.addButton('shopSickTicket',"🤢 Set as a sick day","SECONDARY"),
                 MessageComponent.addLinkButton("Learn more ↗","https://closa.notion.site/Vacation-Ticket-1cb1ff1110ef40a39cc26841061aa6fe"),
             )]
-        }
-    }
-
-    static activateSafetyDot(user,currentStreak,longestStreak,attachment){
-        const avatarUrl = InfoUser.getAvatar(user)
-        let color = '#fefefe'
-
-        return {
-            content:`${user} safety dot automatically activated to safe you from losing ${currentStreak}x streak.
-\`\`Please don't skip more than once to keep your streak & come back tomorrow.\`\``,
-            embeds:[
-                 new EmbedBuilder()
-                    .setColor(color)
-                    .setAuthor({name:`Safety dot activated 🟩`})
-                    .setFooter({text:`${user.username}`, iconURL:avatarUrl})
-            ],
-            components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton("Learn more about safety dot 🟩","https://www.notion.so/closa/Habit-Tracker-dafeb8ce620c4210b3a3be4033933eb6#c48809b429e041be86884562f1b3d77b")
-            )],
-            files:[
-                attachment
-            ]
         }
     }
 

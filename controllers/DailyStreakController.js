@@ -11,7 +11,6 @@ const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
 const UserController = require('./UserController');
 const PartyController = require('./PartyController');
-const PartyMessage = require('../views/PartyMessage');
 const MessageComponent = require('../helpers/MessageComponent');
 class DailyStreakController {
 
@@ -36,50 +35,6 @@ class DailyStreakController {
 									userId,
 									notificationId
 								)
-							})
-						}
-				})
-			}
-		})
-    }
-
-    static notifyActivateSafetyDot(client){
-        let ruleReminderMissOneDay = new schedule.RecurrenceRule();
-		ruleReminderMissOneDay.hour = Time.minus7Hours(23)
-		ruleReminderMissOneDay.minute = 59
-		schedule.scheduleJob(ruleReminderMissOneDay,function(){
-			if (!Time.isCooldownPeriod()) {
-				const yesterdayDate =  new Date()
-				yesterdayDate.setDate(yesterdayDate.getDate() - 1)
-				supabase.from("Users")
-					.select()
-					.gte('currentStreak',2)
-					.eq('onVacation',false)
-					.eq('lastDone',Time.getDateOnly(yesterdayDate))
-					.then(data=>{
-						if (data.body) {
-							const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
-							data.body.forEach(async member=>{
-								const {goalId,currentStreak,longestStreak,totalDay,totalPoint} = member
-								
-								let goalName = 'Consistency'
-								if (goalId) {
-									const channelGoal = ChannelController.getChannel(client,CHANNEL_GOALS)
-									const thread = await ChannelController.getThread(channelGoal,goalId)
-									goalName = thread.name.split('by')[0]
-								}
-								const {user} = await MemberController.getMember(client,member.id)
-								RequestAxios.get('todos/tracker/'+user.id)
-								.then(async progressRecently=>{
-									progressRecently.push({
-										type:'safety',
-										createdAt:Time.getDate()
-									})
-									const avatarUrl = InfoUser.getAvatar(user)
-									const buffer = await GenerateImage.tracker(user,goalName,avatarUrl,progressRecently,longestStreak,totalDay,totalPoint)
-									const attachment = new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})
-									channelStreak.send(DailyStreakMessage.activateSafetyDot(user,currentStreak,longestStreak,attachment))
-								})
 							})
 						}
 				})
@@ -261,8 +216,8 @@ class DailyStreakController {
 		return data
 	}
 
-	static async generateHabitBuilder(client,user){
-		const {data} = await UserController.getDetail(user.id,'goalId,longestStreak,totalDay,totalPoint')
+	static async generateHabitBuilder(client,user,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
+		const {data} = await UserController.getDetail(user.id,'goalId,currentStreak,longestStreak,totalDay,totalPoint')
 		let goalName = ''
 
 		if (data?.goalId) {
@@ -271,11 +226,18 @@ class DailyStreakController {
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
-			const progressRecently = await RequestAxios.get('todos/tracker/'+user.id)
+			const [progressRecently,nearestStreakFriends] = await Promise.all([
+				RequestAxios.get('todos/tracker/'+user.id),
+				DailyStreakController.getNearestStreakFriends(user.id,data.currentStreak),
+			])
 			const avatarUrl = InfoUser.getAvatar(user)
-			const buffer = await GenerateImage.tracker(user,goalName||"Consistency",avatarUrl,progressRecently,data.longestStreak,data.totalDay,data.totalPoint)
+			const buffer = await GenerateImage.tracker(
+				user,goalName||"Consistency",avatarUrl,progressRecently,nearestStreakFriends,data.currentStreak,data.longestStreak,data.totalDay,data.totalPoint,isVacation,vacationLeft,isBuyOneVacation,isSick
+			)
 			const files = [new AttachmentBuilder(buffer,{name:`progress_tracker_${user.username}.png`})]
 			return files
+		}else{
+			return []
 		}
 	}
 
@@ -289,6 +251,81 @@ class DailyStreakController {
 		DailyStreakController.updateIsRepairStreak(user.id)
 		PartyController.updateRecapAfterRepairStreak(user.id)
 		return DailyStreakMessage.successRepairStreak(user,files)
+	}
+
+	static async getNearestStreakFriends(UserId,currentStreak){
+		const data = await supabase.from("Users")
+			.select('id,avatarURL,currentStreak')
+			.eq('currentStreak',currentStreak)
+			.neq('id',UserId)
+			.not('avatarURL','is',null)
+			.gt('currentStreak',0)
+			.limit(5)
+		const sisa = 5 - data.body.length
+		let counter = 0
+		const friends = data.body
+		if(sisa > 0){
+			const [higherStreak,lowerStreak] = await Promise.all([
+				supabase.from("Users")
+					.select('id,avatarURL,currentStreak')
+					.gt('currentStreak',currentStreak)
+					.neq('id',UserId)
+					.not('avatarURL','is',null)
+					.limit(sisa)
+					.order('currentStreak'),
+				supabase.from("Users")
+					.select('id,avatarURL,currentStreak')
+					.lt('currentStreak',currentStreak)
+					.gt('currentStreak',0)
+					.neq('id',UserId)
+					.not('avatarURL','is',null)
+					.limit(sisa)
+					.order('currentStreak',{ascending:false})
+				])
+				if(lowerStreak.body.length <= higherStreak.body.length){
+					for (let i = 0; i < lowerStreak.body.length; i++) {
+						if(i === Math.floor(sisa/2)) break;
+						const el = lowerStreak.body[i];
+						counter++
+						friends.push(el)
+					}
+					for (let i = 0; i < higherStreak.body.length; i++) {
+						if(counter === sisa) break;
+						const el = higherStreak.body[i];
+						counter++
+						friends.push(el)
+					}
+				}else{
+					for (let i = 0; i < higherStreak.body.length; i++) {
+						if(i === Math.floor(sisa/2)) break;
+						const el = higherStreak.body[i];
+						counter++
+						friends.push(el)
+					}
+					for (let i = 0; i < lowerStreak.body.length; i++) {
+						if(counter === sisa) break;
+						const el = lowerStreak.body[i];
+						counter++
+						friends.push(el)
+					}
+				}
+		}
+		friends.sort((a,b)=>b.currentStreak - a.currentStreak)
+		return friends
+	}
+
+	static async resetDailyStreak(){
+		let rule = new schedule.RecurrenceRule();
+		rule.hour = Time.minus7Hours(0)
+		rule.minute = 1
+		schedule.scheduleJob(rule,async function(){
+			const dateOnly = Time.getDateOnly(Time.getNextDate(-3))
+			const data = await supabase.from("Users")
+				.update({currentStreak:0})
+				.lt('lastDone',dateOnly)
+				.or(`lastSafety.lt.${dateOnly},lastSafety.is.null`)
+				.gt('currentStreak',0)
+		})
 	}
 }
 

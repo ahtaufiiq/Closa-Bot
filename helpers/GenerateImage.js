@@ -6,57 +6,140 @@ const InfoUser = require('./InfoUser')
 const Time = require('./time')
 const {split} = require('canvas-hypertxt')
 class GenerateImage{
-    static async tracker(user,goalName,photo,data,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
+    static async tracker(user,goalName,photo,data,friends,currentStreak,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
-        
-        const canvas = createCanvas(1078,1167)
 
-        const context = canvas.getContext('2d')
-        const additionalStreak = isVacation ? '_vacation' : isSick ? "_sick" :longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
+        function getNextMilestoneStreak(currentStreak){
+            if(currentStreak < 7) return 7
+            else if(currentStreak < 30) return 30 
+            else if(currentStreak < 100) return 100 
+            else if(currentStreak < 200) return 200 
+            else if(currentStreak < 365) return 365 
+            else return 1000 
+        }
  
+        function drawProgressBar(context,x,y,percentage,type='long',width=12){
+            context.beginPath()
+            let maxLength = 923.5
+            if(percentage >= 100) percentage = 100
+            const barLength = (maxLength * percentage / 100)
+            context.moveTo(x, y);
+            context.lineTo(x + barLength, y);
+            context.lineCap = 'round'
+            context.lineWidth = width;
+            const gradient = context.createLinearGradient(x, y, x + barLength , y+width);
+            gradient.addColorStop(0,"#2AFCD7" );
+            gradient.addColorStop(0.25,"#2EDDD0" );
+            gradient.addColorStop(0.5,"#5569E8" );
+            gradient.addColorStop(0.75,"#FC7BFF" );
+            gradient.addColorStop(1,"#F9B06E" );
+            context.strokeStyle = (isVacation || isSick || longestStreak < 30) ? "#00B264" : longestStreak < 100 ? '#FF9500' : longestStreak < 200 ? '#19C9BE' : longestStreak < 365 ? '#5856FF' : gradient
+            context.stroke();
+            context.closePath()
+        }
+
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+        }
+
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+        const additionalStreak = isVacation ? '_vacation' : isSick ? "_sick" : longestStreak >= 365 ? '_365streak' : longestStreak >= 200 ? '_200streak' : longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
+
+        const [greenDot,safetyDot,checklist,empty,zap,zap100,zap200,zap365] = await Promise.all([
+            loadImage(`./assets/images/progress${additionalStreak}.png`),
+            loadImage(`./assets/images/safety${additionalStreak}.png`),
+            loadImage(`./assets/images/checklist${additionalStreak}.png`),
+            loadImage(`./assets/images/empty.png`),
+            loadImage(`./assets/images/zap.png`),
+            loadImage(`./assets/images/zap_100.png`),
+            loadImage(`./assets/images/zap_200.png`),
+            loadImage(`./assets/images/zap_365.png`),
+        ])
+        const nextMilestoneStreak = getNextMilestoneStreak(longestStreak)
+        const remainingDays = nextMilestoneStreak - currentStreak
+        const progressToMilestone = Math.round(currentStreak/nextMilestoneStreak*100)
+
+        // canvas
+        const canvas = createCanvas(1081.8,1560)
+        const context = canvas.getContext('2d')
         const template = await loadImage(`./assets/images/template${additionalStreak}.png`)
         context.drawImage(template,0,0)
-        context.fillStyle = "#2B2B2B"; 
-        context.font = "600 56px Inter";
+
+        context.fillStyle = "#31373D"; 
+        context.font = "600 45px Inter";
         const name = UserController.getNameFromUserDiscord(user)
-        context.fillText(name, 75 , 102 + 50);
-        context.font = "600 48px Inter";
-        const maxCharGoal = (isVacation || isSick) ?(vacationLeft === 0 ? 25 : 23) : 37
-        context.fillText(FormatString.truncateString(goalName,maxCharGoal), 75 , 363 + 34);
-
-
-        context.fillStyle = "#888888"; 
-        context.font = "40px Inter";
-        context.fillText(`${Time.getDay()} · ${Time.getFormattedDate(Time.getDate())}`, 75 , 198 + 30);
+        context.fillText(FormatString.truncateString(name,20), 228 , 132);
         
-        context.font = "500 40px Inter";
-        context.fillText(`${totalDays}`, 130 , 1051 + 38);
-        context.fillText(`${longestStreak}`, 290 , 1051 + 38);
+        context.textAlign = 'end'
+        context.font = "600 72px Inter";
+        context.fillText(`${currentStreak}`, 964 , 152.9);
+
+        drawProgressBar(context,77.6,276,progressToMilestone)
+        
+        context.fillStyle = "#888888"; 
+        context.font = "500 36px Inter";
+        context.fillText(`${remainingDays} day${remainingDays > 1 ? 's' : ''} away`, 1008.5 , 342);
+
+        context.textAlign = 'start'
         
         context.font = "500 36px Inter";
+        context.fillText(`${formatNumber(totalPoints)} pts`, 227.9, 192.3);
+        
+        context.fillStyle = "#31373D"; 
+        context.font = "600 45px Inter";
+        // const maxCharGoal = (isVacation || isSick) ?(vacationLeft === 0 ? 25 : 23) : 37
+        context.fillText(FormatString.truncateString(goalName,24), 72 , 501);
+
+        
         context.textAlign = 'end'
-        context.fillText(`${formatNumber(totalPoints)} P`, 1004, 1051 + 38);
+        context.fillStyle = "#888888"; 
+        context.font = "40px Inter";
+        context.fillText(`${Time.getFormattedDate(Time.getDate()).split(',').join(' ·')}`, 1006.8 , 1485.5);
+        context.textAlign = 'start'
+        
+        context.font = "500 36px Inter";
+        context.fillText(`DAY ${totalDays}`, 129 , 1485);
         
 
         if(isVacation || isSick){
             context.fillStyle = "#888888"; 
-            context.font = "500 40px Inter";
+            context.font = "500 39px Inter";
+            context.fillText(nextMilestoneStreak,71.9 , 344.9)
+            const iconStreak = nextMilestoneStreak >= 365 ? zap365 : nextMilestoneStreak >= 200 ? zap200 : nextMilestoneStreak >= 100 ? zap100 : zap
+            const totalDigitStreak = `${nextMilestoneStreak}`.length
+            const addCoordinate = totalDigitStreak === 3 ? 24 : totalDigitStreak === 4 ? 45 : 0
+            context.drawImage(iconStreak,129 + addCoordinate,312) 
+
+            context.font = "500 36px Inter";
             context.textAlign = 'end'
+            const xCoordinat = 958
+            const yCoordinat = 498
             if(vacationLeft === 0 ){
-                if(isBuyOneVacation) context.fillText(`rest day`, 954, 363 + 34);
-                else context.fillText(`last day`, 954, 363 + 34);
+                if(isBuyOneVacation) context.fillText(`rest day`, xCoordinat, yCoordinat);
+                else context.fillText(`last day`, xCoordinat, yCoordinat);
             }else{
-                context.fillText(`${vacationLeft} ${vacationLeft > 1 ? "days" :"day"} left`, 954, 363 + 34);
-                
+                context.fillText(`${vacationLeft} ${vacationLeft > 1 ? "days" :"day"} left`, xCoordinat, yCoordinat);
             }
+
+
         }
-          
-        const greenDot = await loadImage(`./assets/images/progress${additionalStreak}.png`)
-        const safetyDot = await loadImage(`./assets/images/safety${additionalStreak}.png`)
-        const checklist = await loadImage(`./assets/images/checklist${additionalStreak}.png`)
-        const empty = await loadImage(`./assets/images/empty.png`)
 
         const today = Time.getDate()
         const day = today.getDay() === 0 ? 7 : today.getDay()
@@ -66,10 +149,10 @@ class GenerateImage{
         let counter = 0
         let baris = 0
         let column = 0
-        const gapX = 143
+        const gapX = 143.9
         const gapY = 108
-        const startY = 541
-        const startX = 75
+        const startY = 651
+        const startX = 72.5
         let startDrawEmpty = false
 
         while(Time.getDateOnly(startDate) !== Time.getDateOnly(endDate)){
@@ -90,8 +173,6 @@ class GenerateImage{
             column++
            
         }
-        
-
 
         for (let i = 0; i < data.length; i++) {
             const dateOnly = Time.getDateOnly(new Date(data[i].createdAt))
@@ -108,14 +189,32 @@ class GenerateImage{
             }
         }
 
+        const friendsImageSize = 122;
+        let xCoordinatFriends = 78
+        let yCoordinatFriends = 1192.8
+
+        let xCoordinatStreak = 75
+        context.textAlign = 'center'
+        for (let i = 0; i < friends.length; i++) {
+            const {currentStreak,avatarURL} = friends[i];
+            const totalDigitStreak = `${currentStreak}`.length
+            const addCoordinate = totalDigitStreak === 2 ? 5 : totalDigitStreak === 1 ? 10 : 0
+            const photo = await loadImage(avatarURL)
+            const streakImage = currentStreak >= 365 ? zap365 : currentStreak >= 200 ? zap200 : currentStreak >= 100 ? zap100 : zap
+            drawRoundedImage(context,photo,xCoordinatFriends,yCoordinatFriends,friendsImageSize,friendsImageSize,friendsImageSize/2)
+            context.drawImage(streakImage,xCoordinatFriends+78.5,yCoordinatFriends + 145.2)
+            context.fillText(currentStreak,xCoordinatStreak+45+addCoordinate,yCoordinatFriends + 175);
+            xCoordinatFriends += 200.5
+            xCoordinatStreak += 200.5
+        }
 
 
         const photoUser = await loadImage(photo)
 
-        const rectWidth = 111.48;
-        const rectHeight = 111.48;
-        const rectX = 885.26;
-        const rectY = 110.26;
+        const rectWidth = 112;
+        const rectHeight = 112;
+        const rectX = 79;
+        const rectY = 91;
         const cornerRadius = 42;
         
         this.roundRect(context, rectX, rectY, rectWidth, rectHeight, cornerRadius);

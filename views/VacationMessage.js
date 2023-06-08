@@ -7,7 +7,7 @@ const Time = require("../helpers/time")
 
 class VacationMessage {
 
-    static onVacationMode(userId,attachment,vacationLeft=0,isBuyOneVacation=false){
+    static onVacationMode(userId,files,vacationLeft=0,isBuyOneVacation=false){
         let textDayLeft = 'last day'
         if(isBuyOneVacation) textDayLeft = 'rest day'
         else if(vacationLeft > 0) {
@@ -17,9 +17,7 @@ class VacationMessage {
         return {
             content:`${MessageFormatting.tagUser(userId)} on vacation mode 🏖
 \`\`${textDayLeft}\`\``,
-            files:[
-                attachment
-            ]
+            files
         }
     }
 
