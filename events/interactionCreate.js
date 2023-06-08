@@ -706,7 +706,7 @@ module.exports = {
 								content:interaction.message.content,
 							})
 							 
-							const thread = await ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+							const thread = await ChannelController.createThread(msgTestimonial,`milestone by ${testimonialUser.username}`)
 							thread.send({embeds})
 						}else{
 							const msgTestimonial = await channelAchievements.send(interaction.message.content)

@@ -10,8 +10,6 @@ const PartyMessage = require("../views/PartyMessage")
 
 class AchievementBadgeController{
     static async achieveProgressStreak(client,dailyStreak,author,isFirstTime=false){
-
-
 		const buffer = await GenerateImage.streakBadge(dailyStreak,author)
 		const files = [new AttachmentBuilder(buffer,{name:`streak_badge_${author.username}.png`})]
 		

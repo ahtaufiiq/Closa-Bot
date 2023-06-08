@@ -163,10 +163,11 @@ class VacationController{
                     PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
                     VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
 
+                    const vacationTicketLeft = totalTicket - 1
+                    const isBuyOneVacation = totalTicket === 1
+
                     DailyStreakController.generateHabitBuilder(interaction.client,interaction.user,true,vacationTicketLeft,isBuyOneVacation)
                         .then(files=>{
-                            const vacationTicketLeft = totalTicket - 1
-                            const isBuyOneVacation = totalTicket === 1
                             channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,files,vacationTicketLeft,isBuyOneVacation))
                         })
 
