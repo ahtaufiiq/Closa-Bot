@@ -6,13 +6,13 @@ const InfoUser = require("../helpers/InfoUser")
 
 class AchievementBadgeMessage{
 
-    static contentAchievement(UserId,PartnerId){
+    static contentAchievement(UserId,PartnerId,achievement){
         return {
             coworkingStreak:{
-                7   : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
-                30  : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
-                100 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
-                200 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
+                7   : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${achievement} day coworking streak!** 🥳`,
+                30  : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${achievement} day coworking streak!** 🥳`,
+                100 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${achievement} day coworking streak!** 🥳`,
+                200 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${achievement} day coworking streak!** 🥳`,
                 365 : `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **365 day coworking streak!** 👑👑`,
             },
             progressStreak:{
@@ -193,9 +193,8 @@ ${celebrationLink}`
                 MessageComponent.addButton(`customReplyTestimonial_${UserId}_${value}`,'Custom Reply',"SECONDARY")
             ))
         }
-        
         return {
-            content:`${AchievementBadgeMessage.contentAchievement(UserId,PartnerId)[type][achievement]}
+            content:`${AchievementBadgeMessage.contentAchievement(UserId,PartnerId,achievement)[type][achievement]}
 Let's celebrate together!
 ↓ 
 ${celebrationLink}`,
