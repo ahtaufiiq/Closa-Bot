@@ -5,6 +5,8 @@ const FormatString = require('./formatString')
 const InfoUser = require('./InfoUser')
 const Time = require('./time')
 const {split} = require('canvas-hypertxt')
+const supabase = require('./supabaseClient')
+const ChannelController = require('../controllers/ChannelController')
 class GenerateImage{
     static async tracker(user,goalName,photo,data,friends,currentStreak,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
@@ -196,16 +198,25 @@ class GenerateImage{
         let xCoordinatStreak = 75
         context.textAlign = 'center'
         for (let i = 0; i < friends.length; i++) {
-            const {currentStreak,avatarURL} = friends[i];
-            const totalDigitStreak = `${currentStreak}`.length
-            const addCoordinate = totalDigitStreak === 2 ? 5 : totalDigitStreak === 1 ? 10 : 0
-            const photo = await loadImage(avatarURL)
-            const streakImage = currentStreak >= 365 ? zap365 : currentStreak >= 200 ? zap200 : currentStreak >= 100 ? zap100 : zap
-            drawRoundedImage(context,photo,xCoordinatFriends,yCoordinatFriends,friendsImageSize,friendsImageSize,friendsImageSize/2)
-            context.drawImage(streakImage,xCoordinatFriends+78.5,yCoordinatFriends + 145.2)
-            context.fillText(currentStreak,xCoordinatStreak+45+addCoordinate,yCoordinatFriends + 175);
-            xCoordinatFriends += 200.5
-            xCoordinatStreak += 200.5
+            try {
+                const {currentStreak,avatarURL} = friends[i];
+                const totalDigitStreak = `${currentStreak}`.length
+                const addCoordinate = totalDigitStreak === 2 ? 5 : totalDigitStreak === 1 ? 10 : 0
+                const photo = await loadImage(avatarURL)
+                const streakImage = currentStreak >= 365 ? zap365 : currentStreak >= 200 ? zap200 : currentStreak >= 100 ? zap100 : zap
+                drawRoundedImage(context,photo,xCoordinatFriends,yCoordinatFriends,friendsImageSize,friendsImageSize,friendsImageSize/2)
+                context.drawImage(streakImage,xCoordinatFriends+78.5,yCoordinatFriends + 145.2)
+                context.fillText(currentStreak,xCoordinatStreak+45+addCoordinate,yCoordinatFriends + 175);
+                xCoordinatFriends += 200.5
+                xCoordinatStreak += 200.5
+                
+            } catch (error) {
+                ChannelController.sendError('invalid avatar image',friends[i].id)
+                supabase.from("Users")
+                    .update({avatarURL:null})
+                    .eq('id',friends[i].id)
+                    .then()
+            }
         }
 
 
