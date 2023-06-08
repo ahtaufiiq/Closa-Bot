@@ -45,12 +45,12 @@ class AchievementBadgeController{
         setTimeout(async () => {
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(user,streak,files,'coworkingStreak'),
+                AchievementBadgeMessage.claimVibePoint(user,streak,files,'coworkingStreak',partner.username),
                 user.id
             )
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak'),
+                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak',partner.username),
                 partner.id
             )
         }, 1000 * 15);

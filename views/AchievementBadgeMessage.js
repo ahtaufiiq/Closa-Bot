@@ -5,6 +5,91 @@ const { CHANNEL_TESTIMONIAL, ROLE_7STREAK, ROLE_30STREAK, ROLE_100STREAK, ROLE_2
 const InfoUser = require("../helpers/InfoUser")
 
 class AchievementBadgeMessage{
+/**
+ * static progressStreak(userId,streak,files){
+        if(streak === 30){
+            color = '#FF3B30'
+            content = 
+            descriptionEmbed = `Now you have better fire animation on your streak 🔥
+Check your notification & claim your reward for 1000 🪙`
+        }else if(streak === 100) {
+            color = '#99F2D2'
+            content = 
+            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
+Check your notification & claim your reward for 3500 🪙`
+        }else if(streak === 200) {
+            color = '#5856ff'
+            content = 
+            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
+Check your notification & claim your reward for 7000 🪙`
+        }else if(streak === 365) {
+            color = '#ffcc00'
+            content = 
+            titleEmbed = `Thank you for being an example & a legend to all of us! `
+            descriptionEmbed = `Now you have god tier fire animation on your streak 🔥
+check your notification & claim your reward for 12000 🪙`
+        }
+
+
+        let color = '#fefefe'
+        let content = `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(partnerId)} for **${streak} day coworking streak!** 🥳`
+        let titleEmbed = "Let's stay consistent together!"
+        let descriptionEmbed = `check your notification & claim your reward for ${AchievementBadgeMessage.achievementBadgePoint().streak[streak].point} 🪙`
+        if(streak === 30){
+            color = '#FF3B30'
+        }else if(streak === 100) {
+            color = '#99F2D2'
+        }else if(streak === 200) {
+            color = '#5856ff'
+            titleEmbed = "One more tier to become a true legend, let's go!"
+        }else if(streak === 365) {
+            color = '#ffcc00'
+            content = `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(partnerId)} for **365 day coworking streak!** 👑👑`
+            titleEmbed = `Thank you for being an example & the legend to all of us! 🫡 👑`
+        }
+
+
+                const data = {
+            '1000min':{content:`Congrats on your first **1000 minutes** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳`
+            ,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 300 🪙`,color:'#fefefe'},
+            '50hr':{content:`Congrats on your **50 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
+            ,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 1000 🪙`,color:`#FF3B30`},
+            '100hr':{content:`Congrats on your **100 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
+            ,titleEmbed:`What a milestones! let's stay productive & take more challenge!`,descriptionEmbed:`check your notification & claim your reward for 2000 🪙`,color:`#FF3B30`},
+            '300hr':{content:`Congrats on your **300 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
+            ,titleEmbed:`300 hours is a true dedication working on your project! keep it up.`,descriptionEmbed:`check your notification & claim your reward for 7000 🪙`,color:`#99F2D2`},
+            '500hr':{content:`Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
+            ,titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,descriptionEmbed:`please check your notification & claim your reward for 10000 🪙\nyour deserve it!`,color:`#5856ff`},
+            '1000hr':{content:`@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(UserId)}`
+            ,titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,descriptionEmbed:`please check your notification & claim your 15000 🪙`,color:`#ffcc00`},
+        }
+ */
+    static contentAchievement(UserId){
+        return {
+            coworkingStreak:{
+                7   : "",
+                30  : "",
+                100 : "",
+                200 : "",
+                365 : "",
+            },
+            progressStreak:{
+                7   : `Welcome to **🔥 7x Streak Club** ${MessageFormatting.tagUser(UserId)} 🥳`,
+                30  : `Welcome to **${MessageFormatting.tagRole(ROLE_30STREAK)}** ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                100 : `Welcome to **${MessageFormatting.tagRole(ROLE_100STREAK)}** ${MessageFormatting.tagUser(UserId)} 🔥🔥🔥`,
+                200 : `Welcome to **${MessageFormatting.tagRole(ROLE_200STREAK)}** ${MessageFormatting.tagUser(UserId)} 🔥🔥🔥🔥🔥🔥`,
+                365 : `@everyone **LET'S GIVE AN HONOR TO ${MessageFormatting.tagUser(UserId)} FOR :crown: 365 DAY STREAK MILESTONE**  🔥 🔥 🔥 `,
+            },
+            coworkingTime:{
+                '1000min'   : `Congrats on your first **1000 minutes** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳`,
+                '50hr'      : `Congrats on your **50 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                '100hr'     : `Congrats on your **100 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                '300hr'     : `Congrats on your **300 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                '500hr'     : `Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                '1000hr'    : `@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(UserId)}`,
+            }
+        }
+    }
 
     static embedAchievementProgressStreak(streak){
         let color = '#fefefe'
@@ -107,18 +192,18 @@ class AchievementBadgeMessage{
         }
     }
 
-    static claimVibePoint(user,achievement,files,type='progressStreak'){
+    static claimVibePoint(user,achievement,files,type='progressStreak',partnerName){
         const {point,description} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
-            content:`Congrats on your milestone! 🔥 ${user}
+            content:`${type === 'coworkingStreak' ? `Congrats on your milestone with **${partnerName}**! 🔥 ${user}`:`Congrats on your milestone! 🔥 ${user}`}
 here's a special reward for you! :coin:
 
-note: **this reward only valid until 23.59 today**`,
+note: **this reward only valid until 23.59 WIB today**`,
             embeds:[
                 new EmbedBuilder()
                 .setColor("#FEFEFE")
                 .setImage("https://media.giphy.com/media/obaVSnvRbtos0l7MBg/giphy.gif")
-                .setDescription(description + "\nyou can claim this reward before 23.59 today.")
+                .setDescription(description + "\nyou can claim this reward before 23.59 WIB today.")
                 .setAuthor({name:`CLAIM ${point} POINTS`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})
                 .setFooter({text:`${user.username}`, iconURL:InfoUser.getAvatar(user)})
             ],
