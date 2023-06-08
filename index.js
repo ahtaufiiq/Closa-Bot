@@ -51,6 +51,7 @@ setInterval(() => {
 			fs.writeFileSync(`focusRoom/${dateOnly}/${stringTime}/${UserId}.json`,JSON.stringify(focusRoomUser[UserId],null,2))
 		}
 	}
+	fs.writeFileSync('focusRoom/data.json',JSON.stringify(focusRoomUser,null,2))
 }, 1000 * 60);
 const listFocusRoom = {
 	[CHANNEL_CLOSA_CAFE]:true
