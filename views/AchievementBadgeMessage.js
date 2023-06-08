@@ -5,73 +5,15 @@ const { CHANNEL_TESTIMONIAL, ROLE_7STREAK, ROLE_30STREAK, ROLE_100STREAK, ROLE_2
 const InfoUser = require("../helpers/InfoUser")
 
 class AchievementBadgeMessage{
-/**
- * static progressStreak(userId,streak,files){
-        if(streak === 30){
-            color = '#FF3B30'
-            content = 
-            descriptionEmbed = `Now you have better fire animation on your streak 🔥
-Check your notification & claim your reward for 1000 🪙`
-        }else if(streak === 100) {
-            color = '#99F2D2'
-            content = 
-            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
-Check your notification & claim your reward for 3500 🪙`
-        }else if(streak === 200) {
-            color = '#5856ff'
-            content = 
-            descriptionEmbed = `Now you have skull fire animation on your streak 🔥
-Check your notification & claim your reward for 7000 🪙`
-        }else if(streak === 365) {
-            color = '#ffcc00'
-            content = 
-            titleEmbed = `Thank you for being an example & a legend to all of us! `
-            descriptionEmbed = `Now you have god tier fire animation on your streak 🔥
-check your notification & claim your reward for 12000 🪙`
-        }
 
-
-        let color = '#fefefe'
-        let content = `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(partnerId)} for **${streak} day coworking streak!** 🥳`
-        let titleEmbed = "Let's stay consistent together!"
-        let descriptionEmbed = `check your notification & claim your reward for ${AchievementBadgeMessage.achievementBadgePoint().streak[streak].point} 🪙`
-        if(streak === 30){
-            color = '#FF3B30'
-        }else if(streak === 100) {
-            color = '#99F2D2'
-        }else if(streak === 200) {
-            color = '#5856ff'
-            titleEmbed = "One more tier to become a true legend, let's go!"
-        }else if(streak === 365) {
-            color = '#ffcc00'
-            content = `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(partnerId)} for **365 day coworking streak!** 👑👑`
-            titleEmbed = `Thank you for being an example & the legend to all of us! 🫡 👑`
-        }
-
-
-                const data = {
-            '1000min':{content:`Congrats on your first **1000 minutes** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳`
-            ,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 300 🪙`,color:'#fefefe'},
-            '50hr':{content:`Congrats on your **50 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
-            ,titleEmbed:`Let's stay consistent & productive!`,descriptionEmbed:`check your notification & claim your reward for 1000 🪙`,color:`#FF3B30`},
-            '100hr':{content:`Congrats on your **100 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
-            ,titleEmbed:`What a milestones! let's stay productive & take more challenge!`,descriptionEmbed:`check your notification & claim your reward for 2000 🪙`,color:`#FF3B30`},
-            '300hr':{content:`Congrats on your **300 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
-            ,titleEmbed:`300 hours is a true dedication working on your project! keep it up.`,descriptionEmbed:`check your notification & claim your reward for 7000 🪙`,color:`#99F2D2`},
-            '500hr':{content:`Congrats on your **500 hours** of coworking sessions ${MessageFormatting.tagUser(UserId)} 🥳🎉`
-            ,titleEmbed:`YOO ARE YOUR SERIOUS??? 500 HOURS IS TRULY OUT OF LEAGUE.`,descriptionEmbed:`please check your notification & claim your reward for 10000 🪙\nyour deserve it!`,color:`#5856ff`},
-            '1000hr':{content:`@everyone **let's welcome our productivity & the true coworking legend** ${MessageFormatting.tagUser(UserId)}`
-            ,titleEmbed:`1000 HOURS OF COWORKING SESSIONS ?! YOU'RE A LEGEND!`,descriptionEmbed:`please check your notification & claim your 15000 🪙`,color:`#ffcc00`},
-        }
- */
-    static contentAchievement(UserId){
+    static contentAchievement(UserId,PartnerId){
         return {
             coworkingStreak:{
-                7   : "",
-                30  : "",
-                100 : "",
-                200 : "",
-                365 : "",
+                7   : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
+                30  : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
+                100 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
+                200 : `Congrats for both of you ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **${streak} day coworking streak!** 🥳`,
+                365 : `Yo @everyone let's give an honor to our new duo legend ${MessageFormatting.tagUser(UserId)} & ${MessageFormatting.tagUser(PartnerId)} for **365 day coworking streak!** 👑👑`,
             },
             progressStreak:{
                 7   : `Welcome to **🔥 7x Streak Club** ${MessageFormatting.tagUser(UserId)} 🥳`,
@@ -192,7 +134,7 @@ check your notification & claim your reward for 12000 🪙`
         }
     }
 
-    static claimVibePoint(user,achievement,files,type='progressStreak',partnerName){
+    static claimVibePoint(user,achievement,files,type='progressStreak',partnerName,PartnerId){
         const {point,description} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
         return {
             content:`${type === 'coworkingStreak' ? `Congrats on your milestone with **${partnerName}**! 🔥 ${user}`:`Congrats on your milestone! 🔥 ${user}`}
@@ -208,14 +150,14 @@ note: **this reward only valid until 23.59 WIB today**`,
                 .setFooter({text:`${user.username}`, iconURL:InfoUser.getAvatar(user)})
             ],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`claimReward_${user.id}_${type}-${achievement}`,"Claim Reward"),
+                MessageComponent.addButton(`claimReward_${user.id}_${type}-${achievement}${PartnerId ? `-${PartnerId}`:''}`,"Claim Reward"),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Vibe-Points-d969f1a3735447b5b9e5b3c67bbb02d2')
             )],
             files
         }
     }
 
-    static howToClaimReward(userId,value){
+    static howToClaimReward(UserId,value){
         return {
             content:`Here's how to claim your reward:
 1. Copy the image above & celebrate it on social (e.g. twitter)
@@ -226,7 +168,7 @@ note: **this reward only valid until 23.59 WIB today**`,
 We'll reply to your post & celebrate together! 🥳`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkButton('Share on Twitter',"https://twitter.com/intent/tweet"),
-                MessageComponent.addButton(`submitTestimonialAchievement_${userId}_${value}`,"Submit link"),
+                MessageComponent.addButton(`submitTestimonialAchievement_${UserId}_${value}`,"Submit link"),
             )]
         }
     }
@@ -242,16 +184,18 @@ if your submission is valid you'll receive the reward soon.`
 ${celebrationLink}`
     }
 
-    static postCelebrationUser(userId,celebrationLink,isShowButton=false,value){
+    static postCelebrationUser(UserId,celebrationLink,isShowButton=false,value){
+        const [type,achievement,PartnerId] = value.split('-')
         const components = []
         if(isShowButton) {
             components.push(MessageComponent.createComponent(
-                MessageComponent.addButton(`postTestimonial_${userId}_${value}`,'Post'),
-                MessageComponent.addButton(`customReplyTestimonial_${userId}_${value}`,'Custom Reply',"SECONDARY")
+                MessageComponent.addButton(`postTestimonial_${UserId}_${value}`,'Post'),
+                MessageComponent.addButton(`customReplyTestimonial_${UserId}_${value}`,'Custom Reply',"SECONDARY")
             ))
         }
+        
         return {
-            content:`${MessageFormatting.tagUser(userId)} just joined the hype 🔥
+            content:`${AchievementBadgeMessage.contentAchievement(UserId,PartnerId)[type][achievement]}
 Let's celebrate together!
 ↓ 
 ${celebrationLink}`,
