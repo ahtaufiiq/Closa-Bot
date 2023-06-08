@@ -43,7 +43,7 @@ class DailyStreakMessage{
             .setFooter({text:`${user.username}`, iconURL:avatarUrl})
         }
     }
-    static longestStreak(longestStreak,user,longestStreak){
+    static longestStreak(longestStreak,user){
         let url 
         let color = '#fefefe'
         if (longestStreak>=365) {
