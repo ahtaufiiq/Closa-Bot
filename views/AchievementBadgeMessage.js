@@ -17,7 +17,7 @@ class AchievementBadgeMessage{
             },
             progressStreak:{
                 7   : `Welcome to **🔥 7x Streak Club** ${MessageFormatting.tagUser(UserId)} 🥳`,
-                30  : `Welcome to **${MessageFormatting.tagRole(ROLE_30STREAK)}** ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
+                30  : `Welcome to **🔥30x Streak** ${MessageFormatting.tagUser(UserId)} 🥳🎉`,
                 100 : `Welcome to **${MessageFormatting.tagRole(ROLE_100STREAK)}** ${MessageFormatting.tagUser(UserId)} 🔥🔥🔥`,
                 200 : `Welcome to **${MessageFormatting.tagRole(ROLE_200STREAK)}** ${MessageFormatting.tagUser(UserId)} 🔥🔥🔥🔥🔥🔥`,
                 365 : `@everyone **LET'S GIVE AN HONOR TO ${MessageFormatting.tagUser(UserId)} FOR :crown: 365 DAY STREAK MILESTONE**  🔥 🔥 🔥 `,
