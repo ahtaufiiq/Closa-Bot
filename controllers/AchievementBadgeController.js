@@ -50,7 +50,7 @@ class AchievementBadgeController{
             )
             ChannelController.sendToNotification(
                 client,
-                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak',partner.username),
+                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak',user.username),
                 partner.id
             )
         }, 1000 * 15);
