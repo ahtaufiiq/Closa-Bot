@@ -263,6 +263,7 @@ so, you can learn or sharing from each others.`,
 					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
+						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author)}).eq('id',msg.author.id).then()
 						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
 					}
 					
