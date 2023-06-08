@@ -6,6 +6,7 @@ const InfoUser = require('../helpers/InfoUser');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const DailyStreakController = require('../controllers/DailyStreakController');
+const DailyStreakMessage = require('../views/DailyStreakMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -36,9 +37,11 @@ module.exports = {
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
+			const embeds = DailyStreakMessage.longestStreak(data.longestStreak,user)
 			const files = await DailyStreakController.generateHabitBuilder(interaction.client,user)
 			await interaction.editReply({
-				files
+				files,
+				embeds
 			})
 		}
 	},
