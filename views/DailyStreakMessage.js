@@ -18,7 +18,7 @@ class DailyStreakMessage{
             color = '#5856ff'
             url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
         }else if (longestStreak>=100) {
-            color = '#99F2D2'
+            color = '#49FFF4'
             url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
         }else if (longestStreak>=30) {
             color = '#FF3B30'
@@ -53,7 +53,7 @@ class DailyStreakMessage{
             color = '#5856ff'
             url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
         }else if (longestStreak>=100) {
-            color = '#99F2D2'
+            color = '#49FFF4'
             url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
         }else if (longestStreak>=30) {
             color = '#FF3B30'
