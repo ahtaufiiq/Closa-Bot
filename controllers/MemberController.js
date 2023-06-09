@@ -1,12 +1,17 @@
 const {GUILD_ID} = require("../helpers/config")
 const supabase = require("../helpers/supabaseClient")
+const ChannelController = require("./ChannelController")
 
 class MemberController{
 
     static async addRole(client,userId,roleId) {
-        const role = await MemberController.getRole(client,roleId)
-        const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
-        return await user.roles.add(role)
+        try {
+            const role = await MemberController.getRole(client,roleId)
+            const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
+            return await user.roles.add(role)
+        } catch (error) {
+            ChannelController.sendError(error,`${userId} addRole ${roleId}`)            
+        }
     }
 
     static async getTotalMember(){
@@ -20,11 +25,13 @@ class MemberController{
 
 
     static async removeRole(client,userId,roleId) {
-        let role = await MemberController.getRole(client,roleId)
-        client.guilds.cache.get(GUILD_ID).members.fetch(userId)
-            .then(user=>{
-                user.roles.remove(role)
-            })
+        try {
+            let role = await MemberController.getRole(client,roleId)
+            const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
+            user.roles.remove(role)
+        } catch (error) {
+            ChannelController.sendError(error,`${userId} removeRole ${roleId}`)                   
+        }
     }
 
     static async getRole(client,roleId){

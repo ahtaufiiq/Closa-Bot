@@ -198,9 +198,12 @@ so, you can learn or sharing from each others.`,
 				let files = []
 
 				msg.attachments.each(data=>{
-					files.push({
-						attachment:data.attachment
-					})
+					const fileSizeInMB = Math.ceil(data.size / 1e6)
+					if(fileSizeInMB <= 24){
+						files.push({
+							attachment:data.attachment
+						})
+					}
 					attachments.push(data.attachment)
 				})
 
