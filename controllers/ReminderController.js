@@ -28,7 +28,6 @@ class ReminderController{
         supabase.from('Users')
 		.select()
 		.neq('reminderProgress',null)
-		.gte('endMembership',Time.getDateOnly(Time.getDate()))
 		.then(data=>{
 			if (data.body) {
 				data.body.forEach(user=>{
@@ -71,7 +70,6 @@ class ReminderController{
         supabase.from('Users')
 			.select()
 			.neq('reminderHighlight',null)
-			.gte('endMembership',Time.getDateOnly(Time.getDate()))
 			.then(data=>{
 				if(data.body){
 					data.body.forEach(user=>{
