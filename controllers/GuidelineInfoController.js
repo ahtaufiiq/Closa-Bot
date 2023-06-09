@@ -88,7 +88,7 @@ class GuidelineInfoController {
         
         const {id,showSubmitTestimonial,totalNotification} = data.body
         let {endMembership,onboardingStep} = data.body.Users
-        if(onboardingStep !== 'done' && onboardingStep !== null) return {onboardingStep,msgGuidelineId:id,}
+        if(onboardingStep !== 'done' && onboardingStep !== null) return {onboardingStep,totalNotification,msgGuidelineId:id,}
         if(endMembership) endMembership = Time.getFormattedDate(Time.getDate(endMembership),false,'long')
 
         return {

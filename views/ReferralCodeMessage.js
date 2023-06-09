@@ -113,7 +113,9 @@ We'll send you once a month based on your active participation at closa.`
     }
 
     static replySuccessRedeem(){
-        return "Your code has successfully redeemed ✅"
+        return `Your code has successfully redeemed ✅
+        
+if you're on mobile please move to desktop to have better onboarding tour.`
     }
     static cannotRedeemMoreThanOne(){
         return "Referral code only can be use once for each user."
