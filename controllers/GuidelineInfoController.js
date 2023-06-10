@@ -130,6 +130,7 @@ class GuidelineInfoController {
                 .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
             for (let i = 0; i < dataUser.body.length; i++) {
+                await Time.wait(1000)
                 const {Users:{id,notificationId}} = dataUser.body[i];
                 try {
                     const {isHaveReferral,isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalReferral,onboardingStep} = await GuidelineInfoController.getData(id)

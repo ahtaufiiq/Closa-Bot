@@ -275,21 +275,21 @@ class Time {
 
     static isValidCooldownPeriod(lastDone){
         const {kickoffDate} = LocalData.getData()
-		const oneDayBeforeCelebrationDay = Time.getDateOnly(Time.getNextDate(-8,kickoffDate))
+		const oneDayBeforeCelebrationDay = Time.getDateOnly(Time.getNextDate(-15,kickoffDate))
 		const isFirstDayAfterKickoff = Time.getDateOnly(Time.getNextDate(-34,kickoffDate)) === Time.getTodayDateOnly()
         return (this.isCooldownPeriod() || isFirstDayAfterKickoff) && lastDone >= oneDayBeforeCelebrationDay
     }
 
     static isCooldownPeriod(){
 		const {kickoffDate} = LocalData.getData()
-		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
 		const todayDate = Time.getTodayDateOnly()
 		return todayDate >= startCooldownPeriod && todayDate <= kickoffDate
 	}
 
     static isFirstDayCooldownPeriod(){
         const {kickoffDate} = LocalData.getData()
-		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-7,kickoffDate))
+		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
 		const todayDate = Time.getTodayDateOnly()
 		return todayDate === startCooldownPeriod
     }
@@ -357,6 +357,14 @@ class Time {
     static oneMinute(){
         return 1000 * 60
     }
+
+    static wait(time=3000){
+		return new Promise((resolve,reject)=>{
+			setTimeout(() => {
+			resolve('wait')
+			}, time);
+		})
+	}
 
 }
 
