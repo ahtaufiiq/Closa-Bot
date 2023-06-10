@@ -77,7 +77,7 @@ class DailyStreakController {
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
-						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(6)),member.id)
+						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(13)),member.id)
 
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
@@ -88,7 +88,7 @@ class DailyStreakController {
 								UserId:member.id
 							})
 						}
-						for (let i = 0; i < 7; i++) {
+						for (let i = 0; i < 14; i++) {
 							safetyCooldown.push({
 								createdAt:Time.getNextDate(i),
 								updatedAt:Time.getNextDate(i),

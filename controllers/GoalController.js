@@ -279,20 +279,12 @@ class GoalController {
 				.then(async data=>{
 					if (data.body) {
 						for (let i = 0; i < data.body.length; i++) {
-							await GoalController.wait()
+							await Time.wait()
 							const goal = data.body[i];
 							await GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
 						}
 					}
 				})
-		})
-	}
-
-	static wait(){
-		return new Promise((resolve,reject)=>{
-			setTimeout(() => {
-			resolve('wait')
-			}, 3000);
 		})
 	}
 

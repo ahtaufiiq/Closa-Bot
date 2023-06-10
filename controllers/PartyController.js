@@ -45,7 +45,7 @@ class PartyController{
 
 	static async generateWaitingRoomPartyMode(client){
 		const {kickoffDate} = LocalData.getData()
-		const ruleFirstDayCooldown = Time.getNextDate(-6,kickoffDate)
+		const ruleFirstDayCooldown = Time.getNextDate(-13,kickoffDate)
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(8))
 		ruleFirstDayCooldown.setMinutes(30)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){
@@ -359,7 +359,7 @@ class PartyController{
 		const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
 
 		const {kickoffDate} = LocalData.getData()
-		const ruleFirstDayCooldown = Time.getNextDate(-6,kickoffDate)
+		const ruleFirstDayCooldown = Time.getNextDate(-13,kickoffDate)
 		ruleFirstDayCooldown.setHours(Time.minus7Hours(20))
 		ruleFirstDayCooldown.setMinutes(25)
 		schedule.scheduleJob(ruleFirstDayCooldown,async function(){

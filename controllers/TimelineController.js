@@ -40,13 +40,13 @@ class TimelineController{
             }else if (todayDate <= data.celebrationDate) {
                 const dayLeft = TimelineController.getDayLeft(data.celebrationDate)
                 if (dayLeft === 27) {
-                    data.kickoffDate = Time.addDateByWeek(data.kickoffDate,7)
+                    data.kickoffDate = Time.addDateByWeek(data.kickoffDate,8)
                     LocalData.writeData(data)
                 }
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline`)
                 ChannelController.changeName(client,CHANNEL_TIMELINE_STATUS,"Demo day 🔥")
                 if (todayDate === data.celebrationDate) {
-                    data.deadlineGoal = Time.addDateByWeek(data.deadlineGoal,7)
+                    data.deadlineGoal = Time.addDateByWeek(data.deadlineGoal,8)
                     LocalData.writeData(data)
                     ChannelController.changeName(client,CHANNEL_TIMELINE_DAY_LEFT,"Today at 20.00 WIB")
                 }else if(tomorrowDate === data.celebrationDate){
@@ -56,7 +56,7 @@ class TimelineController{
                 }
             }else{
                 const dayLeft = TimelineController.getDayLeft(data.kickoffDate)
-                if(dayLeft === 6) {
+                if(dayLeft === 13) {
                     DailyStreakController.addSafetyCooldown()
                 }
                 ChannelController.changeName(client,CHANNEL_TIMELINE_CATEGORY,`Timeline`)
