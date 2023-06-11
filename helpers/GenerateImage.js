@@ -62,7 +62,7 @@ class GenerateImage{
             context.drawImage(img, x, y, width, height);
             context.restore();
         }
-        const additionalStreak = isVacation ? '_vacation' : isSick ? "_sick" : longestStreak >= 365 ? '_365streak' : longestStreak >= 200 ? '_200streak' : longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : ''
+        const additionalStreak = isVacation ? '_vacation' : isSick ? "_sick" : longestStreak >= 365 ? '_365streak' : longestStreak >= 200 ? '_200streak' : longestStreak >= 100 ? '_100streak' : longestStreak >= 30 ? "_30streak" : longestStreak >= 7 ? '_7streak': ''
 
         const [greenDot,safetyDot,checklist,empty,zap,zap100,zap200,zap365] = await Promise.all([
             loadImage(`./assets/images/progress${additionalStreak}.png`),
