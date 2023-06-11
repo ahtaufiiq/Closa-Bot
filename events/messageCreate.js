@@ -340,7 +340,7 @@ so, you can learn or sharing from each others.`,
 						DailyStreakController.generateHabitBuilder(msg.client,msg.author)
 							.then(async files=>{
 								await ChannelStreak.send({
-									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
+									embeds:[DailyStreakMessage.longestStreak(longestStreak,msg.author)],content:`${msg.author}`,
 									files
 								})
 
@@ -356,7 +356,7 @@ so, you can learn or sharing from each others.`,
 							})
 					}else{
 						ChannelStreak.send({
-							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
+							embeds:[DailyStreakMessage.longestStreak(longestStreak,msg.author)],content:`${msg.author}`
 						})
 					}
 					
