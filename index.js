@@ -39,23 +39,7 @@ const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'
 const focusRoomUser = {
 }
 
-if(!fs.existsSync('focusRoom')) fs.mkdirSync('focusRoom')
 
-setInterval(() => {
-	if(Object.keys(focusRoomUser).length > 0){
-		const dateOnly = Time.getTodayDateOnly()
-		const stringTime = Time.getTimeOnly(Time.getDate())
-		if(!fs.existsSync(`focusRoom/${dateOnly}`)) fs.mkdirSync(`focusRoom/${dateOnly}`)
-		if(!fs.existsSync(`focusRoom/${dateOnly}/${stringTime}`)) fs.mkdirSync(`focusRoom/${dateOnly}/${stringTime}`)
-
-		for (const UserId in focusRoomUser) {
-			fs.writeFileSync(`focusRoom/${dateOnly}/${stringTime}/${UserId}.json`,JSON.stringify(focusRoomUser[UserId],null,2))
-		}
-	}
-}, 1000 * 60);
-setInterval(() => {
-	fs.writeFileSync('focusRoom/data.json',JSON.stringify(focusRoomUser,null,2))
-}, 1000 * 2);
 
 const listFocusRoom = {
 	[CHANNEL_CLOSA_CAFE]:true
