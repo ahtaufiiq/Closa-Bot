@@ -11,33 +11,35 @@ const { ChannelType } = require("discord.js");
 const { CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE } = require("../helpers/config");
 const CoworkingController = require("./CoworkingController");
 const AchievementBadgeController = require("./AchievementBadgeController");
+const fs = require('fs')
 class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser){
-        /**
-         * get focus session data if session is null and has msgFocusTimerId
-         * 
-         * get totalFocus, focusTime and break time from message
-         * get status is ended or not
-         * get state is focus or break
-         * 
-         */
-        supabase.from()
-        // focusRoomUser[userId] = {
-        //     date:Time.getTodayDateOnly(),
-        //     totalTimeToday,
-        //     dailyWorkTime,
-        //     selfVideo : newMember.selfVideo,
-        //     streaming : newMember.streaming,
-        //     threadId:data.threadId,
-        //     totalTime:0,
-        //     focusTime:0,
-        //     breakTime:0,
-        //     breakCounter:0,
-        //     isFocus:true,
-        //     status : 'processed',
-        //     firstTime:true,
-        // }
+        if(!fs.existsSync('focusRoom')) fs.mkdirSync('focusRoom')
+
+        const oldFocusRoomUser = JSON.parse(fs.readFileSync('focusRoom/data.json'))
+        if(Object.keys(oldFocusRoomUser) > 0){
+            console.log('restart');
+            for (const UserId in oldFocusRoomUser) {
+                focusRoomUser[UserId] = oldFocusRoomUser[UserId]
+                FocusSessionController.restartFocusTimer(client,UserId,focusRoomUser)
+            }
+        }
+        setInterval(() => {
+            if(Object.keys(focusRoomUser).length > 0){
+                const dateOnly = Time.getTodayDateOnly()
+                const stringTime = Time.getTimeOnly(Time.getDate())
+                if(!fs.existsSync(`focusRoom/${dateOnly}`)) fs.mkdirSync(`focusRoom/${dateOnly}`)
+                if(!fs.existsSync(`focusRoom/${dateOnly}/${stringTime}`)) fs.mkdirSync(`focusRoom/${dateOnly}/${stringTime}`)
+
+                for (const UserId in focusRoomUser) {
+                    fs.writeFileSync(`focusRoom/${dateOnly}/${stringTime}/${UserId}.json`,JSON.stringify(focusRoomUser[UserId],null,2))
+                }
+            }
+        }, 1000 * 60);
+        setInterval(() => {
+            fs.writeFileSync('focusRoom/data.json',JSON.stringify(focusRoomUser,null,2))
+        }, 1000);
     }
 
     static updateMessageFocusTimerId(userId,msgFocusTimerId){
@@ -424,6 +426,22 @@ class FocusSessionController {
             })
             focusRoomUser[userId].firstTime = false
             if(focusRoomUser[userId]?.joinedChannelId === CHANNEL_CLOSA_CAFE) CoworkingController.handleStartEvent(client)
+        }
+    }
+
+    static async restartFocusTimer(client,UserId,focusRoomUser){
+        if(focusRoomUser[UserId]?.firstTime === false){
+            const threadId = focusRoomUser[UserId]?.threadId
+            const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
+            const thread = await ChannelController.getThread(channel,threadId)
+            const msgTimer = await ChannelController.getMessage(thread,focusRoomUser[UserId]?.msgIdFocusRecap)
+            const data = await supabase.from("FocusSessions")
+                .select('*,Projects(id,name)')
+                .eq('threadId',threadId)
+                .single()
+            const taskName = data.body?.taskName
+            const projectName = data.body?.Projects?.name
+            FocusSessionController.countdownFocusSession(msgTimer,taskName,projectName,focusRoomUser,UserId,'restart')
         }
     }
 

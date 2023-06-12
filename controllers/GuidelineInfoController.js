@@ -105,9 +105,13 @@ class GuidelineInfoController {
     static async deleteNotification(thread,totalNotification){
         if(!totalNotification) return ChannelController.sendError('deleteNotification',`${thread.name}: ${totalNotification}`)
 
-        await thread.bulkDelete(totalNotification <= 100 ? totalNotification : 100)
-        totalNotification -= 100
-        if(totalNotification > 0) GuidelineInfoController.deleteNotification(thread,totalNotification)
+        try {
+            await thread.bulkDelete(totalNotification <= 100 ? totalNotification : 100)
+            totalNotification -= 100
+            if(totalNotification > 0) GuidelineInfoController.deleteNotification(thread,totalNotification)
+        } catch (error) {
+            ChannelController.sendError(error,`${thread.name}: ${totalNotification}`)            
+        }
     }
 
     static async updateMessageGuideline(client,UserId){

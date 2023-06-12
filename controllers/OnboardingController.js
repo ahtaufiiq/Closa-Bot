@@ -39,12 +39,13 @@ class OnboardingController {
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_LATER)
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_WELCOME)
 
-        MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
+        await MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
         if(value === 'fromReminder'){
             ChannelController.deleteMessage(interaction.message)
+        }else {
+            GuidelineInfoController.incrementTotalNotification(1,UserId)
         }
-        const reply = await interaction.editReply('.')
-        ChannelController.deleteMessage(reply)
+        const reply = await interaction.editReply(OnboardingMessage.firstQuest())
     }
 
     static async continueFirstQuest(interaction){
