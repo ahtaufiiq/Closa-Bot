@@ -255,7 +255,7 @@ module.exports = {
 						ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
 						channelIdFocusRecap
 					)
-					await thread.edit({name:`⚪ Timer ended - ${thread.name.split('- ')[1]}`})
+					await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
 					thread.setArchived(true)
 					FocusSessionController.deleteFocusSession(userId)
 				} catch (error) {

@@ -80,7 +80,7 @@ module.exports = {
 				ChannelController.createThread(msg,titleTestimonial)
 				break;
 			case CHANNEL_SESSION_GOAL:
-				const threadSession = await ChannelController.createThread(msg,`🔴 Timer live - ${msg.content}`)
+				const threadSession = await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)
 				const projectMenus = FocusSessionController.getFormattedMenu(projects)
 				FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
