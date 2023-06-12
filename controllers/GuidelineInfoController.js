@@ -103,7 +103,7 @@ class GuidelineInfoController {
     }
 
     static async deleteNotification(thread,totalNotification){
-        if(totalNotification <= 0) return
+        if(!totalNotification) return ChannelController.sendError('deleteNotification',`${thread.name}: ${totalNotification}`)
 
         await thread.bulkDelete(totalNotification <= 100 ? totalNotification : 100)
         totalNotification -= 100

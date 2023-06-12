@@ -80,7 +80,7 @@ module.exports = {
 				ChannelController.createThread(msg,titleTestimonial)
 				break;
 			case CHANNEL_SESSION_GOAL:
-				const threadSession = await ChannelController.createThread(msg,`🔴 focus log - ${msg.content}`)
+				const threadSession = await ChannelController.createThread(msg,`🔴 Timer live - ${msg.content}`)
 				const projects = await FocusSessionController.getAllProjects(msg.author.id)
 				const projectMenus = FocusSessionController.getFormattedMenu(projects)
 				FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
@@ -314,7 +314,7 @@ so, you can learn or sharing from each others.`,
 							.single()
 					}
 				})
-				.then(data => {
+				.then(async data => {
 					supabase.from('Users')
 						.update({lastDone:Time.getTodayDateOnly()})
 						.eq('id',msg.author.id)
@@ -328,8 +328,8 @@ so, you can learn or sharing from each others.`,
 					} = data.body
 
 					if(totalDay === 20){
+						await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
 						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
-						MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
 						supabase.from("Users")
 							.update({type:'member'})
 							.eq('id',msg.author.id)
@@ -340,7 +340,7 @@ so, you can learn or sharing from each others.`,
 						DailyStreakController.generateHabitBuilder(msg.client,msg.author)
 							.then(async files=>{
 								await ChannelStreak.send({
-									embeds:[DailyStreakMessage.longestStreak(longestStreak,msg.author)],content:`${msg.author}`,
+									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
 									files
 								})
 
@@ -356,7 +356,7 @@ so, you can learn or sharing from each others.`,
 							})
 					}else{
 						ChannelStreak.send({
-							embeds:[DailyStreakMessage.longestStreak(longestStreak,msg.author)],content:`${msg.author}`
+							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
 						})
 					}
 					

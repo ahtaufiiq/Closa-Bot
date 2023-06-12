@@ -37,7 +37,7 @@ module.exports = {
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
-			const embeds = [DailyStreakMessage.longestStreak(data.longestStreak,user)]
+			const embeds = [DailyStreakMessage.dailyStreak(data.currentStreak,user,data.longestStreak)]
 			const files = await DailyStreakController.generateHabitBuilder(interaction.client,user)
 			await interaction.editReply({
 				files,

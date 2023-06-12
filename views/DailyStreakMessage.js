@@ -35,44 +35,12 @@ class DailyStreakMessage{
             return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`${streak}x day streak!`.toUpperCase(),iconURL:url})
-            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
+            .setFooter({text:`${user.username} · Longest Streak: ${longestStreak}x 🔥`, iconURL:avatarUrl})
         }else{
             return new EmbedBuilder()
             .setColor(color)
             .setAuthor({name:`🔥 ${streak}x day ${textStreak}!`.toUpperCase()})
-            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
-        }
-    }
-    static longestStreak(longestStreak,user){
-        let url 
-        let color = '#fefefe'
-        if (longestStreak>=365) {
-            color = '#ffcc00'
-            url = 'https://cdn.discordapp.com/attachments/746601801150758962/746682286530887780/708780647157858324.gif'
-        }else if (longestStreak>=200) {
-            color = '#5856ff'
-            url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
-        }else if (longestStreak>=100) {
-            color = '#49FFF4'
-            url = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'
-        }else if (longestStreak>=30) {
-            color = '#FF3B30'
-            url = 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'
-        }else if (longestStreak>=7) {
-            color = '#FF3B30'
-            url = 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'
-        }
-        const avatarUrl = InfoUser.getAvatar(user)
-        if (longestStreak>=7) {
-            return new EmbedBuilder()
-            .setColor(color)
-            .setAuthor({name:`${longestStreak}x day LONGEST STREAK!`.toUpperCase(),iconURL:url})
-            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
-        }else{
-            return new EmbedBuilder()
-            .setColor(color)
-            .setAuthor({name:`🔥 ${longestStreak}x day LONGEST STREAK!`.toUpperCase()})
-            .setFooter({text:`${user.username}`, iconURL:avatarUrl})
+            .setFooter({text:`${user.username} · Longest Streak: ${longestStreak}x 🔥`, iconURL:avatarUrl})
         }
     }
 

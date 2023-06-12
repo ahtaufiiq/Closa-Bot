@@ -248,13 +248,15 @@ module.exports = {
 							})
 					}
 					
-					const thread = await ChannelController.getThread(
-						ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
-						channelIdFocusRecap
-					)
-					thread.setArchived(true)
-					FocusSessionController.deleteFocusSession(userId)
 				}
+				const {channelIdFocusRecap} = focusRoomUser[userId]
+				const thread = await ChannelController.getThread(
+					ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+					channelIdFocusRecap
+				)
+				await thread.edit({name:`⚪ Timer ended - ${thread.name.split('- ')[1]}`})
+				thread.setArchived(true)
+				FocusSessionController.deleteFocusSession(userId)
 				// if(focusRoomUser[userId]?.firstTime){
 				// 	delete focusRoomUser[userId].joinedChannelId 
 				// 	delete focusRoomUser[userId].selfVideo 
