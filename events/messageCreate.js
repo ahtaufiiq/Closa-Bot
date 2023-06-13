@@ -155,13 +155,11 @@ module.exports = {
 					
 				break;
 			case CHANNEL_TODO:
-				if(msg.content.length < 50 && msg.attachments.size === 0){
+				if(msg.content.split(' ').length < 16 && msg.attachments.size === 0){
 					msg.delete()
 					ChannelController.sendToNotification(
 						msg.client,
-					`Hi ${msg.author} please **write a longer story**  in <#${CHANNEL_TODO}> to provide more context to your partners.
-
-so, you can learn or sharing from each others.`,
+						TodoReminderMessage.warningMinimalWords(msg.author.id),
 						msg.author.id
 					)
 					return

@@ -45,6 +45,25 @@ Hi ${MessageFormatting.tagUser(userId)}, you haven't set your project ${MessageF
 Please \`\`select\`\` your accountability mode first to continue to the next step
 ${MessageFormatting.tagChannel(CHANNEL_ACOUNTABILITY_MODE)}`
     }
+
+    static warningMinimalWords(userId){
+        return `Hi ${MessageFormatting.tagUser(userId)} please write a longer story in ${MessageFormatting.tagChannel(CHANNEL_TODO)} like you talk with your friends.
+
+so, you can learn or sharing from each others. Write a story, not just tasks done.
+
+**copy, read, & follow the template & guideline below:**
+\`\`\`
+✅ Today:  *short title of what you've done today*
+
+> replace this section with your all of your progress recap of the day:
+> *Recap all of your progress in 1 post, it's enough, no need to post multiple times a day.*
+> *Post in a story telling format—like you talk with your friends*
+> *Don't just posting a list of task done without context/story format*
+> *You can attach image/gif/video to show more about your progress.*
+
+➡️ Next → *write your next plan*
+\`\`\``
+    }
 }
 
 module.exports = TodoReminderMessage
