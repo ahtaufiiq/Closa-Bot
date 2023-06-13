@@ -250,10 +250,10 @@ module.exports = {
 					
 				}
 				try {
-					const {channelIdFocusRecap} = focusRoomUser[userId]
+					const {threadId} = focusRoomUser[userId]
 					const thread = await ChannelController.getThread(
 						ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
-						channelIdFocusRecap
+						threadId
 					)
 					await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
 					thread.setArchived(true)
