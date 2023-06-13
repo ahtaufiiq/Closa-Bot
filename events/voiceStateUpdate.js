@@ -125,10 +125,10 @@ module.exports = {
 					}
 				}
 				const {totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
+				const data = await FocusSessionController.getDetailFocusSession(userId)
+				const taskName = data?.taskName
+				const projectName = data?.Projects?.name
 				if(!firstTime && statusSetSessionGoal === 'done'){
-					const data = await FocusSessionController.getDetailFocusSession(userId)
-					const taskName = data?.taskName
-					const projectName = data?.Projects?.name
 		
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 					await FocusSessionController.updateCoworkingPartner(oldMember.client,userId)
@@ -250,23 +250,34 @@ module.exports = {
 					
 				}
 				try {
-					const {channelIdFocusRecap} = focusRoomUser[userId]
-					const thread = await ChannelController.getThread(
-						ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
-						channelIdFocusRecap
-					)
-					await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
-					thread.setArchived(true)
-					FocusSessionController.deleteFocusSession(userId)
+					const {threadId} = focusRoomUser[userId]
+					if(threadId){
+						const thread = await ChannelController.getThread(
+							ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+							threadId
+						)
+						if(totalTime < 5 || !totalTime){
+							thread.delete()
+							const msgSession = await ChannelController.getMessage(
+								ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+								threadId
+							)
+							msgSession.delete()
+							ChannelController.sendToNotification(
+								oldMember.client,
+								FocusSessionMessage.warningDisconnectUnderFiveMinute(userId,taskName),
+								userId
+							)
+						}else{
+							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
+							thread.setArchived(true)
+						}
+					}
 				} catch (error) {
 					ChannelController.sendError(error,'thread edit and archived')
 				}
-				// if(focusRoomUser[userId]?.firstTime){
-				// 	delete focusRoomUser[userId].joinedChannelId 
-				// 	delete focusRoomUser[userId].selfVideo 
-				// 	delete focusRoomUser[userId].streaming 
-				// 	delete focusRoomUser[userId].timestamp
-				// }else 
+
+				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
 		} catch (error) {

@@ -3,6 +3,7 @@ const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
+const MessageFormatting = require("../helpers/MessageFormatting");
 
 class ChannelController{
     static getChannel(client,channelId){
@@ -74,10 +75,21 @@ class ChannelController{
     }
 
     static async getThread(channel,threadId){
-        return await channel.threads.fetch(threadId);
+        try {
+            return await channel.threads.fetch(threadId);
+        } catch (error) {
+            ChannelController.sendError(error,MessageFormatting.linkToInsideThread(threadId))
+            return null
+        }
     }
     static async getMessage(channel,messageId){
-        return await channel?.messages?.fetch(messageId)
+        try {
+            const msg = await channel?.messages?.fetch(messageId)
+            return msg
+        } catch (error) {
+            ChannelController.sendError(error,MessageFormatting.linkToMessage(channel.id,messageId))
+            return null
+        }
     }
 
     static async scheduleEvent(client,{

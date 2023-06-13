@@ -16,6 +16,7 @@ class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser){
         if(!fs.existsSync('focusRoom')) fs.mkdirSync('focusRoom')
+        if(!fs.existsSync('focusRoom/data.json')) fs.writeFileSync('focusRoom/data.json','{}')
 
         const oldFocusRoomUser = JSON.parse(fs.readFileSync('focusRoom/data.json'))
         if(Object.keys(oldFocusRoomUser) > 0){

@@ -143,12 +143,14 @@ class GuidelineInfoController {
                     if(threadNotification.archived) {
                         await threadNotification.setArchived(false)
                     }
-                    GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
-                    GuidelineInfoController.resetDataTotalNotification(id)
+                    
                     const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
                     if(!msg) return ChannelController.sendError('msg undefined',id)
                     if(onboardingStep) msg.edit(OnboardingMessage.step(id,onboardingStep))
                     else msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,isHaveReferral,showSubmitTestimonial,totalReferral))
+
+                    GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
+                    GuidelineInfoController.resetDataTotalNotification(id)
                 } catch (error) {
                     ChannelController.sendError(error,id)
                 }
