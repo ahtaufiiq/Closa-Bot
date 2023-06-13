@@ -80,16 +80,22 @@ module.exports = {
 				ChannelController.createThread(msg,titleTestimonial)
 				break;
 			case CHANNEL_SESSION_GOAL:
-				const threadSession = await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
-				const projects = await FocusSessionController.getAllProjects(msg.author.id)
-				const projectMenus = FocusSessionController.getFormattedMenu(projects)
-				FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
-					.then(data=>{
-						threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,data.body.id))
-						if(!focusRoomUser[msg.author.id]) focusRoomUser[msg.author.id] = {}
-						focusRoomUser[msg.author.id].threadId = msg.id
-						focusRoomUser[msg.author.id].statusSetSessionGoal = 'selectProject'
-					})
+				if(focusRoomUser[msg.author.id] && !focusRoomUser[msg.author.id].firstTime) {
+					const {joinedChannelId} = focusRoomUser[msg.author.id]
+					ChannelController.sendToNotification(msg.client,FocusSessionMessage.warningTypingNewTask(msg.author.id,joinedChannelId),msg.author.id)
+					ChannelController.deleteMessage(msg)
+				}else{
+					const threadSession = await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
+					const projects = await FocusSessionController.getAllProjects(msg.author.id)
+					const projectMenus = FocusSessionController.getFormattedMenu(projects)
+					FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
+						.then(data=>{
+							threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,data.body.id))
+							if(!focusRoomUser[msg.author.id]) focusRoomUser[msg.author.id] = {}
+							focusRoomUser[msg.author.id].threadId = msg.id
+							focusRoomUser[msg.author.id].statusSetSessionGoal = 'selectProject'
+						})
+				}
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternEmoji = /^🔆/
