@@ -260,14 +260,18 @@ class GoalController {
 
 	static async updateGoal(client,data,preferredCoworkingTime){
 		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
-		const {user} = await MemberController.getMember(client,data.UserId)
-		const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-		const {project,goal,about,shareProgressAt,deadlineGoal} = data
-		const buffer = await GenerateImage.project({
-			user,project,goal,date:Time.getDate(deadlineGoal)
-		})
-		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
-		await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
+		try {
+			const {user} = await MemberController.getMember(client,data.UserId)
+			const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
+			const {project,goal,about,shareProgressAt,deadlineGoal} = data
+			const buffer = await GenerateImage.project({
+				user,project,goal,date:Time.getDate(deadlineGoal)
+			})
+			const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
+			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
+		} catch (error) {
+			ChannelController.sendError(error,`${data?.UserId} : ${MessageFormatting.linkToMessage(CHANNEL_GOALS,data?.id)}`)			
+		}
 	}
 
 	static async updateAllActiveGoal(client){
