@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonStyle } = require("discord.js")
+const { EmbedBuilder, ButtonStyle, channelMention } = require("discord.js")
 const { CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_SESSION_GOAL } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
@@ -296,6 +296,13 @@ You can pick a few:
 
     static successSettingBreakTime(min=50){
         return `**✅ Break notification set to ${min} min after focus time started**`
+    }
+
+    static warningDisconnectUnderFiveMinute(UserId){
+        return `You just disconnected from voice channel ${MessageFormatting.tagUser(UserId)}
+
+your previous session goal: \`\`previous task name\`\` has ended.
+if you want to cowork again, please write again a new ${channelMention(CHANNEL_SESSION_GOAL)}`
     }
 }
 

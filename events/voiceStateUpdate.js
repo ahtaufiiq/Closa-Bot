@@ -251,22 +251,33 @@ module.exports = {
 				}
 				try {
 					const {threadId} = focusRoomUser[userId]
-					const thread = await ChannelController.getThread(
-						ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
-						threadId
-					)
-					await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
-					thread.setArchived(true)
-					FocusSessionController.deleteFocusSession(userId)
+					if(threadId){
+						const thread = await ChannelController.getThread(
+							ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+							threadId
+						)
+						if(totalTime < 5 || !totalTime){
+							thread.delete()
+							const msgSession = await ChannelController.getMessage(
+								ChannelController.getChannel(oldMember.client,CHANNEL_SESSION_GOAL),
+								threadId
+							)
+							msgSession.delete()
+							ChannelController.sendToNotification(
+								oldMember.client,
+								FocusSessionMessage.warningDisconnectUnderFiveMinute(userId),
+								userId
+							)
+						}else{
+							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
+							thread.setArchived(true)
+						}
+					}
 				} catch (error) {
 					ChannelController.sendError(error,'thread edit and archived')
 				}
-				// if(focusRoomUser[userId]?.firstTime){
-				// 	delete focusRoomUser[userId].joinedChannelId 
-				// 	delete focusRoomUser[userId].selfVideo 
-				// 	delete focusRoomUser[userId].streaming 
-				// 	delete focusRoomUser[userId].timestamp
-				// }else 
+
+				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
 		} catch (error) {
