@@ -125,10 +125,10 @@ module.exports = {
 					}
 				}
 				const {totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
+				const data = await FocusSessionController.getDetailFocusSession(userId)
+				const taskName = data?.taskName
+				const projectName = data?.Projects?.name
 				if(!firstTime && statusSetSessionGoal === 'done'){
-					const data = await FocusSessionController.getDetailFocusSession(userId)
-					const taskName = data?.taskName
-					const projectName = data?.Projects?.name
 		
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 					await FocusSessionController.updateCoworkingPartner(oldMember.client,userId)
@@ -265,7 +265,7 @@ module.exports = {
 							msgSession.delete()
 							ChannelController.sendToNotification(
 								oldMember.client,
-								FocusSessionMessage.warningDisconnectUnderFiveMinute(userId),
+								FocusSessionMessage.warningDisconnectUnderFiveMinute(userId,taskName),
 								userId
 							)
 						}else{
