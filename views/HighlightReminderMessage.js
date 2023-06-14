@@ -64,7 +64,7 @@ For example: design exploration **at 19.00**`
     }
 
     static successScheduled(highlight){
-        return `**Your highlight has been scheduled ✅**
+        return `**Your reminder has been scheduled ✅**
 ↳ ${highlight}`
     }
 }
