@@ -7,6 +7,7 @@ const ChannelController = require("./ChannelController")
 const PartyController = require("./PartyController")
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage")
 const PartyMessage = require("../views/PartyMessage")
+const { incrementTotalPoints } = require("./UserController")
 
 class AchievementBadgeController{
     static async achieveProgressStreak(client,dailyStreak,author,isFirstTime=false){
@@ -43,16 +44,35 @@ class AchievementBadgeController{
 		const files = [new AttachmentBuilder(buffer,{name:`coworking_streak_${user.username}&${partner.username}.png`})]
 		
         setTimeout(async () => {
-            ChannelController.sendToNotification(
-                client,
-                AchievementBadgeMessage.claimVibePoint(user,streak,files,'coworkingStreak',partner.username,partner.id),
-                user.id
-            )
-            ChannelController.sendToNotification(
-                client,
-                AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak',user.username,user.id),
-                partner.id
-            )
+            if(streak === 7){
+                incrementTotalPoints(100,user.id)
+                    .then(data=>{
+                        ChannelController.sendToNotification(
+                            client,
+                            AchievementBadgeMessage.achieveSevenCoworkingStreak(user,files,data.body,partner.username),
+                            user.id
+                        )
+                    })
+                incrementTotalPoints(100,partner.id)
+                    .then(data=>{
+                        ChannelController.sendToNotification(
+                            client,
+                            AchievementBadgeMessage.achieveSevenCoworkingStreak(partner,files,130,user.username),
+                            partner.id
+                        )
+                    })
+            }else{
+                ChannelController.sendToNotification(
+                    client,
+                    AchievementBadgeMessage.claimVibePoint(user,streak,files,'coworkingStreak',partner.username,partner.id),
+                    user.id
+                )
+                ChannelController.sendToNotification(
+                    client,
+                    AchievementBadgeMessage.claimVibePoint(partner,streak,files,'coworkingStreak',user.username,user.id),
+                    partner.id
+                )
+            }
         }, 1000 * 15);
         if(isFirstTime) {
             const roles = {

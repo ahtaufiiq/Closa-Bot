@@ -484,6 +484,8 @@ class CoworkingController {
                         threadEvent.delete()
                     }
                 }, Time.oneMinute());
+            }else if(minuteToStartSession === 2){
+                msg.channel.send(CoworkingMessage.lastReminderHostToStartSession(HostId))
             }
         }, Time.oneMinute());
         return msg

@@ -10,13 +10,13 @@ const MessageComponent = require('../helpers/MessageComponent');
 const ReminderController = require('../controllers/ReminderController');
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('remind')
+		.setName('reminder')
 		.setDescription('set custom reminder')
 		
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('highlight')
-				.setDescription('set custom reminder for highlight')
+				.setName('work')
+				.setDescription('set custom reminder for your work')
 				.addStringOption(option => option.setName('at').setDescription('07.30').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
@@ -31,13 +31,13 @@ module.exports = {
 
 		const time = interaction.options.getString('at')
 		if (!patternTime.test(time)) {
-			if (command === 'highlight') {
+			if (command === 'work') {
 				await interaction.reply(`Incorrect format, try:
-/remind highlight 06.30
+/reminder work 06.30
 (for example) - use 24h format`)	
 }else if(command === 'progress'){
 				await interaction.reply(`Incorrect format, try:
-/remind progress 21.00
+/reminder progress 21.00
 (for example) - use 24h format`)	
 			}
 			return 		
@@ -50,13 +50,13 @@ module.exports = {
 		const [hours,minutes] = time.split(/[.:]/)
 		
 		switch (command) {
-			case 'highlight':
+			case 'work':
 				if (data.reminderHighlight !== time) {
 					ReminderController.setHighlightReminder(interaction.client,time,interaction.user.id)
 				}
 				
 				await interaction.reply({
-					content:`You are set ${interaction.user}! I will remind you to write <#${CHANNEL_HIGHLIGHT}> at ${time} every day.`,
+					content:`You are set ${interaction.user}! I'll remind you to schedule your task at ${time} every day.`,
 					components:[MessageComponent.createComponent(
 						HighlightReminderMessage.buttonAddToCalendarSetHighlight(hours,minutes)
 					)]

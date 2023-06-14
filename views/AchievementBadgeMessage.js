@@ -157,6 +157,17 @@ note: **this reward only valid until 23.59 WIB today**`,
         }
     }
 
+    static achieveSevenCoworkingStreak(user,files,totalPoint,partnerName){
+        return {
+            content:`Congrats on your milestone with **${partnerName}**! 🔥 ${user}`,
+            embeds:[new EmbedBuilder()
+                .setColor("#FEFEFE")
+                .setDescription(`Total **${totalPoint}** (+${100}) :coin:`)
+                .setAuthor({name:`You just earned +${100} points`.toUpperCase(),iconURL:"https://media.giphy.com/media/QZJ8UcjU5VfFwCIkUN/giphy.gif"})],
+            files
+        }
+    }
+
     static howToClaimReward(UserId,value){
         return {
             content:`Here's how to claim your reward:

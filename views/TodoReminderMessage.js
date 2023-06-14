@@ -49,7 +49,7 @@ ${MessageFormatting.tagChannel(CHANNEL_ACOUNTABILITY_MODE)}`
     static warningMinimalWords(userId){
         return `Hi ${MessageFormatting.tagUser(userId)} please write a longer story in ${MessageFormatting.tagChannel(CHANNEL_TODO)} like you talk with your friends.
 
-so, you can learn or sharing from each others. Write a story, not just tasks done.
+so, you can learn from each others. Write a story, not just tasks done.
 
 **copy, read, & follow the template & guideline below:**
 \`\`\`
