@@ -45,7 +45,7 @@ module.exports = {
 				await interaction.deferReply({ephemeral:true})
 				const differentTime = time.toLowerCase().includes(' wita') ? 1 : time.toLowerCase().includes(' wit') ? 2 : 0
 				const date = Time.getDate()
-				date.setHours(Number(hours) + differentTime,minutes)
+				date.setHours(Time.minus7Hours(Number(hours) + differentTime),minutes)
 				const isLessThanTenMinutes = Time.getDiffTime(Time.getDate(),date) <= 10
 				if(!isLessThanTenMinutes) date.setMinutes(date.getMinutes()-10)
 
