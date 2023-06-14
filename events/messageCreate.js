@@ -238,7 +238,8 @@ module.exports = {
 					return
 				}
 
-				let titleProgress = `${msg.content.trimStart().split('\n')[0]}`
+				const splittedMessage = msg.content.trimStart().split('\n')
+				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
 				ChannelController.createThread(msg,titleProgress)

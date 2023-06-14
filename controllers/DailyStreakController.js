@@ -73,12 +73,11 @@ class DailyStreakController {
 	static addSafetyCooldown(){
 		supabase.from("Users")
 			.select('id,lastDone')
-			.gte('endMembership',Time.getDateOnly(Time.getDate()))
+			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-7)))
 			.then(data=>{
 				if (data.body.length > 0) {
 					data.body.forEach(async member=>{
 						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(13)),member.id)
-
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
 							safetyCooldown.push({
