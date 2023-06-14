@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonStyle } = require("discord.js")
+const { EmbedBuilder, ButtonStyle, userMention } = require("discord.js")
 const { CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_UPCOMING_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_TODO } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -331,6 +331,11 @@ set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} & invite ${partner.use
             ]
             
         }
+    }
+
+    static lastReminderHostToStartSession(UserId){
+        return `Hi ${userMention(UserId)}, please start the timer within 2 min
+or a new host will be assigned.`
     }
 }
 module.exports = CoworkingMessage
