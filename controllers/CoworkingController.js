@@ -364,13 +364,7 @@ class CoworkingController {
         }else{
             permissionOverwrites.push(
                 {
-                    id:ROLE_NEW_MEMBER,
-                    allow:[
-                        PermissionFlagsBits.ViewChannel
-                    ]
-                },
-                {
-                    id:ROLE_MEMBER,
+                    id:guild.roles.everyone,
                     allow:[
                         PermissionFlagsBits.ViewChannel
                     ]
@@ -388,10 +382,7 @@ class CoworkingController {
         })
         if(!isImmeadiatelyStart){
             setTimeout(() => {
-                voiceChannel.permissionOverwrites.edit(ROLE_MEMBER,{
-                    ViewChannel:true
-                })
-                voiceChannel.permissionOverwrites.edit(ROLE_NEW_MEMBER,{
+                voiceChannel.permissionOverwrites.edit(guild.roles.everyone,{
                     ViewChannel:true
                 })
             }, Time.oneMinute() * 5);

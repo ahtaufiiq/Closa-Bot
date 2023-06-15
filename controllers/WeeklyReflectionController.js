@@ -36,7 +36,7 @@ class WeeklyReflectionController {
 		});
 	}
 	static async hideChannelReflection(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(8)} * * 3`, async function(){
+		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 3`, async function(){
 			if(!Time.isCooldownPeriod()){
 				ChannelController.updateChannelVisibilityForMember(client,CHANNEL_REFLECTION,false)
 			}

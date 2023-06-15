@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { CHANNEL_TODO, CHANNEL_HIGHLIGHT } = require('../helpers/config');
+const { CHANNEL_TODO, CHANNEL_HIGHLIGHT, TIMEZONE } = require('../helpers/config');
 const supabase = require('../helpers/supabaseClient');
 const schedule = require('node-schedule');
 const Time = require('../helpers/time');
@@ -49,7 +49,7 @@ module.exports = {
 				const isLessThanTenMinutes = Time.getDiffTime(Time.getDate(),date) <= 10
 				if(!isLessThanTenMinutes) date.setMinutes(date.getMinutes()-10)
 				
-				date.setHours(Time.minus7Hours(date.getHours()))
+				date.setHours(date.getHours() - TIMEZONE)
 				supabase.from('Reminders')
 					.insert({
 						message:`${message} at ${time}`,

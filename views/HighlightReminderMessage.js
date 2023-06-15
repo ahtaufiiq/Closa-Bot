@@ -60,7 +60,7 @@ For example: design exploration **at 19.00**`
     }
 
     static remindHighlightUser(userId,task){
-        return `Hi ${MessageFormatting.tagUser(userId)} reminder: ${task} `
+        return `Hi ${MessageFormatting.tagUser(userId)} reminder: \`\`${task}\`\` `
     }
 
     static successScheduled(highlight){
