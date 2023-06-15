@@ -35,7 +35,7 @@ module.exports = {
 		GuidelineInfoController.updateAllGuideline(client)
 
 		// PaymentController.remindMember(client)
-		PaymentController.remindBeforeKickoffCohort(client)
+		// PaymentController.remindBeforeKickoffCohort(client)
 		// if(CLIENT_ID === "948546574550695936") return
 		VacationController.activateVacationTicket(client)
 		VacationController.notifyVacationEnded(client)
@@ -49,12 +49,12 @@ module.exports = {
 		// TimelineController.sendNotifShareStoryCelebrationDay(client)
 		// TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
-		PartyController.remind30MinutesBeforeKickoff(client)
+		// PartyController.remind30MinutesBeforeKickoff(client)
 		PartyController.createKickoffEvent(client)
 		// PartyController.removeWaitingRoom(client)
 		// PartyController.generateWaitingRoomPartyMode(client)
 		// PartyController.announcePartyModeAvailable(client)
-		PartyController.partyReminder(client)
+		// PartyController.partyReminder(client)
 		// PartyController.updateMessageWaitingRoom(client)
 		// PartyController.disbandParty(client)
 
@@ -70,7 +70,7 @@ module.exports = {
 		// RecurringMeetupController.setScheduleCreateTemporaryVoiceChannel(client)
 		// RecurringMeetupController.setReminderWeeklyMeetup(client)
 
-		GoalController.remindToWriteGoal(client)
+		// GoalController.remindToWriteGoal(client)
 		GoalController.updateAllActiveGoal(client)
 
 		ReferralCodeController.resetTotalDaysThisCohort()

@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js")
+const { EmbedBuilder, channelMention } = require("discord.js")
 const { CHANNEL_GUIDELINE, CHANNEL_COMMAND } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
@@ -19,14 +19,12 @@ class GuidelineInfoMessage {
                     .setColor('fafafb')
                     .setThumbnail('https://pbs.twimg.com/profile_images/1497990921874403329/qLmIBav9_400x400.jpg')
                     .setTitle("🗒 Closa Guidelines ")
-                    .setDescription(`**Command Guides** 
-try to type "/" to see what bot can do for you on channel: ${MessageFormatting.tagChannel(CHANNEL_COMMAND)}
+                    .setDescription(`**How to use closa**
+Get started here → ${channelMention(CHANNEL_GUIDELINE)}
 
 **Official links**
 Website → https://closa.me
 Twitter → https://twitter.com/joinclosa
-Instagram → https://twitter.com/joinclosa
-Newsletter → https://closa.substack.com
 
 **Membership Status**
 Active until → ∞
