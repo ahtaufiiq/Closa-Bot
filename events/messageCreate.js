@@ -87,7 +87,7 @@ module.exports = {
 				}else{
 					await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
 					const threadSession = await ChannelController.getThread(
-						ChannelController.getChannel(client,CHANNEL_SESSION_GOAL),
+						ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
 						msg.id
 					)
 					const projects = await FocusSessionController.getAllProjects(msg.author.id)
