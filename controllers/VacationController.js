@@ -222,7 +222,7 @@ class VacationController{
 
                 DailyStreakController.generateHabitBuilder(client,user,true,vacationLeft)
                     .then(files=>{
-                        channelStreak.send(VacationMessage.onVacationMode(interaction.user.id,files,vacationLeft))
+                        channelStreak.send(VacationMessage.onVacationMode(userId,files,vacationLeft))
                     })
 
 
