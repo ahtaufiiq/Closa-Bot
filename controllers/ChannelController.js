@@ -159,7 +159,8 @@ class ChannelController{
         try {
             return await msg.delete()
         } catch (error) {
-            return error
+            ChannelController.sendError(error)
+            return null
         }
     }
 

@@ -20,6 +20,7 @@ const OnboardingMessage = require('../views/OnboardingMessage');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const AchievementBadgeController = require('../controllers/AchievementBadgeController');
 const AchievementBadgeMessage = require('../views/AchievementBadgeMessage');
+const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 
 let closaCafe = {
 
@@ -117,6 +118,8 @@ module.exports = {
 					}
 				}else if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
 					FocusSessionController.startFocusTimer(newMember.client,focusRoomUser[userId].threadId,userId,focusRoomUser)
+				}else{
+					FocusSessionController.handleAutoSelectProject(oldMember.client,focusRoomUser,userId)
 				}
 			}else if(isEndedFocusTime(listFocusRoom,focusRoomUser,oldMember?.channelId,joinedChannelId,userId)){
 				if(oldMember.channelId === CHANNEL_CLOSA_CAFE){
@@ -202,40 +205,7 @@ module.exports = {
 						}
 						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
 						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
-
-						const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(oldMember.client,userId)
-						if(isHasRoleOnboardingCoworking){
-							MemberController.removeRole(oldMember.client,userId,ROLE_ONBOARDING_COWORKING)
-							UserController.getDetail(userId,'lastDone')
-								.then(data=>{
-									if(data.body.lastDone){
-										OnboardingController.updateOnboardingStep(oldMember.client,userId,'done')
-										ReferralCodeController.addNewReferral(userId,3)
-										OnboardingController.deleteReminderToStartOnboarding(userId)
-										setTimeout(async () => {
-											const files = []
-											const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(userId)
-											const coverWhite = await GenerateImage.referralCover(totalReferralCode,newMember.member,false)
-											files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${newMember.member.username}.png`}))
-											ChannelController.sendToNotification(
-												oldMember.client,
-												OnboardingMessage.completedQuest(userId,files),
-												userId
-											)
-										}, 1000 * 15);
-									}else{
-										MemberController.addRole(oldMember.client,userId,ROLE_ONBOARDING_PROGRESS)
-										setTimeout(() => {
-											ChannelController.sendToNotification(
-												oldMember.client,
-												OnboardingMessage.thirdQuest(userId),
-												userId
-											)
-											OnboardingController.updateOnboardingStep(oldMember.client,userId,'thirdQuest')
-										}, 1000 * 15);
-									}
-								})
-						}
+						OnboardingController.handleOnboardingCoworking(client,userId)
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)

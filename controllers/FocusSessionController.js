@@ -11,7 +11,8 @@ const { ChannelType } = require("discord.js");
 const { CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE } = require("../helpers/config");
 const CoworkingController = require("./CoworkingController");
 const AchievementBadgeController = require("./AchievementBadgeController");
-const fs = require('fs')
+const fs = require('fs');
+const MessageFormatting = require("../helpers/MessageFormatting");
 class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser){
@@ -445,10 +446,10 @@ class FocusSessionController {
         }
     }
 
-    static isValidToStartNewTask(focusRoomUser,userId){
+    static isValidToAutoSelectProject(focusRoomUser,userId){
         if(!focusRoomUser[userId]) return false
-        let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal} = focusRoomUser[userId]
-        return (selfVideo || streaming) && !firstTime && threadId && statusSetSessionGoal === 'done'
+        let {selfVideo,streaming,firstTime,threadId,statusSetSessionGoal,onProcessAutoSelectProject} = focusRoomUser[userId]
+        return (selfVideo || streaming) && firstTime && threadId && statusSetSessionGoal === 'selectProject' && !onProcessAutoSelectProject
     }
     static isValidToStartFocusTimer(focusRoomUser,userId){
         if(!focusRoomUser[userId]) return false
@@ -456,38 +457,11 @@ class FocusSessionController {
         return (selfVideo || streaming) && firstTime && threadId && statusSetSessionGoal === 'done'
     }
 
-    static async handleStartFocusSession(interaction,userId,focusRoomUser,taskId,ProjectId,listFocusRoom){
+    static async handleStartFocusSession(interaction,userId,focusRoomUser,taskId,ProjectId){
         await FocusSessionController.updateProjectId(taskId,ProjectId)
         const haveCoworkingEvent = await CoworkingController.haveCoworkingEvent(userId)
         if(focusRoomUser[userId]?.joinedChannelId){
             focusRoomUser[userId].threadId = interaction.channelId
-            if(FocusSessionController.isValidToStartNewTask(focusRoomUser,userId)){
-                const {msgIdFocusRecap,channelIdFocusRecap,totalTime,focusTime,breakTime,firstTime,statusSetSessionGoal} = focusRoomUser[userId]
-                await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
-                const channel = await ChannelController.getChannel(interaction.client,channelIdFocusRecap)
-                const msgFocus = await ChannelController.getMessage(channel,msgIdFocusRecap)
-                await msgFocus.edit(FocusSessionMessage.messageTimer(focusRoomUser[userId],taskName,projectName,userId,false))
-                if(focusRoomUser[userId]?.msgIdReplyBreak){
-                    ChannelController.getMessage(channel,focusRoomUser[userId]?.msgIdReplyBreak)
-                        .then(replyBreak => {
-                            ChannelController.deleteMessage(replyBreak)
-                        })
-                }
-                
-                const thread = await ChannelController.getThread(
-                    ChannelController.getChannel(interaction.client,CHANNEL_SESSION_GOAL),
-                    channelIdFocusRecap
-                )
-                thread.setArchived(true)
-                FocusSessionController.deleteFocusSession(userId)
-                /**
-                 * Edit focus timer to ended
-                 * update time focus session
-                 * set thread to archived
-                 * 
-                 * start new focus timer
-                 */
-            }
             if(FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
                 const msgReply = await interaction.editReply('.')
                 ChannelController.deleteMessage(msgReply)
@@ -498,6 +472,67 @@ class FocusSessionController {
         }else{
             await interaction.editReply(FocusSessionMessage.startFocusSession(userId,haveCoworkingEvent?.voiceRoomId))
         }
+    }
+
+    static async handleAutoSelectProject(client,focusRoomUser,userId,taskId){
+        if(!FocusSessionController.isValidToAutoSelectProject(focusRoomUser,userId)) return
+        console.log('valid');
+        let {threadId,statusSetSessionGoal,msgSelecProjectId} = focusRoomUser[userId]
+        const projects = await FocusSessionController.getAllProjects(userId)
+        if(projects.length === 0) return
+        
+        focusRoomUser[userId].onProcessAutoSelectProject = true
+        const ProjectId = projects[0].id
+        setTimeout(async () => {
+            if(!statusSetSessionGoal === 'selectProject') return
+            
+            const threadSession = await ChannelController.getThread(
+                ChannelController.getChannel(client,CHANNEL_SESSION_GOAL),
+                threadId
+            )
+            const msgSelecProject = await ChannelController.getMessage(threadSession,msgSelecProjectId)
+            if(!taskId){
+                const dataTask = await supabase.from("FocusSessions")
+                    .select('id')
+                    .eq('threadId',threadId)
+                    .single()
+                taskId = dataTask.body.id
+                
+            }
+            if(projects.length === 1){
+                await ChannelController.deleteMessage(msgSelecProject)
+                await FocusSessionController.updateProjectId(taskId,ProjectId)
+                const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
+                if (!dataUser.body?.dailyWorkTime) {
+                    await supabase.from("Users")
+                        .update({dailyWorkTime:60})
+                        .eq('id',userId)
+                }
+                focusRoomUser[userId].statusSetSessionGoal = 'done'
+                if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
+                    FocusSessionController.startFocusTimer(client,focusRoomUser[userId].threadId,userId,focusRoomUser)
+                }
+            }else{
+                threadSession.send(`hi ${MessageFormatting.tagUser(userId)}, don't forget to select your project to start time tracker.`)
+                setTimeout(async () => {
+                    if(!statusSetSessionGoal === 'selectProject') return
+                    await ChannelController.deleteMessage(msgSelecProject)
+                    await FocusSessionController.updateProjectId(taskId,ProjectId)
+                    const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
+                    if (!dataUser.body?.dailyWorkTime) {
+                        await supabase.from("Users")
+                            .update({dailyWorkTime:60})
+                            .eq('id',userId)
+                    }
+                    focusRoomUser[userId].statusSetSessionGoal = 'done'
+                    if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
+                        FocusSessionController.startFocusTimer(client,focusRoomUser[userId].threadId,userId,focusRoomUser)
+                    }
+    
+                }, Time.oneMinute() * 2);
+            }
+
+        }, Time.oneMinute() * 2);
     }
 }
 
