@@ -511,7 +511,7 @@ class FocusSessionController {
                     FocusSessionController.startFocusTimer(client,focusRoomUser[userId].threadId,userId,focusRoomUser)
                 }
             }else{
-                const msgReminder = await threadSession.send(`hi ${MessageFormatting.tagUser(userId)}, don't forget to select your project to start time tracker or i'll auto-select to your latest project.`)
+                const msgReminder = await threadSession.send(`hi ${MessageFormatting.tagUser(userId)}, don't forget to select your project to start time tracker or i'll auto-select to your latest project in 2 min.`)
                 setTimeout(async () => {
                     if(!statusSetSessionGoal === 'selectProject') return
                     await ChannelController.deleteMessage(msgSelecProject)
