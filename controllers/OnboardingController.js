@@ -45,7 +45,7 @@ class OnboardingController {
         }else {
             GuidelineInfoController.incrementTotalNotification(1,UserId)
         }
-        const reply = await interaction.editReply(OnboardingMessage.firstQuest())
+        const reply = await interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
     }
 
     static async continueFirstQuest(interaction){
