@@ -20,7 +20,7 @@ class FocusSessionController {
         if(!fs.existsSync('focusRoom/data.json')) fs.writeFileSync('focusRoom/data.json','{}')
 
         const oldFocusRoomUser = JSON.parse(fs.readFileSync('focusRoom/data.json'))
-        if(Object.keys(oldFocusRoomUser) > 0){
+        if(Object.keys(oldFocusRoomUser).length > 0){
             for (const UserId in oldFocusRoomUser) {
                 focusRoomUser[UserId] = oldFocusRoomUser[UserId]
                 FocusSessionController.restartFocusTimer(client,UserId,focusRoomUser)
