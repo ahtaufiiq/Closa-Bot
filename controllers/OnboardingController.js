@@ -137,8 +137,6 @@ class OnboardingController {
         const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,userId)
         if(isHasRoleOnboardingCoworking){
             // GuidelineInfoController.updateStatusCompletedQuest(userId,'secondQuest')
-            MemberController.addRole(client,userId,ROLE_ONBOARDING_PROGRESS)
-            MemberController.removeRole(client,userId,ROLE_ONBOARDING_COWORKING)
             UserController.getDetail(userId,'goalId,lastDone')
                 .then(data=>{
                     if(data.body.lastDone){
@@ -175,6 +173,11 @@ class OnboardingController {
                         }, 1000 * 15);
                     }
                 })
+
+                await Promise.all([
+                    MemberController.addRole(client,userId,ROLE_ONBOARDING_PROGRESS),
+                    MemberController.removeRole(client,userId,ROLE_ONBOARDING_COWORKING)
+                ])
         }
     }
 }
