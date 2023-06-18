@@ -104,7 +104,7 @@ module.exports = {
 							.single()
 						const {onboardingStep} = dataOnboarding.body
 						if(onboardingStep === 'welcome' || onboardingStep === 'firstQuest'){
-							interaction.editReply(OnboardingMessage.replyFirstQuest())
+							interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
 						}else if(onboardingStep === 'secondQuest'){
 							await interaction.editReply(OnboardingMessage.replySecondQuest())
 						}else if(onboardingStep === 'thirdQuest'){

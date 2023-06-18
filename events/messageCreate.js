@@ -31,10 +31,12 @@ const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
 const AchievementBadgeController = require("../controllers/AchievementBadgeController");
+const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const UserController = require("../controllers/UserController");
 
 module.exports = {
 	name: 'messageCreate',
-	async execute(msg,focusRoomUser) {
+	async execute(msg,focusRoomUser,listFocusRoom) {
 		if(msg.author.bot) {
 			if(msg.channelId === CHANNEL_PAYMENT) {
 				await ChannelController.createThread(msg,'Sign Up')
@@ -90,15 +92,22 @@ module.exports = {
 						ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
 						msg.id
 					)
-					const projects = await FocusSessionController.getAllProjects(msg.author.id)
+					const userId = msg.author.id
+					const projects = await FocusSessionController.getAllProjects(userId)
 					const projectMenus = FocusSessionController.getFormattedMenu(projects)
-					FocusSessionController.insertFocusSession(msg.author.id,msg.content,null,msg.id)
-						.then(data=>{
-							threadSession.send(FocusSessionMessage.selectProject(msg.author.id,projectMenus,data.body.id))
-							if(!focusRoomUser[msg.author.id]) focusRoomUser[msg.author.id] = {}
-							focusRoomUser[msg.author.id].threadId = msg.id
-							focusRoomUser[msg.author.id].statusSetSessionGoal = 'selectProject'
+					const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
+					const taskId = dataSessionGoal.body.id
+
+					threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
+						.then(msgSelecProject=>{
+							focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
 						})
+					if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
+					focusRoomUser[userId].threadId = msg.id
+					focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
+
+					
+					FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
 				}
 				break;
 			case CHANNEL_HIGHLIGHT:
