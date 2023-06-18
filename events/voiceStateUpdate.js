@@ -205,7 +205,7 @@ module.exports = {
 						}
 						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
 						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
-						OnboardingController.handleOnboardingCoworking(oldMember.client,userId)
+						OnboardingController.handleOnboardingCoworking(oldMember.client,newMember.member.user)
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)
