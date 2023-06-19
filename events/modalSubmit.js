@@ -163,21 +163,8 @@ module.exports = {
 				})
 				ChannelController.deleteMessage(modal.message)
 
-				const isHasRoleOnboardingProject = await OnboardingController.isHasRoleOnboardingProject(modal.client,modal.user.id)
-				if(isHasRoleOnboardingProject){
-					// GuidelineInfoController.updateStatusCompletedQuest(modal.user.id,'firstQuest')
-					setTimeout(() => {
-						ChannelController.sendToNotification(
-							modal.client,OnboardingMessage.secondQuest(modal.user.id),modal.user.id
-						)
-						OnboardingController.updateOnboardingStep(modal.client,modal.user.id,'secondQuest')
-					}, 1000 * 15);
-					await Promise.all([
-						MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER),
-						MemberController.addRole(modal.client,modal.user.id,ROLE_ONBOARDING_COWORKING),
-						MemberController.removeRole(modal.client,modal.user.id,ROLE_ONBOARDING_PROJECT)
-					])
-				}
+				OnboardingController.handleOnboardingProject(modal.client,modal.user)
+				
 			}else if(commandButton === "editGoal"){
 				await modal.deferReply({ephemeral:true})
 

@@ -143,7 +143,7 @@ module.exports = {
 			const targetUser = user ? user : interaction.user
 			await Promise.all([
 				supabase.from('Users')
-					.update({onboardingStep:null})
+					.update({onboardingStep:null,goalId:null})
 					.eq('id',targetUser.id),
 				supabase.from("GuidelineInfos")
 					.delete()

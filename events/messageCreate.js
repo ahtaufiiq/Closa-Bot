@@ -183,26 +183,8 @@ module.exports = {
 					)
 					return
 				}
-				OnboardingController.isHasRoleOnboardingProgress(msg.client,msg.author.id)
-					.then(isHasRoleOnboardingProgress=>{
-						if(isHasRoleOnboardingProgress){
-							MemberController.removeRole(msg.client,msg.author.id,ROLE_ONBOARDING_PROGRESS)
-							OnboardingController.updateOnboardingStep(msg.client,msg.author.id,'done')
-							ReferralCodeController.addNewReferral(msg.author.id,3)
-							OnboardingController.deleteReminderToStartOnboarding(msg.author.id)
-							setTimeout(async () => {
-								const files = []
-								const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(msg.author.id)
-								const coverWhite = await GenerateImage.referralCover(totalReferralCode,msg.author,false)
-								files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${msg.author.username}.png`}))
-								ChannelController.sendToNotification(
-									msg.client,
-									OnboardingMessage.completedQuest(msg.author.id,files),
-									msg.author.id
-								)
-							}, 1000 * 15);
-						}
-					})
+				OnboardingController.handleOnboardingProgress(msg.client,msg.author)
+				
 				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 				
 				const { data, error } = await supabase
@@ -243,7 +225,7 @@ module.exports = {
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
-						TodoReminderMessage.warningNeverSetGoal(msg.author.id),
+						TodoReminderMessage.warningNeverSetGoal(msg.author.id,msg.content),
 						msg.author.id,
 						data?.notificationId
 					)

@@ -1,28 +1,47 @@
-const { ButtonStyle } = require("discord.js")
+const { ButtonStyle, channelMention } = require("discord.js")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK } = require("../helpers/config")
 
 class OnboardingMessage {
 
-    static step(userId,step){
-        if(step === 'welcome') return OnboardingMessage.welcomeMessage(userId)
-        else return OnboardingMessage.guidelineInfoQuest(userId,step)
+    static generateInitialIconStep(statusCompletedQuest){
+        const iconStep = []
+        if(!statusCompletedQuest){
+            iconStep.push('⏳','🔳','🔳')
+        }else{
+            statusCompletedQuest.firstQuest ? iconStep.push('✅') : iconStep.push('🔳')
+            statusCompletedQuest.secondQuest ? iconStep.push('✅') : iconStep.push('🔳')
+            statusCompletedQuest.thirdQuest ? iconStep.push('✅') : iconStep.push('🔳')
+        }
+        return iconStep
     }
-
-    static guidelineInfoQuest(userId,step){
+    static guidelineInfoQuest(userId,step,statusCompletedQuest){
         const buttons = [MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')]
-        if(step === 'firstQuest') buttons.push(MessageComponent.addButton(`continueFirstQuest_${userId}_guideline`,"Continue"))
-        if(step === 'secondQuest') buttons.push(MessageComponent.addButton(`continueSecondQuest_${userId}_guideline`,"Continue Quest 2"))
-        if(step === 'thirdQuest') buttons.push(MessageComponent.addButton(`continueThirdQuest_${userId}_guideline`,"Continue Quest 3"))
+        const iconStep = OnboardingMessage.generateInitialIconStep(statusCompletedQuest)
+
+        if(step === 'firstQuest') {
+            buttons.push(MessageComponent.addButton(`continueFirstQuest_${userId}_guideline`,"Start Quest"))
+            iconStep[0] = '⏳'
+        }else if(step === 'secondQuest'){
+            buttons.push(MessageComponent.addButton(`continueSecondQuest_${userId}_guideline`,"Continue Quest 2"))
+            iconStep[1] = '⏳'
+        }else if(step === 'thirdQuest'){
+            buttons.push(MessageComponent.addButton(`continueThirdQuest_${userId}_guideline`,"Continue Quest 3"))
+            iconStep[2] = '⏳'
+        }
+
         return {
-            content:`:scroll: Here's your first quest ${MessageFormatting.tagUser(userId)}
+            content:`Welcome to closa @user!
 
-1. start your project & set your goal
-2. join a coworking session
-3. share your first progress
+\`\`\`complete the onboarding quests to boost your productivity 🚀\`\`\`
+${iconStep[0]} **Quest 1** — set a goal & deadline for your ideas → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}
+${iconStep[1]} **Quest 2** — join coworking session to stay focused → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
+${iconStep[2]} **Quest 3** — share your daily progress with others → ${MessageFormatting.tagChannel(CHANNEL_TODO)} (*complete quest 1 first*)
 
-you can watch this video first`,
+**Good luck! **
+
+\`\`if you want to learn more\`\` → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)} `,
             components: [MessageComponent.createComponent(
                 ...buttons
             )]
@@ -31,14 +50,16 @@ you can watch this video first`,
 
     static welcomeMessage(userId){
         return {
-            content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa!
+            content:`Hi ${MessageFormatting.tagUser(userId)} welcome to closa! :wave: 
 
 > A place where you work on your ideas from start to finish.
 > Join daily coworking, meet new friends, & get more done.
 
-**Are you ready to work on your ideas?**`,
+Complete the first quest to boost your productivity :scroll: :
+1. set a goal for your idea.
+2. join a coworking session.
+3. share your progress with others.`,
             components: [
-                MessageComponent.createComponent(MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')),
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`startOnboarding_${userId}_guideline`,"Get started"),
                     MessageComponent.addButton('startOnboardingLater',"I'll start later",ButtonStyle.Secondary)
@@ -64,19 +85,10 @@ then click continue to open access to more channels.`,
         }
     }
 
-    static firstQuest(userId){
-        return {
-            content:`:scroll: **Quest (1/3)**
-
-Start your project & set a goal ${MessageFormatting.tagUser(userId)}`,
-            components:[MessageComponent.createComponent(
-                MessageComponent.addButton('replyFirstQuest','Start')
-            )]
-        }
-    }
-
-    static replyFirstQuest(){
-        return `start a project & set your goal here → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}`
+    static firstQuest(){
+        return `:scroll: **Quest (1/3)**
+        
+start working on your idea here → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}`
     }
 
     static secondQuest(userId){
@@ -183,25 +195,28 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
     static guidelines(){
         return {
-            content:`\`\`\`START HERE\`\`\`
-1. ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)} at closa and set your goal.
+            content:`\`\`\`HOW TO USE CLOSA TO BOOST YOUR PRODUCTIVITY\`\`\`
+**⁠1.** Start working on your ideas & set goal → ${channelMention(CHANNEL_START_PROJECT)} :dart: 
 
-**REPEAT STEPS 2 to 4 EVERY DAY** :repeat: 
-*this is what will make you stay productive each day at closa:*
+**Repeat step 2 & 3 every day** :repeat: 
+> *this is what will make you stay productive each day at closa* :rocket: 
 
-2. Coworking — join ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}  or schedule a session on ${MessageFormatting.tagChannel(CHANNEL_CREATE_SESSION)} / ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}
+**2.** Join coworking session to boost productivity & stay focused :man_technologist::woman_technologist::white_check_mark:
+-  first ⁠write 1 specific task you want to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
+-  then join the voice channel to cowork → ${channelMention(CHANNEL_CLOSA_CAFE)} (*default*)
+- or you can schedule a session on ⁠${channelMention(CHANNEL_CREATE_SESSION)} / ⁠${channelMention(CHANNEL_UPCOMING_SESSION)}
 
-3. Set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} — write 1 specific task you want to get done.
+**3.** ${channelMention(CHANNEL_TODO)} – post your progress in a story-telling format. 
+> *While you're at it give supportive reactions to others* :heart:
 
-4. ${MessageFormatting.tagChannel(CHANNEL_TODO)} – Post your progress in a story-telling format. While you're at it give supportive reactions to others ❤️
-
-5. ${MessageFormatting.tagChannel(CHANNEL_STREAK)} – Try to keep your streak and don't miss your progress twice in a row. 
+**⁠4.** ${channelMention(CHANNEL_STREAK)} – try to keep your streak and don't miss your progress twice in a row.
 
 The key to stay consistent when you're not feeling it:
-> *** small progress is still progress***`,
+> *small progress is still progress* :sparkles:
+**↓**`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`onboardingFromGuideline`,"Get started"),
-                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')
+                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
+                MessageComponent.addButton(`onboardingFromGuideline`,"Check my quest"),
             )]
         }
     }

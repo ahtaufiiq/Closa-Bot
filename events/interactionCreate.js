@@ -113,9 +113,6 @@ module.exports = {
 							interaction.editReply("You've completed your onboarding quest previously ✅ ")
 						}
 						break;
-					case 'replyFirstQuest':
-						await interaction.editReply(OnboardingMessage.replyFirstQuest())
-						break;
 					case 'replySecondQuest':
 						await interaction.editReply(OnboardingMessage.replySecondQuest())
 						break;

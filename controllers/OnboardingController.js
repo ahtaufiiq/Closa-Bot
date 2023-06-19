@@ -15,13 +15,17 @@ const { AttachmentBuilder } = require('discord.js');
 class OnboardingController {
 
     static async welcomeOnboarding(client,user){
-        await MemberController.addRole(client,user.id,ROLE_ONBOARDING_WELCOME)
+        await Promise.all([
+            MemberController.addRole(client,user.id,ROLE_ONBOARDING_PROJECT),
+            MemberController.addRole(client,user.id,ROLE_ONBOARDING_COWORKING),
+            MemberController.addRole(client,user.id,ROLE_ONBOARDING_PROGRESS),
+        ])
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
 		const msg = await channelNotifications.send(`${user}`)
         await supabase.from("Users")
 			.update({
                 notificationId:msg.id,
-                onboardingStep:'welcome',
+                onboardingStep:'firstQuest',
             })
 			.eq('id',user.id)
 		ChannelController.createThread(msg,user.username)
@@ -131,12 +135,36 @@ class OnboardingController {
             
         return await GuidelineInfoController.updateMessageGuideline(client,UserId)
     }
+    
+    static async handleOnboardingProject(client,user){
+        const isHasRoleOnboardingProject = await OnboardingController.isHasRoleOnboardingProject(client,user.id)
+        if(isHasRoleOnboardingProject){
+            GuidelineInfoController.updateStatusCompletedQuest(user.id,'firstQuest')
+            const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,user.id)
+            if(isHasRoleOnboardingCoworking){
+                OnboardingController.updateOnboardingStep(client,user.id,'secondQuest')
+                setTimeout(() => {
+                    ChannelController.sendToNotification(
+                        client,OnboardingMessage.secondQuest(user.id),user.id
+                    )
+                }, 1000 * 15);
+            }else{
+                OnboardingController.updateOnboardingStep(client,user.id,'thirdQuest')
+                setTimeout(() => {
+                    ChannelController.sendToNotification(
+                        client,OnboardingMessage.thirdQuest(user.id),user.id
+                    )
+                }, 1000 * 15);
+            }
+            await MemberController.removeRole(client,user.id,ROLE_ONBOARDING_PROJECT)
+        }
+    }
 
     static async handleOnboardingCoworking(client,user){
         const userId = user.id
         const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,userId)
         if(isHasRoleOnboardingCoworking){
-            // GuidelineInfoController.updateStatusCompletedQuest(userId,'secondQuest')
+            GuidelineInfoController.updateStatusCompletedQuest(userId,'secondQuest')
             UserController.getDetail(userId,'goalId,lastDone')
                 .then(data=>{
                     if(data.body.lastDone){
