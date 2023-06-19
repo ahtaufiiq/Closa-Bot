@@ -476,13 +476,14 @@ class FocusSessionController {
 
     static async handleAutoSelectProject(client,focusRoomUser,userId,taskId){
         if(!FocusSessionController.isValidToAutoSelectProject(focusRoomUser,userId)) return
-        let {threadId,statusSetSessionGoal,msgSelecProjectId} = focusRoomUser[userId]
         const projects = await FocusSessionController.getAllProjects(userId)
         if(projects.length === 0) return
         
         focusRoomUser[userId].onProcessAutoSelectProject = true
         const ProjectId = projects[0].id
         setTimeout(async () => {
+            if(!focusRoomUser[userId]) return
+            let {threadId,msgSelecProjectId} = focusRoomUser[userId]
             const threadSession = await ChannelController.getThread(
                 ChannelController.getChannel(client,CHANNEL_SESSION_GOAL),
                 threadId
@@ -497,7 +498,7 @@ class FocusSessionController {
                     .single()
                 taskId = dataTask.body.id
             }
-            
+            const {statusSetSessionGoal} = focusRoomUser[userId]
             if(!statusSetSessionGoal === 'selectProject') return
             if(projects.length === 1){
                 await ChannelController.deleteMessage(msgSelecProject)
@@ -515,6 +516,8 @@ class FocusSessionController {
             }else{
                 const msgReminder = await threadSession.send(`hi ${MessageFormatting.tagUser(userId)}, don't forget to select your project to start time tracker or i'll auto-select to your latest project in 2 min.`)
                 setTimeout(async () => {
+                    if(!focusRoomUser[userId]) return
+                    const {statusSetSessionGoal} = focusRoomUser[userId]
                     if(!statusSetSessionGoal === 'selectProject') return
                     await ChannelController.deleteMessage(msgSelecProject)
                     await FocusSessionController.updateProjectId(taskId,ProjectId)
