@@ -497,7 +497,7 @@ class FocusSessionController {
                 taskId = dataTask.body.id
                 
             }
-            const statusSetSessionGoal = focusRoomUser[userId]
+            const {statusSetSessionGoal} = focusRoomUser[userId]
             if(!statusSetSessionGoal === 'selectProject') return
             if(projects.length === 1){
                 await ChannelController.deleteMessage(msgSelecProject)
