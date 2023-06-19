@@ -183,9 +183,7 @@ module.exports = {
 					)
 					return
 				}
-				OnboardingController.handleOnboardingProgress(msg.client,msg.author)
 				
-				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 				
 				const { data, error } = await supabase
 					.from('Users')
@@ -229,9 +227,10 @@ module.exports = {
 						msg.author.id,
 						data?.notificationId
 					)
-					msg.delete()
-					return
+					return msg.delete()
 				}
+				OnboardingController.handleOnboardingProgress(msg.client,msg.author)
+				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 
 				const splittedMessage = msg.content.trimStart().split('\n')
 				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
