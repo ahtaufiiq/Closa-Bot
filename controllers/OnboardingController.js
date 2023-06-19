@@ -183,15 +183,16 @@ class OnboardingController {
                             )
                         }, 1000 * 15);
                     }else if(data.body.goalId){
+                        OnboardingController.updateOnboardingStep(client,userId,'thirdQuest')
                         setTimeout(() => {
                             ChannelController.sendToNotification(
                                 client,
                                 OnboardingMessage.thirdQuest(userId),
                                 userId
                             )
-                            OnboardingController.updateOnboardingStep(client,userId,'thirdQuest')
                         }, 1000 * 15);
                     }else{
+                        OnboardingController.updateOnboardingStep(client,userId,'firstQuest')
                         setTimeout(() => {
                             ChannelController.sendToNotification(
                                 client,
@@ -206,6 +207,36 @@ class OnboardingController {
                     MemberController.addRole(client,userId,ROLE_ONBOARDING_PROGRESS),
                     MemberController.removeRole(client,userId,ROLE_ONBOARDING_COWORKING)
                 ])
+        }
+    }
+    static async handleOnboardingProgress(client,user){
+        const isHasRoleOnboardingProgress = await OnboardingController.isHasRoleOnboardingProgress(client,user.id)
+        if(isHasRoleOnboardingProgress){
+            MemberController.removeRole(client,user.id,ROLE_ONBOARDING_PROGRESS)
+            const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,user.id)
+            if(isHasRoleOnboardingCoworking){
+                OnboardingController.updateOnboardingStep(client,user.id,'secondQuest')
+                setTimeout(() => {
+                    ChannelController.sendToNotification(
+                        client,OnboardingMessage.secondQuest(user.id),user.id
+                    )
+                }, 1000 * 15);
+            }else{
+                OnboardingController.updateOnboardingStep(client,user.id,'done')
+                ReferralCodeController.addNewReferral(user.id,3)
+                OnboardingController.deleteReminderToStartOnboarding(user.id)
+                setTimeout(async () => {
+                    const files = []
+                    const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(user.id)
+                    const coverWhite = await GenerateImage.referralCover(totalReferralCode,user,false)
+                    files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${user.username}.png`}))
+                    ChannelController.sendToNotification(
+                        client,
+                        OnboardingMessage.completedQuest(user.id,files),
+                        user.id
+                    )
+                }, 1000 * 15);
+            }
         }
     }
 }
