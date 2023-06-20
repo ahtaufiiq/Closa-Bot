@@ -15,7 +15,7 @@ const { AttachmentBuilder } = require('discord.js');
 class OnboardingController {
 
     static async welcomeOnboarding(client,user){
-        await MemberController.addRole(client,user.id,ROLE_ONBOARDING_WELCOME)
+        
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
 		const msg = await channelNotifications.send(`${user}`)
         await supabase.from("Users")
@@ -29,8 +29,8 @@ class OnboardingController {
 				const msgGuideline = await thread.send(OnboardingMessage.guidelineInfoQuest(user.id,'firstQuest'))
                 GuidelineInfoController.addNewData(user.id,msgGuideline.id)
 			})
-        
-        
+        await MemberController.addRole(client,user.id,ROLE_ONBOARDING_WELCOME)
+        await MemberController.addRole(client,user.id,ROLE_ONBOARDING_PROJECT)
     }
 
     static async startOnboarding(interaction){
