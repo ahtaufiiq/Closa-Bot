@@ -85,10 +85,10 @@ then click continue to open access to more channels.`,
         }
     }
 
-    static firstQuest(){
+    static firstQuest(userId){
         return `:scroll: **Quest (1/3)**
         
-start working on your idea here → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}`
+Hi ${userMention(userId)}, start working on your idea here → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}`
     }
 
     static secondQuest(userId){
@@ -204,7 +204,6 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 **2.** Join coworking session to boost productivity & stay focused :man_technologist::woman_technologist::white_check_mark:
 -  first ⁠write 1 specific task you want to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
 -  then join the voice channel to cowork → ${channelMention(CHANNEL_CLOSA_CAFE)} (*default*)
-- or you can schedule a session on ⁠${channelMention(CHANNEL_CREATE_SESSION)} / ⁠${channelMention(CHANNEL_UPCOMING_SESSION)}
 
 **3.** ${channelMention(CHANNEL_TODO)} – post your progress in a story-telling format. 
 > *While you're at it give supportive reactions to others* :heart:

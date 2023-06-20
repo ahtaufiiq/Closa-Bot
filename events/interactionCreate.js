@@ -75,7 +75,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -98,19 +98,15 @@ module.exports = {
 						interaction.editReply(FocusSessionMessage.settings(focusRoomUser[interaction.user.id]?.breakReminder||50))
 						break;
 					case "onboardingFromGuideline":
-						const dataOnboarding = await supabase.from("Users")
-							.select('onboardingStep')
-							.eq('id',interaction.user.id)
+						const dataOnboarding = await supabase.from("GuidelineInfos")
+							.select('statusCompletedQuest,Users(onboardingStep)')
+							.eq('UserId',interaction.user.id)
 							.single()
-						const {onboardingStep} = dataOnboarding.body
-						if(onboardingStep === 'welcome' || onboardingStep === 'firstQuest'){
-							interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
-						}else if(onboardingStep === 'secondQuest'){
-							await interaction.editReply(OnboardingMessage.replySecondQuest())
-						}else if(onboardingStep === 'thirdQuest'){
-							await interaction.editReply(OnboardingMessage.replyThirdQuest())
-						}else{
+						const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.body
+						if(onboardingStep === 'done' || onboardingStep === null){
 							interaction.editReply("You've completed your onboarding quest previously ✅ ")
+						}else{
+							interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest))
 						}
 						break;
 					case 'replySecondQuest':
