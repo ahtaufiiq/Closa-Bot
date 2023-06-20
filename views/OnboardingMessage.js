@@ -16,8 +16,9 @@ class OnboardingMessage {
         }
         return iconStep
     }
-    static guidelineInfoQuest(userId,step,statusCompletedQuest){
-        const buttons = [MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️')]
+    static guidelineInfoQuest(userId,step,statusCompletedQuest,fromGuidelines=false){
+        const buttons = []
+        if(!fromGuidelines) buttons.push(MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'))
         const iconStep = OnboardingMessage.generateInitialIconStep(statusCompletedQuest)
 
         if(step === 'firstQuest') {
@@ -32,7 +33,7 @@ class OnboardingMessage {
         }
 
         return {
-            content:`Welcome to closa ${userMention(userId)}!
+            content:`${fromGuidelines ? `Here's your onboarding quest progress ${userMention(userId)}`:`Welcome to closa ${userMention(userId)}!`}
 
 \`\`\`complete the onboarding quests to boost your productivity 🚀\`\`\`
 ${iconStep[0]} **Quest 1** — set a goal & deadline for your ideas → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}
@@ -41,11 +42,12 @@ ${iconStep[2]} **Quest 3** — share your daily progress with others → ${Messa
 
 **Good luck! **
 
-\`\`if you want to learn more\`\` → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)} `,
+${fromGuidelines ? '' : `\`\`if you want to learn more\`\` → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`} `,
             components: [MessageComponent.createComponent(
                 ...buttons
             )]
         }
+
     }
 
     static welcomeMessage(userId){
@@ -214,8 +216,8 @@ The key to stay consistent when you're not feeling it:
 > *small progress is still progress* :sparkles:
 **↓**`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
                 MessageComponent.addButton(`onboardingFromGuideline`,"Check my quest"),
+                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
             )]
         }
     }

@@ -107,7 +107,7 @@ module.exports = {
 							if(onboardingStep === 'done' || onboardingStep === null){
 								interaction.editReply("You've completed your onboarding quest previously ✅ ")
 							}else{
-								interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest))
+								interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest,true))
 							}
 						}else{
 							interaction.editReply('redeem your referral code')
