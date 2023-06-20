@@ -122,7 +122,7 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
     }
 
     static replyThirdQuest(){
-        return `**copy & follow the template below then share your daily progress here** → ${MessageFormatting.tagChannel(CHANNEL_TODO)}:
+        return `**copy & follow the template below then share your daily progress here → ${MessageFormatting.tagChannel(CHANNEL_TODO)}:**
 \`\`\`
 ✅ Today:  *title of what you've done*
 
