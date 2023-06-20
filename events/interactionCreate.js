@@ -102,11 +102,15 @@ module.exports = {
 							.select('statusCompletedQuest,Users(onboardingStep)')
 							.eq('UserId',interaction.user.id)
 							.single()
-						const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.body
-						if(onboardingStep === 'done' || onboardingStep === null){
-							interaction.editReply("You've completed your onboarding quest previously ✅ ")
+						if(dataOnboarding.body){
+							const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.body
+							if(onboardingStep === 'done' || onboardingStep === null){
+								interaction.editReply("You've completed your onboarding quest previously ✅ ")
+							}else{
+								interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest))
+							}
 						}else{
-							interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest))
+							interaction.editReply('redeem your referral code')
 						}
 						break;
 					case 'replySecondQuest':
