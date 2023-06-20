@@ -1,4 +1,4 @@
-const { ButtonStyle, channelMention } = require("discord.js")
+const { ButtonStyle, channelMention, userMention } = require("discord.js")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK } = require("../helpers/config")
@@ -32,7 +32,7 @@ class OnboardingMessage {
         }
 
         return {
-            content:`Welcome to closa @user!
+            content:`Welcome to closa ${userMention(userId)}!
 
 \`\`\`complete the onboarding quests to boost your productivity 🚀\`\`\`
 ${iconStep[0]} **Quest 1** — set a goal & deadline for your ideas → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}
@@ -122,7 +122,7 @@ The final step, share your first progress! ${MessageFormatting.tagUser(userId)} 
     }
 
     static replyThirdQuest(){
-        return `**copy & follow the template below then share your daily progress here → ${MessageFormatting.tagChannel(CHANNEL_TODO)}:
+        return `**copy & follow the template below then share your daily progress here** → ${MessageFormatting.tagChannel(CHANNEL_TODO)}:
 \`\`\`
 ✅ Today:  *title of what you've done*
 
