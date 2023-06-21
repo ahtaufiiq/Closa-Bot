@@ -34,7 +34,10 @@ class OnboardingController {
                 GuidelineInfoController.addNewData(user.id,msgGuideline.id)
 			})
         
-        
+        supabase.from("Users")
+            .update({type:'new member'})
+            .eq('id',user.id)
+            .then()
     }
 
     static async startOnboarding(interaction){

@@ -89,7 +89,8 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
 					case "claimReward":
-						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value))
+						const inviteLink = await ReferralCodeController.generateInviteLink(interaction.client,targetUserId)
+						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value,inviteLink))
 						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))

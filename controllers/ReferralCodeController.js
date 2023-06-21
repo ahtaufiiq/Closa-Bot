@@ -7,8 +7,10 @@ const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const LocalData = require("../helpers/LocalData.js");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const GenerateImage = require("../helpers/GenerateImage");
-const {AttachmentBuilder } = require("discord.js");
+const {AttachmentBuilder, Collection } = require("discord.js");
 const MemberController = require("./MemberController");
+const { CHANNEL_GUIDELINE, GUILD_ID } = require("../helpers/config");
+const MessageFormatting = require("../helpers/MessageFormatting");
 class ReferralCodeController{
     static showModalRedeem(interaction){
         if(interaction.customId === 'redeem'){
@@ -32,20 +34,72 @@ class ReferralCodeController{
     }
 
     static async interactionClaimReferral(interaction,targetUserId){
-        if (interaction.user.id !== targetUserId) {
+        if (interaction.user.id !== targetUserId && targetUserId !== null) {
             await interaction.editReply("⚠️ Can't claim other people's referrals")
             return
         }
-        const dataReferral = await ReferralCodeController.getReferrals(targetUserId)
-        if (dataReferral) {
-            if (dataReferral.allReferralAlreadyBeenRedeemed) {
-                await interaction.editReply(ReferralCodeMessage.allReferralAlreadyBeenRedeemed())
-            }else{
-                await interaction.editReply(ReferralCodeMessage.showReferralCode(targetUserId,dataReferral.referralCode))
-                ReferralCodeController.updateIsClaimed(targetUserId)
-            }
+        const [inviteLink,totalInvite] = await Promise.all([
+            ReferralCodeController.generateInviteLink(interaction.client,targetUserId),
+            ReferralCodeController.getTotalInvited(targetUserId)
+        ])
+        const files = []
+        const [whiteCover,darkCover] = await Promise.all([
+            GenerateImage.referralCover(interaction.user,false),
+            GenerateImage.referralCover(interaction.user,true),
+        ])
+        files.push(new AttachmentBuilder(whiteCover,{name:`referral_cover_${interaction.user.username}.png`}))
+        files.push(new AttachmentBuilder(darkCover,{name:`referral_cover_${interaction.user.username}.png`}))
+        await interaction.editReply(ReferralCodeMessage.replyInviteFriends(inviteLink,totalInvite,files))
+    }
+
+    static async generateInviteLink(client,UserId){
+        const dataUser = await supabase.from('Users')
+            .select('inviteCode')
+            .eq('id',UserId)
+            .single()
+        if(dataUser.body?.inviteCode){
+            return MessageFormatting.inviteLink(dataUser.body.inviteCode)
         }else{
-            await interaction.editReply(ReferralCodeMessage.dontHaveReferralCode())
+            let invite = await ChannelController.getChannel(client,CHANNEL_GUIDELINE).createInvite({
+                maxAge:0,
+                unique:true,
+                reason: 'invite link',
+            })
+            const inviteLink = MessageFormatting.inviteLink(invite.code)
+            supabase.from('Users')
+                .update({inviteCode:invite.code})
+                .eq('id',UserId)
+                .then()
+            return inviteLink
+        }
+    }
+
+    static async incrementTotalInvite(inviteCode){
+        const {data:totalInvite} = await supabase
+        .rpc('incrementTotalInvite', { invite_code:inviteCode })
+        
+        return totalInvite
+    }
+
+    static async cachingAllInviteLink(client,invites){
+        const firstInvites = await client.guilds.cache.get(GUILD_ID).invites.fetch();
+        for (const [inviteCode,invite] of firstInvites) {
+            invites.set(inviteCode,invite.uses)
+            await Time.wait()
+            await this.deleteInviteLink(client,inviteCode)
+        }
+    }
+
+    static async deleteInviteLink(client,inviteCode){
+        try {
+            const invite = await client.guilds.cache.get(GUILD_ID).invites.fetch(inviteCode)
+		    await invite.delete()
+            await supabase.from('Users')
+                .update({inviteCode:null})
+                .eq('inviteCode',inviteCode)
+                .single()
+        } catch (error) {
+            ChannelController.sendError(error,'delete invite link')
         }
     }
 
@@ -54,7 +108,6 @@ class ReferralCodeController{
             await interaction.editReply("⚠️ Can't claim other people's referrals")
             return
         }
-
         const referralCodes = ReferralCodeController.getActiveReferralCodeFromMessage(interaction.message.content)
         
         if (referralCodes.length > 0) {
@@ -278,12 +331,11 @@ class ReferralCodeController{
     }
 
     static async getTotalInvited(userId){
-        const {data,count} = await supabase.from("Referrals")   
-            .select('id', { count: 'exact' })
-            .eq('isRedeemed',true)
-            .eq('UserId',userId)
-        return count
-
+        const {data} = await supabase.from("Users")   
+            .select('totalInvite')
+            .eq('id',userId)
+            .single()
+        return data.totalInvite
     }
 
     static async getTotalDays(userId) {

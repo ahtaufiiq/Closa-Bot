@@ -129,12 +129,6 @@ module.exports = {
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
-
-					supabase.from("Users")
-						.update({type:'new member'})
-						.eq('id',modal.user.id)
-						.then()
-				
 				}else{
 					switch (response.description) {
 						case "redeemed":

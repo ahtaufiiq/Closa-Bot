@@ -7,6 +7,48 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 
 class ReferralCodeMessage{
 
+    static infoReferralReward(){
+        return {
+            content:`Invite friends by using your referral link to help us grow the community.
+Unlock interesting rewards!`,
+            files:['./assets/images/referral_reward_banner.png'],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`claimReferral_null_ephemeral`,'Invite Friends','🎁',"PRIMARY"),
+                MessageComponent.addLinkButton('Learn more','https://www.notion.so/closa/Rewards-eb377188f4024233bd2011b1f9259654')
+            )]
+        }
+    }
+
+    static replyInviteFriends(inviteLink,totalInvited,files){
+        return {
+            files,
+            content:`**Invite friends** with your referral link to help us grow the community.
+Unlock interesting rewards! :gift:
+
+Your referral link  :link: 
+\`\`\`
+${inviteLink}
+\`\`\`
+Or copy & share the template below :clipboard:
+\`\`\`
+**I'm inviting you to join closa** → ${inviteLink}
+
+A smart discord server to work on your ideas from start to finish. 
+You can join daily coworking, meet new friends, & boost productivity.
+
+Let's stay productive together! 
+\`\`\`
+Your status:
+\`\`\`
+${totalInvited} Friends Invited 🎁
+\`\`\`
+.`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Share to Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`),
+            )]
+        }
+    }
+
     static infoRedeemReferral(){
         return {
             content:`**Redeem your referral code to early get access here:**`,
@@ -70,6 +112,11 @@ Get early access & stay productive together:
 ${referralCodes.join("\n").substring(0,208)}
 
 Redeem it here → https://closa.me/referral🎁`
+    }
+    static templateShareTwitterInviteLink(inviteLink){
+        return `... @joinclosa
+
+join closa → ${inviteLink}`
     }
 
     static allReferralAlreadyBeenRedeemed(){
