@@ -86,7 +86,6 @@ class ReferralCodeController{
         for (const [inviteCode,invite] of firstInvites) {
             invites.set(inviteCode,invite.uses)
             await Time.wait()
-            await this.deleteInviteLink(client,inviteCode)
         }
     }
 
