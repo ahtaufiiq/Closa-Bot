@@ -226,10 +226,10 @@ The key to stay consistent when you're not feeling it:
         }
     }
 
-    static replySetReminderCoworking(UserId,time){
+    static replySetReminderCoworking(UserId,time,isMoreThanTenMinutes){
         return `your coworking time scheduled at ${time} ${userMention(UserId)} ✅
 
-*i'll remind you 10 minutes before the schedule begin*`
+${isMoreThanTenMinutes ? "*i'll remind you 10 minutes before the schedule begin*" : ''}`
     }
 
     static reminderCoworking(UserId,time){

@@ -57,8 +57,8 @@ module.exports = {
 
 				date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
 				date.setMinutes(minutes)
-				const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
-				if(isLessThanTenMinutes) date.setMinutes(minutes-10)
+				const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
+				if(isMoreThanTenMinutes) date.setMinutes(minutes-10)
 				
 				supabase.from('Reminders')
 					.insert({
@@ -71,7 +71,7 @@ module.exports = {
 				schedule.scheduleJob(date,async function () {
 					ChannelController.sendToNotification(modal.client,OnboardingMessage.reminderCoworking(modal.user.id,reminderTime),modal.user.id)
 				})
-				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,reminderTime))
+				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,reminderTime,isMoreThanTenMinutes))
 			}else if(commandButton === 'settingBreakReminder'){
 				await modal.deferReply({ephemeral:true})
 				const breakTime = modal.getTextInputValue('breakTime');
@@ -589,8 +589,8 @@ The correct format:
 
 					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
 					date.setMinutes(minutes)
-					const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
-					if(isLessThanTenMinutes) date.setMinutes(minutes-10)
+					const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
+					if(isMoreThanTenMinutes) date.setMinutes(minutes-10)
 					
 					supabase.from('Reminders')
 						.insert({
