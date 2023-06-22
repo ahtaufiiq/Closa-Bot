@@ -1,11 +1,54 @@
-const { EmbedBuilder, MessageActionRow, SelectMenuInteraction, MessageSelectMenu, AttachmentBuilder } = require("discord.js")
+const { EmbedBuilder, MessageActionRow, SelectMenuInteraction, MessageSelectMenu, AttachmentBuilder, roleMention } = require("discord.js")
 const ChannelController = require("../controllers/ChannelController")
-const { CHANNEL_WELCOME } = require("../helpers/config")
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
+const { userMention } = require("discord.js")
 
 class ReferralCodeMessage{
+
+    static infoReferralReward(){
+        return {
+            content:`Invite friends by using your referral link to help us grow the community.
+Unlock interesting rewards!`,
+            files:['./assets/images/referral_reward_banner.png'],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`claimReferral_null_ephemeral`,'Invite Friends','🎁',"PRIMARY"),
+                MessageComponent.addLinkButton('Learn more','https://www.notion.so/closa/Rewards-eb377188f4024233bd2011b1f9259654')
+            )]
+        }
+    }
+
+    static replyInviteFriends(inviteLink,totalInvited,files){
+        return {
+            files,
+            content:`**Invite friends** with your referral link to help us grow the community.
+Unlock interesting rewards! :gift:
+
+Copy & share your referral link below 🔗
+\`\`\`
+${inviteLink}
+\`\`\`
+Or copy & share the template below :clipboard:
+\`\`\`
+**I'm inviting you to join closa** → ${inviteLink}
+
+A smart discord server to work on your ideas from start to finish. 
+You can join daily coworking, meet new friends, & boost productivity.
+
+Let's stay productive together! 
+\`\`\`
+Your status:
+\`\`\`
+${totalInvited} Friends Invited 🎁
+\`\`\`
+.`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Share to Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
+            )]
+        }
+    }
 
     static infoRedeemReferral(){
         return {
@@ -17,7 +60,7 @@ class ReferralCodeMessage{
                     MessageComponent.addLinkButton(
                         'Find on twitter',
                         "https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode"
-                    )
+                    ).setEmoji({id:'1000905823368794214',name:'twitterlogo'})
                 )
             ] 
         }
@@ -58,7 +101,7 @@ Your friends can redeem it via https://closa.me/referral
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`generateReferral_${userId}`,'Ticket','💌',"PRIMARY"),
                 MessageComponent.addEmojiButton(`generateReferralCover_${userId}`,'Invites Cover','✨',"SECONDARY"),
-                MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral))}`)
+                MessageComponent.addLinkButton("Share on twitter",`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterReferralCode(dataReferral))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'})
             )]
         }
     }
@@ -70,6 +113,11 @@ Get early access & stay productive together:
 ${referralCodes.join("\n").substring(0,208)}
 
 Redeem it here → https://closa.me/referral🎁`
+    }
+    static templateShareTwitterInviteLink(inviteLink){
+        return `... @joinclosa
+
+join closa → ${inviteLink}`
     }
 
     static allReferralAlreadyBeenRedeemed(){
@@ -138,7 +186,7 @@ Share it to your friends instead 😄`
             content:"⚠️ Invalid referral code",
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode").setEmoji({id:'1000905823368794214',name:'twitterlogo'})
                 )
             ] 
         }
@@ -148,7 +196,7 @@ Share it to your friends instead 😄`
             content:"⚠️ This code already redeemed before. Use other code.",
             components: [
                 MessageComponent.createComponent(
-                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode")
+                    MessageComponent.addLinkButton("Find on twitter","https://twitter.com/intent/tweet?text=Hi+I+am+looking+for+Closa+referral+code.%0D%0Ais+anyone+mind+to+share+the+code%3F%0D%0A%0D%0Acc%3A+%40joinclosa+%23closacode").setEmoji({id:'1000905823368794214',name:'twitterlogo'})
                 )
             ] 
         }
@@ -166,13 +214,41 @@ this will help us grow & provide better experience for you.`,
             components: [
                 MessageComponent.createComponent(MessageComponent.addEmojiButton(`claimReferral_${userId}`,`Claim`,"🎁","PRIMARY"))
             ] 
-            }
+        }
     }
 
     static successGenerateReferralCover(files){
         return {
             content:`**💌 Share to your friends or network using invites cover below:**\nalso feel free to tag \`\`@joinclosa\`\`, we will help you spread your referral.`,
             files
+        }
+    }
+
+    static levelUpBecomeMember(UserId){
+        return {
+            content:`Hi ${userMention(UserId)} thank you for staying productive at closa!`,
+			embeds:[MessageComponent.embedMessage({
+				title:"You just level up!",
+				description:`you just level up from ${roleMention(ROLE_NEW_MEMBER)} to ${roleMention(ROLE_MEMBER)} role
+let's keep it going & also feel free to give \`\`early access\`\` to your friends 🎁`
+			})],
+			components:[MessageComponent.createComponent(
+				MessageComponent.addEmojiButton(`claimReferral_${UserId}`,`Invite Friends`,"🎁","PRIMARY")
+			)]
+		}
+    }
+
+    static appreciationForActiveUser(UserId){
+        return {
+            content:`It's DAY 12 of you sharing progress at closa ${userMention(UserId)} 🎉
+
+Thank you for being active & progressive on our community!
+Feel free to give \`\`early access\`\` to your friends :smile:
+
+this will help us grow & provide better experience for you over time.`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`claimReferral_${UserId}`,`Invite Friends`,"🎁","PRIMARY")
+            )]
         }
     }
 }

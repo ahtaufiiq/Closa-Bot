@@ -47,7 +47,32 @@ module.exports = {
 	async execute(modal,focusRoomUser) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-			if(commandButton === 'settingBreakReminder'){
+			if (commandButton === 'reminderCoworking') {
+				await modal.deferReply({ephemeral:true});
+				const schedule = modal.getTextInputValue('schedule');
+				const differentTime = schedule.toLowerCase().includes(' wita') ? -1 : schedule.toLowerCase().includes(' wit') ? -2 : 0
+				const time = Time.getTimeFromText(schedule)
+				const [hours,minutes] = time.split(/[.:]/)
+				const date = new Date()
+
+				date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+				date.setMinutes(minutes)
+				const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
+				if(isLessThanTenMinutes) date.setMinutes(minutes-10)
+				
+				supabase.from('Reminders')
+					.insert({
+						message:taskName,
+						time:date,
+						UserId:modal.user.id,
+					})
+					.then()
+
+				schedule.scheduleJob(date,async function () {
+					ChannelController.sendToNotification(modal.client,OnboardingMessage.reminderCoworking(modal.user.id,schedule),modal.user.id)
+				})
+				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,schedule))
+			}else if(commandButton === 'settingBreakReminder'){
 				await modal.deferReply({ephemeral:true})
 				const breakTime = modal.getTextInputValue('breakTime');
 				const totalMinute = Time.getTotalMinutes(breakTime)
@@ -129,12 +154,6 @@ module.exports = {
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
-
-					supabase.from("Users")
-						.update({type:'new member'})
-						.eq('id',modal.user.id)
-						.then()
-				
 				}else{
 					switch (response.description) {
 						case "redeemed":

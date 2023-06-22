@@ -10,7 +10,7 @@ const GuidelineInfoController = require('./GuidelineInfoController');
 const UserController = require('./UserController');
 const ReferralCodeController = require('./ReferralCodeController');
 const GenerateImage = require('../helpers/GenerateImage');
-const { AttachmentBuilder } = require('discord.js');
+const { AttachmentBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 class OnboardingController {
 
@@ -34,7 +34,10 @@ class OnboardingController {
                 GuidelineInfoController.addNewData(user.id,msgGuideline.id)
 			})
         
-        
+        supabase.from("Users")
+            .update({type:'new member'})
+            .eq('id',user.id)
+            .then()
     }
 
     static async startOnboarding(interaction){
@@ -173,8 +176,7 @@ class OnboardingController {
                         OnboardingController.deleteReminderToStartOnboarding(userId)
                         setTimeout(async () => {
                             const files = []
-                            const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(userId)
-                            const coverWhite = await GenerateImage.referralCover(totalReferralCode,user,false)
+                            const coverWhite = await GenerateImage.referralCover(user,false)
                             files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${user.username}.png`}))
                             ChannelController.sendToNotification(
                                 client,
@@ -227,8 +229,7 @@ class OnboardingController {
                 OnboardingController.deleteReminderToStartOnboarding(user.id)
                 setTimeout(async () => {
                     const files = []
-                    const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(user.id)
-                    const coverWhite = await GenerateImage.referralCover(totalReferralCode,user,false)
+                    const coverWhite = await GenerateImage.referralCover(user,false)
                     files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${user.username}.png`}))
                     ChannelController.sendToNotification(
                         client,
@@ -238,6 +239,22 @@ class OnboardingController {
                 }, 1000 * 15);
             }
         }
+    }
+
+    static showModalReminderCoworking(interaction){
+        if(interaction.customId === 'reminderCoworking'){
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Schedule your coworking 👨‍💻👩‍💻✅")
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('schedule').setLabel("Schedule time").setStyle(TextInputStyle.Short).setPlaceholder('ex: 21.00 ').setRequired(true))
+            )
+            
+			interaction.showModal(modal);
+			return true
+		}
+        return false
     }
 }
 

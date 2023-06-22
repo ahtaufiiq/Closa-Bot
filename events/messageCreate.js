@@ -33,6 +33,7 @@ const TestimonialMessage = require("../views/TestimonialMessage");
 const AchievementBadgeController = require("../controllers/AchievementBadgeController");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const UserController = require("../controllers/UserController");
+const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -247,9 +248,6 @@ module.exports = {
 					type:"progress"
 				})
 				
-				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author)
-				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then(async (data) => {
@@ -266,7 +264,7 @@ module.exports = {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
 						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author)}).eq('id',msg.author.id).then()
-						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
+						if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
 					}
 					
 					return supabase.from("Users")
@@ -323,16 +321,30 @@ module.exports = {
 						longestStreak, 
 						totalDay ,
 						totalPoint, 
-						endLongestStreak
+						endLongestStreak,
+						totalDaysThisCohort
 					} = data.body
 
 					if(totalDay === 20){
 						await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
 						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+						ChannelController.sendToNotification(
+							msg.client,
+							ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
+							msg.author.id
+						)
 						supabase.from("Users")
 							.update({type:'member'})
 							.eq('id',msg.author.id)
 							.then()
+					}
+
+					if(totalDaysThisCohort === 12 && !Time.isCooldownPeriod()){
+						ChannelController.sendToNotification(
+							msg.client,
+							ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
+							msg.author.id
+						)
 					}
 					
 					if (goalName) {
