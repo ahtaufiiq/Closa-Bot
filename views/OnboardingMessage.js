@@ -100,16 +100,20 @@ Hi ${userMention(userId)}, start working on your idea here → ${MessageFormatti
 Now, join or schedule a coworking session to work on your project ${MessageFormatting.tagUser(userId)}`,
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('replySecondQuest','Join'),
+                MessageComponent.addButton('replySecondQuest','Join now'),
+                MessageComponent.addButton(`reminderCoworking`,"I'll join later").setStyle(ButtonStyle.Secondary),
                 MessageComponent.addLinkButton('Watch video (2 mins)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30').setEmoji('▶️')
             )]
         }
     }
 
-    static replySecondQuest(){
-        return `**Join coworking session here:**
-• join now → ${MessageFormatting.tagChannel(CHANNEL_CLOSA_CAFE)}
-• or see schedule → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}`
+    static replySecondQuest(userId){
+        return `Here's how to join a coworking session ${userMention(userId)}:
+1. Write 1 specific task you want to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
+2. Join → ${channelMention(CHANNEL_CLOSA_CAFE)} / available voice channel
+3. Then turn on camera :camera_with_flash: __or__ share your screen :desktop: 
+
+\`\`rules:\`\` *if you turning-on camera, make sure people can see you.*`
     }
 
     static thirdQuest(userId){
@@ -220,6 +224,18 @@ The key to stay consistent when you're not feeling it:
                 MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
             )]
         }
+    }
+
+    static replySetReminderCoworking(UserId,time){
+        return `your coworking time scheduled at ${time} ${userMention(UserId)} ✅
+
+*i'll remind you 10 minutes before the schedule begin*`
+    }
+
+    static reminderCoworking(UserId,time){
+        return `Hi ${userMention(UserId)}, reminder to join the coworking session at ${time}
+1. Join → ${channelMention(CHANNEL_CLOSA_CAFE)} / available voice channel.
+2. then set your ${channelMention(CHANNEL_SESSION_GOAL)}`
     }
 }
 

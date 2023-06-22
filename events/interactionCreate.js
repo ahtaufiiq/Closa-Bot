@@ -70,6 +70,7 @@ module.exports = {
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
+				if(OnboardingController.showModalReminderCoworking(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
@@ -115,7 +116,7 @@ module.exports = {
 						}
 						break;
 					case 'replySecondQuest':
-						await interaction.editReply(OnboardingMessage.replySecondQuest())
+						await interaction.editReply(OnboardingMessage.replySecondQuest(interaction.user.id))
 						break;
 					case 'replyThirdQuest':
 						await interaction.editReply(OnboardingMessage.replyThirdQuest())
@@ -730,13 +731,41 @@ module.exports = {
 					}
 				}else if(commandMenu === 'buyVacationTicket' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject"){
+				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case 'selectPreferredCoworkingTime':
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select preferred daily coworking time someone else.**`,ephemeral:true})
+						if(valueMenu === 'custom'){
+							GoalController.showModalPreferredCoworkingTime(interaction)
+						}else{
+							await interaction.deferReply()
+							let preferredCoworkingTime = valueMenu
+							try {
+								if(preferredCoworkingTime){
+									const date = Time.getDate()
+									const [hours,minutes] = preferredCoworkingTime.split(/[.:]/)
+									date.setHours(hours ,minutes-30)
+									const time = `${date.getHours()}.${date.getMinutes()}`
+									
+									ReminderController.setHighlightReminder(interaction.client,time,interaction.user.id)
+									supabase.from("Users")
+										.update({preferredCoworkingTime})
+										.eq('id',interaction.user.id)
+										.then()
+								}
+								const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
+								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id))
+								ChannelController.deleteMessage(interaction.message)
+							} catch (error) {
+								ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+							}
+						}
+						break;
 					case 'setDailyWorkTime':
 						if(valueMenu === 'custom'){
 							GoalController.showModalCustomDailyWorkTime(interaction)

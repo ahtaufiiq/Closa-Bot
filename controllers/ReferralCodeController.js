@@ -142,8 +142,8 @@ class ReferralCodeController{
         if (totalReferralCode > 0) {
             const files = []
             const [coverBlack,coverWhite] = await Promise.all([
-                GenerateImage.referralCover(totalReferralCode,interaction.user),
-                GenerateImage.referralCover(totalReferralCode,interaction.user,false)
+                GenerateImage.referralCover(interaction.user),
+                GenerateImage.referralCover(interaction.user,false)
             ])
             files.push(new AttachmentBuilder(coverBlack,{name:`referral_cover_${interaction.user.username}.png`}))
             files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${interaction.user.username}.png`}))
@@ -193,7 +193,7 @@ class ReferralCodeController{
         .then(async data=>{
             const isAdditionalReferral = totalActiveReferral > 0
             const {id:userId,notificationId} = data.body
-            const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+            const bufferReferralCover = await GenerateImage.referralCover(user)
             const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
             ChannelController.sendToNotification(
                 client,
@@ -226,8 +226,7 @@ class ReferralCodeController{
         await supabase.from("Referrals")
             .insert(values)
 
-        const totalActiveReferral = await ReferralCodeController.getTotalActiveReferral(userId)
-        const bufferReferralCover = await GenerateImage.referralCover(totalActiveReferral,user)
+        const bufferReferralCover = await GenerateImage.referralCover(user)
         const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
         ChannelController.sendToNotification(
             client,
