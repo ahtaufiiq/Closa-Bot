@@ -49,9 +49,9 @@ module.exports = {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
 			if (commandButton === 'reminderCoworking') {
 				await modal.deferReply({ephemeral:true});
-				const schedule = modal.getTextInputValue('schedule');
-				const differentTime = schedule.toLowerCase().includes(' wita') ? -1 : schedule.toLowerCase().includes(' wit') ? -2 : 0
-				const time = Time.getTimeFromText(schedule)
+				const reminderTime = modal.getTextInputValue('schedule');
+				const differentTime = reminderTime.toLowerCase().includes(' wita') ? -1 : reminderTime.toLowerCase().includes(' wit') ? -2 : 0
+				const time = Time.getTimeFromText(reminderTime)
 				const [hours,minutes] = time.split(/[.:]/)
 				const date = new Date()
 
@@ -62,16 +62,16 @@ module.exports = {
 				
 				supabase.from('Reminders')
 					.insert({
-						message:schedule,
+						message:reminderTime,
 						time:date,
 						UserId:modal.user.id,
 					})
 					.then()
 
 				schedule.scheduleJob(date,async function () {
-					ChannelController.sendToNotification(modal.client,OnboardingMessage.reminderCoworking(modal.user.id,schedule),modal.user.id)
+					ChannelController.sendToNotification(modal.client,OnboardingMessage.reminderCoworking(modal.user.id,reminderTime),modal.user.id)
 				})
-				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,schedule))
+				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,reminderTime))
 			}else if(commandButton === 'settingBreakReminder'){
 				await modal.deferReply({ephemeral:true})
 				const breakTime = modal.getTextInputValue('breakTime');
