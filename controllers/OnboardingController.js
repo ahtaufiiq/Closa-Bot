@@ -183,6 +183,7 @@ class OnboardingController {
                                 OnboardingMessage.completedQuest(userId,files),
                                 userId
                             )
+                            await MemberController.addRole(client,userId,ROLE_NEW_MEMBER)
                         }, 1000 * 15);
                     }else if(data.body.goalId){
                         OnboardingController.updateOnboardingStep(client,userId,'thirdQuest')
@@ -205,16 +206,12 @@ class OnboardingController {
                     }
                 })
 
-                await Promise.all([
-                    MemberController.addRole(client,userId,ROLE_ONBOARDING_PROGRESS),
-                    MemberController.removeRole(client,userId,ROLE_ONBOARDING_COWORKING)
-                ])
+                await MemberController.removeRole(client,userId,ROLE_ONBOARDING_COWORKING)
         }
     }
     static async handleOnboardingProgress(client,user){
         const isHasRoleOnboardingProgress = await OnboardingController.isHasRoleOnboardingProgress(client,user.id)
         if(isHasRoleOnboardingProgress){
-            MemberController.removeRole(client,user.id,ROLE_ONBOARDING_PROGRESS)
             const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,user.id)
             if(isHasRoleOnboardingCoworking){
                 OnboardingController.updateOnboardingStep(client,user.id,'secondQuest')
@@ -238,6 +235,7 @@ class OnboardingController {
                     )
                 }, 1000 * 15);
             }
+            await MemberController.removeRole(client,user.id,ROLE_ONBOARDING_PROGRESS)
         }
     }
 
