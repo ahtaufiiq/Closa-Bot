@@ -62,7 +62,7 @@ module.exports = {
 				
 				supabase.from('Reminders')
 					.insert({
-						message:taskName,
+						message:schedule,
 						time:date,
 						UserId:modal.user.id,
 					})
