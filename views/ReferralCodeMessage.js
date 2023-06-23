@@ -115,7 +115,7 @@ ${referralCodes.join("\n").substring(0,208)}
 Redeem it here → https://closa.me/referral🎁`
     }
     static templateShareTwitterInviteLink(inviteLink){
-        return `**I'm inviting you to join closa** → ${inviteLink}
+        return `I'm inviting you to join closa → ${inviteLink}
 
 A smart discord server to work on your ideas from start to finish. 
 You can join daily coworking, meet new friends, & boost productivity.

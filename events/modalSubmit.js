@@ -102,7 +102,7 @@ module.exports = {
 					.then()
 				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id))
 				ChannelController.deleteMessage(modal.message)
-			}else if(commandButton === 'scheduledCoworkingTimeGoal'){
+			}else if(commandButton === 'scheduledCoworkingTimeGoal' || commandButton === 'selectPreferredCoworkingTime'){
 				GoalController.modalSubmitPreferredCoworkingTime(modal)
 			}else if(commandButton === 'addNewProject'){
 				await modal.deferReply()

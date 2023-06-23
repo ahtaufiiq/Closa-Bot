@@ -48,16 +48,14 @@ module.exports = {
 			.select('id')
 			.eq('inviteCode',invite.code)
 			.single()
-		if(dataUser.body){
-			const UserId = dataUser.body.id
-			GuidelineInfoController.updateMessageGuideline(member.client,UserId)
-			const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
-			const referrer = await MemberController.getMember(member.client,UserId)
-			setTimeout(async () => {
-				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
-				ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
-			}, 1000 * 15);
 			
-		}
+		const UserId = dataUser.body?.id || '449853586508349440'
+		GuidelineInfoController.updateMessageGuideline(member.client,UserId)
+		const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
+		const referrer = await MemberController.getMember(member.client,UserId)
+		setTimeout(async () => {
+			const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
+			ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
+		}, 1000 * 15);
 	},
 };
