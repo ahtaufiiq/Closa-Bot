@@ -155,8 +155,9 @@ module.exports = {
 			)
 			interaction.editReply(inviteLink)
 			targetUser.send(inviteLink)
-			setTimeout(() => {
-				targetUser.kick()
+			setTimeout(async() => {
+				const user = await MemberController.getMember(interaction.client,targetUser.id)
+				user.kick()
 			}, 1000 * 5);
 			
 		}else if(command === 'update__goal'){
