@@ -149,8 +149,8 @@ after sharing your progress, give supportive reactions to others as well ❤️`
             content:`Congratulation ${MessageFormatting.tagUser(userId)}!
 you just completed your quest :partying_face::tada:
 
-now you have \`\`3 invite codes\`\` :gift: 
-feel free to give your friends early access to closa`,
+now you have invite code to give your friend \`\`early access\`\` to closa :gift: 
+feel free to invite your friends to closa!`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`claimReferral_${userId}`,'Invite Friends','🎁')
             )]

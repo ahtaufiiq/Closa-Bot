@@ -179,7 +179,7 @@ note: **this reward only valid until 23.59 WIB today**`,
 
 We'll reply to your post & celebrate together! 🥳`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
+                MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTagClosa(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
                 MessageComponent.addButton(`submitTestimonialAchievement_${UserId}_${value}`,"Submit link"),
             )]
         }

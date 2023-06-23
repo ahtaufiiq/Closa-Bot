@@ -11,7 +11,7 @@ class ReferralCodeMessage{
     static infoReferralReward(){
         return {
             content:`Invite friends by using your referral link to help us grow the community.
-Unlock interesting rewards!`,
+Unlock interesting rewards! (*the reward will be revealed later*)`,
             files:['./assets/images/referral_reward_banner.png'],
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`claimReferral_null_ephemeral`,'Invite Friends','🎁',"PRIMARY"),
@@ -24,7 +24,7 @@ Unlock interesting rewards!`,
         return {
             files,
             content:`**Invite friends** with your referral link to help us grow the community.
-Unlock interesting rewards! :gift:
+Unlock interesting rewards! :gift: (*the reward will be revealed later*)
 
 Copy & share your referral link below 🔗
 \`\`\`
@@ -43,7 +43,7 @@ Your status:
 \`\`\`
 ${totalInvited} Friends Invited 🎁
 \`\`\`
-.`,
+feel free to use the image below when sharing your invite links:`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkButton('Share to Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
             )]
@@ -115,6 +115,15 @@ ${referralCodes.join("\n").substring(0,208)}
 Redeem it here → https://closa.me/referral🎁`
     }
     static templateShareTwitterInviteLink(inviteLink){
+        return `**I'm inviting you to join closa** → ${inviteLink}
+
+A smart discord server to work on your ideas from start to finish. 
+You can join daily coworking, meet new friends, & boost productivity.
+
+Let's stay productive together! `
+    }
+
+    static templateShareTagClosa(inviteLink){
         return `... @joinclosa
 
 join closa → ${inviteLink}`
