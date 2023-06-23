@@ -154,8 +154,9 @@ module.exports = {
 				targetUser.id === MY_ID ? '449853586508349440' : MY_ID
 			)
 			interaction.editReply(inviteLink)
+			targetUser.send(inviteLink)
 			setTimeout(() => {
-				user.kick()
+				targetUser.kick()
 			}, 1000 * 5);
 			
 		}else if(command === 'update__goal'){
