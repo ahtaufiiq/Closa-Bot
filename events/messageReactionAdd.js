@@ -37,7 +37,7 @@ module.exports = {
 			let invite = await ChannelController.getChannel(client,CHANNEL_GUIDELINE).createInvite({
                 maxAge:2_592_000,
                 unique:true,
-				maxUses:1,
+				maxUses:2,
                 reason: 'invite link',
             })
 			

@@ -1,4 +1,4 @@
-const { EmbedBuilder, channelMention } = require("discord.js")
+const { EmbedBuilder, channelMention, userMention } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_GOALS } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -47,7 +47,7 @@ For the project deadline you can follow:
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
         return {
-            content:`**How much time you want to work daily on your project?**`,
+            content:`**How much time you want to work daily on your project?** ${userMention(userId)}`,
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 

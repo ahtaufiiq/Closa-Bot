@@ -36,6 +36,7 @@ class OnboardingMessage {
             content:`${fromGuidelines ? `Here's your onboarding quest progress ${userMention(userId)}`:`Welcome to closa ${userMention(userId)}!`}
 
 \`\`\`complete the onboarding quests to boost your productivity 🚀\`\`\`
+✅ **Quest 0** — Joined closa discord server.
 ${iconStep[0]} **Quest 1** — set a goal & deadline for your ideas → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}
 ${iconStep[1]} **Quest 2** — join coworking session to stay focused → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
 ${iconStep[2]} **Quest 3** — share your daily progress with others → ${MessageFormatting.tagChannel(CHANNEL_TODO)} (*complete quest 1 first*)
@@ -201,7 +202,11 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
     static guidelines(){
         return {
-            content:`\`\`\`HOW TO USE CLOSA TO BOOST YOUR PRODUCTIVITY\`\`\`
+            content:`**Welcome to closa!**
+> a place to work on your ideas from start to finish alongside other creators.
+> join daily coworking, meet friends, & boost productivity.
+            
+\`\`\`HOW TO USE CLOSA TO BOOST YOUR PRODUCTIVITY\`\`\`
 **⁠1.** Start working on your ideas & set goal → ${channelMention(CHANNEL_START_PROJECT)} :dart: 
 
 **Repeat step 2 & 3 every day** :repeat: 

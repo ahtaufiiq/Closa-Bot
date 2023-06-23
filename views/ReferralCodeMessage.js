@@ -14,8 +14,7 @@ class ReferralCodeMessage{
 Unlock interesting rewards! (*the reward will be revealed later*)`,
             files:['./assets/images/referral_reward_banner.png'],
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`claimReferral_null_ephemeral`,'Invite Friends','🎁',"PRIMARY"),
-                MessageComponent.addLinkButton('Learn more','https://www.notion.so/closa/Rewards-eb377188f4024233bd2011b1f9259654')
+                MessageComponent.addEmojiButton(`claimReferral_null_ephemeral`,'Invite Friends','🎁',"PRIMARY")
             )]
         }
     }
@@ -45,7 +44,7 @@ ${totalInvited} Friends Invited 🎁
 \`\`\`
 feel free to use the image below when sharing your invite links:`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Share to Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
+                MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
             )]
         }
     }
