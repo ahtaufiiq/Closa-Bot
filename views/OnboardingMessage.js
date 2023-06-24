@@ -36,14 +36,14 @@ class OnboardingMessage {
             content:`${fromGuidelines ? `Here's your onboarding quest progress ${userMention(userId)}`:`Welcome to closa ${userMention(userId)}!`}
 
 \`\`\`complete the onboarding quests to boost your productivity 🚀\`\`\`
-✅ **Quest 0** — Joined closa discord server.
+✅ **Quest 0** — joined closa discord server.
 ${iconStep[0]} **Quest 1** — set a goal & deadline for your ideas → ${MessageFormatting.tagChannel(CHANNEL_START_PROJECT)}
 ${iconStep[1]} **Quest 2** — join coworking session to stay focused → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
 ${iconStep[2]} **Quest 3** — share your daily progress with others → ${MessageFormatting.tagChannel(CHANNEL_TODO)} (*complete quest 1 first*)
 
 **Good luck! **
 
-${fromGuidelines ? '' : `\`\`if you want to learn more\`\` → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`} `,
+${fromGuidelines ? `\`\`p.s\`\` *all of your next steps will be sent to your* :bell: **notification**` : `\`\`if you want to learn more\`\` → ${MessageFormatting.tagChannel(CHANNEL_GUIDELINE)}`} `,
             components: [MessageComponent.createComponent(
                 ...buttons
             )]
@@ -223,6 +223,8 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
 The key to stay consistent when you're not feeling it:
 > *small progress is still progress* :sparkles:
+
+**complete all the steps above to unlock all channels** :unlock:
 **↓**`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`onboardingFromGuideline`,"Check my quest"),
