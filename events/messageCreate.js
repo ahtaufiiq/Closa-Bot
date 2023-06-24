@@ -33,6 +33,7 @@ const TestimonialMessage = require("../views/TestimonialMessage");
 const AchievementBadgeController = require("../controllers/AchievementBadgeController");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const UserController = require("../controllers/UserController");
+const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -183,27 +184,7 @@ module.exports = {
 					)
 					return
 				}
-				OnboardingController.isHasRoleOnboardingProgress(msg.client,msg.author.id)
-					.then(isHasRoleOnboardingProgress=>{
-						if(isHasRoleOnboardingProgress){
-							MemberController.removeRole(msg.client,msg.author.id,ROLE_ONBOARDING_PROGRESS)
-							OnboardingController.updateOnboardingStep(msg.client,msg.author.id,'done')
-							ReferralCodeController.addNewReferral(msg.author.id,3)
-							OnboardingController.deleteReminderToStartOnboarding(msg.author.id)
-							setTimeout(async () => {
-								const files = []
-								const totalReferralCode = await ReferralCodeController.getTotalActiveReferral(msg.author.id)
-								const coverWhite = await GenerateImage.referralCover(totalReferralCode,msg.author,false)
-								files.push(new AttachmentBuilder(coverWhite,{name:`referral_coverWhite_${msg.author.username}.png`}))
-								ChannelController.sendToNotification(
-									msg.client,
-									OnboardingMessage.completedQuest(msg.author.id,files),
-									msg.author.id
-								)
-							}, 1000 * 15);
-						}
-					})
-				BoostController.deleteBoostMessage(msg.client,msg.author.id)
+				
 				
 				const { data, error } = await supabase
 					.from('Users')
@@ -243,13 +224,14 @@ module.exports = {
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
-						TodoReminderMessage.warningNeverSetGoal(msg.author.id),
+						TodoReminderMessage.warningNeverSetGoal(msg.author.id,msg.content),
 						msg.author.id,
 						data?.notificationId
 					)
-					msg.delete()
-					return
+					return msg.delete()
 				}
+				OnboardingController.handleOnboardingProgress(msg.client,msg.author)
+				BoostController.deleteBoostMessage(msg.client,msg.author.id)
 
 				const splittedMessage = msg.content.trimStart().split('\n')
 				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
@@ -266,9 +248,6 @@ module.exports = {
 					type:"progress"
 				})
 				
-				if(ReferralCodeController.isTimeToGenerateReferral()){
-					ReferralCodeController.generateReferral(msg.client,msg.author)
-				}
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
 				.then(async (data) => {
@@ -285,7 +264,7 @@ module.exports = {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
 						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author)}).eq('id',msg.author.id).then()
-						ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
+						if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
 					}
 					
 					return supabase.from("Users")
@@ -342,16 +321,30 @@ module.exports = {
 						longestStreak, 
 						totalDay ,
 						totalPoint, 
-						endLongestStreak
+						endLongestStreak,
+						totalDaysThisCohort
 					} = data.body
 
 					if(totalDay === 20){
 						await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
 						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+						ChannelController.sendToNotification(
+							msg.client,
+							ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
+							msg.author.id
+						)
 						supabase.from("Users")
 							.update({type:'member'})
 							.eq('id',msg.author.id)
 							.then()
+					}
+
+					if(totalDaysThisCohort === 12 && !Time.isCooldownPeriod()){
+						ChannelController.sendToNotification(
+							msg.client,
+							ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
+							msg.author.id
+						)
 					}
 					
 					if (goalName) {

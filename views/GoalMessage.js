@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js")
+const { EmbedBuilder, channelMention, userMention } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_GOALS } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -47,7 +47,9 @@ For the project deadline you can follow:
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
         return {
-            content:`**How much time you want to work daily on your project?**`,
+            content:`⬇️ continue start project
+
+**How much time you want to work daily on your project?** ${userMention(userId)}`,
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
@@ -85,7 +87,28 @@ For the project deadline you can follow:
         return {
             content:`**Schedule your preferred daily coworking time 🕖👩‍💻👨‍💻**`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`scheduledCoworkingTimeGoal_${userId}`,"Schedule")
+                MessageComponent.addMenu( 
+                    `selectPreferredCoworkingTime_${userId}`,
+                    "- Select daily work time goal -",
+                    [
+                        {
+                            label: "08.00 🕗",
+                            value: "8.00"
+                        },
+                        {
+                            label: "15.00 🕒",
+                            value: "15.00"
+                        },
+                        {
+                            label: "20.00 🕗",
+                            value: "20.00"
+                        },
+                        {
+                            label: 'Custom ⏲️',
+                            value: 'custom'
+                        }
+                    ]
+                ),
             )]
         }
     }
@@ -213,6 +236,13 @@ here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
             content:"@everyone",
             embeds:[MessageComponent.embedMessage({description:`${MessageFormatting.tagUser(userId)} just left party`})]
         }
+    }
+
+    static infoThreadProject(UserId){
+        return `**This is a place for all of your ⁠progress history** ${userMention(UserId)}
+
+Every time you share your work at ${channelMention(CHANNEL_TODO)}—it will automatically send inside this thread as well.
+so, you can always see the history of all your progress here.`
     }
 }
 

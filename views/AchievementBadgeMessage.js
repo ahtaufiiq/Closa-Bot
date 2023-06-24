@@ -3,6 +3,7 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const { CHANNEL_TESTIMONIAL, ROLE_7STREAK, ROLE_30STREAK, ROLE_100STREAK, ROLE_200STREAK } = require("../helpers/config")
 const InfoUser = require("../helpers/InfoUser")
+const ReferralCodeMessage = require("./ReferralCodeMessage")
 
 class AchievementBadgeMessage{
 
@@ -168,7 +169,7 @@ note: **this reward only valid until 23.59 WIB today**`,
         }
     }
 
-    static howToClaimReward(UserId,value){
+    static howToClaimReward(UserId,value,inviteLink){
         return {
             content:`Here's how to claim your reward:
 1. Copy the image above & celebrate it on social (e.g. twitter)
@@ -178,7 +179,7 @@ note: **this reward only valid until 23.59 WIB today**`,
 
 We'll reply to your post & celebrate together! 🥳`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkButton('Share on Twitter',"https://twitter.com/intent/tweet"),
+                MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTagClosa(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
                 MessageComponent.addButton(`submitTestimonialAchievement_${UserId}_${value}`,"Submit link"),
             )]
         }

@@ -47,7 +47,32 @@ module.exports = {
 	async execute(modal,focusRoomUser) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-			if(commandButton === 'settingBreakReminder'){
+			if (commandButton === 'reminderCoworking') {
+				await modal.deferReply({ephemeral:true});
+				const reminderTime = modal.getTextInputValue('schedule');
+				const differentTime = reminderTime.toLowerCase().includes(' wita') ? -1 : reminderTime.toLowerCase().includes(' wit') ? -2 : 0
+				const time = Time.getTimeFromText(reminderTime)
+				const [hours,minutes] = time.split(/[.:]/)
+				const date = new Date()
+
+				date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+				date.setMinutes(minutes)
+				const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
+				if(isMoreThanTenMinutes) date.setMinutes(minutes-10)
+				
+				supabase.from('Reminders')
+					.insert({
+						message:reminderTime,
+						time:date,
+						UserId:modal.user.id,
+					})
+					.then()
+
+				schedule.scheduleJob(date,async function () {
+					ChannelController.sendToNotification(modal.client,OnboardingMessage.reminderCoworking(modal.user.id,reminderTime),modal.user.id)
+				})
+				modal.editReply(OnboardingMessage.replySetReminderCoworking(modal.user.id,reminderTime,isMoreThanTenMinutes))
+			}else if(commandButton === 'settingBreakReminder'){
 				await modal.deferReply({ephemeral:true})
 				const breakTime = modal.getTextInputValue('breakTime');
 				const totalMinute = Time.getTotalMinutes(breakTime)
@@ -77,7 +102,7 @@ module.exports = {
 					.then()
 				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id))
 				ChannelController.deleteMessage(modal.message)
-			}else if(commandButton === 'scheduledCoworkingTimeGoal'){
+			}else if(commandButton === 'scheduledCoworkingTimeGoal' || commandButton === 'selectPreferredCoworkingTime'){
 				GoalController.modalSubmitPreferredCoworkingTime(modal)
 			}else if(commandButton === 'addNewProject'){
 				await modal.deferReply()
@@ -129,12 +154,6 @@ module.exports = {
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
 					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
-
-					supabase.from("Users")
-						.update({type:'new member'})
-						.eq('id',modal.user.id)
-						.then()
-				
 				}else{
 					switch (response.description) {
 						case "redeemed":
@@ -163,21 +182,8 @@ module.exports = {
 				})
 				ChannelController.deleteMessage(modal.message)
 
-				const isHasRoleOnboardingProject = await OnboardingController.isHasRoleOnboardingProject(modal.client,modal.user.id)
-				if(isHasRoleOnboardingProject){
-					// GuidelineInfoController.updateStatusCompletedQuest(modal.user.id,'firstQuest')
-					setTimeout(() => {
-						ChannelController.sendToNotification(
-							modal.client,OnboardingMessage.secondQuest(modal.user.id),modal.user.id
-						)
-						OnboardingController.updateOnboardingStep(modal.client,modal.user.id,'secondQuest')
-					}, 1000 * 15);
-					await Promise.all([
-						MemberController.addRole(modal.client,modal.user.id,ROLE_NEW_MEMBER),
-						MemberController.addRole(modal.client,modal.user.id,ROLE_ONBOARDING_COWORKING),
-						MemberController.removeRole(modal.client,modal.user.id,ROLE_ONBOARDING_PROJECT)
-					])
-				}
+				OnboardingController.handleOnboardingProject(modal.client,modal.user)
+				
 			}else if(commandButton === "editGoal"){
 				await modal.deferReply({ephemeral:true})
 
@@ -583,8 +589,8 @@ The correct format:
 
 					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
 					date.setMinutes(minutes)
-					const isLessThanTenMinutes = Time.getDiffTime(new Date(),date) < 10
-					if(isLessThanTenMinutes) date.setMinutes(minutes-10)
+					const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
+					if(isMoreThanTenMinutes) date.setMinutes(minutes-10)
 					
 					supabase.from('Reminders')
 						.insert({
