@@ -37,25 +37,46 @@ module.exports = {
 		const newInvites = await member.guild.invites.fetch()
 		const oldInvites = invites;
 		const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-		invites.set(invite.code,invite.uses)
+		if(!invite){
+			const [totalMember,totalInvite] = await Promise.all([
+				MemberController.getTotalMember(),
+				ReferralCodeController.incrementTotalInvite('M7Zh2u5GRN')
+			])
+			OnboardingController.welcomeOnboarding(member.client,member.user)
+			const dataUser = await supabase.from("Users")
+				.select('id')
+				.eq('inviteCode','M7Zh2u5GRN')
+				.single()
+				
+			const UserId = member.user.id === '449853586508349440' ? MY_ID : '449853586508349440'
+			GuidelineInfoController.updateMessageGuideline(member.client,UserId)
+			const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
+			const referrer = await MemberController.getMember(member.client,UserId)
+			setTimeout(async () => {
+				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
+				ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
+			}, 1000 * 15);
+		}else{
+			invites.set(invite.code,invite.uses)
+			const [totalMember,totalInvite] = await Promise.all([
+				MemberController.getTotalMember(),
+				ReferralCodeController.incrementTotalInvite(invite.code)
+			])
+			OnboardingController.welcomeOnboarding(member.client,member.user)
+			const dataUser = await supabase.from("Users")
+				.select('id')
+				.eq('inviteCode',invite.code)
+				.single()
+				
+			const UserId = dataUser.body?.id
+			GuidelineInfoController.updateMessageGuideline(member.client,UserId)
+			const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
+			const referrer = await MemberController.getMember(member.client,UserId)
+			setTimeout(async () => {
+				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
+				ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
+			}, 1000 * 15);
+		}
 
-		const [totalMember,totalInvite] = await Promise.all([
-			MemberController.getTotalMember(),
-			ReferralCodeController.incrementTotalInvite(invite.code)
-		])
-		OnboardingController.welcomeOnboarding(member.client,member.user)
-		const dataUser = await supabase.from("Users")
-			.select('id')
-			.eq('inviteCode',invite.code)
-			.single()
-			
-		const UserId = dataUser.body?.id || (member.user.id === '449853586508349440' ? MY_ID : '449853586508349440') 
-		GuidelineInfoController.updateMessageGuideline(member.client,UserId)
-		const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
-		const referrer = await MemberController.getMember(member.client,UserId)
-		setTimeout(async () => {
-			const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
-			ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
-		}, 1000 * 15);
 	},
 };
