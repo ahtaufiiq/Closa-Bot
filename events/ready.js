@@ -23,11 +23,13 @@ const OnboardingController = require('../controllers/OnboardingController');
 module.exports = {
 	name: 'ready',
 	once: true,
-	async execute(client,focusRoomUser,listFocusRoom) {
+	async execute(client,focusRoomUser,invites) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
+		await ReferralCodeController.cachingAllInviteLink(client,invites)
+		
 		OnboardingController.reminderStartOnboarding(client)
 
 		FocusSessionController.continueFocusTimer(client,focusRoomUser)
