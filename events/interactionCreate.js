@@ -70,12 +70,13 @@ module.exports = {
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
+				if(OnboardingController.showModalReminderCoworking(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'continueFirstQuest' || commandButton === 'continueSecondQuest' || commandButton === 'continueThirdQuest' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -89,7 +90,8 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
 					case "claimReward":
-						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value))
+						const inviteLink = await ReferralCodeController.generateInviteLink(interaction.client,targetUserId)
+						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value,inviteLink))
 						break;
 					case "settingDailyGoal":
 						interaction.editReply(GoalMessage.setDailyWorkTime(interaction.user.id,true))
@@ -98,26 +100,23 @@ module.exports = {
 						interaction.editReply(FocusSessionMessage.settings(focusRoomUser[interaction.user.id]?.breakReminder||50))
 						break;
 					case "onboardingFromGuideline":
-						const dataOnboarding = await supabase.from("Users")
-							.select('onboardingStep')
-							.eq('id',interaction.user.id)
+						const dataOnboarding = await supabase.from("GuidelineInfos")
+							.select('statusCompletedQuest,Users(onboardingStep)')
+							.eq('UserId',interaction.user.id)
 							.single()
-						const {onboardingStep} = dataOnboarding.body
-						if(onboardingStep === 'welcome' || onboardingStep === 'firstQuest'){
-							interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
-						}else if(onboardingStep === 'secondQuest'){
-							await interaction.editReply(OnboardingMessage.replySecondQuest())
-						}else if(onboardingStep === 'thirdQuest'){
-							await interaction.editReply(OnboardingMessage.replyThirdQuest())
+						if(dataOnboarding.body){
+							const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.body
+							if(onboardingStep === 'done' || onboardingStep === null){
+								interaction.editReply("You've completed your onboarding quest previously ✅ ")
+							}else{
+								interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest,true))
+							}
 						}else{
-							interaction.editReply("You've completed your onboarding quest previously ✅ ")
+							interaction.editReply('redeem your referral code')
 						}
 						break;
-					case 'replyFirstQuest':
-						await interaction.editReply(OnboardingMessage.replyFirstQuest())
-						break;
 					case 'replySecondQuest':
-						await interaction.editReply(OnboardingMessage.replySecondQuest())
+						await interaction.editReply(OnboardingMessage.replySecondQuest(interaction.user.id))
 						break;
 					case 'replyThirdQuest':
 						await interaction.editReply(OnboardingMessage.replyThirdQuest())
@@ -732,13 +731,41 @@ module.exports = {
 					}
 				}else if(commandMenu === 'buyVacationTicket' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject"){
+				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case 'selectPreferredCoworkingTime':
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select preferred daily coworking time someone else.**`,ephemeral:true})
+						if(valueMenu === 'custom'){
+							GoalController.showModalPreferredCoworkingTime(interaction)
+						}else{
+							await interaction.deferReply()
+							let preferredCoworkingTime = valueMenu
+							try {
+								if(preferredCoworkingTime){
+									const date = Time.getDate()
+									const [hours,minutes] = preferredCoworkingTime.split(/[.:]/)
+									date.setHours(hours ,minutes-30)
+									const time = `${date.getHours()}.${date.getMinutes()}`
+									
+									ReminderController.setHighlightReminder(interaction.client,time,interaction.user.id)
+									supabase.from("Users")
+										.update({preferredCoworkingTime})
+										.eq('id',interaction.user.id)
+										.then()
+								}
+								const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
+								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id))
+								ChannelController.deleteMessage(interaction.message)
+							} catch (error) {
+								ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+							}
+						}
+						break;
 					case 'setDailyWorkTime':
 						if(valueMenu === 'custom'){
 							GoalController.showModalCustomDailyWorkTime(interaction)

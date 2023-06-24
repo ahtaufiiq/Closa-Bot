@@ -5,7 +5,7 @@ const Sentry = require('@sentry/node')
 const Tracing = require('@sentry/tracing')
 const {ProfilingIntegration} = require('@sentry/profiling-node')
 const client = new Client({ 
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions,GatewayIntentBits.GuildScheduledEvents],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions,GatewayIntentBits.GuildScheduledEvents,GatewayIntentBits.GuildInvites],
 	partials: [Partials.Channel,Partials.Message,Partials.Reaction],
 });
 const discordModals = require('discord-modals'); // Define the discord-modals package!
@@ -39,7 +39,7 @@ const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'
 const focusRoomUser = {
 }
 
-
+let invites = new Collection()
 
 const listFocusRoom = {
 	[CHANNEL_CLOSA_CAFE]:true
@@ -47,16 +47,25 @@ const listFocusRoom = {
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
-		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
+		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,invites));
 		else client.once(event.name, (...args) => event.execute(...args));
 	}else {
-		if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'modalSubmit.js' || file === 'voiceStateUpdate.js' ){
+		if(file === 'guildMemberAdd.js'){
+			client.on(event.name, (...args) => event.execute(...args,invites));
+		}else if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'modalSubmit.js' || file === 'voiceStateUpdate.js' ){
 			client.on(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
 		}else{
 			client.on(event.name, (...args) => event.execute(...args));
 		}
 	}
 }
+client.on("inviteDelete", (invite) => {
+	invites.delete(invite.code);
+});
+  
+client.on("inviteCreate", (invite) => {
+	invites.set(invite.code, invite.uses);
+});
 
 
 client.login(TOKEN);

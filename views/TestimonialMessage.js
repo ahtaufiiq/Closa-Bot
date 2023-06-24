@@ -22,7 +22,7 @@ __**The reward for helping us spreading the word :gift:**__
 • Get 2-month free membership (video format)`}).setImage("https://media.giphy.com/media/TdfyKrN7HGTIY/giphy.gif")],
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`submitTestimonial_${userId}`,"Submit link"),
-                MessageComponent.addLinkButton('Write on Twitter',"https://twitter.com/intent/tweet")
+                MessageComponent.addLinkButton('Write on Twitter',"https://twitter.com/intent/tweet").setEmoji({id:'1000905823368794214',name:'twitterlogo'})
             )]
         }
     }

@@ -1,8 +1,9 @@
-const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE, CHANNEL_UPCOMING_SESSION, CHANNEL_CREATE_SESSION } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE, CHANNEL_UPCOMING_SESSION, CHANNEL_CREATE_SESSION, CHANNEL_START_PROJECT } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const GenerateLink = require("../helpers/GenerateLink")
 const Time = require("../helpers/time")
+const { userMention, channelMention } = require("discord.js")
 class TodoReminderMessage{
     static progressReminder(userId){
         return {
@@ -37,13 +38,12 @@ It scientifically proven to help you stay focus & get more done.`
         return MessageComponent.addLinkEmojiButton('Add to calendar',link,'🗓')
 	}
 
-    static warningNeverSetGoal(userId){
-        return `**Unable to post your progress** :warning: 
+    static warningNeverSetGoal(userId,content){
+        return `Hi ${userMention(userId)}, **before continuing sharing your progress — let's start your project first** → ${channelMention(CHANNEL_START_PROJECT)}
 
-Hi ${MessageFormatting.tagUser(userId)}, you haven't set your project ${MessageFormatting.tagChannel(CHANNEL_GOALS)} yet.
-
-Please \`\`select\`\` your accountability mode first to continue to the next step
-${MessageFormatting.tagChannel(CHANNEL_ACOUNTABILITY_MODE)}`
+you start the project you can copy & repost your progress again. 
+–––
+${content}`
     }
 
     static warningMinimalWords(userId){

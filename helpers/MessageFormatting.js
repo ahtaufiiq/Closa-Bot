@@ -13,6 +13,10 @@ class MessageFormatting{
         return `<@&${roleId}>`
     }
 
+    static inviteLink(inviteCode){
+        return `https://discord.gg/${inviteCode}`
+    }
+
     static slashCommand(){
         return {
             boost:`</boost:${COMMAND_BOOST}>`,
