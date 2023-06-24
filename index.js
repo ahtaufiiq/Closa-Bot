@@ -6,10 +6,9 @@ const Tracing = require('@sentry/tracing')
 const {ProfilingIntegration} = require('@sentry/profiling-node')
 const client = new Client({ 
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions,GatewayIntentBits.GuildScheduledEvents,GatewayIntentBits.GuildInvites],
-	partials: [Partials.Channel,Partials.Message,Partials.Reaction],
+	partials: [Partials.Channel,Partials.Message,Partials.Reaction,Partials.GuildMember],
 });
 const discordModals = require('discord-modals'); // Define the discord-modals package!
-const Time = require('./helpers/time');
 discordModals(client);
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));

@@ -193,7 +193,7 @@ class GoalController {
 
 		ChannelController.createThread(msg,project,user.username)
 			.then(thread=>{
-				thread.send(GoalMessage.infoThreadProject())
+				thread.send(GoalMessage.infoThreadProject(user.id))
 			})
 		supabase.from('Users')
 			.update({

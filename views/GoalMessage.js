@@ -47,7 +47,9 @@ For the project deadline you can follow:
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
         return {
-            content:`**How much time you want to work daily on your project?** ${userMention(userId)}`,
+            content:`⬇️ continue start project
+
+**How much time you want to work daily on your project?** ${userMention(userId)}`,
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
@@ -236,8 +238,8 @@ here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
         }
     }
 
-    static infoThreadProject(){
-        return `**This is a place for all of your ⁠progress history.**
+    static infoThreadProject(UserId){
+        return `**This is a place for all of your ⁠progress history** ${userMention(UserId)}
 
 Every time you share your work at ${channelMention(CHANNEL_TODO)}—it will automatically send inside this thread as well.
 so, you can always see the history of all your progress here.`
