@@ -4,7 +4,7 @@ const MemberController = require("../controllers/MemberController");
 const OnboardingController = require("../controllers/OnboardingController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const InfoUser = require("../helpers/InfoUser");
-const { CHANNEL_NOTIFICATION, ROLE_ACTIVE_MEMBER, CHANNEL_WELCOME } = require("../helpers/config");
+const { CHANNEL_NOTIFICATION, ROLE_ACTIVE_MEMBER, CHANNEL_WELCOME, MY_ID } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const OnboardingMessage = require("../views/OnboardingMessage");
@@ -49,7 +49,7 @@ module.exports = {
 			.eq('inviteCode',invite.code)
 			.single()
 			
-		const UserId = dataUser.body?.id || '449853586508349440'
+		const UserId = dataUser.body?.id || (member.user.id === '449853586508349440' ? MY_ID : '449853586508349440') 
 		GuidelineInfoController.updateMessageGuideline(member.client,UserId)
 		const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
 		const referrer = await MemberController.getMember(member.client,UserId)
