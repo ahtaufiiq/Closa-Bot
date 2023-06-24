@@ -34,7 +34,7 @@ module.exports = {
 					nickname = value
 				}
 			}	
-			let invite = await ChannelController.getChannel(client,CHANNEL_GUIDELINE).createInvite({
+			let invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
                 maxAge:2_592_000,
                 unique:true,
 				maxUses:1,
