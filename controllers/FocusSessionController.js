@@ -488,6 +488,8 @@ class FocusSessionController {
                 ChannelController.getChannel(client,CHANNEL_SESSION_GOAL),
                 threadId
             )
+            if(!statusSetSessionGoal === 'selectProject') return
+
             const msgSelecProject = await ChannelController.getMessage(threadSession,msgSelecProjectId)
             if(!taskId){
                 const dataTask = await supabase.from("FocusSessions")
@@ -495,7 +497,6 @@ class FocusSessionController {
                     .eq('threadId',threadId)
                     .single()
                 taskId = dataTask.body.id
-                
             }
             const {statusSetSessionGoal} = focusRoomUser[userId]
             if(!statusSetSessionGoal === 'selectProject') return

@@ -27,7 +27,7 @@ class Email {
         var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
         var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
         sendSmtpEmail = {
-          sender: { name:"Apri",email: "apri@closa.me" },
+          sender: { name:"Closa",email: "apri@closa.me" },
           to: [
             {
               email,
@@ -56,7 +56,7 @@ class Email {
         var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); 
         const reminder = day === '0 day' ? `today ${ended_membership}`:`within the next ${day} on  ${ended_membership}`
         sendSmtpEmail = {
-          sender: { name:"Apri",email: "apri@closa.me" },
+          sender: { name:"Closa",email: "apri@closa.me" },
           to: users,
           "templateId":7,
           "params":{
@@ -78,7 +78,7 @@ class Email {
         var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
         var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
         sendSmtpEmail = {
-          sender: { name:"Apri",email: "apri@closa.me" },
+          sender: { name:"Closa",email: "apri@closa.me" },
           to: [
             {
               email,
@@ -101,21 +101,47 @@ class Email {
         );
     }
 
-    static sendEmailEarlyAccess(name,email,code){
+    static sendInvitation6WeekChallenge(name,email,inviteLink){
         var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
         var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
         sendSmtpEmail = {
-          sender: { name:"Apri",email: "apri@closa.me" },
+          sender: { name:"Closa",email: "apri@closa.me" },
           to: [
             {
               email,
               name
             }
           ],
-          "templateId":12,
+          "templateId":14,
           "params":{
             name,
-            code
+            inviteLink
+         },
+        };
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(
+          function (data) {
+            console.log("API called successfully. Returned data: " , data);
+          },
+          function (error) {
+            console.error(error);
+          }
+        );
+    }
+    static sendInvitationForProductiveMember(name,email,inviteLink){
+        var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+        var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
+        sendSmtpEmail = {
+          sender: { name:"Closa",email: "apri@closa.me" },
+          to: [
+            {
+              email,
+              name
+            }
+          ],
+          "templateId":13,
+          "params":{
+            name,
+            inviteLink
          },
         };
         apiInstance.sendTransacEmail(sendSmtpEmail).then(

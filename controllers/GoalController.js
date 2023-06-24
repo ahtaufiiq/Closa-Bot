@@ -96,7 +96,7 @@ class GoalController {
     }
 
 	static showModalPreferredCoworkingTime(interaction){
-        if(interaction.customId.includes('scheduledCoworkingTimeGoal')){
+        if(interaction.customId.includes('scheduledCoworkingTimeGoal') || interaction.customId.includes('selectPreferredCoworkingTime')){
 			const modal = new Modal()
 			.setCustomId(interaction.customId)
 			.setTitle("Preferred coworking time 🕖👩‍💻👨‍💻")
@@ -192,6 +192,9 @@ class GoalController {
 			})
 
 		ChannelController.createThread(msg,project,user.username)
+			.then(thread=>{
+				thread.send(GoalMessage.infoThreadProject())
+			})
 		supabase.from('Users')
 			.update({
 				goalId:msg.id,

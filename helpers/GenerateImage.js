@@ -312,7 +312,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async referralCover(totalReferral,user,isDarkMode=true){
+    static async referralCover(user,isDarkMode=true){
         registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
         registerFont('./assets/fonts/BaiJamjuree-Medium.ttf',{family:'BaiJamjuree',weight:500})
         
@@ -321,17 +321,8 @@ class GenerateImage{
         const context = canvas.getContext('2d')
         context.fillStyle = "#F6F8FA"; 
  
-        if(totalReferral > 1){
-            const template = await loadImage(`./assets/images/referral_cover_template${isDarkMode ? "":"_white"}.png`)
-            context.drawImage(template,0,0)
-            context.font = "500 44px BaiJamjuree";
-            context.fillText(`${totalReferral} invite${totalReferral>1? "s" : ""}`, 1005 , 366);
-
-        }else{
-            const template = await loadImage(`./assets/images/referral_cover_oneInvite${isDarkMode ? "":"_white"}.png`) 
-            context.drawImage(template,0,0)
-        }
-
+        const template = await loadImage(`./assets/images/referral_cover_template${isDarkMode ? "":"_white"}.png`)
+        context.drawImage(template,0,0)
         
         if(!isDarkMode) context.fillStyle = "#2B2B2B"
 

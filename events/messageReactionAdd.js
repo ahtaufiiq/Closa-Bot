@@ -4,7 +4,8 @@ const MemberController = require("../controllers/MemberController");
 const PointController = require("../controllers/PointController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const Email = require("../helpers/Email");
-const { CHANNEL_PAYMENT } = require("../helpers/config");
+const MessageFormatting = require("../helpers/MessageFormatting");
+const { CHANNEL_PAYMENT, CHANNEL_GUIDELINE } = require("../helpers/config");
 const getIdTopics = require("../helpers/getIdTopic");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
@@ -17,7 +18,7 @@ module.exports = {
 		if(user.bot) return
 		await DailyReport.activeMember(reaction.client,user.id)
 		PointController.addPoint(user.id,'reaction',0,reaction.message.channelId)
-		if(reaction.message.channelId === CHANNEL_PAYMENT && `${reaction.emoji}`=== '✅'){
+		if(reaction.message.channelId === CHANNEL_PAYMENT && (`${reaction.emoji}`=== '✅' || `${reaction.emoji}`=== '💌')){
 			const msg = await ChannelController.getMessage(
 				ChannelController.getChannel(reaction.client,CHANNEL_PAYMENT),
 				reaction.message.id
@@ -33,13 +34,24 @@ module.exports = {
 					nickname = value
 				}
 			}	
-			const [{referralCode}] =  await ReferralCodeController.addNewReferral("449853586508349440",1)
+			let invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
+                maxAge:2_592_000,
+                unique:true,
+				maxUses:1,
+                reason: 'invite link',
+            })
+			
+            const inviteLink = MessageFormatting.inviteLink(invite.code)
 			const thread = await ChannelController.getThread(
 				ChannelController.getChannel(reaction.client,CHANNEL_PAYMENT),
 				reaction.message.id
 			)
-			Email.sendEmailEarlyAccess(nickname,email,referralCode)
-			thread.send(referralCode)
+			if(`${reaction.emoji}`=== '✅'){
+				Email.sendInvitationForProductiveMember(nickname,email,inviteLink)
+			}else{
+				Email.sendInvitation6WeekChallenge(nickname,email,inviteLink)
+			}
+			thread.send(inviteLink)
 		}
 		if(reaction.message.id !== "960790258256064542" && reaction.message.id !== "1013254534262423553") return
 		if (reaction.partial) {

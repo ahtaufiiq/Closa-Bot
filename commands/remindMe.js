@@ -46,8 +46,8 @@ module.exports = {
 				const differentTime = time.toLowerCase().includes(' wita') ? 1 : time.toLowerCase().includes(' wit') ? 2 : 0
 				const date = Time.getDate()
 				date.setHours(Number(hours) + differentTime,minutes)
-				const isLessThanTenMinutes = Time.getDiffTime(Time.getDate(),date) <= 10
-				if(!isLessThanTenMinutes) date.setMinutes(date.getMinutes()-10)
+				const isMoreThanTenMinutes = Time.getDiffTime(Time.getDate(),date) > 10
+				if(isMoreThanTenMinutes) date.setMinutes(date.getMinutes()-10)
 				
 				date.setHours(date.getHours() - TIMEZONE)
 				supabase.from('Reminders')
@@ -70,7 +70,7 @@ module.exports = {
 				await interaction.editReply({
 					content:`Reminder set: \`\`${message} at ${time}\`\` ${interaction.user}
 
-${isLessThanTenMinutes ? '' : "**i'll remind you 10 minutes before the schedule**"}`
+${isMoreThanTenMinutes ? "**i'll remind you 10 minutes before the schedule**" : ''}`
 				})			
 				break;
 			default:

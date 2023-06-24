@@ -143,29 +143,23 @@ module.exports = {
 			const targetUser = user ? user : interaction.user
 			await Promise.all([
 				supabase.from('Users')
-					.update({onboardingStep:null})
+					.update({onboardingStep:null,goalId:null,lastDone:null})
 					.eq('id',targetUser.id),
 				supabase.from("GuidelineInfos")
 					.delete()
-					.eq("UserId",targetUser.id),
-				supabase.from("Referrals")
-					.delete()
-					.eq('redeemedBy',targetUser.id),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_NEW_MEMBER),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_WELCOME),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_COWORKING),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_LATER),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_PROGRESS),
-				MemberController.removeRole(interaction.client,targetUser.id,ROLE_ONBOARDING_PROJECT),
+					.eq("UserId",targetUser.id)
 			])
-
-			const values = await ReferralCodeController.addNewReferral(
-				targetUser.id === MY_ID ? '693373626451361854' : MY_ID,
-				1
+			const inviteLink = await ReferralCodeController.generateInviteLink(
+				interaction.client,
+				targetUser.id === MY_ID ? '449853586508349440' : MY_ID
 			)
-
-			const referralCode = values.map(data=>data.referralCode)
-			interaction.editReply(`use this referral code \n${referralCode.join('\n')}`)
+			interaction.editReply(inviteLink)
+			targetUser.send(inviteLink)
+			setTimeout(async() => {
+				const user = await MemberController.getMember(interaction.client,targetUser.id)
+				user.kick()
+			}, 1000 * 5);
+			
 		}else if(command === 'update__goal'){
 			const user = interaction.options.getUser('user')
 			const data = await GoalController.getActiveGoal(user.id)
