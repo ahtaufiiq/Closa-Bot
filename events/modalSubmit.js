@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -202,14 +202,15 @@ module.exports = {
 					.single()
 				const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
 				
+				const isSixWeekChallenge = modal.channelId === CHANNEL_6WIC ? true : false
 				const buffer = await GenerateImage.project({
 					user:modal.user,project,goal,date:deadlineGoal
-				})
+				},isSixWeekChallenge)
 				const files = [new AttachmentBuilder(buffer,{name:`${project}_${modal.user.username}.png`})]
 				
 				await modal.message.edit(GoalMessage.postGoal({
 					project,goal,about,shareProgressAt,user:modal.user,deadlineGoal,files,preferredCoworkingTime
-				}))
+				},isSixWeekChallenge))
 				GoalController.updateDataGoal({
 					id:modal.message.id,
 					project,goal,about,shareProgressAt

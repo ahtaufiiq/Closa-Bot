@@ -143,7 +143,7 @@ class GoalController {
 		const channelGoals = ChannelController.getChannel(client,channelId)
 		const buffer = await GenerateImage.project({
 			user,project,goal,date:deadlineGoal
-		})
+		},isSixWeekChallenge)
 		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
 		const msg = await channelGoals.send(GoalMessage.postGoal({
 			project,
@@ -154,7 +154,7 @@ class GoalController {
 			deadlineGoal,
 			preferredCoworkingTime,
 			files
-		}))
+		},isSixWeekChallenge))
 
 		const updatedData = await supabase.from("Goals")
 		.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
@@ -271,12 +271,13 @@ class GoalController {
 		try {
 			const {user} = await MemberController.getMember(client,data.UserId)
 			const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-			const {project,goal,about,shareProgressAt,deadlineGoal} = data
+			const {project,goal,goalType,about,shareProgressAt,deadlineGoal} = data
+			const isSixWeekChallenge = goalType === 'default' ? false : true
 			const buffer = await GenerateImage.project({
 				user,project,goal,date:Time.getDate(deadlineGoal)
-			})
+			},isSixWeekChallenge)
 			const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
-			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
+			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime},isSixWeekChallenge))
 		} catch (error) {
 			ChannelController.sendError(error,`${data?.UserId} : ${MessageFormatting.linkToMessage(CHANNEL_GOALS,data?.id)}`)			
 		}

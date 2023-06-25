@@ -683,7 +683,7 @@ class GenerateImage{
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
-    static async project({user,project,goal,date}){
+    static async project({user,project,goal,date},isSixWeekChallenge=false){
         registerFont('./assets/fonts/PlusJakartaSans-Bold.ttf',{family:'JakartaSans'})
         
         function wrapText(context, text, x, y, maxWidth, lineHeight) {
@@ -691,6 +691,7 @@ class GenerateImage{
             let line = '';
             let currentY = y;
             let counter = 0
+            const lines = []
             for (let i = 0; i < words.length; i++) {
               const testLine = line + words[i] + ' ';
               const metrics = context.measureText(testLine);
@@ -702,17 +703,27 @@ class GenerateImage{
                     line += '...'
                     break
                 }
-                context.fillText(line, x, currentY);
+                lines.push(line)
                 line = words[i] + ' ';
-                currentY += lineHeight;
               } else {
                 line = testLine;
               }
             }
-            context.fillText(line, x, currentY);
+            lines.push(line)
+            const gradient = context.createLinearGradient(x, y - 60, x , y + (lines.length * 55));
+            gradient.addColorStop(0,'#E9F1F9');
+            gradient.addColorStop(1, "#BDC4CB");
+            context.fillStyle = gradient
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                context.fillText(line, x, currentY);
+                currentY += lineHeight;
+            }
+
         }
 
-        const template = await loadImage(`./assets/images/project_template.png`)
+        const template = await loadImage(`./assets/images/project${isSixWeekChallenge ? '_6wic':''}_template.png`)
         
         const canvas = createCanvas(1080,1080)
         const context = canvas.getContext('2d')
@@ -723,11 +734,14 @@ class GenerateImage{
         context.fillStyle = "#00B264"; 
         context.font = "42px JakartaSans";
         
+        const gradient = context.createLinearGradient(template.width/2, 350, template.width/2 , 390);
+        gradient.addColorStop(0,'#49FFF4');
+        gradient.addColorStop(1, "#0B9D94");
+        context.fillStyle = gradient
         context.fillText(project,template.width/2,391)
 
-        context.fillStyle = "#2B2B2B"; 
         context.font = "64px JakartaSans";
-        wrapText(context,goal,template.width/2,485,900,76.8)
+        wrapText(context,goal,(template.width/2)+5.5,485,900,76.8)
         
         context.fillStyle = "#888888"; 
         context.font = "36px JakartaSans";

@@ -32,7 +32,7 @@ best of luck!
 
 For the project deadline you can follow:
 • the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"}\`\`
-• or set your own deadline for your project`,
+${!isSixWeekChallenge ? '• or set your own deadline for your project':''}`,
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`writeGoal_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"🎯 Set project goal")
@@ -189,11 +189,11 @@ p.s: *you can always change it in the next cohort*`,
 here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
     }
 
-    static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files}){
+    static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files},isSixWeekChallenge=false){
         return {
-            content:`${user} just started a new project 🔥`,
+            content:`${user} ${isSixWeekChallenge ? 'just joined 6-week idea challenge! 🔥':'just started a new project 🔥'}`,
             files,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}) ],
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge) ],
             components: [MessageComponent.createComponent(
                 MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"),
                 MessageComponent.addButton(`editGoal_${user.id}`,"Edit","SECONDARY"),
@@ -201,13 +201,13 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
         }
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}){
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge=false){
         const dayLeft = Time.getDiffDay(Time.getDate(),deadlineGoal)
         const deadlineDate = Time.getDateOnly(deadlineGoal)
         const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new EmbedBuilder()
-        .setColor("#ffffff")
+        .setColor(isSixWeekChallenge ? '#00E0D2' : "#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
