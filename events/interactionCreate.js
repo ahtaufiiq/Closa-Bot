@@ -124,17 +124,14 @@ module.exports = {
 					case 'continueFirstQuest':
 						await interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'continueSecondQuest':
 						await interaction.editReply(OnboardingMessage.secondQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'continueThirdQuest':
 						await interaction.editReply(OnboardingMessage.thirdQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'startOnboarding':
 						OnboardingController.startOnboarding(interaction)
