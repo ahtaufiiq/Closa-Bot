@@ -735,8 +735,12 @@ class GenerateImage{
         context.font = "42px JakartaSans";
         
         const gradient = context.createLinearGradient(template.width/2, 350, template.width/2 , 390);
-        gradient.addColorStop(0,'#49FFF4');
-        gradient.addColorStop(1, "#0B9D94");
+        gradient.addColorStop(0,'#2AFCD7');
+        gradient.addColorStop(0.2,'#3AF6C9');
+        gradient.addColorStop(0.4,'#34ECE1');
+        gradient.addColorStop(0.6,'#3ADADA');
+        gradient.addColorStop(0.8,'#0FBDB2');
+        gradient.addColorStop(1, "#05B3BE");
         context.fillStyle = gradient
         context.fillText(project,template.width/2,391)
 

@@ -207,7 +207,7 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
         const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new EmbedBuilder()
-        .setColor(isSixWeekChallenge ? '#00E0D2' : "#ffffff")
+        .setColor(isSixWeekChallenge ? '#0E827B' : "#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
