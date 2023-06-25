@@ -100,7 +100,8 @@ module.exports = {
 					.update({dailyWorkTime:totalMinute})
 					.eq('id',modal.user.id)
 					.then()
-				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id))
+				const isSixWeekChallenge = !!value
+				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id,isSixWeekChallenge))
 				ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'scheduledCoworkingTimeGoal' || commandButton === 'selectPreferredCoworkingTime'){
 				GoalController.modalSubmitPreferredCoworkingTime(modal)
@@ -176,10 +177,10 @@ module.exports = {
 				const deadline = modal.getTextInputValue('deadline');
 				const deadlineGoal = Time.getDate(deadline)
 				deadlineGoal.setFullYear(Time.getDate().getFullYear())
-
+				const isSixWeekChallenge = !!value
 				await GoalController.interactionPostGoal(modal,{
 					goal,about,project,shareProgressAt,deadlineGoal
-				})
+				},isSixWeekChallenge)
 				ChannelController.deleteMessage(modal.message)
 
 				OnboardingController.handleOnboardingProject(modal.client,modal.user)
@@ -317,8 +318,7 @@ The correct format:
 				let projectName = '-'
 				let threadGoal 
 				if (dataUser.body?.goalId) {
-					const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
-					threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
@@ -359,7 +359,7 @@ The correct format:
 
 				let metatagImage 
 
-				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
+				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkDeck)
 				if(!metatagImage && linkProject && linkProject.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
 	
 				if(!CelebrationController.isRangeCelebration()) {
@@ -375,8 +375,7 @@ The correct format:
 				let projectName = '-'
 				let threadGoal 
 				if (dataUser.body?.goalId) {
-					const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
-					threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelCelebration = ChannelController.getChannel(modal.client,CHANNEL_CELEBRATE)

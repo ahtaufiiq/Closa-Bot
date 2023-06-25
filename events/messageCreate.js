@@ -208,8 +208,7 @@ module.exports = {
 				let goalName = ''
 				let msgGoalId
 				if (data?.goalId) {
-					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(data.goalId);
+					const thread = await ChannelController.getGoalThread(msg.client,data.goalId)
 					goalName = thread.name.split('by')[0]
 					let {totalDay,lastDone} = data
 					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
@@ -400,8 +399,7 @@ module.exports = {
 				})
 
 				if (dataUser.body?.goalId) {
-					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(dataUser.body?.goalId);
+					const thread = await ChannelController.getGoalThread(msg.client,dataUser.body?.goalId)
 					thread.send({
 						content:msg.content,
 						files:filesCelebration

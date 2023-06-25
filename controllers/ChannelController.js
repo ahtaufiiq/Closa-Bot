@@ -1,11 +1,12 @@
 const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType } = require("discord.js");
-const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require("../helpers/config");
+const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER, CHANNEL_GOALS, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const MessageFormatting = require("../helpers/MessageFormatting");
 
 class ChannelController{
+    
     static getChannel(client,channelId){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId)
     }
@@ -71,7 +72,17 @@ class ChannelController{
             const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }
-        
+    }
+
+    static async getGoalThread(client,goalId){
+        const data = await supabase.from('Goals')
+            .select('id,goalType')
+            .eq('id',goalId)
+            .single()
+        const {goalType,id} = data.body
+        const channelGoals = ChannelController.getChannel(client,goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC)
+        const thread = await ChannelController.getThread(channelGoals,id)
+        return thread
     }
 
     static async getThread(channel,threadId){

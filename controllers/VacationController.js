@@ -63,8 +63,7 @@ class VacationController{
         const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
         let goalName = 'Consistency'
         if (goalId) {
-            const channelGoal = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-            const thread = await ChannelController.getThread(channelGoal,goalId)
+            const thread = await ChannelController.getGoalThread(interaction.client,goalId)
             goalName = thread.name.split('by')[0]
         }
         if(data.body?.totalPoint >= 250){
@@ -121,8 +120,7 @@ class VacationController{
                 const comebackDate = Time.getDateOnly(Time.getNextDate(totalTicket,startDate))
                 let goalName = 'Consistency'
                 if (goalId) {
-                    const channelGoal = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-                    const thread = await ChannelController.getThread(channelGoal,goalId)
+                    const thread = await ChannelController.getGoalThread(interaction.client,goalId)
                     goalName = thread.name.split('by')[0]
                 }
 
@@ -212,8 +210,7 @@ class VacationController{
                 const vacationLeft = VacationController.getVacationLeft(vacation.endDate)
                 let goalName = 'Consistency'
                 if (goalId) {
-                    const channelGoal = ChannelController.getChannel(client,CHANNEL_GOALS)
-                    const thread = await ChannelController.getThread(channelGoal,goalId)
+                    const thread = await ChannelController.getGoalThread(client,goalId)
                     goalName = thread.name.split('by')[0]
                 }
                 VacationController.addSafetyDotIfMissOnce(userId,lastDone)

@@ -42,8 +42,7 @@ class SickDayController{
         const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
         let goalName = 'Consistency'
         if (goalId) {
-            const channelGoal = ChannelController.getChannel(interaction.client,CHANNEL_GOALS)
-            const thread = await ChannelController.getThread(channelGoal,goalId)
+            const thread = await ChannelController.getGoalThread(interaction.client,goalId)
             goalName = thread.name.split('by')[0]
         }
         const startDate = Time.getTodayDateOnly()
@@ -125,8 +124,7 @@ class SickDayController{
                 const sickLeft = SickDayController.getSickLeft(sickTicket.endDate)
                 let goalName = 'Consistency'
                 if (goalId) {
-                    const channelGoal = ChannelController.getChannel(client,CHANNEL_GOALS)
-                    const thread = await ChannelController.getThread(channelGoal,goalId)
+                    const thread = await ChannelController.getGoalThread(client,goalId)
                     goalName = thread.name.split('by')[0]
                 }
 

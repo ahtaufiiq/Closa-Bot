@@ -220,8 +220,7 @@ class DailyStreakController {
 		let goalName = ''
 
 		if (data?.goalId) {
-			const channel = ChannelController.getChannel(client,CHANNEL_GOALS)
-			const thread = await ChannelController.getThread(channel,data.goalId)
+			const thread = await ChannelController.getGoalThread(client,data.goalId)
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
