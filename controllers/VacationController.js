@@ -91,7 +91,7 @@ class VacationController{
                 })
 
             UserController.updateOnVacation(true,interaction.user.id)
-            PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
+            // PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
             VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             const todayDate = Time.getFormattedDate(Time.getDate())
             const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
@@ -158,7 +158,7 @@ class VacationController{
                     VacationController.addSafetyDotIfMissOnce(interaction.user.id,lastDone)
                     UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
-                    PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
+                    // PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
                     VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
 
                     const vacationTicketLeft = totalTicket - 1
@@ -202,7 +202,7 @@ class VacationController{
             for (let i = 0; i < data.body.length; i++) {
                 const vacation = data.body[i];
                 const userId = vacation.UserId
-                PartyController.updateDataProgressRecap(userId,'vacation')
+                // PartyController.updateDataProgressRecap(userId,'vacation')
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = vacation.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
                 const {user} = await MemberController.getMember(client,userId)

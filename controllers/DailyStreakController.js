@@ -247,7 +247,7 @@ class DailyStreakController {
 		UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(-1)),user.id)
 		const files = await DailyStreakController.generateHabitBuilder(client,user)
 		DailyStreakController.updateIsRepairStreak(user.id)
-		PartyController.updateRecapAfterRepairStreak(user.id)
+		// PartyController.updateRecapAfterRepairStreak(user.id)
 		return DailyStreakMessage.successRepairStreak(user,files)
 	}
 

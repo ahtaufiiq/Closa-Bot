@@ -52,7 +52,7 @@ module.exports = {
 		// TimelineController.sendNotif2DaysBeforeKickoffDay(client)
 
 		// PartyController.remind30MinutesBeforeKickoff(client)
-		PartyController.createKickoffEvent(client)
+		// PartyController.createKickoffEvent(client)
 		// PartyController.removeWaitingRoom(client)
 		// PartyController.generateWaitingRoomPartyMode(client)
 		// PartyController.announcePartyModeAvailable(client)

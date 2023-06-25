@@ -49,7 +49,7 @@ module.exports = {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {
 				if(ReferralCodeController.showModalRedeem(interaction)) return
-				if(PartyController.showModalCustomReminder(interaction)) return
+				// if(PartyController.showModalCustomReminder(interaction)) return
 				if(GoalController.showModalWriteGoal(interaction)) return
 				if(GoalController.showModalEditGoal(interaction)) return 
 				if(GoalController.showModalPreferredCoworkingTime(interaction)) return 

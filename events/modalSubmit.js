@@ -328,7 +328,7 @@ The correct format:
 					user:modal.user
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareReflection(modal.user.id,msg.id,projectName))
-				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 				ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
 				
 				const incrementPoint = PointController.calculatePoint('reflection')
@@ -385,7 +385,7 @@ The correct format:
 					user:modal.user
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareCelebration(modal.user.id,msg.id,projectName))
-				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`)
 
 				const incrementPoint = PointController.calculatePoint('celebration')

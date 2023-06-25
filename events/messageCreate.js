@@ -57,8 +57,8 @@ module.exports = {
 			return
 		}
 
-		PartyController.handleMentionOutsideMemberInPartyRoom(msg)
-		PartyController.handleOutsideMemberChatInPartyRoom(msg)
+		// PartyController.handleMentionOutsideMemberInPartyRoom(msg)
+		// PartyController.handleOutsideMemberChatInPartyRoom(msg)
 		await DailyReport.activeMember(msg.client,msg.author.id)
 		PointController.addPoint(msg.author.id,msg.channel.type,0,msg.channelId)
 
@@ -238,14 +238,14 @@ module.exports = {
 
 				ChannelController.createThread(msg,titleProgress)
 
-				PartyController.updateDataProgressRecap(msg.author.id,'progress',{
-					avatarURL:msg.author.displayAvatarURL(),
-					username:msg.author.username,
-					msgId:msg.id,
-					msgContent:msg.content.split('\n')[0],
-					time:Time.getTimeOnly(Time.getDate()),
-					type:"progress"
-				})
+				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
+				// 	avatarURL:msg.author.displayAvatarURL(),
+				// 	username:msg.author.username,
+				// 	msgId:msg.id,
+				// 	msgContent:msg.content.split('\n')[0],
+				// 	time:Time.getTimeOnly(Time.getDate()),
+				// 	type:"progress"
+				// })
 				
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
