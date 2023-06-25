@@ -710,10 +710,14 @@ class GenerateImage{
               }
             }
             lines.push(line)
-            const gradient = context.createLinearGradient(x, y - 60, x , y + (lines.length * 55));
-            gradient.addColorStop(0,'#E9F1F9');
-            gradient.addColorStop(1, "#BDC4CB");
-            context.fillStyle = gradient
+            if(isSixWeekChallenge){
+                const gradient = context.createLinearGradient(x, y - 60, x , y + (lines.length * 55));
+                gradient.addColorStop(0,'#E9F1F9');
+                gradient.addColorStop(1, "#BDC4CB");
+                context.fillStyle = gradient
+            }else{
+                context.fillStyle = "#2B2B2B"; 
+            }
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
@@ -734,14 +738,18 @@ class GenerateImage{
         context.fillStyle = "#00B264"; 
         context.font = "42px JakartaSans";
         
-        const gradient = context.createLinearGradient(template.width/2, 350, template.width/2 , 390);
-        gradient.addColorStop(0,'#2AFCD7');
-        gradient.addColorStop(0.2,'#3AF6C9');
-        gradient.addColorStop(0.4,'#34ECE1');
-        gradient.addColorStop(0.6,'#3ADADA');
-        gradient.addColorStop(0.8,'#0FBDB2');
-        gradient.addColorStop(1, "#05B3BE");
-        context.fillStyle = gradient
+        if(isSixWeekChallenge){
+            const gradient = context.createLinearGradient(template.width/2, 350, template.width/2 , 390);
+            gradient.addColorStop(0,'#2AFCD7');
+            gradient.addColorStop(0.2,'#3AF6C9');
+            gradient.addColorStop(0.4,'#34ECE1');
+            gradient.addColorStop(0.6,'#3ADADA');
+            gradient.addColorStop(0.8,'#0FBDB2');
+            gradient.addColorStop(1, "#05B3BE");
+            context.fillStyle = gradient
+        }else{
+            context.fillStyle = "#00B264"; 
+        }
         context.fillText(project,template.width/2,391)
 
         context.font = "64px JakartaSans";
