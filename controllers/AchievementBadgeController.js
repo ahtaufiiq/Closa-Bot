@@ -15,7 +15,7 @@ class AchievementBadgeController{
 		const files = [new AttachmentBuilder(buffer,{name:`streak_badge_${author.username}.png`})]
 		
         setTimeout(async () => {
-            PartyController.shareToPartyRoom(client,author.id,PartyMessage.shareAchievementBadge(author,dailyStreak,files))
+            // PartyController.shareToPartyRoom(client,author.id,PartyMessage.shareAchievementBadge(author,dailyStreak,files))
     
             ChannelController.sendToNotification(
                 client,

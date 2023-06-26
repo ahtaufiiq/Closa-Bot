@@ -220,8 +220,7 @@ class DailyStreakController {
 		let goalName = ''
 
 		if (data?.goalId) {
-			const channel = ChannelController.getChannel(client,CHANNEL_GOALS)
-			const thread = await ChannelController.getThread(channel,data.goalId)
+			const thread = await ChannelController.getGoalThread(client,data.goalId)
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
@@ -248,7 +247,7 @@ class DailyStreakController {
 		UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(-1)),user.id)
 		const files = await DailyStreakController.generateHabitBuilder(client,user)
 		DailyStreakController.updateIsRepairStreak(user.id)
-		PartyController.updateRecapAfterRepairStreak(user.id)
+		// PartyController.updateRecapAfterRepairStreak(user.id)
 		return DailyStreakMessage.successRepairStreak(user,files)
 	}
 

@@ -49,7 +49,7 @@ module.exports = {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {
 				if(ReferralCodeController.showModalRedeem(interaction)) return
-				if(PartyController.showModalCustomReminder(interaction)) return
+				// if(PartyController.showModalCustomReminder(interaction)) return
 				if(GoalController.showModalWriteGoal(interaction)) return
 				if(GoalController.showModalEditGoal(interaction)) return 
 				if(GoalController.showModalPreferredCoworkingTime(interaction)) return 
@@ -124,17 +124,14 @@ module.exports = {
 					case 'continueFirstQuest':
 						await interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'continueSecondQuest':
 						await interaction.editReply(OnboardingMessage.secondQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'continueThirdQuest':
 						await interaction.editReply(OnboardingMessage.thirdQuest(interaction.user.id))
 						if(value !== 'guideline') ChannelController.deleteMessage(interaction.message)
-						else GuidelineInfoController.incrementTotalNotification(1,interaction.user.id)
 						break;
 					case 'startOnboarding':
 						OnboardingController.startOnboarding(interaction)
@@ -584,7 +581,8 @@ module.exports = {
 						interaction.editReply("Success leave party")
 						break;
 					case "continueReplaceGoal":
-						GoalController.interactionStartProject(interaction,targetUserId)
+						const isSixWeekChallenge = !!value
+						GoalController.interactionStartProject(interaction,targetUserId,isSixWeekChallenge)
 						break;
 					case "cancelReplaceGoal":
 						await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
@@ -596,6 +594,16 @@ module.exports = {
 						}else{
 							GoalController.interactionStartProject(interaction,targetUserId)
 						}
+						break;
+					case "start6WIC":
+						GoalController.alreadyHaveGoal(interaction.user.id)
+							.then(alreadyHaveGoal=>{
+								if (alreadyHaveGoal) {
+									interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,true))
+								}else{
+									GoalController.interactionStartProject(interaction,targetUserId,true)
+								}
+							})
 						break;
 					case "defaultReminder":
 						await PartyController.interactionSetDefaultReminder(interaction,value)
@@ -759,7 +767,8 @@ module.exports = {
 										.then()
 								}
 								const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
-								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id))
+								const isSixWeekChallenge = !!value
+								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
 								ChannelController.deleteMessage(interaction.message)
 							} catch (error) {
 								ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
@@ -782,7 +791,7 @@ module.exports = {
 						break;
 					case "selectDailyWorkGoal":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select daily work time someone else.**`,ephemeral:true})
-
+						const isSixWeekChallenge = !!value
 						if(valueMenu === 'custom'){
 							GoalController.showModalCustomDailyWorkTime(interaction)
 						}else {
@@ -792,7 +801,7 @@ module.exports = {
 								.update({dailyWorkTime:minWorkGoal})
 								.eq('id',interaction.user.id)
 								.then()
-							interaction.editReply(GoalMessage.preferredCoworkingTime(interaction.user.id))
+							interaction.editReply(GoalMessage.preferredCoworkingTime(interaction.user.id,isSixWeekChallenge))
 							ChannelController.deleteMessage(interaction.message)
 						}
 						break;

@@ -1,4 +1,4 @@
-const { EmbedBuilder, channelMention, userMention } = require("discord.js")
+const { EmbedBuilder, channelMention, userMention, ButtonStyle } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_GOALS } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -10,6 +10,7 @@ class GoalMessage {
 
     static initWelcomeStartProject(){
         return {
+            files:['./assets/images/banner_start_project.png'],
             content:`**Set a goal for your project & commit to it :dart:**
 
 read this first → https://tinyurl.com/bde9jyd2
@@ -17,12 +18,13 @@ read this first → https://tinyurl.com/bde9jyd2
 best of luck!
 ✌️`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton('startProject',"Start Project"),
+                MessageComponent.addButton('startProject',"Start a Project").setEmoji('✨'),
+                MessageComponent.addButton('start6WIC',"6-Week Challenge").setEmoji('🕹️'),
                 MessageComponent.addLinkButton('Read me','https://tinyurl.com/bde9jyd2')
             )],
         }
     }
-    static askUserWriteGoal(dayLeft,userId){
+    static askUserWriteGoal(dayLeft,userId,isSixWeekChallenge=false){
         return {
             content:`**Set a goal for your project** :dart: 
 
@@ -30,10 +32,10 @@ best of luck!
 
 For the project deadline you can follow:
 • the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"}\`\`
-• or set your own deadline for your project`,
+${!isSixWeekChallenge ? '• or set your own deadline for your project':''}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`writeGoal_${userId}`,"🎯 Set project goal")
+                    MessageComponent.addButton(`writeGoal_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"🎯 Set project goal")
                 )
             ]
         }
@@ -43,7 +45,7 @@ For the project deadline you can follow:
         return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}`
     }
 
-	static setDailyWorkTime(userId,fromSetting){
+	static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
         return {
@@ -53,7 +55,7 @@ For the project deadline you can follow:
             components: [
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
-                        `${command}_${userId}`,
+                        `${command}_${userId}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,
                         "- Select daily work time goal -",
                         [
                             {
@@ -83,12 +85,12 @@ For the project deadline you can follow:
         }
     }
 
-    static preferredCoworkingTime(userId){
+    static preferredCoworkingTime(userId,isSixWeekChallenge=false){
         return {
             content:`**Schedule your preferred daily coworking time 🕖👩‍💻👨‍💻**`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectPreferredCoworkingTime_${userId}`,
+                    `selectPreferredCoworkingTime_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
                     "- Select daily work time goal -",
                     [
                         {
@@ -181,17 +183,17 @@ p.s: *you can always change it in the next cohort*`,
         }
     }
 
-    static replySuccessSubmitGoal(userId,goalId){
+    static replySuccessSubmitGoal(userId,channelId,goalId){
         return `Congrats on starting your project ${MessageFormatting.tagUser(userId)}! 🎉
 
-here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}`
+here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
     }
 
-    static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files}){
+    static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files},isSixWeekChallenge=false){
         return {
-            content:`${user} just started a new project 🔥`,
+            content:`${user} ${isSixWeekChallenge ? 'just joined 6-week idea challenge! 🔥':'just started a new project 🔥'}`,
             files,
-            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}) ],
+            embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge) ],
             components: [MessageComponent.createComponent(
                 MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"),
                 MessageComponent.addButton(`editGoal_${user.id}`,"Edit","SECONDARY"),
@@ -199,13 +201,13 @@ here's your project → ${MessageFormatting.linkToMessage(CHANNEL_GOALS,goalId)}
         }
     }
 
-    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user}){
+    static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge=false){
         const dayLeft = Time.getDiffDay(Time.getDate(),deadlineGoal)
         const deadlineDate = Time.getDateOnly(deadlineGoal)
         const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
         return new EmbedBuilder()
-        .setColor("#ffffff")
+        .setColor(isSixWeekChallenge ? '#0E827B' : "#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },

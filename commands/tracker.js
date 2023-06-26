@@ -7,6 +7,7 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const DailyStreakController = require('../controllers/DailyStreakController');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
+const ChannelController = require('../controllers/ChannelController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -32,8 +33,7 @@ module.exports = {
 		let goalName = ''
 	
 		if (data?.goalId) {
-			const channel = interaction.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-			const thread = await channel.threads.fetch(data.goalId);
+			const thread = await ChannelController.getGoalThread(interaction.client,data.goalId)
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){

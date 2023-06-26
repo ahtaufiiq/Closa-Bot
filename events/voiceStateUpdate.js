@@ -240,7 +240,9 @@ module.exports = {
 							)
 						}else{
 							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
-							thread.setArchived(true)
+							setTimeout(() => {
+								thread.setArchived(true)
+							}, 5000);
 						}
 					}
 				} catch (error) {

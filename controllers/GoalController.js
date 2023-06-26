@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, ROLE_TRIAL_MEMBER, CHANNEL_BOT } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, ROLE_TRIAL_MEMBER, CHANNEL_BOT, CHANNEL_6WIC } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -43,7 +43,9 @@ class GoalController {
 					.then()
 			}
 			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
-			await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id))
+			const [commandButton,_,value] = modal.customId.split("_")
+			const isSixWeekChallenge = !!value
+			await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id,isSixWeekChallenge))
 			ChannelController.deleteMessage(modal.message)
 			
 		} catch (error) {
@@ -120,26 +122,28 @@ class GoalController {
 	
     }
 
-    static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,deadlineGoal}){
-		PartyController.setProgressReminder(interaction,shareProgressAt)
+    static async interactionPostGoal(interaction,{goal,about,project,shareProgressAt,deadlineGoal},isSixWeekChallenge=false){
+		// PartyController.setProgressReminder(interaction,shareProgressAt)
 
 		ChannelController.deleteMessage(interaction.message)
 		
-		const goalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,shareProgressAt,deadlineGoal})
-		await interaction.editReply(GoalMessage.replySuccessSubmitGoal(interaction.user.id,goalId))
+		const goalId = await GoalController.submitGoal(interaction.client,interaction.user,{project,goal,about,shareProgressAt,deadlineGoal},isSixWeekChallenge)
+		const channelId = isSixWeekChallenge ? CHANNEL_6WIC : CHANNEL_GOALS
+		await interaction.editReply(GoalMessage.replySuccessSubmitGoal(interaction.user.id,channelId,goalId))
 	}
 
-	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,deadlineGoal}){
+	static async submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt,deadlineGoal},isSixWeekChallenge=false){
 		PointController.addPoint(user.id,'goal')
 		const dataUser = await supabase.from('Users')
 			.select()
 			.eq('id',user.id)
 			.single()
 		const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
-		const channelGoals = ChannelController.getChannel(client,CHANNEL_GOALS)
+		const channelId = isSixWeekChallenge ? CHANNEL_6WIC : CHANNEL_GOALS
+		const channelGoals = ChannelController.getChannel(client,channelId)
 		const buffer = await GenerateImage.project({
 			user,project,goal,date:deadlineGoal
-		})
+		},isSixWeekChallenge)
 		const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
 		const msg = await channelGoals.send(GoalMessage.postGoal({
 			project,
@@ -150,7 +154,7 @@ class GoalController {
 			deadlineGoal,
 			preferredCoworkingTime,
 			files
-		}))
+		},isSixWeekChallenge))
 
 		const updatedData = await supabase.from("Goals")
 		.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
@@ -170,6 +174,7 @@ class GoalController {
 			isPartyMode:false,
 			alreadySetHighlight:false,
 			UserId:user.id,
+			goalType: isSixWeekChallenge ? '6wic' : 'default'
 		})
 		.then()
 
@@ -266,12 +271,13 @@ class GoalController {
 		try {
 			const {user} = await MemberController.getMember(client,data.UserId)
 			const existingGoal = await ChannelController.getMessage(channelGoals,data.id)
-			const {project,goal,about,shareProgressAt,deadlineGoal} = data
+			const {project,goal,goalType,about,shareProgressAt,deadlineGoal} = data
+			const isSixWeekChallenge = goalType === 'default' ? false : true
 			const buffer = await GenerateImage.project({
 				user,project,goal,date:Time.getDate(deadlineGoal)
-			})
+			},isSixWeekChallenge)
 			const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
-			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime}))
+			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime},isSixWeekChallenge))
 		} catch (error) {
 			ChannelController.sendError(error,`${data?.UserId} : ${MessageFormatting.linkToMessage(CHANNEL_GOALS,data?.id)}`)			
 		}
@@ -401,10 +407,10 @@ class GoalController {
 		return result
 	}
 
-	static async interactionStartProject(interaction,targetUserId){
+	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
 		ChannelController.sendToNotification(
 			interaction.client,
-			GoalMessage.setDailyWorkTime(targetUserId),
+			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge),
 			targetUserId
 		)
 		const notificationId = await UserController.getNotificationId(targetUserId)

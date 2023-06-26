@@ -188,13 +188,13 @@ You can type \`\`/remind highlight\`\` here, if you want to set your reminder in
 Thank you!`
     }
 
-    static warningReplaceExistingGoal(userId){
+    static warningReplaceExistingGoal(userId,isSixWeekChallenge){
         return {
             content:`Are you sure want to take another project? 
 Your future progress will be updated to your new project.`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`continueReplaceGoal_${userId}`,"Yes, continue"),
+                    MessageComponent.addButton(`continueReplaceGoal_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"Yes, continue"),
                     MessageComponent.addButton(`cancelReplaceGoal_${userId}`,"No","SECONDARY"),
                 )
             ]

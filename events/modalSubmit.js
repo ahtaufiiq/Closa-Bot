@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -100,7 +100,8 @@ module.exports = {
 					.update({dailyWorkTime:totalMinute})
 					.eq('id',modal.user.id)
 					.then()
-				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id))
+				const isSixWeekChallenge = !!value
+				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id,isSixWeekChallenge))
 				ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'scheduledCoworkingTimeGoal' || commandButton === 'selectPreferredCoworkingTime'){
 				GoalController.modalSubmitPreferredCoworkingTime(modal)
@@ -176,10 +177,10 @@ module.exports = {
 				const deadline = modal.getTextInputValue('deadline');
 				const deadlineGoal = Time.getDate(deadline)
 				deadlineGoal.setFullYear(Time.getDate().getFullYear())
-
+				const isSixWeekChallenge = !!value
 				await GoalController.interactionPostGoal(modal,{
 					goal,about,project,shareProgressAt,deadlineGoal
-				})
+				},isSixWeekChallenge)
 				ChannelController.deleteMessage(modal.message)
 
 				OnboardingController.handleOnboardingProject(modal.client,modal.user)
@@ -201,14 +202,15 @@ module.exports = {
 					.single()
 				const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
 				
+				const isSixWeekChallenge = modal.channelId === CHANNEL_6WIC ? true : false
 				const buffer = await GenerateImage.project({
 					user:modal.user,project,goal,date:deadlineGoal
-				})
+				},isSixWeekChallenge)
 				const files = [new AttachmentBuilder(buffer,{name:`${project}_${modal.user.username}.png`})]
 				
 				await modal.message.edit(GoalMessage.postGoal({
 					project,goal,about,shareProgressAt,user:modal.user,deadlineGoal,files,preferredCoworkingTime
-				}))
+				},isSixWeekChallenge))
 				GoalController.updateDataGoal({
 					id:modal.message.id,
 					project,goal,about,shareProgressAt
@@ -317,8 +319,7 @@ The correct format:
 				let projectName = '-'
 				let threadGoal 
 				if (dataUser.body?.goalId) {
-					const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
-					threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
@@ -327,7 +328,7 @@ The correct format:
 					user:modal.user
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareReflection(modal.user.id,msg.id,projectName))
-				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 				ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
 				
 				const incrementPoint = PointController.calculatePoint('reflection')
@@ -359,7 +360,7 @@ The correct format:
 
 				let metatagImage 
 
-				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
+				if(linkDeck && linkDeck.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkDeck)
 				if(!metatagImage && linkProject && linkProject.includes('http')) metatagImage = await CelebrationController.getMetatagImages(linkProject)
 	
 				if(!CelebrationController.isRangeCelebration()) {
@@ -375,8 +376,7 @@ The correct format:
 				let projectName = '-'
 				let threadGoal 
 				if (dataUser.body?.goalId) {
-					const channel = ChannelController.getChannel(modal.client,CHANNEL_GOALS)
-					threadGoal = await ChannelController.getThread(channel,dataUser.body.goalId)
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelCelebration = ChannelController.getChannel(modal.client,CHANNEL_CELEBRATE)
@@ -385,7 +385,7 @@ The correct format:
 					user:modal.user
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareCelebration(modal.user.id,msg.id,projectName))
-				PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
+				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
 				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`)
 
 				const incrementPoint = PointController.calculatePoint('celebration')

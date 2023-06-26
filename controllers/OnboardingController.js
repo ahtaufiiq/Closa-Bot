@@ -50,8 +50,6 @@ class OnboardingController {
         await MemberController.addRole(interaction.client,UserId,ROLE_ONBOARDING_PROJECT)
         if(value === 'fromReminder'){
             ChannelController.deleteMessage(interaction.message)
-        }else {
-            GuidelineInfoController.incrementTotalNotification(1,UserId)
         }
         const reply = await interaction.editReply(OnboardingMessage.firstQuest(interaction.user.id))
     }

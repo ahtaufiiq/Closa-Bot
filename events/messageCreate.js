@@ -57,8 +57,8 @@ module.exports = {
 			return
 		}
 
-		PartyController.handleMentionOutsideMemberInPartyRoom(msg)
-		PartyController.handleOutsideMemberChatInPartyRoom(msg)
+		// PartyController.handleMentionOutsideMemberInPartyRoom(msg)
+		// PartyController.handleOutsideMemberChatInPartyRoom(msg)
 		await DailyReport.activeMember(msg.client,msg.author.id)
 		PointController.addPoint(msg.author.id,msg.channel.type,0,msg.channelId)
 
@@ -208,8 +208,7 @@ module.exports = {
 				let goalName = ''
 				let msgGoalId
 				if (data?.goalId) {
-					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(data.goalId);
+					const thread = await ChannelController.getGoalThread(msg.client,data.goalId)
 					goalName = thread.name.split('by')[0]
 					let {totalDay,lastDone} = data
 					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
@@ -239,14 +238,14 @@ module.exports = {
 
 				ChannelController.createThread(msg,titleProgress)
 
-				PartyController.updateDataProgressRecap(msg.author.id,'progress',{
-					avatarURL:msg.author.displayAvatarURL(),
-					username:msg.author.username,
-					msgId:msg.id,
-					msgContent:msg.content.split('\n')[0],
-					time:Time.getTimeOnly(Time.getDate()),
-					type:"progress"
-				})
+				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
+				// 	avatarURL:msg.author.displayAvatarURL(),
+				// 	username:msg.author.username,
+				// 	msgId:msg.id,
+				// 	msgContent:msg.content.split('\n')[0],
+				// 	time:Time.getTimeOnly(Time.getDate()),
+				// 	type:"progress"
+				// })
 				
 				
 				RequestAxios.get(`todos/${msg.author.id}`)
@@ -400,8 +399,7 @@ module.exports = {
 				})
 
 				if (dataUser.body?.goalId) {
-					const channel = msg.client.guilds.cache.get(GUILD_ID).channels.cache.get(CHANNEL_GOALS)
-					const thread = await channel.threads.fetch(dataUser.body?.goalId);
+					const thread = await ChannelController.getGoalThread(msg.client,dataUser.body?.goalId)
 					thread.send({
 						content:msg.content,
 						files:filesCelebration

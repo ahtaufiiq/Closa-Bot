@@ -23,7 +23,7 @@ class TimelineController{
             const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
             const data = LocalData.getData()
 
-            ChannelController.changeName(client,'1086508511439110266',`🍜Runway: ${TimelineController.getDayLeft('2023-06-30')} days`)
+            ChannelController.changeName(client,'1086508511439110266',`🍜Runway: ${TimelineController.getDayLeft('2023-07-31')} days`)
     
             if(todayDate === data.kickoffDate){
                 data.celebrationDate = Time.addDateByWeek(data.kickoffDate,6)
