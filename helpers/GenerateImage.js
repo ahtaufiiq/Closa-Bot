@@ -750,7 +750,7 @@ class GenerateImage{
         }else{
             context.fillStyle = "#00B264"; 
         }
-        context.fillText(project,template.width/2,391)
+        context.fillText(FormatString.truncateString(project,32),template.width/2,391)
 
         context.font = "64px JakartaSans";
         wrapText(context,goal,(template.width/2)+5.5,485,900,76.8)
