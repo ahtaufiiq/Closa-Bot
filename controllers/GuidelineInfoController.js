@@ -137,13 +137,19 @@ class GuidelineInfoController {
                 try {
                     const {isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(id)
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
-                    if(!threadNotification) return ChannelController.sendError('Thread undefined',id)
+                    if(!threadNotification){
+                        ChannelController.sendError('delete notification: Thread undefined',id)
+                        continue
+                    }
                     if(threadNotification.archived) {
                         await threadNotification.setArchived(false)
                     }
                     
                     const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-                    if(!msg) return ChannelController.sendError('msg undefined',id)
+                    if(!msg) {
+                        ChannelController.sendError('delete notification: msg undefined',id)
+                        continue
+                    }
                     if(onboardingStep) msg.edit(OnboardingMessage.guidelineInfoQuest(id,onboardingStep,statusCompletedQuest))
                     else msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite))
 
