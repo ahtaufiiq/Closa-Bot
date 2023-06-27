@@ -488,7 +488,7 @@ class FocusSessionController {
                 ChannelController.getChannel(client,CHANNEL_SESSION_GOAL),
                 threadId
             )
-            if(!focusRoomUser[userId]?.statusSetSessionGoal === 'selectProject') return
+            if(focusRoomUser[userId]?.statusSetSessionGoal === 'done') return
 
             const msgSelecProject = await ChannelController.getMessage(threadSession,msgSelecProjectId)
             if(!taskId){
@@ -499,7 +499,7 @@ class FocusSessionController {
                 taskId = dataTask.body.id
             }
 
-            if(!focusRoomUser[userId]?.statusSetSessionGoal === 'selectProject') return
+            if(focusRoomUser[userId]?.statusSetSessionGoal === 'done') return
             if(projects.length === 1){
                 await ChannelController.deleteMessage(msgSelecProject)
                 await FocusSessionController.updateProjectId(taskId,ProjectId)
@@ -518,7 +518,7 @@ class FocusSessionController {
                 setTimeout(async () => {
                     if(!focusRoomUser[userId]) return
                     
-                    if(!focusRoomUser[userId]?.statusSetSessionGoal === 'selectProject') return
+                    if(focusRoomUser[userId]?.statusSetSessionGoal === 'done') return
                     await ChannelController.deleteMessage(msgSelecProject)
                     await FocusSessionController.updateProjectId(taskId,ProjectId)
                     const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')

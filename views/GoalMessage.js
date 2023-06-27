@@ -25,14 +25,22 @@ best of luck!
         }
     }
     static askUserWriteGoal(dayLeft,userId,isSixWeekChallenge=false){
-        return {
-            content:`**Set a goal for your project** :dart: 
+        let content = `**Set a goal for your project** :dart: 
 
 *We recommend to work on 6 weeks timeline to get meaningful result*
 
 For the project deadline you can follow:
-• the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"}\`\`
-${!isSixWeekChallenge ? '• or set your own deadline for your project':''}`,
+• the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
+• or set your own deadline for your project`
+
+        if(isSixWeekChallenge){
+            content = `**Set a goal for your project** :dart: 
+
+For the project deadline, please follow:
+→ community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\``
+        }
+        return {
+            content,
             components:[
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`writeGoal_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"🎯 Set project goal")
@@ -190,13 +198,20 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
     }
 
     static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files},isSixWeekChallenge=false){
+        const buttons = [
+            MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"),
+            MessageComponent.addButton(`editGoal_${user.id}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,"Edit","SECONDARY"),
+        ]
+        if(isSixWeekChallenge){
+            buttons.push(MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(GoalMessage.templateShareSixWIC(project,about))}`))
+        }
+
         return {
             content:`${user} ${isSixWeekChallenge ? 'just joined 6-week idea challenge! 🔥':'just started a new project 🔥'}`,
             files,
             embeds:[ this.templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge) ],
             components: [MessageComponent.createComponent(
-                MessageComponent.addButton(`followGoal_${user.id}_${user.username}`,"Follow","SECONDARY"),
-                MessageComponent.addButton(`editGoal_${user.id}`,"Edit","SECONDARY"),
+                ...buttons
             )]
         }
     }
@@ -245,6 +260,16 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
 
 Every time you share your work at ${channelMention(CHANNEL_TODO)}—it will automatically send inside this thread as well.
 so, you can always see the history of all your progress here.`
+    }
+
+    static templateShareSixWIC(projectName,aboutProject){
+        return `Hi Twitter!
+
+currently, I'm working on ${projectName} for the next few weeks.
+
+${aboutProject}
+
+this is my goal at @joinclosa:`
     }
 }
 
