@@ -51,7 +51,11 @@ module.exports = {
 			}else{
 				Email.sendInvitation6WeekChallenge(nickname,email,inviteLink)
 			}
-			thread.send(inviteLink)
+			if(thread) thread.send(inviteLink)
+			else{
+				const newThread = await ChannelController.createThread(reaction.message,'Sign Up')
+				newThread.send(inviteLink)
+			}
 		}
 		if(reaction.message.id !== "960790258256064542" && reaction.message.id !== "1013254534262423553") return
 		if (reaction.partial) {
