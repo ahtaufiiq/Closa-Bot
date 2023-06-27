@@ -230,7 +230,7 @@ class OnboardingController {
                         OnboardingMessage.completedQuest(user.id,files),
                         user.id
                     )
-                    await MemberController.addRole(client,userId,ROLE_NEW_MEMBER)
+                    await MemberController.addRole(client,user.id,ROLE_NEW_MEMBER)
                 }, 1000 * 15);
             }
             await MemberController.removeRole(client,user.id,ROLE_ONBOARDING_PROGRESS)
