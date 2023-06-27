@@ -590,7 +590,7 @@ module.exports = {
 					case "startProject":
 						const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
 						if (alreadyHaveGoal) {
-							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,"solo"))
+							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
 						}else{
 							GoalController.interactionStartProject(interaction,targetUserId)
 						}
