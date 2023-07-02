@@ -1,4 +1,4 @@
-const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE, CHANNEL_UPCOMING_SESSION, CHANNEL_CREATE_SESSION, CHANNEL_START_PROJECT } = require("../helpers/config")
+const { CHANNEL_TODO, CHANNEL_GOALS, CHANNEL_ACOUNTABILITY_MODE, CHANNEL_UPCOMING_SESSION, CHANNEL_CREATE_SESSION, CHANNEL_START_PROJECT, CHANNEL_CLOSA_CAFE } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const GenerateLink = require("../helpers/GenerateLink")
@@ -7,13 +7,16 @@ const { userMention, channelMention } = require("discord.js")
 class TodoReminderMessage{
     static progressReminder(userId){
         return {
-            content:`Hi @${MessageFormatting.tagUser(userId)}, how's your progress today? let's share on ${MessageFormatting.tagChannel(CHANNEL_TODO)}
+            content:`Hi ${userMention(userId)}, a friendly reminder to update your progress today
+let's share on ${channelMention(CHANNEL_TODO)}!
 
-if you haven't work yet, join or host virtual coworking:
-• Join → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}
-• Host → ${MessageFormatting.tagChannel(CHANNEL_CREATE_SESSION)} (invite friends)
+if you haven't work yet, let's join coworking session
+→ ${channelMention(CHANNEL_CLOSA_CAFE)} / ${channelMention(CHANNEL_CREATE_SESSION)}
 
-It scientifically proven to help you stay focus & get more done.`
+*it's scienctifically proven to help you stay focus & get more done*`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Daily-Coworking-80775e46f7c8440ca4b48062a6df9445')
+            )]
         }
     }
 
