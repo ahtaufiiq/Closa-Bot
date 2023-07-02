@@ -74,13 +74,20 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
 
     static startFocusSession(userId,voiceRoomId,isAlreadyJoinVoiceChannel=false){
         if(isAlreadyJoinVoiceChannel){
-            return `hi ${MessageFormatting.tagUser(userId)}, now please **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
-            
+            return `hi ${MessageFormatting.tagUser(userId)}, now please follow coworking rules:
+\`\`\`
+• turn-on camera 📸, don't cover your camera 🚫 
+• or sharescreen 🖥️, whatever you comfortable with.
+\`\`\`
 your time tracker will automatically start right after.`
         }else{
-            return `hi ${MessageFormatting.tagUser(userId)}, now please join → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
+            return `hi ${MessageFormatting.tagUser(userId)}, **now please join** → ${MessageFormatting.tagChannel(voiceRoomId ? voiceRoomId : CHANNEL_CLOSA_CAFE)}
 
-then **turn-on video** :camera_with_flash: or **sharescreen** :computer: to get started & stay accountable.
+then follow coworking rules:
+\`\`\`
+• turn-on camera 📸, don't cover your camera 🚫 
+• or sharescreen 🖥️, whatever you comfortable with.
+\`\`\`
 your time tracker will automatically start right after.`
         }
     }

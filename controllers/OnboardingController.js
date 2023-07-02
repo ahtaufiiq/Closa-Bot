@@ -37,6 +37,7 @@ class OnboardingController {
             .update({type:'new member'})
             .eq('id',user.id)
             .then()
+        OnboardingController.addReminderToStartOnboarding(user.id)
     }
 
     static async startOnboarding(interaction){
