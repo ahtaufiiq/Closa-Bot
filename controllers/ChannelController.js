@@ -79,6 +79,7 @@ class ChannelController{
             .select('id,projects,goalType')
             .eq('id',goalId)
             .single()
+        if(!data.body) return null
         const {goalType,projects,id} = data.body
         const channelGoals = ChannelController.getChannel(client,goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC)
         let thread = await ChannelController.getThread(channelGoals,id)
