@@ -76,12 +76,18 @@ class ChannelController{
 
     static async getGoalThread(client,goalId){
         const data = await supabase.from('Goals')
-            .select('id,goalType')
+            .select('id,projects,goalType')
             .eq('id',goalId)
             .single()
-        const {goalType,id} = data.body
+        const {goalType,projects,id} = data.body
         const channelGoals = ChannelController.getChannel(client,goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC)
-        const thread = await ChannelController.getThread(channelGoals,id)
+        let thread = await ChannelController.getThread(channelGoals,id)
+        if(!thread){
+            const msg = await ChannelController.getMessage(channelGoals,goalId)
+            await ChannelController.createThread(msg,projects)
+            thread = await ChannelController.getThread(channelGoals,id)
+            ChannelController.sendError('goal thread is null',MessageFormatting.linkToMessage(channelGoals.id,id))
+        }
         return thread
     }
 
