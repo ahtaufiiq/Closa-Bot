@@ -49,8 +49,8 @@ For the project deadline, please follow:
         }
     }
 
-    static replyStartSetGoal(notificationId){
-        return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}`
+    static replyStartSetGoal(notificationId,messageId){
+        return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}/${messageId}`
     }
 
 	static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
@@ -99,7 +99,7 @@ For the project deadline, please follow:
             components:[MessageComponent.createComponent(
                 MessageComponent.addMenu( 
                     `selectPreferredCoworkingTime_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
-                    "- Select daily work time goal -",
+                    "- Select your default coworking time –",
                     [
                         {
                             label: "08.00 🕗",
