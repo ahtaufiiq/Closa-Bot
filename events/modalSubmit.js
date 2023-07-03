@@ -469,7 +469,7 @@ The correct format:
 				const testimonialUser = modal.message.mentions.users.first()
 				const reply = modal.getTextInputValue('reply');
 
-				if(value) modal.message.edit(AchievementBadgeMessage.reviewTestimonial(testimonialLink,reply))
+				if(value) modal.message.edit(AchievementBadgeMessage.reviewTestimonial(reply))
 				else modal.message.edit(TestimonialMessage.reviewTestimonial(testimonialUser.id,testimonialLink,reply))
 				modal.editReply('change custom reply')
 			}else if(commandButton === 'scheduleCoworking'){

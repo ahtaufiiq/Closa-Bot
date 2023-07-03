@@ -35,12 +35,11 @@ class TestimonialController{
     static showModalCustomReply(interaction){
         const [commandButton,userId,value] = interaction.customId.split('_')
         if(commandButton === "customReplyTestimonial"){
-            const defaultValue = interaction.message.content.split('↓')[0]
             const modal = new Modal()
             .setCustomId(interaction.customId)
             .setTitle(`${value ? "Celebration" : "Testimonial"} reply`)
             .addComponents(
-                new TextInputComponent().setCustomId('reply').setLabel("Reply").setDefaultValue(value ? defaultValue : '').setStyle("LONG").setRequired(true),
+                new TextInputComponent().setCustomId('reply').setLabel("Reply").setDefaultValue(value ? interaction.message.content : '').setStyle("LONG").setRequired(true),
             )
             showModal(modal, { client: interaction.client, interaction: interaction});
             return true
