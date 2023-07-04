@@ -190,13 +190,15 @@ We'll reply to your post & celebrate together! 🥳`,
 if your submission is valid you'll receive the reward soon.`
     }
 
-    static reviewTestimonial(celebrationLink,reply){
-        return `${reply}
-↓ 
-${celebrationLink}`
+    static reviewTestimonial(reply){
+        return `${reply}`
     }
 
     static postCelebrationUser(UserId,celebrationLink,isShowButton=false,value){
+        let link
+        if(celebrationLink.includes('https://twitter')) link = 'https://vxtwitter'+celebrationLink.split('https://twitter')[1]
+        else link = celebrationLink
+
         const [type,achievement,PartnerId] = value.split('-')
         const components = []
         if(isShowButton) {
@@ -209,7 +211,7 @@ ${celebrationLink}`
             content:`${AchievementBadgeMessage.contentAchievement(UserId,PartnerId,achievement)[type][achievement]}
 Let's celebrate together!
 ↓ 
-${celebrationLink}`,
+${link}`,
             components
         }
     }
