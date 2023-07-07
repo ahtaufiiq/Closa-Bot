@@ -13,7 +13,7 @@ class DailyStreakMessage{
         let color = '#fefefe'
         if (longestStreak>=365) {
             color = '#ffcc00'
-            url = 'https://cdn.discordapp.com/attachments/746601801150758962/746682286530887780/708780647157858324.gif'
+            url = 'https://file.notion.so/f/s/50887520-c1d6-4abf-ba86-96a1d48a03c1/708780647157858324.gif?id=9cf98df4-c25f-474e-858e-13866a6302be&table=block&spaceId=d75f0238-b808-4d5a-a2dd-8e96e4a1aa7b&expirationTimestamp=1688817600000&signature=TxTJiEs3UOVabieN0gVcz-8Tu_6xNRefVxeayppabOY'
         }else if (longestStreak>=200) {
             color = '#5856ff'
             url = 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'
