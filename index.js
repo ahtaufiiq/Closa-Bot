@@ -5,7 +5,7 @@ const Sentry = require('@sentry/node')
 const Tracing = require('@sentry/tracing')
 const {ProfilingIntegration} = require('@sentry/profiling-node')
 const client = new Client({ 
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions,GatewayIntentBits.GuildScheduledEvents,GatewayIntentBits.GuildInvites],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions,GatewayIntentBits.GuildScheduledEvents,GatewayIntentBits.GuildInvites,GatewayIntentBits.GuildMembers],
 	partials: [Partials.Channel,Partials.Message,Partials.Reaction,Partials.GuildMember],
 });
 const discordModals = require('discord-modals'); // Define the discord-modals package!
