@@ -195,13 +195,9 @@ if your submission is valid you'll receive the reward soon.`
     }
 
     static postCelebrationUser(UserId,celebrationLink,isShowButton=false,value){
-        let link
-        if(celebrationLink.includes('https://twitter')) link = 'https://vxtwitter'+celebrationLink.split('https://twitter')[1]
-        else link = celebrationLink
-
         const [type,achievement,PartnerId] = value.split('-')
         const components = []
-        if(isShowButton) {
+        if(isShowButton) { 
             components.push(MessageComponent.createComponent(
                 MessageComponent.addButton(`postTestimonial_${UserId}_${value}`,'Post'),
                 MessageComponent.addButton(`customReplyTestimonial_${UserId}_${value}`,'Custom Reply',"SECONDARY")
@@ -211,7 +207,7 @@ if your submission is valid you'll receive the reward soon.`
             content:`${AchievementBadgeMessage.contentAchievement(UserId,PartnerId,achievement)[type][achievement]}
 Let's celebrate together!
 ↓ 
-${link}`,
+${celebrationLink}`,
             components
         }
     }
