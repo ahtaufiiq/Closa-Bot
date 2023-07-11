@@ -54,7 +54,6 @@ module.exports = {
 			const referrer = await MemberController.getMember(member.client,UserId)
 			setTimeout(async () => {
 				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
-				ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
 			}, 1000 * 15);
 		}else{
 			invites.set(invite.code,invite.uses)
@@ -74,7 +73,6 @@ module.exports = {
 			const referrer = await MemberController.getMember(member.client,UserId)
 			setTimeout(async () => {
 				const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(member.user,referrer.user,totalMember,totalInvite))
-				ChannelController.createThread(msg,`Welcome to closa ${member.user.username}!`)
 			}, 1000 * 15);
 		}
 

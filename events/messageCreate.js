@@ -39,20 +39,20 @@ module.exports = {
 	name: 'messageCreate',
 	async execute(msg,focusRoomUser,listFocusRoom) {
 		if(msg.author.bot) {
-			if(msg.channelId === CHANNEL_PAYMENT) {
-				await ChannelController.createThread(msg,'Sign Up')
-			}else if(msg.channelId === CHANNEL_FEATURE_REQUEST){
+			if(msg.channelId === CHANNEL_FEATURE_REQUEST){
 				let titleThread
 				if(msg.content.includes('changelog')){
 					titleThread = `Changelog — ${msg.embeds[0].data.title}`
 				}else{
 					titleThread = `Post — ${msg.embeds[0].data.title}`
 				}
-				ChannelController.createThread(msg,titleThread)
+				const thread = await ChannelController.createThread(msg,titleThread)
+				thread.setArchive(true)
 			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
 				if(!msg.mentions.users.first()) return
 				const titleThread = `${msg.mentions.users.first().username} just joined the hype`
-				ChannelController.createThread(msg,titleThread)
+				const thread = await ChannelController.createThread(msg,titleThread)
+				thread.setArchive(true)
 			}
 			return
 		}
@@ -88,33 +88,36 @@ module.exports = {
 					ChannelController.sendToNotification(msg.client,FocusSessionMessage.warningTypingNewTask(msg.author.id,joinedChannelId),msg.author.id)
 					ChannelController.deleteMessage(msg)
 				}else{
-					await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
-					const threadSession = await ChannelController.getThread(
-						ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
-						msg.id
-					)
-					const userId = msg.author.id
-					const projects = await FocusSessionController.getAllProjects(userId)
-					const projectMenus = FocusSessionController.getFormattedMenu(projects)
-					const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
-					const taskId = dataSessionGoal.body.id
+					try {
+						await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
+						const threadSession = await ChannelController.getThread(
+							ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
+							msg.id
+						)
+						const userId = msg.author.id
+						const projects = await FocusSessionController.getAllProjects(userId)
+						const projectMenus = FocusSessionController.getFormattedMenu(projects)
+						const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
+						const taskId = dataSessionGoal.body.id
 
-					threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
-						.then(msgSelecProject=>{
-							focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
-						})
-					if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
-					focusRoomUser[userId].threadId = msg.id
-					focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
+						threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
+							.then(msgSelecProject=>{
+								focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
+							})
+						if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
+						focusRoomUser[userId].threadId = msg.id
+						focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
 
-					
-					FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+						
+						FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+					} catch (error) {
+						ChannelController.sendError(error,msg.author.id+' messageCreate '+msg.id)
+					}
 				}
 				break;
 			case CHANNEL_HIGHLIGHT:
 				const patternEmoji = /^🔆/
 				if (patternEmoji.test(msg.content.trimStart())) {
-                    
 					if (Time.haveTime(msg.content)) {
 						const differentTime = msg.content.toLowerCase().includes(' wita') ? -1 : msg.content.toLowerCase().includes(' wit') ? -2 : 0
 						const isTomorrow = msg.content.toLowerCase().includes('tomorrow') 

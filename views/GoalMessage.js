@@ -11,12 +11,12 @@ class GoalMessage {
     static initWelcomeStartProject(){
         return {
             files:['./assets/images/banner_start_project.png'],
-            content:`**Set a goal for your project & commit to it :dart:**
+            content:`**Set a goal for your project & commit to it** :dart:
 
-read this first → https://tinyurl.com/bde9jyd2
+read this guideline first → https://closa.me/how-to-set-right-goal
 
 best of luck!
-✌️`,
+✌️ `,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('startProject',"Start a Project").setEmoji('✨'),
                 MessageComponent.addButton('start6WIC',"6-Week Challenge").setEmoji('🕹️'),
@@ -29,15 +29,14 @@ best of luck!
 
 *We recommend to work on 6 weeks timeline to get meaningful result*
 
-For the project deadline you can follow:
-• the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
-• or set your own deadline for your project`
+read this guideline before setting your goal → https://closa.me/how-to-set-right-goal`
 
         if(isSixWeekChallenge){
             content = `**Set a goal for your project** :dart: 
 
-For the project deadline, please follow:
-→ community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\``
+When setting your goal please follow:
+→ community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
+→ guideline for goal setting → https://closa.me/how-to-set-right-goal`
         }
         return {
             content,

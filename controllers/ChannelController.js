@@ -144,7 +144,7 @@ class ChannelController{
                 name: threadName,
             });
         } catch (error) {
-            
+            ChannelController.sendError(error,'create thread')
         }
     }
 
