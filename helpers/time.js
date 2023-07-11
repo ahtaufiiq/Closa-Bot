@@ -24,11 +24,11 @@ class Time {
     static getDayLeft(toDate){
         return this.getDiffDay(Time.getDate(Time.getTodayDateOnly()),toDate)
     }
-    static convertTime(time,type='long',isShowZeroMin=false){
+    static convertTime(time,type='long',isShowZeroMin=false,isOnlyHour=false){
         let day = Math.floor((time/60/24))
         let hour = Math.floor(time/60)
         let minute = time%60
-        if(day > 0){
+        if(day > 0 && !isOnlyHour){
             hour = hour % 24
             return `${formatDay(day)} ${formatHour(hour)}`
         }else if (time<60) {
@@ -88,8 +88,8 @@ class Time {
         return beginningMonthDate
     }
 
-    static getDay(date){
-        return this.getDate(date).toLocaleDateString("en-US", { weekday: 'long'})
+    static getDay(date,type='long'){
+        return this.getDate(date).toLocaleDateString("en-US", { weekday: type})
     }
 
     static getNextDate(day=0,dateOnly){
@@ -236,8 +236,9 @@ class Time {
         return formattedDate
     }
 
-    static getTimeOnly(date){
-        return `${date.getHours()}.${date.getMinutes() < 10 ? "0":""}${date.getMinutes()}`
+    static getTimeOnly(date,isTwoDigitHour=false){
+        if(isTwoDigitHour) return `${date.getHours() < 10 ? "0":""}${date.getHours()}.${date.getMinutes() < 10 ? "0":""}${date.getMinutes()}`
+        else return `${date.getHours()}.${date.getMinutes() < 10 ? "0":""}${date.getMinutes()}`
     }
     
     static isVacationMode(date) {

@@ -16,6 +16,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const SickDayMessage = require('../views/SickDayMessage');
 const getRandomValue = require('../helpers/getRandomValue');
 const PartyController = require('./PartyController');
+const AdvanceReportController = require('./AdvanceReportController');
 
 class SickDayController{
 
@@ -97,6 +98,7 @@ class SickDayController{
                 })
             UserController.updateOnVacation(true,interaction.user.id)
             SickDayController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
+            AdvanceReportController.updateDataWeeklyPurchaseTicket(interaction.user.id,'sick')
             // PartyController.updateDataProgressRecap(interaction.user.id,'sick')
             const startDateFormatted = Time.getFormattedDate(Time.getDate(startDate))
             const endDateFormatted = Time.getFormattedDate(Time.getNextDate(totalTicket,startDate))
@@ -116,6 +118,7 @@ class SickDayController{
             for (let i = 0; i < data.body.length; i++) {
                 const sickTicket = data.body[i];
                 const userId = sickTicket.UserId
+                AdvanceReportController.updateDataWeeklyPurchaseTicket(userId,'sick')
                 // PartyController.updateDataProgressRecap(userId,'sick')
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = sickTicket.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)

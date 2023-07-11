@@ -87,19 +87,13 @@ module.exports = {
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
 				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
 				if(focusRoomUser[modal.user.id]) focusRoomUser[modal.user.id].dailyWorkTime = totalMinute
-				supabase.from("Users")
-					.update({dailyWorkTime:totalMinute})
-					.eq('id',modal.user.id)
-					.then()
+				UserController.updateData({dailyWorkTime:totalMinute},modal.user.id)
 				await modal.editReply(FocusSessionMessage.successSetDailyWorkTime(totalMinute))
 			}else if(commandButton === 'selectDailyWorkGoal'){
 				await modal.deferReply()
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
 				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
-				supabase.from("Users")
-					.update({dailyWorkTime:totalMinute})
-					.eq('id',modal.user.id)
-					.then()
+				UserController.updateData({dailyWorkTime:totalMinute},modal.user.id)
 				const isSixWeekChallenge = !!value
 				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id,isSixWeekChallenge))
 				ChannelController.deleteMessage(modal.message)
@@ -153,7 +147,6 @@ module.exports = {
 						ReferralCodeController.getTotalInvited(response.ownedBy)
 					])
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
-					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
 				}else{
 					switch (response.description) {

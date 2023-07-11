@@ -37,11 +37,14 @@ const CoworkingMessage = require("../views/CoworkingMessage");
 const InfoUser = require("../helpers/InfoUser");
 const ReminderController = require("../controllers/ReminderController");
 const MessageComponent = require("../helpers/MessageComponent");
-const { ButtonStyle } = require("discord.js");
+const { ButtonStyle, AttachmentBuilder } = require("discord.js");
 const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
+const AdvanceReportController = require("../controllers/AdvanceReportController");
+const GenerateImage = require("../helpers/GenerateImage");
+const AdvanceReportMessage = require("../views/AdvanceReportMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -78,7 +81,7 @@ module.exports = {
 					await interaction.deferReply({ephemeral:true});
 				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
-				}else{
+				}else if(commandButton !== 'advanceReport'){
 					await interaction.deferReply({ephemeral:true});
 				}
 
@@ -87,8 +90,17 @@ module.exports = {
 					return	
 				}
 				
-				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
+				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "advanceReport":
+						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report someone else")
+						await interaction.deferReply();
+						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
+						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
+						const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
+						await interaction.editReply(AdvanceReportMessage.report(dataWeeklyReport,weeklyReportFiles))
+						// interaction.message.edit({components:[]})
+						break;
 					case "claimReward":
 						const inviteLink = await ReferralCodeController.generateInviteLink(interaction.client,targetUserId)
 						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value,inviteLink))
@@ -781,10 +793,7 @@ module.exports = {
 						}else {
 							await interaction.deferReply({ephemeral:true});
 							const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
-							supabase.from("Users")
-								.update({dailyWorkTime:minWorkGoal})
-								.eq('id',interaction.user.id)
-								.then()
+							UserController.updateData({dailyWorkTime:minWorkGoal},interaction.user.id)
 							if(focusRoomUser[interaction.user.id]) focusRoomUser[interaction.user.id].dailyWorkTime = +minWorkGoal
 							interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(minWorkGoal))
 						}
@@ -797,10 +806,7 @@ module.exports = {
 						}else {
 							const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
 							await interaction.deferReply();
-							supabase.from("Users")
-								.update({dailyWorkTime:minWorkGoal})
-								.eq('id',interaction.user.id)
-								.then()
+							UserController.updateData({dailyWorkTime:minWorkGoal},interaction.user.id)
 							interaction.editReply(GoalMessage.preferredCoworkingTime(interaction.user.id,isSixWeekChallenge))
 							ChannelController.deleteMessage(interaction.message)
 						}
@@ -810,10 +816,7 @@ module.exports = {
 						await interaction.deferReply();
 						const [projectId,taskId] = value.split('-')
 						const [min,labelMenu] = valueMenu.split('_')
-						supabase.from("Users")
-							.update({dailyWorkTime:min})
-							.eq('id',interaction.user.id)
-							.then()
+						UserController.updateData({dailyWorkTime:min},interaction.user.id)
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(min))
 						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
 						ChannelController.deleteMessage(interaction.message)
@@ -880,6 +883,19 @@ module.exports = {
 					default:
 						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 						break;
+				}
+			}else if (interaction.isAutocomplete()) {
+				const command = interaction.client.commands.get(interaction.commandName);
+				console.log(command);
+				if (!command) {
+					console.error(`No command matching ${interaction.commandName} was found.`);
+					return;
+				}
+		
+				try {
+					await command.autocomplete(interaction);
+				} catch (error) {
+					console.error(error);
 				}
 			}else{
 				const client = interaction.client

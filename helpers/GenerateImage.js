@@ -7,7 +7,431 @@ const Time = require('./time')
 const {split} = require('canvas-hypertxt')
 const supabase = require('./supabaseClient')
 const ChannelController = require('../controllers/ChannelController')
+const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProductiveTime, getWeekDateRange } = require('../controllers/AdvanceReportController')
 class GenerateImage{
+
+    static async advanceCoworkingReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+        function drawProgressBar(context,x,y,percentage,type='long'){
+            context.beginPath()
+            let maxLength = 351
+            if(type === 'short') maxLength = 122.5
+            if(percentage >= 100) percentage = 100
+            context.moveTo(x, y);
+            context.lineTo(x + (maxLength * percentage / 100), y);
+            context.lineCap = 'round'
+            context.lineWidth = 6;
+            context.strokeStyle = "#00B264";
+            context.stroke();
+            context.closePath()
+        }
+        function drawTimeBreakdown(context,x,y,focusTime,breakTime){
+            const totalTime = focusTime + breakTime
+            const percentageFocus = Math.round(focusTime/totalTime* 100) 
+            const percentageBreak = 100 - percentageFocus
+            context.beginPath()
+            let maxLength = 461
+            if(focusTime === 0 || breakTime === 0) maxLength = 470
+            let breakStart = x
+            if(focusTime){
+                context.moveTo(x, y);
+                context.lineTo(x + (maxLength * percentageFocus / 100), y);
+                context.lineCap = 'round'
+                context.lineWidth = 6;
+                context.strokeStyle = "#00B264";
+                context.stroke();
+                context.closePath()
+                breakStart = x + (maxLength * percentageFocus / 100) + 9
+            }
+            
+            if(breakTime){
+                console.log(breakStart);
+                context.beginPath()
+                context.moveTo(breakStart, y);
+                context.lineTo(breakStart + (maxLength * percentageBreak / 100), y);
+                context.lineCap = 'round'
+                context.lineWidth = 6;
+                context.strokeStyle = "#6F6DFF";
+                context.stroke();
+                context.closePath()
+            }
+        }
+        function drawHistogram(day,{focusTime,breakTime,dateOnly},highestLabel=2,showTime){
+            const sumbuX = {
+                'Mon':152,
+                'Tue':282,
+                'Wed':412,
+                'Thu':542,
+                'Fri':672,
+                'Sat':802,
+                'Sun':932,
+            }
+            let sumbuY = 301
+            if(breakTime){
+                const percentage = breakTime / highestLabel / 60
+                const valA = 149 * percentage
+                const valB = 149 * percentage
+                sumbuY -= valA
+                context.fillStyle = "#9393FF";
+                context.beginPath();
+                context.roundRect(sumbuX[day], sumbuY , 78, valB, [2,2,1,1]);
+                context.fill();
+                sumbuY -= 4
+            }
+            if(focusTime){
+                const percentage = focusTime / highestLabel / 60
+                const valA = 149 * percentage + (breakTime ? -4 : 0)
+                const valB = 149 * percentage + (breakTime ? -4 : 0)
+    
+                sumbuY -= valA
+                context.fillStyle = "#30D794";
+                context.beginPath();
+                context.roundRect(sumbuX[day], sumbuY , 78, valB, [2,2,1,1]);
+                context.fill();
+            }
+
+            if(showTime){
+                context.fillStyle = "#888888"; 
+                context.font = "500 15px Inter";
+                context.textAlign = 'center'
+                context.fillText(formatHour(focusTime+breakTime),sumbuX[day] + 39,sumbuY - 7)
+            }
+            
+            context.fillStyle = "#888888"; 
+            context.font = "500 15px Inter";
+            context.fillText(`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + 39,329)
+        }
+
+        function drawAverageLine(averageTime,highestLabel,image) {
+            const percentage = averageTime / highestLabel / 60
+            const sumbuY = 301 - (149 * percentage)
+            context.drawImage(image,109,sumbuY)
+        }
+
+        function formatHour(totalMinute) {
+            const hour = Math.floor(totalMinute / 60)
+            const minute = totalMinute % 60
+            return `${hour}:${minute < 10 ? '0':''}${minute}`
+        }
+
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+        }
+
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+
+        const {focusTime,breakTime,totalTime,totalSessionThisWeek} = thisWeekStats
+        const {totalTimeLastWeek,totalSessionLastWeek} = lastWeekStats
+
+        registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
+
+        const canvas = createCanvas(1086,806)
+        const context = canvas.getContext('2d')
+        const template = await loadImage(`./assets/images/advance_coworking_report.png`)
+        // const template = await loadImage(`./assets/images/advance_coworking_report_tes.png`)
+        // const template = await loadImage(`./assets/images/advance_coworking_report_empty.png`)
+        const averageLine = await loadImage(`./assets/images/advance_coworking_average_line.png`)
+        const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
+        const streakPartner = await loadImage(`./assets/images/advance_coworking_streak.png`)
+        const fillGrey = await loadImage(`./assets/images/advance_coworking_grey_line.png`)
+
+        context.drawImage(template,0,0)
+        
+        const avatarUrl = InfoUser.getAvatar(user)
+        const photoUser = await loadImage(avatarUrl)
+        drawRoundedImage(context,photoUser,33,27,56,56,13.5)
+        context.fillStyle = "#31373D"; 
+        context.font = "500 24px Inter";
+        context.fillText(UserController.getNameFromUserDiscord(user),111,51)
+        
+        context.fillStyle = "#888888"; 
+        context.font = "400 16px Inter";
+        context.fillText(dateRange,111,78)
+        
+        context.fillStyle = "#31373D"; 
+        context.font = "500 15px Inter";
+        context.fillText(totalSession,843.5,49)
+        
+        context.fillStyle = "#888888"; 
+        context.font = "400 14px Inter";
+        context.textAlign = 'end'
+        context.fillText(`${totalSessionThisWeek}x`,1051,49)
+        if(totalSessionLastWeek === null) context.fillText(`-`,1051,74)
+        else context.fillText(`${totalSessionLastWeek}x`,1051,74)
+        context.textAlign = 'start'
+        
+        context.font = "500 15px Inter";
+        if(totalSessionLastWeek === null){
+            context.fillStyle = "#7E7C7C"; 
+            context.fillText(`-`,844,74)
+        }else{
+            const sessionDiff = Math.abs(totalSessionThisWeek - totalSessionLastWeek)
+            if(sessionDiff === 0){
+                context.fillStyle = "#7E7C7C"; 
+                context.fillText(`0`,844,74)
+            }else if(totalSessionThisWeek > totalSessionLastWeek){
+                context.fillStyle = "#00B264"; 
+                context.fillText(`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
+            }else{
+                context.fillStyle = "#FF3666"; 
+                context.fillText(`${sessionDiff}- (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
+            }
+        }
+
+        const statsCoworking = getStatsCoworking(dailyCoworkingStats)
+        const hourLabels = generateLeftLabel(statsCoworking.max.time)
+        const highestLabel = hourLabels[hourLabels.length-1]
+
+        drawAverageLine(statsCoworking.average,highestLabel,averageLine)
+
+        dailyCoworkingStats[statsCoworking.max.day].showTime = true
+        dailyCoworkingStats[statsCoworking.min.day].showTime = true
+
+       
+        for (const day in dailyCoworkingStats) {
+            const showTime = dailyCoworkingStats[day]?.showTime ? true : false
+            drawHistogram(day,dailyCoworkingStats[day],highestLabel,showTime)
+        }
+        context.fillStyle = "#888888"; 
+        context.font = "500 16px Inter";
+        context.textAlign = 'center'
+        
+        for (let i = 0; i < hourLabels.length; i++) {
+            const label = hourLabels[i];
+            context.fillText(label, 100.3 , 306 - (37 * i));
+        }
+        context.textAlign = 'start'
+        
+        //--- Work Hours ----//
+        const percentageWorkHours = Math.round(totalTime/weeklyGoal*100)
+        drawProgressBar(context,156.7,392,percentageWorkHours)
+        
+        context.fillStyle = '#31373D'
+        context.font = "600 40px Inter";
+        context.fillText(Time.convertTime(totalTime,'short',true,true),35,456)
+        
+        context.textAlign = 'end'
+
+        context.fillStyle = '#888888'
+        context.font = "400 18px Inter";
+        context.fillText(`of ${Time.convertTime(weeklyGoal,'short',true,true)}`,511,456)
+        const {width:paddingPercentageWorkHours} = context.measureText(`of ${Time.convertTime(weeklyGoal,'short',true,true)}`)
+        context.fillStyle = '#31373D'
+        context.font = "500 24px Inter";
+        context.fillText(`${percentageWorkHours}% `,511 - paddingPercentageWorkHours,456)
+        context.textAlign = 'start'
+        
+
+        
+        drawTimeBreakdown(context,38,525,focusTime,breakTime)
+        
+        if(focusTime){
+            context.fillStyle = '#31373D'
+            context.font = "500 18px Inter";
+            context.fillText(Time.convertTime(focusTime,'short',true,true),35,560)
+            const metrics = context.measureText(Time.convertTime(focusTime,'short',true,true));
+            context.fillStyle = '#888888'
+            context.font = "400 18px Inter";
+            context.fillText(` · ${Math.round(focusTime/totalTime*100)}%`,35 + metrics.width,560)
+        }
+        if(breakTime){
+            context.textAlign = 'end'
+            context.fillStyle = '#888888'
+            context.font = "400 18px Inter";
+            context.fillText(` · ${Math.round(breakTime/totalTime*100)}%`,511,560)
+            const metrics = context.measureText(` · ${Math.round(breakTime/totalTime*100)}%`);
+            context.font = "500 18px Inter";
+            context.fillStyle = '#31373D'
+            context.fillText(Time.convertTime(breakTime,'short',true,true),511 - metrics.width,560)
+            context.textAlign = 'start'
+        }
+
+        //--- Coworking Friends ----//
+        const coworkerImageSize = 61;
+        let xCoordinatCoworker = 38
+        let yCoordinatCoworker = 619.2
+
+        const sizeFrame = 62
+        let xCoordinateFrame = 37
+        let yCoordinateFrame = 619
+        for (let i = 0; i < coworkingPartners.length; i++) {
+            const coworkingPartner = coworkingPartners[i];
+            const photo = await loadImage(coworkingPartner.avatar)
+            context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
+            context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
+
+            if(coworkingPartner.streak > 1){
+                context.textAlign = 'end'
+                context.fillStyle = "#888888"; 
+                context.font = "500 16px Inter";
+                context.drawImage(streakPartner,xCoordinatCoworker+3,yCoordinatCoworker + 51.2)
+                context.fillText(coworkingPartner.streak,xCoordinatCoworker+29.5,yCoordinatCoworker + 70);
+            }
+            xCoordinatCoworker += 83
+            xCoordinateFrame += 83 
+        }
+        context.textAlign = 'start'
+        context.fillStyle = '#31373D'
+        context.font = "500 16px Inter";
+        context.fillText(getMostProductiveTime(productiveTime),49,759)
+        
+        context.textAlign = 'center'
+        context.font = "400 14px Inter";
+        context.fillText(totalVacationTicket ? `${totalVacationTicket}x` : '-',489,735)
+        context.fillText(totalSickTicket ? `${totalSickTicket}x` : '-',489,761)
+        
+        context.textAlign = 'start'
+
+        let totalProjectTime = 0
+        projects.forEach(project=>{
+            totalProjectTime += Number(project.totalTime)
+        })
+
+        //--- Top Projects ----//
+
+
+        let koordinatProject = 451
+        let koordinatProgressProject = 446
+
+        
+        for (let i = 0; i < projects.length; i++) {
+            if(i === 3) break
+            const project = projects[i];
+            const percentage = Math.round(+project.totalTime / totalProjectTime * 100) 
+
+            context.fillStyle = "#31373D"; 
+            context.font = "400 16px Inter";
+            context.fillText(`${percentage}%`, 565 , koordinatProject);
+    
+            context.fillStyle = "#31373D"; 
+            context.font = "400 16px Inter";
+            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(project.name),18,true), 615 , koordinatProject);
+    
+            context.fillStyle = "#888888"; 
+            context.font = "400 16px Inter";
+            context.textAlign = 'right'
+            context.fillText(Time.convertTime(+project.totalTime,'short',true), 1042 , koordinatProject);
+            context.textAlign = 'left'
+
+            drawProgressBar(context,797.5,koordinatProgressProject,percentage,'short')
+            koordinatProject += 31
+            koordinatProgressProject += 31
+        }
+
+        // context.drawImage(fillGrey,35,763)
+        if(projects.length < 2) context.drawImage(fillGrey,565,471)
+        if(projects.length < 3) context.drawImage(fillGrey,565,501)
+
+        // //--- Tasks ----//
+        let totalTaskTime = 0
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            totalTaskTime += Number(task.totalTime)
+        }
+
+        let koordinatTask = 615
+        let koordinatProgressTask = 610
+        for (let i = 0; i < tasks.length; i++) {
+            if(i === 3) break
+            const task = tasks[i];
+            const percentage = Math.round(+task.totalTime / totalTaskTime * 100) 
+            context.fillStyle = "#31373D"; 
+            context.font = "400 16px Inter";
+            context.fillText(`${percentage}%`, 565 , koordinatTask);
+            
+            context.fillStyle = "#31373D"; 
+            context.font = "400 16px Inter";
+            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 615 , koordinatTask);
+    
+            context.fillStyle = "#888888"; 
+            context.font = "400 16px Inter";
+            context.textAlign = 'right'
+            context.fillText(Time.convertTime(+task.totalTime,'short',true), 1042 , koordinatTask);
+            context.textAlign = 'left'
+
+    
+            drawProgressBar(context,797.5,koordinatProgressTask,percentage,'short')
+
+            koordinatTask += 31
+            koordinatProgressTask += 31
+        }
+
+        if(tasks.length < 2) context.drawImage(fillGrey,565,635)
+        if(tasks.length < 3) context.drawImage(fillGrey,565,665)
+
+        //--- Average Hours ----//
+        const averageHour = Math.floor(totalTime/7)
+        const averageHourLastWeek = Math.floor(totalTimeLastWeek/7)
+        const diffAverageHour = Math.abs(averageHour-averageHourLastWeek)
+        
+        context.fillStyle = "#31373D"; 
+        context.font = "400 15px Inter";
+        context.textAlign = 'end'
+        context.fillText(Time.convertTime(averageHour,'short',true),1041,735)
+        if(totalTimeLastWeek === null){
+            context.fillStyle = '#7E7C7C'
+            context.fillText('-',1041,761)
+        }else context.fillText(Time.convertTime(averageHourLastWeek,'short',true),1041,761)
+
+        context.textAlign = 'start'
+        context.fillStyle = "#888888"; 
+        // context.fillText('2 hr 2 min↓',600,761)
+        let textAverageHoursChange
+        if(totalTimeLastWeek === null) {
+            textAverageHoursChange = '-'
+        }
+        else {
+            if(diffAverageHour === 0){
+                textAverageHoursChange = '0 min'
+            }else if(averageHour > averageHourLastWeek){
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↑`
+            }else{
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↓`
+            }
+        }
+        context.fillText(textAverageHoursChange,660,758)
+
+        context.font = "500 16px Inter";
+
+        let textAverageHours
+        if(totalTimeLastWeek === null) {
+            context.fillStyle = '#7E7C7C'
+            textAverageHours = '-'
+        }
+        else {
+            if(diffAverageHour === 0){
+                context.fillStyle = '#7E7C7C'
+                textAverageHours = '0%'
+            }else 
+            if(averageHour > averageHourLastWeek){
+                context.fillStyle = '#00B264'
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
+            }else{
+                context.fillStyle = '#FF3666'
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
+            }
+        }
+        context.fillText(textAverageHours,565,759)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+
     static async tracker(user,goalName,photo,data,friends,currentStreak,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
@@ -348,7 +772,7 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({user,dailyWorkTime,tasks,projects,totalSession,coworkingFriends,dateOnly}){
+    static async dailySummary({user,dailyWorkTime,tasks,projects,totalSession,coworkingPartners,dateOnly}){
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
             let maxLength = 350
@@ -539,7 +963,7 @@ class GenerateImage{
         if(projects.length < 2) context.drawImage(fillGrey,35,710)
         if(projects.length < 3) context.drawImage(fillGrey,35,751)
         
-        // //--- Coworking Friends ----//
+        //--- Coworking Friends ----//
         const coworkerImageSize = 61;
         let xCoordinatCoworker = 162.5
         let yCoordinatCoworker = 806
@@ -548,18 +972,18 @@ class GenerateImage{
         let xCoordinateFrame = 161.9
         let yCoordinateFrame = 806
         let counterCoordinatFrame = 0
-        for (let i = 0; i < coworkingFriends.length; i++) {
-            const coworkingFriend = coworkingFriends[i];
-            const photo = await loadImage(coworkingFriend.avatar)
+        for (let i = 0; i < coworkingPartners.length; i++) {
+            const coworkingPartner = coworkingPartners[i];
+            const photo = await loadImage(coworkingPartner.avatar)
             context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
             context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
 
-            if(coworkingFriend.streak > 1){
+            if(coworkingPartner.streak > 1){
                 context.textAlign = 'end'
                 context.fillStyle = "#888888"; 
                 context.font = "500 20px Archivo";
                 context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
-                context.fillText(coworkingFriend.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
+                context.fillText(coworkingPartner.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
             }
             counterCoordinatFrame += 0.01
             xCoordinatCoworker += 76.2
