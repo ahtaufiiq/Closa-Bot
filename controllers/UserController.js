@@ -81,7 +81,7 @@ class UserController{
 	static async updateLastActive(userId){
 		return await supabase.from("Users")
 			.update({
-				
+				lastActive:Time.getTodayDateOnly()
 			})
 			.eq('id',userId)
 	}
