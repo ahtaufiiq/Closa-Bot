@@ -153,7 +153,6 @@ module.exports = {
 						ReferralCodeController.getTotalInvited(response.ownedBy)
 					])
 					const msg = await channelConfirmation.send(ReferralCodeMessage.notifSuccessRedeem(modal.user,referrer.user,totalMember,totalInvited))
-					ChannelController.createThread(msg,`Welcome to closa ${modal.user.username}!`)
 					OnboardingController.welcomeOnboarding(modal.client,modal.user)
 				}else{
 					switch (response.description) {

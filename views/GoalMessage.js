@@ -29,15 +29,14 @@ best of luck!
 
 *We recommend to work on 6 weeks timeline to get meaningful result*
 
-For the project deadline you can follow:
-• the current community deadline: \`\`next demo day in ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
-• or set your own deadline for your project`
+read this guideline before setting your goal → https://closa.me/how-to-set-right-goal`
 
         if(isSixWeekChallenge){
             content = `**Set a goal for your project** :dart: 
 
-For the project deadline, please follow:
-→ community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\``
+When setting your goal please follow:
+→ community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
+→ guideline for goal setting → https://closa.me/how-to-set-right-goal`
         }
         return {
             content,

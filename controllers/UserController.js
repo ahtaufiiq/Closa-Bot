@@ -3,6 +3,12 @@ const Time = require("../helpers/time")
 const ChannelController = require("./ChannelController")
 
 class UserController{
+	static async updateData(data,userId){
+		return await supabase.from("Users")
+		.update(data)
+		.eq('id',userId)
+	}
+	
 	static async updateLastSafety(dateOnly,userId){
 		supabase.from("Users")
 		.update({'lastSafety':dateOnly})
@@ -75,7 +81,7 @@ class UserController{
 	static async updateLastActive(userId){
 		return await supabase.from("Users")
 			.update({
-				lastActive:Time.getTodayDateOnly()
+				
 			})
 			.eq('id',userId)
 	}

@@ -42,19 +42,10 @@ module.exports = {
             })
 			
             const inviteLink = MessageFormatting.inviteLink(invite.code)
-			const thread = await ChannelController.getThread(
-				ChannelController.getChannel(reaction.client,CHANNEL_PAYMENT),
-				reaction.message.id
-			)
 			if(`${reaction.emoji}`=== '✅'){
 				Email.sendInvitationForProductiveMember(nickname,email,inviteLink)
 			}else{
 				Email.sendInvitation6WeekChallenge(nickname,email,inviteLink)
-			}
-			if(thread) thread.send(inviteLink)
-			else{
-				const newThread = await ChannelController.createThread(reaction.message,'Sign Up')
-				newThread.send(inviteLink)
 			}
 		}
 		if(reaction.message.id !== "960790258256064542" && reaction.message.id !== "1013254534262423553") return
