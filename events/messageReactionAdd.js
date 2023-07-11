@@ -24,6 +24,7 @@ module.exports = {
 				reaction.message.id
 			)
 			const embed = msg.embeds[0]
+			const titleThread = embed.title
 			let email = ''
 			let nickname = ''
 			for (let i = 0; i < embed.fields.length; i++) {
@@ -34,14 +35,19 @@ module.exports = {
 					nickname = value
 				}
 			}	
-			let invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
-                maxAge:2_592_000,
-                unique:true,
-				maxUses:1,
-                reason: 'invite link',
-            })
+			let inviteLink
+			if(titleThread === 'Sign Up from Lisa'){
+				inviteLink = 'https://discord.gg/zMrRJrXCgb'
+			}else{
+				const invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
+					maxAge:2_592_000,
+					unique:true,
+					maxUses:1,
+					reason: 'invite link',
+				})
+				inviteLink = MessageFormatting.inviteLink(invite.code)
+			}
 			
-            const inviteLink = MessageFormatting.inviteLink(invite.code)
 			if(`${reaction.emoji}`=== '✅'){
 				Email.sendInvitationForProductiveMember(nickname,email,inviteLink)
 			}else{
