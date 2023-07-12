@@ -240,6 +240,7 @@ module.exports = {
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
 				ChannelController.createThread(msg,titleProgress)
+					.then(thread=> thread.setArchive(true))
 
 				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
 				// 	avatarURL:msg.author.displayAvatarURL(),
