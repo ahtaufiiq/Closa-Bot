@@ -14,7 +14,7 @@ module.exports = {
 	name: 'userUpdate',
 	async execute(oldUser,newUser) {
 		try {
-			const {user} = await MemberController.getMember(client,MY_ID)
+			const {user} = await MemberController.getMember(newUser.client,MY_ID)
 			user.send(`${newUser.id} ${InfoUser.getAvatar(newUser)}`)
 		} catch (error) {
 			ChannelController.sendError(error,'userUpdate')			
