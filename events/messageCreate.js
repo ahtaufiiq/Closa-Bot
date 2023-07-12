@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { AttachmentBuilder, MessageActivityType, MessageType } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType, userMention } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -55,6 +55,18 @@ module.exports = {
 				thread.setArchive(true)
 			}
 			return
+		}else if(msg.author.id === MY_ID){
+			if(msg.content.includes('/delete')){
+				const focusUserId = msg.content.split('/delete ')[1]
+				delete focusRoomUser[focusUserId]
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
+			}else if(msg.content.includes('/search')){
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
+			}
 		}
 
 		// PartyController.handleMentionOutsideMemberInPartyRoom(msg)
@@ -240,7 +252,7 @@ module.exports = {
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
 				ChannelController.createThread(msg,titleProgress)
-					.then(thread=> thread.setArchive(true))
+					.then(thread=> thread.setArchived(true))
 
 				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
 				// 	avatarURL:msg.author.displayAvatarURL(),
