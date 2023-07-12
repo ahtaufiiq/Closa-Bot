@@ -10,12 +10,18 @@ const Time = require("../helpers/time");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const fs = require('fs');
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const UserController = require("../controllers/UserController");
 module.exports = {
 	name: 'userUpdate',
 	async execute(oldUser,newUser) {
 		try {
-			const {user} = await MemberController.getMember(newUser.client,MY_ID)
-			user.send(`${newUser.id} ${InfoUser.getAvatar(newUser)}`)
+			if(InfoUser.getAvatar(oldUser) !== InfoUser.getAvatar(newUser)){
+				const {user} = await MemberController.getMember(newUser.client,MY_ID)
+				UserController.updateData({
+					avatarURL:InfoUser.getAvatar(newUser)
+				})
+				user.send(`${newUser.id} ${InfoUser.getAvatar(newUser)}`)
+			}
 		} catch (error) {
 			ChannelController.sendError(error,'userUpdate')			
 		}
