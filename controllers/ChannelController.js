@@ -68,7 +68,7 @@ class ChannelController{
             .select("notificationId")
             .eq('id',userId)
             .single()
-            if(!data.body) return null
+            if(!data.body || data.body.notificationId) return null
             const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }
@@ -185,6 +185,7 @@ class ChannelController{
     static async sendToNotification(client,messageContent,userId,notificationId){
         try {
             const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+            if(!notificationThread) return null
             if(Array.isArray(messageContent)){
                 messageContent.forEach(msg=>{
                     notificationThread.send(msg)
