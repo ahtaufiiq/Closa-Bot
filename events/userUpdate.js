@@ -16,11 +16,9 @@ module.exports = {
 	async execute(oldUser,newUser) {
 		try {
 			if(InfoUser.getAvatar(oldUser) !== InfoUser.getAvatar(newUser)){
-				const {user} = await MemberController.getMember(newUser.client,MY_ID)
 				UserController.updateData({
-					avatarURL:InfoUser.getAvatar(newUser)
-				})
-				user.send(`${newUser.id} ${InfoUser.getAvatar(newUser)}`)
+					avatarURL:InfoUser.getAvatar(newUser),
+				},newUser.id)
 			}
 		} catch (error) {
 			ChannelController.sendError(error,'userUpdate')			
