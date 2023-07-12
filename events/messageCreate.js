@@ -55,6 +55,13 @@ module.exports = {
 				thread.setArchive(true)
 			}
 			return
+		}else if(msg.author.id === MY_ID){
+			if(msg.content.includes('/delete')){
+				const focusUserId = msg.content.split('/delete ')[1]
+				return delete focusRoomUser[focusUserId]
+			}else if(msg.content.includes('/search')){
+				return msg.reply(Object.keys(focusRoomUser).map(focusUserId => `${userMention(focusUserId)}`).join(' '))
+			}
 		}
 
 		// PartyController.handleMentionOutsideMemberInPartyRoom(msg)
