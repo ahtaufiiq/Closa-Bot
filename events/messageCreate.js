@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { AttachmentBuilder, MessageActivityType, MessageType, userMention } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType, userMention, codeBlock } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -56,16 +56,29 @@ module.exports = {
 			}
 			return
 		}else if(msg.author.id === MY_ID){
+			//handle data coworking users (focusRoomUser)
 			if(msg.content.includes('/delete')){
 				const focusUserId = msg.content.split('/delete ')[1]
 				delete focusRoomUser[focusUserId]
 				const idUsers = Object.keys(focusRoomUser)
-				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				if(idUsers.length > 0) msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
 				else msg.reply('empty')
+				return
 			}else if(msg.content.includes('/search')){
 				const idUsers = Object.keys(focusRoomUser)
-				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				if(idUsers.length > 0) msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
 				else msg.reply('empty')
+				return
+			}else if(msg.content.includes('/detail')){
+				const focusUserId = msg.content.split('/detail ')[1]
+				if(focusRoomUser[focusUserId]){
+					msg.reply(codeBlock(JSON.stringify(focusRoomUser[focusUserId],null,2)))
+				}else msg.reply("no user")
+				return
+			}else if(msg.content.includes('/update')){
+				const focusUserId = msg.content.split('/detail ')[1]
+				focusRoomUser[focusUserId] = JSON.parse(msg.content.split(`\`\`\``)[1])
+				return
 			}
 		}
 
