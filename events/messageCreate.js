@@ -58,9 +58,14 @@ module.exports = {
 		}else if(msg.author.id === MY_ID){
 			if(msg.content.includes('/delete')){
 				const focusUserId = msg.content.split('/delete ')[1]
-				return delete focusRoomUser[focusUserId]
+				delete focusRoomUser[focusUserId]
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
 			}else if(msg.content.includes('/search')){
-				return msg.reply(Object.keys(focusRoomUser).map(focusUserId => `${userMention(focusUserId)}`).join(' '))
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) return msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
 			}
 		}
 
