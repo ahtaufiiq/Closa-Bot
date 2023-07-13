@@ -74,9 +74,9 @@ class ReferralCodeController{
         }
     }
 
-    static async incrementTotalInvite(inviteCode){
+    static async incrementTotalInvite(invite_code='',user_id=''){
         const {data:totalInvite} = await supabase
-        .rpc('incrementTotalInvite', { invite_code:inviteCode })
+        .rpc('incrementTotalInvite', { invite_code,user_id })
         
         return totalInvite
     }
