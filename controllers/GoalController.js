@@ -207,9 +207,10 @@ class GoalController {
 				}
 			})
 
-		ChannelController.createThread(msg,project,user.username)
-			.then(thread=>{
-				thread.send(GoalMessage.infoThreadProject(user.id))
+		ChannelController.createThread(msg,project,false,user.username)
+			.then(async thread=>{
+				await thread.send(GoalMessage.infoThreadProject(user.id))
+				thread.setArchived(true)
 			})
 		supabase.from('Users')
 			.update({

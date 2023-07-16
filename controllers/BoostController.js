@@ -141,7 +141,7 @@ class BoostController{
 		schedule.scheduleJob(`1 0 ${Time.minus7Hours(7)} * * 1`,async function() {
 			supabase.from("Users")
 				.select('id,notificationId')
-				.gte('endMembership',Time.getDateOnly(Time.getDate()))
+				.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
 				.then(data=>{
 					if (data.body.length > 0) {
 						data.body.forEach(async member=>{

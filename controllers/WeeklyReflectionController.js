@@ -15,7 +15,7 @@ class WeeklyReflectionController {
 				const data = LocalData.getData()
 				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
 				const msg = await channelAnnouncement.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
-				ChannelController.createThread(msg,"Weekly Reflection")
+				ChannelController.createThread(msg,"Weekly Reflection",true)
 				data.msgIdWeeklyReflection = msg.id
 				LocalData.writeData(data)
 				WeeklyReflectionController.countdownWritingReflection(msg)

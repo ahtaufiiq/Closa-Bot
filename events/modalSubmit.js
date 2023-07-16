@@ -47,7 +47,33 @@ module.exports = {
 	async execute(modal,focusRoomUser) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-			if (commandButton === 'reminderCoworking') {
+			if(commandButton === 'editQuickRoom'){
+				await modal.deferReply({ephemeral:true});
+				const name = modal.getTextInputValue('name');
+				let limit = Number(modal.getTextInputValue('limit'));
+				if(Number.isNaN(limit)) limit === 9
+
+				if(limit < 1) limit = 1
+				else if(limit > 25) limit = 25
+				
+				await Promise.all([
+					modal.channel.setName(name || `custom room - ${UserController.getNameFromUserDiscord(modal.user)}`),
+					modal.channel.setUserLimit(limit)
+				])
+				modal.editReply(`✅ success edited your channel`)
+
+				let counterEditRoom 
+				for (let i = 0; i < modal.message.components[0].components.length; i++) {
+					const {custom_id} = modal.message.components[0].components[i].data;
+					const [prevCommandButton,_,prevValue] = custom_id.split('_')
+					if(prevCommandButton === 'editQuickRoom'){
+						counterEditRoom = Number(prevValue) + 1
+						break
+					}
+				}
+				
+				await modal.message.edit(CoworkingMessage.successCreateQuickRoom(modal.user.id,counterEditRoom))
+			}else if (commandButton === 'reminderCoworking') {
 				await modal.deferReply({ephemeral:true});
 				const reminderTime = modal.getTextInputValue('schedule');
 				const differentTime = reminderTime.toLowerCase().includes(' wita') ? -1 : reminderTime.toLowerCase().includes(' wit') ? -2 : 0
@@ -284,12 +310,10 @@ The correct format:
 				const channelTestimonial = ChannelController.getChannel(modal.client,CHANNEL_TESTIMONIAL_PRIVATE)
 				if(commandButton === 'submitTestimonialAchievement'){
 					const msg = await channelTestimonial.send(AchievementBadgeMessage.postCelebrationUser(modal.user.id,link,true,value))
-					ChannelController.createThread(msg,`from ${modal.user.username}`)
 					await modal.editReply(AchievementBadgeMessage.replySubmitLink())
 				} 
 				else {
 					const msg = await channelTestimonial.send(TestimonialMessage.postTestimonialUser(modal.user.id,link,true))
-					ChannelController.createThread(msg,`from ${modal.user.username}`)
 					await modal.editReply(TestimonialMessage.successSubmitTestimonial())
 					await GuidelineInfoController.updateDataShowTestimonial(modal.user.id,false)
 					GuidelineInfoController.updateMessageGuideline(modal.client,modal.user.id)
@@ -328,7 +352,7 @@ The correct format:
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareReflection(modal.user.id,msg.id,projectName))
 				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
-				ChannelController.createThread(msg,`Reflection by ${modal.user.username}`)
+				ChannelController.createThread(msg,`Reflection by ${modal.user.username}`,true)
 				
 				const incrementPoint = PointController.calculatePoint('reflection')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
@@ -385,7 +409,7 @@ The correct format:
 				}))
 				threadGoal.send(PartyMessage.notifyMemberShareCelebration(modal.user.id,msg.id,projectName))
 				// PartyController.notifyMemberPartyShareReflection(modal.client,modal.user.id,msg.id)
-				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`)
+				ChannelController.createThread(msg,`Celebration by ${modal.user.username}`,true)
 
 				const incrementPoint = PointController.calculatePoint('celebration')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
@@ -424,7 +448,7 @@ The correct format:
 					name,about,expertise,needHelp,social,
 					user:modal.user
 				}))
-				ChannelController.createThread(msg,`Welcome ${modal.user.username}!`)
+				ChannelController.createThread(msg,`Welcome ${modal.user.username}!`,true)
 				const incrementPoint = PointController.calculatePoint('intro')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')

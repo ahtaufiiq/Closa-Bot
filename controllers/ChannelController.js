@@ -1,4 +1,4 @@
-const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType, ThreadAutoArchiveDuration } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER, CHANNEL_GOALS, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
@@ -131,7 +131,7 @@ class ChannelController{
         })
     }
 
-    static async createThread(msg,threadName,byAuthor){
+    static async createThread(msg,threadName,immediatelyCloseThread = false,byAuthor){
         try {
             if (byAuthor) {
                 const maxLength = 90 - `by ${byAuthor}`.length
@@ -140,8 +140,22 @@ class ChannelController{
                 threadName = FormatString.truncateString(threadName,90)
             }
             
-            return await msg.startThread({
+            const thread = await msg.startThread({
                 name: threadName,
+                autoArchiveDuration:ThreadAutoArchiveDuration.OneHour
+            });
+            if(immediatelyCloseThread) thread.setArchived(true)
+            return thread
+        } catch (error) {
+            ChannelController.sendError(error,'create thread')
+        }
+    }
+
+    static async createPrivateThread(channel,threadName){
+        try {
+            return await channel.threads.create({
+                name: threadName,
+                type: ChannelType.PrivateThread
             });
         } catch (error) {
             ChannelController.sendError(error,'create thread')

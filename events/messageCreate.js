@@ -46,13 +46,11 @@ module.exports = {
 				}else{
 					titleThread = `Post — ${msg.embeds[0].data.title}`
 				}
-				const thread = await ChannelController.createThread(msg,titleThread)
-				thread.setArchive(true)
+				await ChannelController.createThread(msg,titleThread,true)
 			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
 				if(!msg.mentions.users.first()) return
 				const titleThread = `${msg.mentions.users.first().username} just joined the hype`
-				const thread = await ChannelController.createThread(msg,titleThread)
-				thread.setArchive(true)
+				await ChannelController.createThread(msg,titleThread,true)
 			}
 			return
 		}else if(msg.author.id === MY_ID){
@@ -105,7 +103,7 @@ module.exports = {
 					TestimonialMessage.successPostVibes(msg.author.id),
 					msg.author.id
 				)
-				ChannelController.createThread(msg,titleTestimonial)
+				ChannelController.createThread(msg,titleTestimonial,true)
 				break;
 			case CHANNEL_SESSION_GOAL:
 				if(focusRoomUser[msg.author.id] && !focusRoomUser[msg.author.id].firstTime) {
@@ -264,8 +262,7 @@ module.exports = {
 				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
-				ChannelController.createThread(msg,titleProgress)
-					.then(thread=> thread.setArchived(true))
+				ChannelController.createThread(msg,titleProgress,true)
 
 				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
 				// 	avatarURL:msg.author.displayAvatarURL(),
@@ -402,16 +399,16 @@ module.exports = {
 				})
 				
 				.catch(err => {
-					console.log(err)
+					ChannelController.sendError(err)
 				})
 						
 				break;
 			case CHANNEL_TOPICS:
-				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)	
+				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`,true)	
 				break;
 			case CHANNEL_CELEBRATE:
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
-					ChannelController.createThread(msg,`${msg.author.username} celebration 🎉`)
+					ChannelController.createThread(msg,`${msg.author.username} celebration 🎉`,true)
 				}	
 				const dataUser = await supabase
 									.from('Users')
