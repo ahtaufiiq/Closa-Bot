@@ -1,4 +1,4 @@
-const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType, ThreadAutoArchiveDuration } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER, CHANNEL_GOALS, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
@@ -142,6 +142,7 @@ class ChannelController{
             
             const thread = await msg.startThread({
                 name: threadName,
+                autoArchiveDuration:ThreadAutoArchiveDuration.OneHour
             });
             if(immediatelyCloseThread) thread.setArchived(true)
             return thread
