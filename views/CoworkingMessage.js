@@ -1,20 +1,22 @@
-const { EmbedBuilder, ButtonStyle, userMention } = require("discord.js")
-const { CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_UPCOMING_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_TODO } = require("../helpers/config")
+const { EmbedBuilder, ButtonStyle, userMention, channelMention } = require("discord.js")
+const { CHANNEL_CLOSA_CAFE, GUILD_ID, CHANNEL_UPCOMING_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_TODO, CHANNEL_CREATE_YOUR_ROOM } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const InfoUser = require("../helpers/InfoUser")
 const UserController = require("../controllers/UserController")
 const GenerateLink = require("../helpers/GenerateLink")
 const Time = require("../helpers/time")
+const { codeBlock } = require("discord.js")
 
 class CoworkingMessage {
 
     static initWelcomeMessage(){
         return {
-            content:`**Host & schedule a coworking session 👨‍💻👩‍💻
+            content:`**Host & create your own coworking session 👨‍💻👩‍💻
 or book available session here** → ${MessageFormatting.tagChannel(CHANNEL_UPCOMING_SESSION)}`,
             files:['./assets/images/banner_coworking_session.png'],
             components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton('howToStartQuickRoom','Start now','⚡'),
                 MessageComponent.addEmojiButton('scheduleCoworking','Schedule','🗓️'),
                 MessageComponent.addLinkButton('Watch video (2 mins)','https://www.loom.com/share/fd2e8488d168404789ed12f7a98a7523?t=30').setEmoji('▶️'),
                 MessageComponent.addLinkButton('Learn more','https://closa.notion.site/Daily-Coworking-80775e46f7c8440ca4b48062a6df9445')
@@ -336,6 +338,38 @@ set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} & invite ${partner.use
     static lastReminderHostToStartSession(UserId){
         return `Hi ${userMention(UserId)}, please start the timer within 2 min
 or a new host will be assigned.`
+    }
+
+    static successCreateQuickRoom(UserId,counterEditRoomName=0){
+        return {
+            content:`Hi ${userMention(UserId)}, welcome to your custom room :sparkles:
+
+Here you can:
+- change the name of the room.
+- limit the number of user in this channel.
+- invite your friends to this channel.
+
+\`\`note:\`\` *for advance settings, host can right click this voice channel & choose "edit channel"*`,
+            components:[MessageComponent.createComponent(
+                // MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
+                MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
+            )]
+        }
+    }
+
+    static shareInviteQuickRoom(inviteCode,totalInvited){
+        return `**copy & share your voice room link **
+↓
+${codeBlock(`Join coworking https://discord.gg/${inviteCode}`)}
+Invite new friends to do coworking session at closa unlock interesting rewards!
+
+Total friends invited: \`${totalInvited}\` 🎁`
+    }
+
+    static replyHowToStartQuickRoom(){
+        return `Join here → ${channelMention(CHANNEL_CREATE_YOUR_ROOM)}
+
+*your room will ready automatically.*`
     }
 }
 module.exports = CoworkingMessage

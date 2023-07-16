@@ -131,7 +131,7 @@ class ChannelController{
         })
     }
 
-    static async createThread(msg,threadName,byAuthor){
+    static async createThread(msg,threadName,immediatelyCloseThread = false,byAuthor){
         try {
             if (byAuthor) {
                 const maxLength = 90 - `by ${byAuthor}`.length
@@ -140,8 +140,21 @@ class ChannelController{
                 threadName = FormatString.truncateString(threadName,90)
             }
             
-            return await msg.startThread({
+            const thread = await msg.startThread({
                 name: threadName,
+            });
+            if(immediatelyCloseThread) thread.setArchived(true)
+            return thread
+        } catch (error) {
+            ChannelController.sendError(error,'create thread')
+        }
+    }
+
+    static async createPrivateThread(channel,threadName){
+        try {
+            return await channel.threads.create({
+                name: threadName,
+                type: ChannelType.PrivateThread
             });
         } catch (error) {
             ChannelController.sendError(error,'create thread')

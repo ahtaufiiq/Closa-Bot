@@ -20,7 +20,7 @@ class CelebrationController {
 			const data = LocalData.getData()
 			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
 			const msg = await channelAnnouncement.send(CelebrationMessage.announcement(CelebrationController.getTimeLeft()))
-			ChannelController.createThread(msg,"Celebration")
+			ChannelController.createThread(msg,"Celebration",true)
 			data.msgIdCelebration = msg.id
 			LocalData.writeData(data)
 			CelebrationController.countdownWritingCelebration(msg)

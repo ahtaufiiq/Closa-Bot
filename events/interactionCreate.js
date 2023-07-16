@@ -42,6 +42,7 @@ const OnboardingController = require("../controllers/OnboardingController");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
+const RedisController = require("../helpers/RedisController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -69,12 +70,13 @@ module.exports = {
 				if(FocusSessionController.showModalSettingBreakReminder(interaction)) return
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
+				if(CoworkingController.showModalEditQuickRoom(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
 				if(OnboardingController.showModalReminderCoworking(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
-				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
+				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward' || commandButton === 'inviteQuickRoom'){
 					await interaction.deferReply({ephemeral:true});
 				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
@@ -89,6 +91,20 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "howToStartQuickRoom":
+						interaction.editReply(CoworkingMessage.replyHowToStartQuickRoom())
+						break
+					case "inviteQuickRoom":
+						interaction.channel.createInvite({
+							maxAge:86_400,
+							unique:true,
+						}).then(async invite=>{
+							const dataUser = await UserController.getDetail(interaction.user.id,'totalInvite')
+							const totalInvite = dataUser.body.totalInvite
+							RedisController.set(`invite_${invite.code}`,interaction.user.id,86_400)
+							interaction.editReply(CoworkingMessage.shareInviteQuickRoom(invite.code,totalInvite))
+						})
+						break
 					case "claimReward":
 						const inviteLink = await ReferralCodeController.generateInviteLink(interaction.client,targetUserId)
 						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value,inviteLink))
@@ -713,15 +729,16 @@ module.exports = {
 								content:interaction.message.content,
 							})
 							 
-							await ChannelController.createThread(msgTestimonial,`milestone by ${testimonialUser.username}`)
-							const thread = await ChannelController.getThread(
-								ChannelController.getChannel(interaction.client,msgTestimonial.channelId),
-								msgTestimonial.id
-							)
-							thread.send({embeds})
+							const thread = await ChannelController.createThread(msgTestimonial,`milestone by ${testimonialUser.username}`)
+							// const thread = await ChannelController.getThread(
+							// 	ChannelController.getChannel(interaction.client,msgTestimonial.channelId),
+							// 	msgTestimonial.id
+							// )
+							await thread.send({embeds})
+							thread.setArchived(true)
 						}else{
 							const msgTestimonial = await channelAchievements.send(interaction.message.content)
-							ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+							ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`,true)
 						}
 						break;
 					default:

@@ -37,6 +37,7 @@ module.exports = {
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channelId
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
+			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember)
 	
 			RecurringMeetupController.handleVoiceRoomWeeklySync(newMember,meetup,userId)
 
@@ -52,9 +53,10 @@ module.exports = {
 			}
 
 			if(isFirsTimeJoinFocusRoom(listFocusRoom,focusRoomUser,joinedChannelId,userId)){
-				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder')
+				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder,totalFocusSession')
 				const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
 				const breakReminder = Number(dataUser.body?.breakReminder)
+				const totalFocusSession = Number(dataUser.body?.totalFocusSession)
 				const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 				focusRoomUser[userId] = {
 					timestamp:Time.getDate().getTime(),
@@ -92,7 +94,7 @@ module.exports = {
 					.then(async ({data})=>{
 					if (data) {
 						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser)
-					}else{
+					}else if(totalFocusSession <= 3){
 						ChannelController.sendToNotification(
 							newMember.client,
 							FocusSessionMessage.askToWriteSessionGoal(userId),

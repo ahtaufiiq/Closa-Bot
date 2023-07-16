@@ -46,6 +46,7 @@ class UserController{
 		return await supabase.from("Users")
 			.select(select)
 			.gte('endMembership',Time.getTodayDateOnly())
+			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
 	}
 
 	static async getTotalPoint(userId){

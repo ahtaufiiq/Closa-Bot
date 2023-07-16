@@ -28,7 +28,7 @@ module.exports = {
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
-		await ReferralCodeController.cachingAllInviteLink(client,invites)
+		ReferralCodeController.cachingAllInviteLink(client,invites)
 		
 		OnboardingController.reminderStartOnboarding(client)
 

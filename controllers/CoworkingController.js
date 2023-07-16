@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID, CHANNEL_WEEKLY_SCYNC_CATEGORY, CHANNEL_UPCOMING_SESSION, ROLE_MEMBER, ROLE_NEW_MEMBER } = require('../helpers/config');
+const { GUILD_ID, CHANNEL_CLOSA_CAFE, ROLE_MORNING_CLUB, ROLE_NIGHT_CLUB, MY_ID, CHANNEL_WEEKLY_SCYNC_CATEGORY, CHANNEL_UPCOMING_SESSION, ROLE_MEMBER, ROLE_NEW_MEMBER, CHANNEL_CREATE_YOUR_ROOM } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -280,7 +280,7 @@ class CoworkingController {
         const msg = await channelUpcomingSession.send(CoworkingMessage.coworkingEvent('',name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
         modal.editReply(`✅ success scheduled your session → ${MessageFormatting.linkToMessage(CHANNEL_UPCOMING_SESSION,msg.id)}`)
 
-        ChannelController.createThread(msg,name)
+        ChannelController.createThread(msg,name,true)
         msg.edit(CoworkingMessage.coworkingEvent(msg.id,name,modal.user,totalSlot,0,rules,totalMinute,Time.getDate(coworkingDate),files))
         const voiceRoomName = `${name} — ${UserController.getNameFromUserDiscord(modal.user)}`
         await supabase.from("CoworkingEvents")
@@ -358,7 +358,8 @@ class CoworkingController {
             permissionOverwrites.push({
                 id:user.id,
                 allow:[
-                    PermissionFlagsBits.ViewChannel
+                    PermissionFlagsBits.ViewChannel,
+                    PermissionFlagsBits.ManageChannels,
                 ]
             })
         }else{
@@ -527,6 +528,86 @@ class CoworkingController {
                 status:'upcoming'
             }
         }
+    }
+
+    static async handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember){
+        try {
+            if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && totalOldMember === 0 && oldMember?.channel?.parentId === CHANNEL_WEEKLY_SCYNC_CATEGORY){
+                oldMember.channel.delete()
+            }
+            if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && newMember.channelId === CHANNEL_CREATE_YOUR_ROOM){
+                const guild = newMember.client.guilds.cache.get(GUILD_ID)
+                const permissionOverwrites = [
+                    {
+                        id:newMember.member.id,
+                        allow:[
+                            PermissionFlagsBits.ViewChannel,
+                            PermissionFlagsBits.Connect,
+                            PermissionFlagsBits.ManageChannels
+                        ]
+                    },
+                    {
+                        id:guild.roles.everyone,
+                        allow:[
+                            PermissionFlagsBits.ViewChannel,
+                            PermissionFlagsBits.Connect
+                        ]
+                    },
+                ]
+                const voiceChannel = await guild.channels.create({
+                    name:`custom room - ${UserController.getNameFromUserDiscord(newMember.member.user)}`,
+                    permissionOverwrites,
+                    parent:ChannelController.getChannel(newMember.client,CHANNEL_WEEKLY_SCYNC_CATEGORY),
+                    type:ChannelType.GuildVoice,
+                    userLimit:9
+                })
+                await newMember.member.voice.setChannel(voiceChannel)
+                listFocusRoom[voiceChannel.id] = {
+                    type:'quickRoom',
+                    HostId:newMember.member.id
+                }
+                
+                voiceChannel.send(CoworkingMessage.successCreateQuickRoom(newMember.member.id))
+
+            }
+        } catch (error) {
+            ChannelController.sendError(error,'quick create room '+newMember.member.id)
+        }
+    }
+
+    static showModalEditQuickRoom(interaction){
+        let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
+        if(targetUserId !== interaction.user.id) return interaction.reply({ephemeral:true,content:"⚠️ you're a guest, only host can edit the channel."})
+        if(commandButton === 'editQuickRoom'){
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Edit channel")
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Name").setStyle(TextInputStyle.Short).setValue(interaction.channel.name).setPlaceholder('type your room name (max 2x edit)').setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('limit').setLabel("User limit (min 1 & max 25)").setStyle(TextInputStyle.Short).setValue(`${interaction.channel.userLimit}`).setPlaceholder('e.g. 9').setRequired(true)),
+            )
+            
+			interaction.showModal(modal);
+			return true
+		}
+        return false
+    }
+    static showModalEditQuickRoomLimit(interaction){
+        let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
+        if(targetUserId !== interaction.user.id) return interaction.reply({ephemeral:true,content:"⚠️ you're a guest, only host can edit the channel."})
+        if(commandButton === 'editQuickRoomLimit'){
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Edit user limit")
+
+            modal.addComponents(
+            )
+            
+			interaction.showModal(modal);
+			return true
+		}
+        return false
     }
 
     static async handleStartCoworkingTimer(interaction,listFocusRoom){

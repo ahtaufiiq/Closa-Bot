@@ -10,6 +10,7 @@ const Time = require("../helpers/time");
 const OnboardingMessage = require("../views/OnboardingMessage");
 const fs = require('fs');
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const RedisController = require("../helpers/RedisController");
 module.exports = {
 	name: 'guildMemberAdd',
 	async execute(member,invites) {
@@ -43,10 +44,6 @@ module.exports = {
 				ReferralCodeController.incrementTotalInvite('M7Zh2u5GRN')
 			])
 			OnboardingController.welcomeOnboarding(member.client,member.user)
-			const dataUser = await supabase.from("Users")
-				.select('id')
-				.eq('inviteCode','M7Zh2u5GRN')
-				.single()
 				
 			const UserId = member.user.id === '449853586508349440' ? MY_ID : '449853586508349440'
 			GuidelineInfoController.updateMessageGuideline(member.client,UserId)
@@ -57,17 +54,22 @@ module.exports = {
 			}, 1000 * 15);
 		}else{
 			invites.set(invite.code,invite.uses)
-			const [totalMember,totalInvite] = await Promise.all([
-				MemberController.getTotalMember(),
-				ReferralCodeController.incrementTotalInvite(invite.code)
-			])
-			OnboardingController.welcomeOnboarding(member.client,member.user)
-			const dataUser = await supabase.from("Users")
+
+			const [dataUser,inviteQuickRoom] = await Promise.all([
+				supabase.from("Users")
 				.select('id')
 				.eq('inviteCode',invite.code)
-				.single()
+				.single(),
+				RedisController.get(`invite_${invite.code}`)
+			])
+			const UserId = dataUser.body?.id || inviteQuickRoom
+
+			const [totalMember,totalInvite] = await Promise.all([
+				MemberController.getTotalMember(),
+				ReferralCodeController.incrementTotalInvite(invite.code,UserId)
+			])
+			OnboardingController.welcomeOnboarding(member.client,member.user)
 				
-			const UserId = dataUser.body?.id
 			GuidelineInfoController.updateMessageGuideline(member.client,UserId)
 			const channelConfirmation = ChannelController.getChannel(member.client,CHANNEL_WELCOME)
 			const referrer = await MemberController.getMember(member.client,UserId)

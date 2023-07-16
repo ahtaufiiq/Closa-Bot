@@ -97,7 +97,7 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
 Do you want to repair your record?
 this fund helps us keep the community running.
 
-*To keep it fair, repair only valid 1x per cohort & 24-hour time to repair*
+*To keep it fair, repair only valid 1x per 30 days & 24-hour time to repair*
 
 Time left: \`\`${time}\`\` ⏳`,
             components:[MessageComponent.createComponent(
