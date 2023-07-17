@@ -74,7 +74,7 @@ module.exports = {
 				}else msg.reply("no user")
 				return
 			}else if(msg.content.includes('/update')){
-				const focusUserId = msg.content.split('/detail ')[1]
+				const focusUserId = msg.content.split('/update ')[1]
 				focusRoomUser[focusUserId] = JSON.parse(msg.content.split(`\`\`\``)[1])
 				return
 			}
