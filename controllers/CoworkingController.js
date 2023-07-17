@@ -577,8 +577,8 @@ class CoworkingController {
 
     static showModalEditQuickRoom(interaction){
         let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
-        if(targetUserId !== interaction.user.id) return interaction.reply({ephemeral:true,content:"⚠️ you're a guest, only host can edit the channel."})
         if(commandButton === 'editQuickRoom'){
+            if(targetUserId !== interaction.user.id) return interaction.reply({ephemeral:true,content:"⚠️ you're a guest, only host can edit the channel."})
 			const modal = new ModalBuilder()
 			.setCustomId(interaction.customId)
 			.setTitle("Edit channel")
@@ -586,22 +586,6 @@ class CoworkingController {
             modal.addComponents(
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('name').setLabel("Name").setStyle(TextInputStyle.Short).setValue(interaction.channel.name).setPlaceholder('type your room name (max 2x edit)').setRequired(true)),
                 new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('limit').setLabel("User limit (min 1 & max 25)").setStyle(TextInputStyle.Short).setValue(`${interaction.channel.userLimit}`).setPlaceholder('e.g. 9').setRequired(true)),
-            )
-            
-			interaction.showModal(modal);
-			return true
-		}
-        return false
-    }
-    static showModalEditQuickRoomLimit(interaction){
-        let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
-        if(targetUserId !== interaction.user.id) return interaction.reply({ephemeral:true,content:"⚠️ you're a guest, only host can edit the channel."})
-        if(commandButton === 'editQuickRoomLimit'){
-			const modal = new ModalBuilder()
-			.setCustomId(interaction.customId)
-			.setTitle("Edit user limit")
-
-            modal.addComponents(
             )
             
 			interaction.showModal(modal);
