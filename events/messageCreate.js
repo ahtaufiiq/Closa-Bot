@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { AttachmentBuilder, MessageActivityType, MessageType, userMention, codeBlock } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType, userMention, codeBlock, ThreadAutoArchiveDuration } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -112,7 +112,7 @@ module.exports = {
 					ChannelController.deleteMessage(msg)
 				}else{
 					try {
-						await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
+						await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`,false,null,ThreadAutoArchiveDuration.OneDay)
 						const threadSession = await ChannelController.getThread(
 							ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
 							msg.id
