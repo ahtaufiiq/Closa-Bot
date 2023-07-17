@@ -43,6 +43,7 @@ const OnboardingMessage = require("../views/OnboardingMessage");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const RedisController = require("../helpers/RedisController");
+const MessageFormatting = require("../helpers/MessageFormatting");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -91,6 +92,10 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "checkyMyNotif":
+						const myNotificationId = await UserController.getNotificationId(interaction.user.id)
+						await interaction.editReply(`here's your notification → ${MessageFormatting.linkToInsideThread(myNotificationId)}`)			
+						break;
 					case "howToStartQuickRoom":
 						interaction.editReply(CoworkingMessage.replyHowToStartQuickRoom())
 						break
