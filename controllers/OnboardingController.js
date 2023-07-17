@@ -21,18 +21,16 @@ class OnboardingController {
             MemberController.addRole(client,user.id,ROLE_ONBOARDING_PROGRESS),
         ])
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
-        const msg = await channelNotifications.send(`${user}`)
-            await supabase.from("Users")
-          .update({
-                    notificationId:msg.id,
-                    onboardingStep:'firstQuest',
-                })
-          .eq('id',user.id)
-        ChannelController.createThread(msg,user.username)
-          .then(async thread=>{
-            const msgGuideline = await thread.send(OnboardingMessage.guidelineInfoQuest(user.id,'firstQuest'))
-                    GuidelineInfoController.addNewData(user.id,msgGuideline.id)
-          })
+       
+        const thread = await ChannelController.createPrivateThread(channelNotifications,user.username)
+        await supabase.from("Users")
+            .update({
+                notificationId:thread.id,
+                onboardingStep:'firstQuest',
+            })
+            .eq('id',user.id)
+        const msgGuideline = await thread.send(OnboardingMessage.guidelineInfoQuest(user.id,'firstQuest'))
+        GuidelineInfoController.addNewData(user.id,msgGuideline.id)
         supabase.from("Users")
             .update({type:'new member'})
             .eq('id',user.id)
