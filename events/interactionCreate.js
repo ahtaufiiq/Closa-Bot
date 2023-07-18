@@ -96,6 +96,9 @@ module.exports = {
 						const myNotificationId = await UserController.getNotificationId(interaction.user.id)
 						await interaction.editReply(`here's your notification → ${MessageFormatting.linkToInsideThread(myNotificationId)}`)			
 						break;
+					case "guidelineQuickRoom":
+						interaction.editReply(CoworkingMessage.guidelineQuickRoom())
+						break;
 					case "howToStartQuickRoom":
 						interaction.editReply(CoworkingMessage.replyHowToStartQuickRoom())
 						break

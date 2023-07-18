@@ -344,15 +344,18 @@ or a new host will be assigned.`
         return {
             content:`Hi ${userMention(UserId)}, welcome to your custom room :sparkles:
 
-Here you can:
-- change the name of the room.
+Here host can edit the channel: (\`\`max 2x\`\`)
 - limit the number of user in this channel.
-- invite your friends to this channel.
+- change the name of the room.
 
-\`\`note:\`\` *for advance settings, host can right click this voice channel & choose "edit channel"*`,
+Everyone can:
+- invite friends inside or outside closa to the room.
+
+\`\`note:\`\` *for advance settings, host can right click this channel & choose "edit channel"*`,
             components:[MessageComponent.createComponent(
                 // MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
                 MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
+                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Quick Guideline','💡'),
             )]
         }
     }
@@ -370,6 +373,20 @@ Total friends invited: \`${totalInvited}\` 🎁`
         return `Join here → ${channelMention(CHANNEL_CREATE_YOUR_ROOM)}
 
 *your room will ready automatically.*`
+    }
+
+    static guidelineQuickRoom(){
+        return `**How to track your productivity with coworking session:**
+
+1. start by writing \`\`1 specific task\`\` to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
+2. select your project—your time tracker will auto-start right after.
+
+follow coworking rules, *so you don't get auto-kick from the room:*
+\`\`\`
+• turn-on camera  📸, don't cover your camera with something 🚫
+• or sharescreen 🖥️, share whatever you comfortable with.
+\`\`\`
+Feel free to invite your friends outside or inside closa :love_letter:`
     }
 }
 module.exports = CoworkingMessage

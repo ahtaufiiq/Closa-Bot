@@ -79,7 +79,7 @@ module.exports = {
 					joinedChannelId,
 					...focusRoomUser[userId]
 				}
-				kickUser(userId,newMember.client,joinedChannelId,focusRoomUser)
+				kickUser(userId,newMember.client,joinedChannelId,focusRoomUser,listFocusRoom)
 				.then(()=>{
 					newMember.disconnect()
 				})
@@ -110,7 +110,7 @@ module.exports = {
 				if (!focusRoomUser[userId]?.selfVideo && !focusRoomUser[userId]?.streaming) {
 					if (focusRoomUser[userId]?.status !== 'processed' ) {
 						focusRoomUser[userId]?.status === 'processed'
-						kickUser(userId,newMember.client,joinedChannelId,focusRoomUser)
+						kickUser(userId,newMember.client,joinedChannelId,focusRoomUser,listFocusRoom)
 							.then(()=>{		
 								newMember.disconnect()	
 							})
@@ -261,7 +261,7 @@ module.exports = {
 };
 
 
-async function kickUser(userId,client,joinedChannelId,focusRoomUser) {			
+async function kickUser(userId,client,joinedChannelId,focusRoomUser,listFocusRoom) {			
 	const time = Time.oneMinute() * 2
 	const oldTimestamp = focusRoomUser[userId]?.timestamp
 	return new Promise((resolve,reject)=>{
@@ -287,6 +287,12 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 							})
 					}else if(joinedChannelId === CHANNEL_CLOSA_CAFE){
 						const channel = ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+						channel.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
+							.then(msgReminder =>{
+								msg = msgReminder
+							})
+					}else if(listFocusRoom[joinedChannelId]?.type === 'quickRoom'){
+						const channel = await ChannelController.getChannel(client,joinedChannelId)
 						channel.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
 							.then(msgReminder =>{
 								msg = msgReminder
