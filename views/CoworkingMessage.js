@@ -342,7 +342,7 @@ or a new host will be assigned.`
 
     static successCreateQuickRoom(UserId,counterEditRoomName=0){
         return {
-            content:`Hi ${userMention(UserId)}, welcome to your custom room :sparkles:
+            content:`Hi ${userMention(UserId)}, you've reserved your own table at closa cafe ☕
 
 Here host can edit the channel: (\`\`max 2x\`\`)
 - limit the number of user in this channel.
