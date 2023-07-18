@@ -200,7 +200,7 @@ class ChannelController{
     }
 
     static async sendToNotification(client,messageContent,userId,notificationId){
-        const latestNotificationTime = Time.getDate().getTime()
+        const latestNotificationTime = Time.getDate().getTime().toString()
         supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',userId).then()
 
         try {
