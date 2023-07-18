@@ -200,9 +200,24 @@ class ChannelController{
     }
 
     static async sendToNotification(client,messageContent,userId,notificationId){
+        const latestNotificationTime = Time.getDate().getTime()
+        supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',userId).then()
+
         try {
             const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
             if(!notificationThread) return null
+
+            setTimeout(async () => {
+                const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',userId).single()
+                if(data.body.latestNotificationTime === latestNotificationTime){
+                    if(notificationThread) notificationThread.setArchived(true)
+                    else {
+                        const thread = await ChannelController.getNotificationThread(client,userId,notificationId)
+                        thread.setArchived(true)
+                    }
+                }
+            }, Time.oneMinute() * 60);
+
             if(Array.isArray(messageContent)){
                 messageContent.forEach(msg=>{
                     notificationThread.send(msg)
