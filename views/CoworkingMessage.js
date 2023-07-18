@@ -355,7 +355,7 @@ Everyone can:
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
                 MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
-                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Quick Guideline','💡'),
+                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Quick Guideline','💡', ButtonStyle.Secondary),
             )]
         }
     }
