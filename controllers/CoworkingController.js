@@ -555,7 +555,7 @@ class CoworkingController {
                     },
                 ]
                 const voiceChannel = await guild.channels.create({
-                    name:`custom room - ${UserController.getNameFromUserDiscord(newMember.member.user)}`,
+                    name:`☕ ${UserController.getNameFromUserDiscord(newMember.member.user)}'s table`,
                     permissionOverwrites,
                     parent:ChannelController.getChannel(newMember.client,CHANNEL_WEEKLY_SCYNC_CATEGORY),
                     type:ChannelType.GuildVoice,
