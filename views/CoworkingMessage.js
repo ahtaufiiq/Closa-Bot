@@ -353,7 +353,7 @@ Everyone can:
 
 \`\`note:\`\` *for advance settings, host can right click this channel & choose "edit channel"*`,
             components:[MessageComponent.createComponent(
-                // MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
+                MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
                 MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
                 MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Quick Guideline','💡'),
             )]
@@ -376,15 +376,16 @@ Total friends invited: \`${totalInvited}\` 🎁`
     }
 
     static guidelineQuickRoom(){
-        return `**How to track your productivity with coworking session:**
+        return `**How to start coworking session:**
 
-1. start by writing \`\`1 specific task\`\` to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
-2. select your project—your time tracker will auto-start right after.
+1. write \`\`1 specific task\`\` → ${channelMention(CHANNEL_SESSION_GOAL)}
+2. select your project inside session goals thread.
+3. follow coworking rules (turn on video / sharescreen).
 
-follow coworking rules, *so you don't get auto-kick from the room:*
+coworking rules to stay accountable, *so you don't get auto-kick:*
 \`\`\`
 • turn-on camera  📸, don't cover your camera with something 🚫
-• or sharescreen 🖥️, share whatever you comfortable with.
+• or sharescreen 🖥️, share whatever you're comfortable with.
 \`\`\`
 Feel free to invite your friends outside or inside closa :love_letter:`
     }
