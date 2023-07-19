@@ -150,11 +150,15 @@ class GuidelineInfoController {
                         ChannelController.sendError('delete notification: msg undefined',id)
                         continue
                     }
-                    if(onboardingStep) msg.edit(OnboardingMessage.guidelineInfoQuest(id,onboardingStep,statusCompletedQuest))
-                    else msg.edit(GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite))
-
-                    GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
+                    let guideline
+                    if(onboardingStep) guideline = OnboardingMessage.guidelineInfoQuest(id,onboardingStep,statusCompletedQuest)
+                    else guideline = GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite)
+                    await Promise.all([
+                        msg.edit(guideline),
+                        GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
+                    ])
                     GuidelineInfoController.resetDataTotalNotification(id)
+                    await threadNotification.setArchived(true)
                 } catch (error) {
                     ChannelController.sendError(error,id)
                 }

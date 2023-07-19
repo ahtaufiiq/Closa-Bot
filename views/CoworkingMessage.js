@@ -342,17 +342,20 @@ or a new host will be assigned.`
 
     static successCreateQuickRoom(UserId,counterEditRoomName=0){
         return {
-            content:`Hi ${userMention(UserId)}, welcome to your custom room :sparkles:
+            content:`Hi ${userMention(UserId)}, you've reserved your own table at closa cafe ☕
 
-Here you can:
-- change the name of the room.
+Here host can edit the channel: (\`\`max 2x\`\`)
 - limit the number of user in this channel.
-- invite your friends to this channel.
+- change the name of the room.
 
-\`\`note:\`\` *for advance settings, host can right click this voice channel & choose "edit channel"*`,
+Everyone can:
+- invite friends inside or outside closa to the room.
+
+\`\`note:\`\` *for advance settings, host can right click this channel & choose "edit channel"*`,
             components:[MessageComponent.createComponent(
-                // MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
+                MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
                 MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
+                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Guideline','💡', ButtonStyle.Secondary),
             )]
         }
     }
@@ -370,6 +373,21 @@ Total friends invited: \`${totalInvited}\` 🎁`
         return `Join here → ${channelMention(CHANNEL_CREATE_YOUR_ROOM)}
 
 *your room will ready automatically.*`
+    }
+
+    static guidelineQuickRoom(){
+        return `**How to start coworking session:**
+
+1. write \`\`1 specific task\`\` → ${channelMention(CHANNEL_SESSION_GOAL)}
+2. select your project inside session goals thread.
+3. follow coworking rules (turn on video / sharescreen).
+
+coworking rules to stay accountable, *so you don't get auto-kick:*
+\`\`\`
+• turn-on camera  📸, don't cover your camera with something 🚫
+• or sharescreen 🖥️, share whatever you're comfortable with.
+\`\`\`
+Feel free to invite your friends outside or inside closa :love_letter:`
     }
 }
 module.exports = CoworkingMessage

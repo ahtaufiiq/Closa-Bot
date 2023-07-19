@@ -55,11 +55,11 @@ module.exports = {
 
 				if(limit < 1) limit = 1
 				else if(limit > 25) limit = 25
-				
-				await Promise.all([
-					modal.channel.setName(name || `custom room - ${UserController.getNameFromUserDiscord(modal.user)}`),
-					modal.channel.setUserLimit(limit)
-				])
+				modal.channel.edit({
+					name:name || `☕ ${UserController.getNameFromUserDiscord(modal.user)}'s table`,
+					userLimit:limit
+				})
+
 				modal.editReply(`✅ success edited your channel`)
 
 				let counterEditRoom 
