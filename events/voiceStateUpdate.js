@@ -244,7 +244,7 @@ module.exports = {
 							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
 							setTimeout(() => {
 								thread.setArchived(true)
-							}, 5000);
+							}, Time.oneMinute() * 2);
 						}
 					}
 				} catch (error) {
