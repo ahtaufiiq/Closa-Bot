@@ -202,7 +202,7 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
             MessageComponent.addButton(`editGoal_${user.id}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,"Edit","SECONDARY"),
         ]
         if(isSixWeekChallenge){
-            buttons.push(MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(GoalMessage.templateShareSixWIC(project,about))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}))
+            buttons.push(MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(GoalMessage.templateShareSixWIC(project,about).substring(0,300))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}))
         }
 
         return {
