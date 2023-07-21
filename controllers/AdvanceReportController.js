@@ -358,6 +358,18 @@ class AdvanceReportController{
             totalVacationTicket: dataPurchaseTicket.body?.totalVacationTicket,
         }
     }
+
+    static async updateDataWeeklyGoal(dailyWorkTime,UserId){
+        const data = await supabase.from("CoworkingWeeklyReports").select('id')
+            .eq('UserId',UserId)
+            .eq('dateRange',AdvanceReportController.getWeekDateRange())
+            .single()
+        if(data.body){
+            await supabase.from("CoworkingWeeklyReports")
+                .update({weeklyGoal:dailyWorkTime*7})
+                .eq('id',data.body.id)
+        }
+    }
 }
 
 module.exports = AdvanceReportController

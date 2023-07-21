@@ -520,6 +520,7 @@ class FocusSessionController {
                 const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
                 if (!dataUser.body?.dailyWorkTime) {
                     await UserController.updateData({dailyWorkTime:60},userId)
+                    AdvanceReportController.updateDataWeeklyGoal(60,userId)
                 }
                 focusRoomUser[userId].statusSetSessionGoal = 'done'
                 if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
@@ -536,6 +537,7 @@ class FocusSessionController {
                     const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
                     if (!dataUser.body?.dailyWorkTime) {
                         await UserController.updateData({dailyWorkTime:60},userId)
+                        AdvanceReportController.updateDataWeeklyGoal(60,userId)
                     }
                     focusRoomUser[userId].statusSetSessionGoal = 'done'
                     if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){

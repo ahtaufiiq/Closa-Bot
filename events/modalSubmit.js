@@ -87,12 +87,14 @@ module.exports = {
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
 				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
 				if(focusRoomUser[modal.user.id]) focusRoomUser[modal.user.id].dailyWorkTime = totalMinute
+				AdvanceReportController.updateDataWeeklyGoal(totalMinute,modal.user.id)
 				UserController.updateData({dailyWorkTime:totalMinute},modal.user.id)
 				await modal.editReply(FocusSessionMessage.successSetDailyWorkTime(totalMinute))
 			}else if(commandButton === 'selectDailyWorkGoal'){
 				await modal.deferReply()
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
 				const totalMinute = Time.getTotalMinutes(dailyWorkGoal)
+				AdvanceReportController.updateDataWeeklyGoal(totalMinute,modal.user.id)
 				UserController.updateData({dailyWorkTime:totalMinute},modal.user.id)
 				const isSixWeekChallenge = !!value
 				await modal.editReply(GoalMessage.preferredCoworkingTime(modal.user.id,isSixWeekChallenge))

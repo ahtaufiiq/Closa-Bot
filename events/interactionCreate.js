@@ -793,6 +793,7 @@ module.exports = {
 						}else {
 							await interaction.deferReply({ephemeral:true});
 							const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
+							AdvanceReportController.updateDataWeeklyGoal(minWorkGoal,interaction.user.id)
 							UserController.updateData({dailyWorkTime:minWorkGoal},interaction.user.id)
 							if(focusRoomUser[interaction.user.id]) focusRoomUser[interaction.user.id].dailyWorkTime = +minWorkGoal
 							interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(minWorkGoal))
@@ -806,6 +807,7 @@ module.exports = {
 						}else {
 							const [minWorkGoal,labelMenuWorkGoal] = valueMenu.split('_')
 							await interaction.deferReply();
+							AdvanceReportController.updateDataWeeklyGoal(minWorkGoal,interaction.user.id)
 							UserController.updateData({dailyWorkTime:minWorkGoal},interaction.user.id)
 							interaction.editReply(GoalMessage.preferredCoworkingTime(interaction.user.id,isSixWeekChallenge))
 							ChannelController.deleteMessage(interaction.message)
@@ -816,6 +818,7 @@ module.exports = {
 						await interaction.deferReply();
 						const [projectId,taskId] = value.split('-')
 						const [min,labelMenu] = valueMenu.split('_')
+						AdvanceReportController.updateDataWeeklyGoal(min,interaction.user.id)
 						UserController.updateData({dailyWorkTime:min},interaction.user.id)
 						interaction.editReply(FocusSessionMessage.successSetDailyWorkTime(min))
 						FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,taskId,projectId,listFocusRoom)
