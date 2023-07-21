@@ -258,7 +258,8 @@ ${isMoreThanTenMinutes ? "*i'll remind you 10 minutes before the schedule begin*
 
     static howToActivateDM(UserId){
         return {
-            content:`Hi ${userMention(UserId)}, please activate your direct message so ${userMention(CLIENT_ID)} bot can send you reminder & help you stay on track.
+            content:`Hi ${userMention(UserId)}, please activate your direct message 
+so ${userMention(CLIENT_ID)} bot can send you reminder & help you stay on track.
 
 here's how to activate your direct message:
 1. right click on closa server logo on the left panel.
@@ -294,7 +295,7 @@ welcome to closa ${user}!
 > A smart discord server where builders stay productive together.
 > Join daily coworking, track your progress, & ship your passion projects faster.
 
-we'll use this direct message to send you reminder to help you stay on track.
+\`\`note:\`\` we'll use this direct message to send you reminders to help you stay on track.
 
 **To get started go to →** ${channelMention(CHANNEL_GUIDELINE)}`
     }
