@@ -39,7 +39,6 @@ class OnboardingController {
         OnboardingController.addReminderToStartOnboarding(user.id)
 
         ChannelController.archivedThreadInactive(user.id,thread)
-        OnboardingController.checkOpenDM(client,user)
     }
 
     static async startOnboarding(interaction){
