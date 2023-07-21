@@ -8,6 +8,7 @@ const { CHANNEL_ANNOUNCEMENT, CHANNEL_PARTY_ROOM, CHANNEL_REFLECTION, CHANNEL_GE
 const MessageFormatting = require('../helpers/MessageFormatting');
 const LocalData = require('../helpers/LocalData');
 const UserController = require('./UserController');
+const MemberController = require('./MemberController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 2`, async function(){
@@ -24,11 +25,10 @@ class WeeklyReflectionController {
 					.then(async data=>{
 						for (let i = 0; i < data.body.length; i++) {
 							const {id:userId,notificationId} = data.body[i]
-							ChannelController.sendToNotification(
+							MemberController.sendToDM(
 								client,
 								WeeklyReflectionMessage.writeReflection(userId),
-								userId,
-								notificationId
+								userId
 							)
 						}
 					})

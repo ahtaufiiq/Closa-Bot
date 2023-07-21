@@ -12,6 +12,7 @@ const UserController = require('./UserController');
 const GenerateImage = require('../helpers/GenerateImage');
 const InfoUser = require('../helpers/InfoUser');
 const MessageFormatting = require('../helpers/MessageFormatting');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 
 class CoworkingController {
@@ -571,7 +572,7 @@ class CoworkingController {
 
             }
         } catch (error) {
-            ChannelController.sendError(error,'quick create room '+newMember.member.id)
+            DiscordWebhook.sendError(error,'quick create room '+newMember.member.id)
         }
     }
 

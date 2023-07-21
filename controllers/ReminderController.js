@@ -5,6 +5,7 @@ const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const MemberController = require("./MemberController");
 class ReminderController{
 
 	static showModalSetHighlightReminder(interaction){
@@ -48,11 +49,11 @@ class ReminderController{
 										scheduleReminderProgress.cancel()
 									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
 										const {id:userId,notificationId} = data;
-										ChannelController.sendToNotification(
+										MemberController.sendToDM(
 											client,
 											TodoReminderMessage.progressReminder(userId),
 											userId,
-											notificationId
+											true
 										)
 									}
 								}
@@ -92,11 +93,10 @@ class ReminderController{
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
 											const {id:userId,notificationId} = data;
-											ChannelController.sendToNotification(
+											MemberController.sendToDM(
 												client,
 												HighlightReminderMessage.highlightReminder(userId),
-												userId,
-												notificationId
+												userId
 											)
 										}
 									}

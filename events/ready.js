@@ -89,7 +89,6 @@ module.exports = {
 		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
 
 		BoostController.remindBoostInactiveMember(client)
-		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
 		BoostController.resetChannelBoost(client)
 

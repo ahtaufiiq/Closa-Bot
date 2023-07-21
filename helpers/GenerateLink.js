@@ -1,4 +1,4 @@
-const ChannelController = require("../controllers/ChannelController")
+const DiscordWebhook = require("./DiscordWebhook")
 
 class GenerateLink {
     static addToCalendar(title,description,location,startDate,endDate) {
@@ -8,7 +8,7 @@ class GenerateLink {
             return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}&dates=${startTime}%2F${endTime}`
             //https://www.labnol.org/calendar/
         } catch (error) {
-            ChannelController.sendError(error,`${startDate} ${endDate}`)
+            DiscordWebhook.sendError(error,`${startDate} ${endDate}`)
             return null            
         }
     }

@@ -16,6 +16,7 @@ const UserController = require('./UserController');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
 const ReminderController = require('./ReminderController');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 class GoalController {
 
@@ -49,7 +50,7 @@ class GoalController {
 			ChannelController.deleteMessage(modal.message)
 			
 		} catch (error) {
-			ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+			DiscordWebhook.sendError(error,`${modal.user.id} ${coworkingTime}`)
 		}
     }
 
@@ -291,7 +292,7 @@ class GoalController {
 			const files = [new AttachmentBuilder(buffer,{name:`${project}_${user.username}.png`})]
 			await existingGoal.edit(GoalMessage.postGoal({project,goal,about,shareProgressAt,deadlineGoal:Time.getDate(deadlineGoal),user:user,files,preferredCoworkingTime},isSixWeekChallenge))
 		} catch (error) {
-			ChannelController.sendError(error,`${data?.UserId} : ${MessageFormatting.linkToMessage(channelGoals.id,data?.id)}`)			
+			DiscordWebhook.sendError(error,`${data?.UserId} : ${MessageFormatting.linkToMessage(channelGoals.id,data?.id)}`)			
 		}
 	}
 

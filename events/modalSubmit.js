@@ -41,6 +41,7 @@ const OnboardingMessage = require("../views/OnboardingMessage");
 const OnboardingController = require("../controllers/OnboardingController");
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const ReminderController = require("../controllers/ReminderController");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 
 module.exports = {
 	name: 'modalSubmit',
@@ -649,7 +650,7 @@ The correct format:
 			}
 
 		} catch (error) {
-			ChannelController.sendError(error,`modalSubmit ${modal.user.id} ${modal.customId}`)
+			DiscordWebhook.sendError(error,`modalSubmit ${modal.user.id} ${modal.customId}`)
 		}
 	},
 };

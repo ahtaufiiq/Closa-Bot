@@ -4,12 +4,18 @@ const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 
 class ChannelController{
     
     static getChannel(client,channelId){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId)
     }
+
+    static async getDMChannel(client,DMChannelId){
+        return await client.channels.fetch(DMChannelId)
+    }
+
     static changeName(client,channelId,name){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId).setName(name)
     }
@@ -87,7 +93,7 @@ class ChannelController{
             const msg = await ChannelController.getMessage(channelGoals,goalId)
             await ChannelController.createThread(msg,project)
             thread = await ChannelController.getThread(channelGoals,id)
-            ChannelController.sendError('goal thread is null',MessageFormatting.linkToMessage(channelGoals.id,id))
+            DiscordWebhook.sendError('goal thread is null',MessageFormatting.linkToMessage(channelGoals.id,id))
         }
         return thread
     }
@@ -96,7 +102,7 @@ class ChannelController{
         try {
             return await channel.threads.fetch(threadId);
         } catch (error) {
-            ChannelController.sendError(error,MessageFormatting.linkToInsideThread(threadId))
+            DiscordWebhook.sendError(error,MessageFormatting.linkToInsideThread(threadId))
             return null
         }
     }
@@ -105,7 +111,7 @@ class ChannelController{
             const msg = await channel?.messages?.fetch(messageId)
             return msg
         } catch (error) {
-            ChannelController.sendError(error,MessageFormatting.linkToMessage(channel.id,messageId))
+            DiscordWebhook.sendError(error,MessageFormatting.linkToMessage(channel.id,messageId))
             return null
         }
     }
@@ -147,7 +153,7 @@ class ChannelController{
             if(immediatelyCloseThread) thread.setArchived(true)
             return thread
         } catch (error) {
-            ChannelController.sendError(error,'create thread')
+            DiscordWebhook.sendError(error,'create thread')
         }
     }
 
@@ -161,7 +167,7 @@ class ChannelController{
             if(immediatelyCloseThread) thread.setArchived(true)
             return thread
         } catch (error) {
-            ChannelController.sendError(error,'create thread')
+            DiscordWebhook.sendError(error,'create thread')
         }
     }
 
@@ -194,8 +200,24 @@ class ChannelController{
         try {
             return await msg.delete()
         } catch (error) {
-            ChannelController.sendError(error)
+            DiscordWebhook.sendError(error)
             return null
+        }
+    }
+
+    static archivedThreadInactive(UserId,thread,ttl=60){
+        try {
+            const latestNotificationTime = Time.getDate().getTime().toString()
+            supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',UserId).then()
+
+            setTimeout(async () => {
+                const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
+                if(data.body.latestNotificationTime === latestNotificationTime){
+                    thread.setArchived(true)
+                }
+            }, Time.oneMinute() * ttl);
+        } catch (error) {
+            DiscordWebhook.sendError(error,'archivedThreadInactive')
         }
     }
 
@@ -232,7 +254,7 @@ class ChannelController{
                 return await notificationThread.send(messageContent)
             }
         } catch (error) {
-            ChannelController.sendError(error,`sendToNotification ${userId}`)
+            DiscordWebhook.sendError(error,`sendToNotification ${userId}`)
         }
     }
 

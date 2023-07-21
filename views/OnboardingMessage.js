@@ -1,7 +1,7 @@
 const { ButtonStyle, channelMention, userMention } = require("discord.js")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
-const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK } = require("../helpers/config")
+const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK, CLIENT_ID } = require("../helpers/config")
 
 class OnboardingMessage {
 
@@ -243,6 +243,60 @@ ${isMoreThanTenMinutes ? "*i'll remind you 10 minutes before the schedule begin*
         return `Hi ${userMention(UserId)}, reminder to join the coworking session at ${time}
 1. Join → ${channelMention(CHANNEL_CLOSA_CAFE)} / available voice channel.
 2. then set your ${channelMention(CHANNEL_SESSION_GOAL)}`
+    }
+
+    static welcomingNewUser(user){
+        return `Welcome to closa ${user}!
+
+> A smart discord server where builders stay productive together.
+> Join daily coworking, track your progress, & ship your passion projects faster.
+
+we'll use this direct message to send you reminder to help you stay on track.
+
+**To get started go to →** guidelines`
+    }
+
+    static howToActivateDM(UserId){
+        return {
+            content:`Hi ${UserId}, please activate your direct message so ${userMention(CLIENT_ID)} bot can send you reminder & help you stay on track.
+
+here's how to activate your direct message:
+1. right click on closa server logo on the left panel.
+2. choose "privacy settings".
+3. toggle "on" direct message. 
+
+the bot will only remind you one or two times a day. so don't worry.
+
+once you turn the DM on, verify with the button below:`,
+            files:['./assets/images/how_to_activate_dm.png'],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`verifyDM_${UserId}`,'Verify DM','✉️')
+            )]
+        }
+    }
+
+    static replySuccessActivateDM(){
+        return `Successfully activate DM ✅`
+    }
+
+    static replyFailedActivateDM(){
+        return `Verification failed, can't send you a DM ❌
+
+please turn on your direct message first.
+right click on closa server logo > click "privacy settings" > toggle "on" direct message`
+    }
+
+    static successVerifyDM(user){
+        return `Your reminder succesfully activated ✅
+
+welcome to closa ${user}!
+
+> A smart discord server where builders stay productive together.
+> Join daily coworking, track your progress, & ship your passion projects faster.
+
+we'll use this direct message to send you reminder to help you stay on track.
+
+**To get started go to →** ${channelMention(CHANNEL_GUIDELINE)}`
     }
 }
 

@@ -1,3 +1,4 @@
+const DiscordWebhook = require("../helpers/DiscordWebhook")
 const { CHANNEL_NOTIFICATION } = require("../helpers/config")
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
@@ -101,14 +102,14 @@ class GuidelineInfoController {
     }
 
     static async deleteNotification(thread,totalNotification){
-        if(!totalNotification) return ChannelController.sendError('deleteNotification',`${thread.name}: ${totalNotification}`)
+        if(!totalNotification) return DiscordWebhook.sendError('deleteNotification',`${thread.name}: ${totalNotification}`)
 
         try {
             await thread.bulkDelete(totalNotification <= 100 ? totalNotification : 100)
             totalNotification -= 100
             if(totalNotification > 0) GuidelineInfoController.deleteNotification(thread,totalNotification)
         } catch (error) {
-            ChannelController.sendError(error,`${thread.name}: ${totalNotification}`)            
+            DiscordWebhook.sendError(error,`${thread.name}: ${totalNotification}`)            
         }
     }
 
@@ -138,7 +139,7 @@ class GuidelineInfoController {
                     const {isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(id)
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)
                     if(!threadNotification){
-                        ChannelController.sendError('delete notification: Thread undefined',id)
+                        DiscordWebhook.sendError('delete notification: Thread undefined',id)
                         continue
                     }
                     if(threadNotification.archived) {
@@ -147,7 +148,7 @@ class GuidelineInfoController {
                     
                     const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
                     if(!msg) {
-                        ChannelController.sendError('delete notification: msg undefined',id)
+                        DiscordWebhook.sendError('delete notification: msg undefined',id)
                         continue
                     }
                     let guideline
@@ -160,7 +161,7 @@ class GuidelineInfoController {
                     GuidelineInfoController.resetDataTotalNotification(id)
                     await threadNotification.setArchived(true)
                 } catch (error) {
-                    ChannelController.sendError(error,id)
+                    DiscordWebhook.sendError(error,id)
                 }
                 
             }
