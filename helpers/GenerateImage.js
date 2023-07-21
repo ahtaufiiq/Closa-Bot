@@ -11,15 +11,16 @@ const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProdu
 class GenerateImage{
 
     static async advanceCoworkingReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+        const imageResolution = 2
         function drawProgressBar(context,x,y,percentage,type='long'){
             context.beginPath()
-            let maxLength = 351
-            if(type === 'short') maxLength = 122.5
-            if(percentage >= 100) percentage = 100
+            let maxLength = 351 * imageResolution
+            if(type === 'short') maxLength = 122.5 * imageResolution
+            if(percentage >= 100) percentage = 100 
             context.moveTo(x, y);
             context.lineTo(x + (maxLength * percentage / 100), y);
             context.lineCap = 'round'
-            context.lineWidth = 6;
+            context.lineWidth = 6 * imageResolution;
             context.strokeStyle = "#00B264";
             context.stroke();
             context.closePath()
@@ -29,18 +30,18 @@ class GenerateImage{
             const percentageFocus = Math.round(focusTime/totalTime* 100) 
             const percentageBreak = 100 - percentageFocus
             context.beginPath()
-            let maxLength = 461
-            if(focusTime === 0 || breakTime === 0) maxLength = 470
+            let maxLength = 461 * imageResolution
+            if(focusTime === 0 || breakTime === 0) maxLength = 470 * imageResolution
             let breakStart = x
             if(focusTime){
                 context.moveTo(x, y);
                 context.lineTo(x + (maxLength * percentageFocus / 100), y);
                 context.lineCap = 'round'
-                context.lineWidth = 6;
+                context.lineWidth = 6 * imageResolution;
                 context.strokeStyle = "#00B264";
                 context.stroke();
                 context.closePath()
-                breakStart = x + (maxLength * percentageFocus / 100) + 9
+                breakStart = x + (maxLength * percentageFocus / 100) + (9 * imageResolution)
             }
             
             if(breakTime){
@@ -49,7 +50,7 @@ class GenerateImage{
                 context.moveTo(breakStart, y);
                 context.lineTo(breakStart + (maxLength * percentageBreak / 100), y);
                 context.lineCap = 'round'
-                context.lineWidth = 6;
+                context.lineWidth = 6 * imageResolution;
                 context.strokeStyle = "#6F6DFF";
                 context.stroke();
                 context.closePath()
@@ -57,62 +58,60 @@ class GenerateImage{
         }
         function drawHistogram(day,{focusTime,breakTime,dateOnly},highestLabel=2,showTime){
             const sumbuX = {
-                'Mon':152,
-                'Tue':282,
-                'Wed':412,
-                'Thu':542,
-                'Fri':672,
-                'Sat':802,
-                'Sun':932,
+                'Mon':152 * imageResolution,
+                'Tue':282 * imageResolution,
+                'Wed':412 * imageResolution,
+                'Thu':542 * imageResolution,
+                'Fri':672 * imageResolution,
+                'Sat':802 * imageResolution,
+                'Sun':932 * imageResolution,
             }
-            let sumbuY = 301
+            let sumbuY = 301 * imageResolution
             if(breakTime){
                 const percentage = breakTime / highestLabel / 60
-                const valA = 149 * percentage
-                const valB = 149 * percentage
-                sumbuY -= valA
+                const val = (149 * percentage - 2) * imageResolution
+                sumbuY -= val
                 context.fillStyle = "#9393FF";
                 context.beginPath();
-                context.roundRect(sumbuX[day], sumbuY , 78, valB, [2,2,1,1]);
+                context.roundRect(sumbuX[day] , sumbuY , 78 * imageResolution, val, [2 * imageResolution,2 * imageResolution,1 * imageResolution,1 * imageResolution]);
                 context.fill();
-                sumbuY -= 4
+                sumbuY -= 4 * imageResolution
             }
             if(focusTime){
                 const percentage = focusTime / highestLabel / 60
-                const valA = 149 * percentage + (breakTime ? -4 : 0)
-                const valB = 149 * percentage + (breakTime ? -4 : 0)
+                const val = (149 * percentage + (breakTime ? -2 : 0)) * imageResolution
     
-                sumbuY -= valA
+                sumbuY -= val
                 context.fillStyle = "#30D794";
                 context.beginPath();
-                context.roundRect(sumbuX[day], sumbuY , 78, valB, [2,2,1,1]);
+                context.roundRect(sumbuX[day], sumbuY , 78 * imageResolution, val, [2 * imageResolution,2 * imageResolution,1 * imageResolution,1 * imageResolution]);
                 context.fill();
             }
-
+    
             if(showTime){
                 context.fillStyle = "#888888"; 
-                context.font = "500 15px Inter";
+                changeFont(context,"500 15px Inter");
                 context.textAlign = 'center'
-                context.fillText(formatHour(focusTime+breakTime),sumbuX[day] + 39,sumbuY - 7)
+                fillText(context,formatHour(focusTime+breakTime),sumbuX[day] + (39 * imageResolution),(sumbuY - 7) * imageResolution)
             }
             
             context.fillStyle = "#888888"; 
-            context.font = "500 15px Inter";
-            context.fillText(`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + 39,329)
+            changeFont(context,"500 15px Inter");
+            fillText(context,`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + (39 * imageResolution),329 * imageResolution)
         }
-
+    
         function drawAverageLine(averageTime,highestLabel,image) {
             const percentage = averageTime / highestLabel / 60
             const sumbuY = 301 - (149 * percentage)
-            context.drawImage(image,109,sumbuY)
+            context.drawImage(image,109 * imageResolution,sumbuY * imageResolution)
         }
-
+    
         function formatHour(totalMinute) {
             const hour = Math.floor(totalMinute / 60)
             const minute = totalMinute % 60
             return `${hour}:${minute < 10 ? '0':''}${minute}`
         }
-
+    
         function roundedRect(context, x, y, width, height, radius) {
             context.beginPath();
             context.moveTo(x + radius, y);
@@ -125,7 +124,7 @@ class GenerateImage{
             context.lineTo(x, y + radius);
             context.arcTo(x, y, x + radius, y, radius);
         }
-
+    
         function drawRoundedImage(context, img, x, y, width, height, radius) {
             context.save();
             roundedRect(context, x, y, width, height, radius);
@@ -133,88 +132,99 @@ class GenerateImage{
             context.drawImage(img, x, y, width, height);
             context.restore();
         }
-
+    
+        function changeFont(context,settings){
+            const [fontWeight,fontSize,fontStyle] = settings.split(' ')
+            context.font = `${fontWeight} ${fontSize.split('px')[0] * imageResolution}px ${fontStyle}`
+        }
+    
+        function fillText(context,text,x,y) {
+            context.fillText(text,x * imageResolution,y * imageResolution)
+        }
+    
         const {focusTime,breakTime,totalTime,totalSessionThisWeek} = thisWeekStats
         const {totalTimeLastWeek,totalSessionLastWeek} = lastWeekStats
-
+    
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
         registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
         registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
-
-        const canvas = createCanvas(1086,806)
+    
+        const widthCanvas = 1086 * imageResolution
+        const heightCanvas = 806 * imageResolution
+        const canvas = createCanvas(widthCanvas ,heightCanvas)
         const context = canvas.getContext('2d')
         const template = await loadImage(`./assets/images/advance_coworking_report.png`)
         // const template = await loadImage(`./assets/images/advance_coworking_report_tes.png`)
         // const template = await loadImage(`./assets/images/advance_coworking_report_empty.png`)
         const averageLine = await loadImage(`./assets/images/advance_coworking_average_line.png`)
-        const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
+        const frameAvatar = await loadImage(`./assets/images/advance_coworking_frame_avatar.png`)
         const streakPartner = await loadImage(`./assets/images/advance_coworking_streak.png`)
         const fillGrey = await loadImage(`./assets/images/advance_coworking_grey_line.png`)
-
+    
         context.drawImage(template,0,0)
         
         const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
-        drawRoundedImage(context,photoUser,33,27,56,56,13.5)
+        drawRoundedImage(context,photoUser,33 * imageResolution,27 * imageResolution,56 * imageResolution,56 * imageResolution,13.5 * imageResolution)
         context.fillStyle = "#31373D"; 
-        context.font = "500 24px Inter";
-        context.fillText(UserController.getNameFromUserDiscord(user),111,51)
+        changeFont(context,"500 24px Inter");
+        fillText(context,UserController.getNameFromUserDiscord(user),111,51)
         
         context.fillStyle = "#888888"; 
-        context.font = "400 16px Inter";
-        context.fillText(dateRange,111,78)
+        changeFont(context,"400 16px Inter");
+        fillText(context,dateRange,111,78)
         
         context.fillStyle = "#31373D"; 
-        context.font = "500 15px Inter";
-        context.fillText(totalSession,843.5,49)
+        changeFont(context,"500 15px Inter");
+        fillText(context,totalSession,843.5,49)
         
         context.fillStyle = "#888888"; 
-        context.font = "400 14px Inter";
+        changeFont(context,"400 14px Inter");
         context.textAlign = 'end'
-        context.fillText(`${totalSessionThisWeek}x`,1051,49)
-        if(totalSessionLastWeek === null) context.fillText(`-`,1051,74)
-        else context.fillText(`${totalSessionLastWeek}x`,1051,74)
+        fillText(context,`${totalSessionThisWeek}x`,1051,49)
+        if(totalSessionLastWeek === null) fillText(context,`-`,1051,74)
+        else fillText(context,`${totalSessionLastWeek}x`,1051,74)
         context.textAlign = 'start'
         
-        context.font = "500 15px Inter";
+        changeFont(context,"500 15px Inter");
         if(totalSessionLastWeek === null){
             context.fillStyle = "#7E7C7C"; 
-            context.fillText(`-`,844,74)
+            fillText(context,`-`,844,74)
         }else{
             const sessionDiff = Math.abs(totalSessionThisWeek - totalSessionLastWeek)
             if(sessionDiff === 0){
                 context.fillStyle = "#7E7C7C"; 
-                context.fillText(`0`,844,74)
+                fillText(context,`0`,844,74)
             }else if(totalSessionThisWeek > totalSessionLastWeek){
                 context.fillStyle = "#00B264"; 
-                context.fillText(`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
+                fillText(context,`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }else{
                 context.fillStyle = "#FF3666"; 
-                context.fillText(`${sessionDiff}- (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
+                fillText(context,`${sessionDiff}- (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }
         }
-
+    
         const statsCoworking = getStatsCoworking(dailyCoworkingStats)
         const hourLabels = generateLeftLabel(statsCoworking.max.time)
         const highestLabel = hourLabels[hourLabels.length-1]
-
+    
         drawAverageLine(statsCoworking.average,highestLabel,averageLine)
-
+    
         dailyCoworkingStats[statsCoworking.max.day].showTime = true
         dailyCoworkingStats[statsCoworking.min.day].showTime = true
-
+    
        
         for (const day in dailyCoworkingStats) {
             const showTime = dailyCoworkingStats[day]?.showTime ? true : false
             drawHistogram(day,dailyCoworkingStats[day],highestLabel,showTime)
         }
         context.fillStyle = "#888888"; 
-        context.font = "500 16px Inter";
+        changeFont(context,"500 16px Inter");
         context.textAlign = 'center'
         
         for (let i = 0; i < hourLabels.length; i++) {
             const label = hourLabels[i];
-            context.fillText(label, 100.3 , 306 - (37 * i));
+            fillText(context,label, 100.3 , 306 - (37 * i));
         }
         context.textAlign = 'start'
         
@@ -223,50 +233,50 @@ class GenerateImage{
         drawProgressBar(context,156.7,392,percentageWorkHours)
         
         context.fillStyle = '#31373D'
-        context.font = "600 40px Inter";
-        context.fillText(Time.convertTime(totalTime,'short',true,true),35,456)
+        changeFont(context,"600 40px Inter");
+        fillText(context,Time.convertTime(totalTime,'short',true,true),35,456)
         
         context.textAlign = 'end'
-
+    
         context.fillStyle = '#888888'
-        context.font = "400 18px Inter";
-        context.fillText(`of ${Time.convertTime(weeklyGoal,'short',true,true)}`,511,456)
+        changeFont(context,"400 18px Inter");
+        fillText(context,`of ${Time.convertTime(weeklyGoal,'short',true,true)}`,511,456)
         const {width:paddingPercentageWorkHours} = context.measureText(`of ${Time.convertTime(weeklyGoal,'short',true,true)}`)
         context.fillStyle = '#31373D'
-        context.font = "500 24px Inter";
-        context.fillText(`${percentageWorkHours}% `,511 - paddingPercentageWorkHours,456)
+        changeFont(context,"500 24px Inter");
+        fillText(context,`${percentageWorkHours}% `,511 - paddingPercentageWorkHours,456)
         context.textAlign = 'start'
         
-
+    
         
-        drawTimeBreakdown(context,38,525,focusTime,breakTime)
+        drawTimeBreakdown(context,38 * imageResolution,525 * imageResolution,focusTime,breakTime)
         
         if(focusTime){
             context.fillStyle = '#31373D'
-            context.font = "500 18px Inter";
-            context.fillText(Time.convertTime(focusTime,'short',true,true),35,560)
+            changeFont(context,"500 18px Inter");
+            fillText(context,Time.convertTime(focusTime,'short',true,true),35,560)
             const metrics = context.measureText(Time.convertTime(focusTime,'short',true,true));
             context.fillStyle = '#888888'
-            context.font = "400 18px Inter";
-            context.fillText(` · ${Math.round(focusTime/totalTime*100)}%`,35 + metrics.width,560)
+            changeFont(context,"400 18px Inter");
+            fillText(context,` · ${Math.round(focusTime/totalTime*100)}%`,35 + metrics.width,560)
         }
         if(breakTime){
             context.textAlign = 'end'
             context.fillStyle = '#888888'
-            context.font = "400 18px Inter";
-            context.fillText(` · ${Math.round(breakTime/totalTime*100)}%`,511,560)
+            changeFont(context,"400 18px Inter");
+            fillText(context,` · ${Math.round(breakTime/totalTime*100)}%`,511,560)
             const metrics = context.measureText(` · ${Math.round(breakTime/totalTime*100)}%`);
-            context.font = "500 18px Inter";
+            changeFont(context,"500 18px Inter");
             context.fillStyle = '#31373D'
-            context.fillText(Time.convertTime(breakTime,'short',true,true),511 - metrics.width,560)
+            fillText(context,Time.convertTime(breakTime,'short',true,true),511 - metrics.width,560)
             context.textAlign = 'start'
         }
-
+    
         //--- Coworking Friends ----//
         const coworkerImageSize = 61;
         let xCoordinatCoworker = 38
         let yCoordinatCoworker = 619.2
-
+    
         const sizeFrame = 62
         let xCoordinateFrame = 37
         let yCoordinateFrame = 619
@@ -275,76 +285,76 @@ class GenerateImage{
             const photo = await loadImage(coworkingPartner.avatar)
             context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
             context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
-
+    
             if(coworkingPartner.streak > 1){
                 context.textAlign = 'end'
                 context.fillStyle = "#888888"; 
-                context.font = "500 16px Inter";
+                changeFont(context,"500 16px Inter");
                 context.drawImage(streakPartner,xCoordinatCoworker+3,yCoordinatCoworker + 51.2)
-                context.fillText(coworkingPartner.streak,xCoordinatCoworker+29.5,yCoordinatCoworker + 70);
+                fillText(context,coworkingPartner.streak,xCoordinatCoworker+29.5,yCoordinatCoworker + 70);
             }
             xCoordinatCoworker += 83
             xCoordinateFrame += 83 
         }
         context.textAlign = 'start'
         context.fillStyle = '#31373D'
-        context.font = "500 16px Inter";
-        context.fillText(getMostProductiveTime(productiveTime),49,759)
+        changeFont(context,"500 16px Inter");
+        fillText(context,getMostProductiveTime(productiveTime),49,759)
         
         context.textAlign = 'center'
-        context.font = "400 14px Inter";
-        context.fillText(totalVacationTicket ? `${totalVacationTicket}x` : '-',489,735)
-        context.fillText(totalSickTicket ? `${totalSickTicket}x` : '-',489,761)
+        changeFont(context,"400 14px Inter");
+        fillText(context,totalVacationTicket ? `${totalVacationTicket}x` : '-',489,735)
+        fillText(context,totalSickTicket ? `${totalSickTicket}x` : '-',489,761)
         
         context.textAlign = 'start'
-
+    
         let totalProjectTime = 0
         projects.forEach(project=>{
             totalProjectTime += Number(project.totalTime)
         })
-
+    
         //--- Top Projects ----//
-
-
+    
+    
         let koordinatProject = 451
         let koordinatProgressProject = 446
-
+    
         
         for (let i = 0; i < projects.length; i++) {
             if(i === 3) break
             const project = projects[i];
             const percentage = Math.round(+project.totalTime / totalProjectTime * 100) 
-
-            context.fillStyle = "#31373D"; 
-            context.font = "400 16px Inter";
-            context.fillText(`${percentage}%`, 565 , koordinatProject);
     
             context.fillStyle = "#31373D"; 
-            context.font = "400 16px Inter";
-            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(project.name),18,true), 615 , koordinatProject);
+            changeFont(context,"400 16px Inter");
+            fillText(context,`${percentage}%`, 565 , koordinatProject);
+    
+            context.fillStyle = "#31373D"; 
+            changeFont(context,"400 16px Inter");
+            fillText(context,FormatString.truncateString(FormatString.capitalizeFirstChar(project.name),18,true), 615 , koordinatProject);
     
             context.fillStyle = "#888888"; 
-            context.font = "400 16px Inter";
+            changeFont(context,"400 16px Inter");
             context.textAlign = 'right'
-            context.fillText(Time.convertTime(+project.totalTime,'short',true), 1042 , koordinatProject);
+            fillText(context,Time.convertTime(+project.totalTime,'short',true), 1042 , koordinatProject);
             context.textAlign = 'left'
-
+    
             drawProgressBar(context,797.5,koordinatProgressProject,percentage,'short')
             koordinatProject += 31
             koordinatProgressProject += 31
         }
-
+    
         // context.drawImage(fillGrey,35,763)
         if(projects.length < 2) context.drawImage(fillGrey,565,471)
         if(projects.length < 3) context.drawImage(fillGrey,565,501)
-
+    
         // //--- Tasks ----//
         let totalTaskTime = 0
         for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
             totalTaskTime += Number(task.totalTime)
         }
-
+    
         let koordinatTask = 615
         let koordinatProgressTask = 610
         for (let i = 0; i < tasks.length; i++) {
@@ -352,46 +362,46 @@ class GenerateImage{
             const task = tasks[i];
             const percentage = Math.round(+task.totalTime / totalTaskTime * 100) 
             context.fillStyle = "#31373D"; 
-            context.font = "400 16px Inter";
-            context.fillText(`${percentage}%`, 565 , koordinatTask);
+            changeFont(context,"400 16px Inter");
+            fillText(context,`${percentage}%`, 565 , koordinatTask);
             
             context.fillStyle = "#31373D"; 
-            context.font = "400 16px Inter";
-            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 615 , koordinatTask);
+            changeFont(context,"400 16px Inter");
+            fillText(context,FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 615 , koordinatTask);
     
             context.fillStyle = "#888888"; 
-            context.font = "400 16px Inter";
+            changeFont(context,"400 16px Inter");
             context.textAlign = 'right'
-            context.fillText(Time.convertTime(+task.totalTime,'short',true), 1042 , koordinatTask);
+            fillText(context,Time.convertTime(+task.totalTime,'short',true), 1042 , koordinatTask);
             context.textAlign = 'left'
-
+    
     
             drawProgressBar(context,797.5,koordinatProgressTask,percentage,'short')
-
+    
             koordinatTask += 31
             koordinatProgressTask += 31
         }
-
+    
         if(tasks.length < 2) context.drawImage(fillGrey,565,635)
         if(tasks.length < 3) context.drawImage(fillGrey,565,665)
-
+    
         //--- Average Hours ----//
         const averageHour = Math.floor(totalTime/7)
         const averageHourLastWeek = Math.floor(totalTimeLastWeek/7)
         const diffAverageHour = Math.abs(averageHour-averageHourLastWeek)
         
         context.fillStyle = "#31373D"; 
-        context.font = "400 15px Inter";
+        changeFont(context,"400 15px Inter");
         context.textAlign = 'end'
-        context.fillText(Time.convertTime(averageHour,'short',true),1041,735)
+        fillText(context,Time.convertTime(averageHour,'short',true),1041,735)
         if(totalTimeLastWeek === null){
             context.fillStyle = '#7E7C7C'
-            context.fillText('-',1041,761)
-        }else context.fillText(Time.convertTime(averageHourLastWeek,'short',true),1041,761)
-
+            fillText(context,'-',1041,761)
+        }else fillText(context,Time.convertTime(averageHourLastWeek,'short',true),1041,761)
+    
         context.textAlign = 'start'
         context.fillStyle = "#888888"; 
-        // context.fillText('2 hr 2 min↓',600,761)
+        // fillText(context,'2 hr 2 min↓',600,761)
         let textAverageHoursChange
         if(totalTimeLastWeek === null) {
             textAverageHoursChange = '-'
@@ -405,10 +415,10 @@ class GenerateImage{
                 textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↓`
             }
         }
-        context.fillText(textAverageHoursChange,660,758)
-
-        context.font = "500 16px Inter";
-
+        fillText(context,textAverageHoursChange,660,758)
+    
+        changeFont(context,"500 16px Inter");
+    
         let textAverageHours
         if(totalTimeLastWeek === null) {
             context.fillStyle = '#7E7C7C'
@@ -427,7 +437,7 @@ class GenerateImage{
                 textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
             }
         }
-        context.fillText(textAverageHours,565,759)
+        fillText(context,textAverageHours,565,759)
         const buffer = canvas.toBuffer('image/png')
         return buffer
     }
