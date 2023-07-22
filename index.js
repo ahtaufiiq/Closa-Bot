@@ -47,7 +47,7 @@ const listFocusRoom = {
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
-		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,invites));
+		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom,invites));
 		else client.once(event.name, (...args) => event.execute(...args));
 	}else {
 		if(file === 'guildMemberAdd.js'){

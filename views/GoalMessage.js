@@ -17,7 +17,7 @@ best of luck!
 ✌️ `,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('startProject',"Start a Project").setEmoji('✨'),
-                MessageComponent.addButton('start6WIC',"6-Week Challenge").setEmoji('🕹️')
+                MessageComponent.addButton('start6WIC',"6-Week Challenge",ButtonStyle.Secondary).setEmoji('🕹️')
             )],
         }
     }

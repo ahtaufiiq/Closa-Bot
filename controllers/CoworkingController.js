@@ -533,8 +533,9 @@ class CoworkingController {
 
     static async handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember){
         try {
-            if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && totalOldMember === 0 && oldMember?.channel?.parentId === CHANNEL_WEEKLY_SCYNC_CATEGORY){
+            if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && listFocusRoom[oldMember.channelId]?.type === 'quickRoom' && totalOldMember === 0 && oldMember?.channel?.parentId === CHANNEL_WEEKLY_SCYNC_CATEGORY){
                 oldMember.channel.delete()
+                delete listFocusRoom[oldMember.channelId]
             }
             if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && newMember.channelId === CHANNEL_CREATE_YOUR_ROOM){
                 const guild = newMember.client.guilds.cache.get(GUILD_ID)
