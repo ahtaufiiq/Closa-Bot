@@ -34,6 +34,7 @@ const AchievementBadgeController = require("../controllers/AchievementBadgeContr
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const UserController = require("../controllers/UserController");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 
 module.exports = {
 	name: 'messageCreate',
@@ -137,7 +138,7 @@ module.exports = {
 						
 						FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
 					} catch (error) {
-						ChannelController.sendError(error,msg.author.id+' messageCreate '+msg.id)
+						DiscordWebhook.sendError(error,msg.author.id+' messageCreate '+msg.id)
 					}
 				}
 				break;
@@ -402,7 +403,7 @@ module.exports = {
 				})
 				
 				.catch(err => {
-					ChannelController.sendError(err)
+					DiscordWebhook.sendError(err)
 				})
 						
 				break;

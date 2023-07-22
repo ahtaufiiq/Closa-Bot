@@ -44,6 +44,7 @@ const GuidelineInfoController = require("../controllers/GuidelineInfoController"
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const RedisController = require("../helpers/RedisController");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -79,7 +80,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward' || commandButton === 'inviteQuickRoom'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else{
 					await interaction.deferReply({ephemeral:true});
@@ -92,6 +93,18 @@ module.exports = {
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "verifyDM":
+						if(targetUserId !== interaction.user.id) return interaction.editReply("⚠️ Can't verify DM someone else")
+						try {
+							const msg = await interaction.user.send(OnboardingMessage.successVerifyDM(interaction.user))
+							UserController.updateData({DMChannelId:msg.channelId},targetUserId)
+							interaction.editReply(OnboardingMessage.replySuccessActivateDM())
+							ChannelController.deleteMessage(interaction.message)
+						} catch (error) {
+							interaction.editReply(OnboardingMessage.replyFailedActivateDM())
+							GuidelineInfoController.incrementTotalNotification(1,targetUserId)
+						}
+						break
 					case "checkyMyNotif":
 						const myNotificationId = await UserController.getNotificationId(interaction.user.id)
 						await interaction.editReply(`here's your notification → ${MessageFormatting.linkToInsideThread(myNotificationId)}`)			
@@ -316,7 +329,7 @@ module.exports = {
 								delete focusRoomUser[targetUserId].msgIdSmartBreakReminder
 							}
 						}else{
-							ChannelController.sendError('focusRoomUser Undefined ' + targetUserId,JSON.stringify(focusRoomUser[targetUserId],null,2))
+							DiscordWebhook.sendError('focusRoomUser Undefined ' + targetUserId,JSON.stringify(focusRoomUser[targetUserId],null,2))
 						}
 						const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)
 						const [msgFocusOld,replyBreak] = await Promise.all([
@@ -796,7 +809,7 @@ module.exports = {
 								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
 								ChannelController.deleteMessage(interaction.message)
 							} catch (error) {
-								ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+								DiscordWebhook.sendError(error,`${modal.user.id} ${coworkingTime}`)
 							}
 						}
 						break;
@@ -919,7 +932,7 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			ChannelController.sendError(error,`interaction create ${interaction?.user?.id} ${interaction.customId}`)
+			DiscordWebhook.sendError(error,`interaction create ${interaction?.user?.id} ${interaction.customId}`)
 		}
 	},
 };

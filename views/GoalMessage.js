@@ -13,14 +13,11 @@ class GoalMessage {
             files:['./assets/images/banner_start_project.png'],
             content:`**Set a goal for your project & commit to it** :dart:
 
-read this guideline first → https://closa.me/how-to-set-right-goal
-
 best of luck!
 ✌️ `,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('startProject',"Start a Project").setEmoji('✨'),
-                MessageComponent.addButton('start6WIC',"6-Week Challenge").setEmoji('🕹️'),
-                MessageComponent.addLinkButton('Read me','https://tinyurl.com/bde9jyd2')
+                MessageComponent.addButton('start6WIC',"6-Week Challenge",ButtonStyle.Secondary).setEmoji('🕹️')
             )],
         }
     }
@@ -32,10 +29,11 @@ best of luck!
 read this guideline before setting your goal → https://closa.me/how-to-set-right-goal`
 
         if(isSixWeekChallenge){
-            content = `**Set a goal for your project** :dart: 
+            content = `**Set a goal for your project **:dart: 
 
-When setting your goal please follow:
+When setting your goal you can follow:
 → community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
+→ or set your own deadline ( *we recommend working in 6 weeks to get meaningful results*).
 → guideline for goal setting → https://closa.me/how-to-set-right-goal`
         }
         return {
@@ -202,7 +200,7 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
             MessageComponent.addButton(`editGoal_${user.id}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,"Edit","SECONDARY"),
         ]
         if(isSixWeekChallenge){
-            buttons.push(MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(GoalMessage.templateShareSixWIC(project,about))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}))
+            buttons.push(MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(GoalMessage.templateShareSixWIC(project,about).substring(0,300))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}))
         }
 
         return {

@@ -5,7 +5,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const IntroMessage = require('../views/IntroMessage');
-const ChannelController = require('../controllers/ChannelController');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -41,7 +41,7 @@ module.exports = {
 				
 				interaction.editReply({
 					embeds:[
-						new Embe()
+						new EmbedBuilder()
 						.setColor("#ffffff")
 						.setTitle(`See ${name.split(',')[0]} profile's →`)
 						.setURL(MessageFormatting.linkToInsideThread(id))
@@ -90,7 +90,7 @@ module.exports = {
 				})
 			}
 		} catch (error) {
-			ChannelController.sendError(error,'command search')
+			DiscordWebhook.sendError(error,'command search')
 		}
 	},
 };

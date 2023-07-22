@@ -9,7 +9,7 @@ const client = new Client({
 	partials: [Partials.Channel,Partials.Message,Partials.Reaction,Partials.GuildMember],
 });
 const discordModals = require('discord-modals'); // Define the discord-modals package!
-const ChannelController = require('./controllers/ChannelController');
+const DiscordWebhook = require('./helpers/DiscordWebhook');
 discordModals(client);
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -47,7 +47,7 @@ const listFocusRoom = {
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
-		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,invites));
+		if(file === 'ready.js') client.once(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom,invites));
 		else client.once(event.name, (...args) => event.execute(...args));
 	}else {
 		if(file === 'guildMemberAdd.js'){
@@ -72,7 +72,7 @@ client.rest.on('rateLimited',(rateLimitInfo)=>{
 		const webhookClient = new WebhookClient({ url:"https://discord.com/api/webhooks/1130881528424058880/z4VHP2NCmyddb3ixmQI4T9Ii2sFmiZpFVPIvexLnONyuypW8Q7GReABjnEpfjLcpdj8o" });
 		webhookClient.send(`rateLimit ${JSON.stringify(rateLimitInfo,null,2)}`)
 	} catch (error) {
-		ChannelController.sendError(error,'rate limit')
+		DiscordWebhook.sendError(error,'rate limit')
 	}
 })
 

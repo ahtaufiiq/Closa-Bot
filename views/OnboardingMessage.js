@@ -1,7 +1,7 @@
 const { ButtonStyle, channelMention, userMention } = require("discord.js")
 const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
-const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK } = require("../helpers/config")
+const { CHANNEL_GUIDELINE, CHANNEL_START_PROJECT, CHANNEL_UPCOMING_SESSION, CHANNEL_CLOSA_CAFE, CHANNEL_TODO, CHANNEL_CREATE_SESSION, CHANNEL_SESSION_GOAL, CHANNEL_STREAK, CLIENT_ID } = require("../helpers/config")
 
 class OnboardingMessage {
 
@@ -202,27 +202,22 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
     static guidelines(){
         return {
-            content:`**Welcome to closa!**
-> a place to work on your ideas from start to finish alongside other creators.
-> join daily coworking, meet friends, & boost productivity.
-            
-\`\`\`HOW TO USE CLOSA TO BOOST YOUR PRODUCTIVITY\`\`\`
-**⁠1.** Start working on your ideas & set goal → ${channelMention(CHANNEL_START_PROJECT)} :dart: 
+            content:`__**Welcome to closa!**__
+> Where builders work on their passion projects from start to finish.
+> Join daily coworking, track your progress, & boost productivity. 
 
-**Repeat step 2 & 3 every day** :repeat: 
-> *this is what will make you stay productive each day at closa* :rocket: 
+Let's get started:
 
-**2.** Join coworking session to boost productivity & stay focused :man_technologist::woman_technologist::white_check_mark:
--  first ⁠write 1 specific task you want to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
--  then join the voice channel to cowork → ${channelMention(CHANNEL_CLOSA_CAFE)} (*default*)
+**⁠1. **Set goals on your passion project → ${channelMention(CHANNEL_START_PROJECT)}
 
-**3.** ${channelMention(CHANNEL_TODO)} – post your progress in a story-telling format. 
-> *While you're at it give supportive reactions to others* :heart:
+> Repeat steps 2 & 3 every day :repeat: 
 
-**⁠4.** ${channelMention(CHANNEL_STREAK)} – try to keep your streak and don't miss your progress twice in a row.
+**2. **Join daily coworking session to boost your productivity :man_technologist::woman_technologist:
+- first ⁠write 1 specific task to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
+- then join the coworking channel → ⁠ ${channelMention(CHANNEL_CLOSA_CAFE)} (on-cam/sharescreen)
 
-The key to stay consistent when you're not feeling it:
-> *small progress is still progress* :sparkles:
+**3. ** Share your progress recap in a story-telling format → ${channelMention(CHANNEL_TODO)}
+- try to keep your streak in your first week → ${channelMention(CHANNEL_STREAK)}
 
 **complete all the steps above to unlock all channels** :unlock:
 **↓**`,
@@ -243,6 +238,61 @@ ${isMoreThanTenMinutes ? "*i'll remind you 10 minutes before the schedule begin*
         return `Hi ${userMention(UserId)}, reminder to join the coworking session at ${time}
 1. Join → ${channelMention(CHANNEL_CLOSA_CAFE)} / available voice channel.
 2. then set your ${channelMention(CHANNEL_SESSION_GOAL)}`
+    }
+
+    static welcomingNewUser(user){
+        return `Welcome to closa ${user}!
+
+> A smart discord server where builders stay productive together.
+> Join daily coworking, track your progress, & ship your passion projects faster.
+
+\`\`note:\`\` we'll use this direct message to send you reminders so you stay on track.
+
+**To get started go to →** ${channelMention(CHANNEL_GUIDELINE)}`
+    }
+
+    static howToActivateDM(UserId){
+        return {
+            content:`Hi ${userMention(UserId)}, please activate your direct message 
+so ${userMention(CLIENT_ID)} bot can send you reminder & help you stay on track.
+
+here's how to activate your direct message:
+1. right click on closa server logo on the left panel.
+2. choose "privacy settings".
+3. toggle "on" direct message. 
+
+the bot will only remind you one or two times a day. so don't worry.
+
+once you turn the DM on, verify with the button below:`,
+            files:['./assets/images/how_to_activate_dm.png'],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`verifyDM_${UserId}`,'Verify DM','✉️')
+            )]
+        }
+    }
+
+    static replySuccessActivateDM(){
+        return `Successfully activate DM ✅`
+    }
+
+    static replyFailedActivateDM(){
+        return `Verification failed, can't send you a DM ❌
+
+please turn on your direct message first.
+right click on closa server logo > click "privacy settings" > toggle "on" direct message`
+    }
+
+    static successVerifyDM(user){
+        return `Your reminder succesfully activated ✅
+
+welcome to closa ${user}!
+
+> A smart discord server where builders stay productive together.
+> Join daily coworking, track your progress, & ship your passion projects faster.
+
+\`\`note:\`\` we'll use this direct message to send you reminders to help you stay on track.
+
+**To get started go to →** ${channelMention(CHANNEL_GUIDELINE)}`
     }
 }
 

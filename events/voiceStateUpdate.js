@@ -21,6 +21,7 @@ const ReferralCodeController = require('../controllers/ReferralCodeController');
 const AchievementBadgeController = require('../controllers/AchievementBadgeController');
 const AchievementBadgeMessage = require('../views/AchievementBadgeMessage');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 let closaCafe = {
 
@@ -244,18 +245,18 @@ module.exports = {
 							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
 							setTimeout(() => {
 								thread.setArchived(true)
-							}, 5000);
+							}, Time.oneMinute() * 2);
 						}
 					}
 				} catch (error) {
-					ChannelController.sendError(error,'thread edit and archived')
+					DiscordWebhook.sendError(error,'thread edit and archived')
 				}
 
 				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
 		} catch (error) {
-			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
+			DiscordWebhook.sendError(error,`voice state ${newMember.member.user.id}`)
 		}
 	},
 };

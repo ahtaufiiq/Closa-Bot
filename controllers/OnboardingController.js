@@ -11,6 +11,7 @@ const UserController = require('./UserController');
 const ReferralCodeController = require('./ReferralCodeController');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 class OnboardingController {
 
@@ -36,6 +37,8 @@ class OnboardingController {
             .eq('id',user.id)
             .then()
         OnboardingController.addReminderToStartOnboarding(user.id)
+
+        ChannelController.archivedThreadInactive(user.id,thread)
     }
 
     static async startOnboarding(interaction){
@@ -109,7 +112,7 @@ class OnboardingController {
                             msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
                             MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
                         }
-                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId)
+                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
                     })
                 })
         })    
@@ -250,6 +253,19 @@ class OnboardingController {
 			return true
 		}
         return false
+    }
+
+    static async checkOpenDM(client,user){
+        setTimeout(async () => {
+            try {
+                const msg = await user.send(OnboardingMessage.welcomingNewUser(user))
+                UserController.updateData({DMChannelId:msg.channelId},user.id)
+            } catch (error) {
+                ChannelController.sendToNotification(client,OnboardingMessage.howToActivateDM(user.id),user.id)
+                UserController.updateData({attemptSendDM:1},user.id)
+                DiscordWebhook.sendError(`cannot send dm to ${user.id}`)
+            }
+        }, Time.oneMinute() * 2);
     }
 }
 

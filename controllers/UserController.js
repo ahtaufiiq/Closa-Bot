@@ -1,6 +1,6 @@
+const DiscordWebhook = require("../helpers/DiscordWebhook")
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
-const ChannelController = require("./ChannelController")
 
 class UserController{
 	static async updateData(data,userId){
@@ -24,7 +24,7 @@ class UserController{
 	}
 
 	static async updatePoint(pointLeft,userId){
-		if(!pointLeft) return ChannelController.sendError(`update point ${pointLeft} - ${userId}`)
+		if(!pointLeft) return DiscordWebhook.sendError(`update point ${pointLeft} - ${userId}`)
         return await supabase.from("Users")
             .update({totalPoint:pointLeft})
             .eq('id',userId)
@@ -46,7 +46,7 @@ class UserController{
 		return await supabase.from("Users")
 			.select(select)
 			.gte('endMembership',Time.getTodayDateOnly())
-			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
+			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 	}
 
 	static async getTotalPoint(userId){
@@ -66,7 +66,7 @@ class UserController{
 	}
 
 	static async incrementTotalPoints(increment,id_user){
-		if(!increment) return ChannelController.sendError(`update point ${increment} - ${id_user}`)
+		if(!increment) return DiscordWebhook.sendError(`update point ${increment} - ${id_user}`)
 		return await supabase
 			.rpc('incrementTotalPoint', { increment, id_user })
     }

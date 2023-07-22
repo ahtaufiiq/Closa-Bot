@@ -5,6 +5,7 @@ const TodoReminderMessage = require("../views/TodoReminderMessage");
 const ChannelController = require("./ChannelController");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
+const MemberController = require("./MemberController");
 class ReminderController{
 
 	static showModalSetHighlightReminder(interaction){
@@ -28,7 +29,7 @@ class ReminderController{
         supabase.from('Users')
 		.select()
 		.neq('reminderProgress',null)
-		.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
+		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 		.then(data=>{
 			if (data.body) {
 				data.body.forEach(user=>{
@@ -52,7 +53,8 @@ class ReminderController{
 											client,
 											TodoReminderMessage.progressReminder(userId),
 											userId,
-											notificationId
+											notificationId,
+											true
 										)
 									}
 								}
@@ -71,7 +73,7 @@ class ReminderController{
         supabase.from('Users')
 			.select()
 			.neq('reminderHighlight',null)
-			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
+			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 			.then(data=>{
 				if(data.body){
 					data.body.forEach(user=>{
@@ -96,7 +98,8 @@ class ReminderController{
 												client,
 												HighlightReminderMessage.highlightReminder(userId),
 												userId,
-												notificationId
+												notificationId,
+												true
 											)
 										}
 									}

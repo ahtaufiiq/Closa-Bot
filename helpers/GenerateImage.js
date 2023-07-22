@@ -7,6 +7,7 @@ const Time = require('./time')
 const {split} = require('canvas-hypertxt')
 const supabase = require('./supabaseClient')
 const ChannelController = require('../controllers/ChannelController')
+const DiscordWebhook = require('./DiscordWebhook')
 class GenerateImage{
     static async tracker(user,goalName,photo,data,friends,currentStreak,longestStreak,totalDays,totalPoints,isVacation=false,vacationLeft=0,isBuyOneVacation=false,isSick=false){
         registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter'})
@@ -211,7 +212,7 @@ class GenerateImage{
                 xCoordinatStreak += 200.5
                 
             } catch (error) {
-                ChannelController.sendError('invalid avatar image',friends[i].id)
+                DiscordWebhook.sendError('invalid avatar image',friends[i].id)
                 supabase.from("Users")
                     .update({avatarURL:null})
                     .eq('id',friends[i].id)

@@ -1,5 +1,6 @@
 const ChannelController = require("../controllers/ChannelController");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 const { CHANNEL_NOTIFICATION } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 
@@ -23,7 +24,7 @@ module.exports = {
 			GuidelineInfoController.deleteData(member.user.id)
 		}
 		} catch (error) {
-			ChannelController.sendError(error)
+			DiscordWebhook.sendError(error)
 		}
 
 	},
