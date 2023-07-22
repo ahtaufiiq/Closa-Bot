@@ -342,7 +342,7 @@ or a new host will be assigned.`
 
     static successCreateQuickRoom(UserId,counterEditRoomName=0){
         return {
-            content:`Hi ${userMention(UserId)}, you've reserved your own table for custom coworking at closa cafe ☕
+            content:`Hi ${userMention(UserId)}, you've reserved your own table for custom coworking session at closa cafe ☕ 
 
 Here host can edit the channel: (\`\`max 2x\`\`)
 - limit the number of user in this channel.
