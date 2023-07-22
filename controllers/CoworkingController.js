@@ -569,11 +569,11 @@ class CoworkingController {
                     type:ChannelType.GuildVoice,
                     userLimit:9
                 })
-                await newMember.member.voice.setChannel(voiceChannel)
                 listFocusRoom[voiceChannel.id] = {
                     type:'quickRoom',
                     HostId:newMember.member.id
                 }
+                await newMember.member.voice.setChannel(voiceChannel)
                 
                 voiceChannel.send(CoworkingMessage.successCreateQuickRoom(newMember.member.id))
 
