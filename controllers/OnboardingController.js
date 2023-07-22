@@ -112,7 +112,7 @@ class OnboardingController {
                             msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
                             MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
                         }
-                        MemberController.sendToDM(client,msgContent,UserId,true)
+                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
                     })
                 })
         })    

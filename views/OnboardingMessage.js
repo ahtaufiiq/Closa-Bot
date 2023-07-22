@@ -202,27 +202,22 @@ if you want to get started anytime soon please follow → ${MessageFormatting.ta
 
     static guidelines(){
         return {
-            content:`**Welcome to closa!**
-> a place to work on your ideas from start to finish alongside other creators.
-> join daily coworking, meet friends, & boost productivity.
-            
-\`\`\`HOW TO USE CLOSA TO BOOST YOUR PRODUCTIVITY\`\`\`
-**⁠1.** Start working on your ideas & set goal → ${channelMention(CHANNEL_START_PROJECT)} :dart: 
+            content:`__**Welcome to closa!**__
+> Where builders work on their passion projects from start to finish.
+> Join daily coworking, track your progress, & boost productivity. 
 
-**Repeat step 2 & 3 every day** :repeat: 
-> *this is what will make you stay productive each day at closa* :rocket: 
+Let's get started:
 
-**2.** Join coworking session to boost productivity & stay focused :man_technologist::woman_technologist::white_check_mark:
--  first ⁠write 1 specific task you want to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
--  then join the voice channel to cowork → ${channelMention(CHANNEL_CLOSA_CAFE)} (*default*)
+**⁠1. **Set goals on your passion project → ${channelMention(CHANNEL_START_PROJECT)}
 
-**3.** ${channelMention(CHANNEL_TODO)} – post your progress in a story-telling format. 
-> *While you're at it give supportive reactions to others* :heart:
+> Repeat steps 2 & 3 every day :repeat: 
 
-**⁠4.** ${channelMention(CHANNEL_STREAK)} – try to keep your streak and don't miss your progress twice in a row.
+**2. **Join daily coworking session to boost your productivity :man_technologist::woman_technologist:
+- first ⁠write 1 specific task to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
+- then join the coworking channel → ⁠ ${channelMention(CHANNEL_CLOSA_CAFE)} (on-cam/sharescreen)
 
-The key to stay consistent when you're not feeling it:
-> *small progress is still progress* :sparkles:
+**3. ** Share your progress recap in a story-telling format → ${channelMention(CHANNEL_TODO)}
+- try to keep your streak in your first week → ${channelMention(CHANNEL_STREAK)}
 
 **complete all the steps above to unlock all channels** :unlock:
 **↓**`,

@@ -41,7 +41,7 @@ module.exports = {
 				
 				interaction.editReply({
 					embeds:[
-						new Embe()
+						new EmbedBuilder()
 						.setColor("#ffffff")
 						.setTitle(`See ${name.split(',')[0]} profile's →`)
 						.setURL(MessageFormatting.linkToInsideThread(id))

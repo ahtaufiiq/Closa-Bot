@@ -221,29 +221,22 @@ class ChannelController{
         }
     }
 
-    static async sendToNotification(client,messageContent,userId,notificationId){
-        const latestNotificationTime = Time.getDate().getTime().toString()
-        supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',userId).then()
+    static async sendToNotification(client,messageContent,userId,notificationId,isImmediatelyArchived=false){
 
         try {
             const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
             if(!notificationThread) return null
 
-            setTimeout(async () => {
-                const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',userId).single()
-                if(data.body.latestNotificationTime === latestNotificationTime){
-                    if(notificationThread) notificationThread.setArchived(true)
-                    else {
-                        const thread = await ChannelController.getNotificationThread(client,userId,notificationId)
-                        thread.setArchived(true)
-                    }
-                }
-            }, Time.oneMinute() * 60);
+            if(!isImmediatelyArchived) ChannelController.archivedThreadInactive(userId,notificationThread)
 
             if(Array.isArray(messageContent)){
                 messageContent.forEach(msg=>{
-                    notificationThread.send(msg)
                 })
+                for (let i = 0; i < messageContent.length; i++) {
+                    const msg = messageContent[i];
+                    await notificationThread.send(msg)
+                }
+                if(isImmediatelyArchived) await notificationThread.setArchived(true)
                 supabase
                     .rpc('incrementTotalNotification', { x: messageContent.length, row_id: userId })
                     .then()
@@ -251,7 +244,10 @@ class ChannelController{
                 supabase
                     .rpc('incrementTotalNotification', { x: 1, row_id: userId })
                     .then()
-                return await notificationThread.send(messageContent)
+
+                const msg = await notificationThread.send(messageContent)
+                if(isImmediatelyArchived) await notificationThread.setArchived(true)
+                return msg
             }
         } catch (error) {
             DiscordWebhook.sendError(error,`sendToNotification ${userId}`)

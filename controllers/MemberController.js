@@ -43,6 +43,7 @@ class MemberController{
                 )
                 UserController.updateData({attemptSendDM:attemptSendDM+1},UserId)
             }
+            if(DMChannelId) UserController.updateData({DMChannelId:null},UserId)
         }
     }
 

@@ -29,7 +29,7 @@ class ReminderController{
         supabase.from('Users')
 		.select()
 		.neq('reminderProgress',null)
-		.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
+		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 		.then(data=>{
 			if (data.body) {
 				data.body.forEach(user=>{
@@ -49,10 +49,11 @@ class ReminderController{
 										scheduleReminderProgress.cancel()
 									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
 										const {id:userId,notificationId} = data;
-										MemberController.sendToDM(
+										ChannelController.sendToNotification(
 											client,
 											TodoReminderMessage.progressReminder(userId),
 											userId,
+											notificationId,
 											true
 										)
 									}
@@ -72,7 +73,7 @@ class ReminderController{
         supabase.from('Users')
 			.select()
 			.neq('reminderHighlight',null)
-			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
+			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 			.then(data=>{
 				if(data.body){
 					data.body.forEach(user=>{
@@ -93,10 +94,12 @@ class ReminderController{
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
 											const {id:userId,notificationId} = data;
-											MemberController.sendToDM(
+											ChannelController.sendToNotification(
 												client,
 												HighlightReminderMessage.highlightReminder(userId),
-												userId
+												userId,
+												notificationId,
+												true
 											)
 										}
 									}

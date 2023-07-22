@@ -25,10 +25,12 @@ class WeeklyReflectionController {
 					.then(async data=>{
 						for (let i = 0; i < data.body.length; i++) {
 							const {id:userId,notificationId} = data.body[i]
-							MemberController.sendToDM(
+							ChannelController.sendToNotification(
 								client,
 								WeeklyReflectionMessage.writeReflection(userId),
-								userId
+								userId,
+								notificationId,
+								true
 							)
 						}
 					})
