@@ -17,7 +17,7 @@ best of luck!
 ✌️ `,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton('startProject',"Start a Project").setEmoji('✨'),
-                MessageComponent.addButton('start6WIC',"6-Week Challenge").setEmoji('🕹️'),
+                MessageComponent.addButton('start6WIC',"⚡️ Start growth mode"),
             )],
         }
     }
@@ -29,10 +29,11 @@ best of luck!
 read this guideline before setting your goal → https://closa.me/how-to-set-right-goal`
 
         if(isSixWeekChallenge){
-            content = `**Set a goal for your project** :dart: 
+            content = `**Set a goal for your project **:dart: 
 
-When setting your goal please follow:
+When setting your goal you can follow:
 → community deadline: \`\`next demo day in  ${dayLeft} ${dayLeft > 1 ? "days": "day"} — ${Time.getFormattedDate(Time.getNextDate(dayLeft))}\`\`
+→ or set your own deadline ( *we recommend working in 6 weeks to get meaningful results*).
 → guideline for goal setting → https://closa.me/how-to-set-right-goal`
         }
         return {
