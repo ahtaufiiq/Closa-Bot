@@ -385,7 +385,7 @@ Total friends invited: \`${totalInvited}\` 🎁`
 coworking rules to stay accountable, *so you don't get auto-kick:*
 \`\`\`
 • turn-on camera  📸, don't cover your camera with something 🚫
-• or sharescreen 🖥️, share whatever you're comfortable with.
+• or sharescreen 🖥️, whatever you comfortable with, please no sensitive data 🚫
 \`\`\`
 Feel free to invite your friends outside or inside closa :love_letter:`
     }
