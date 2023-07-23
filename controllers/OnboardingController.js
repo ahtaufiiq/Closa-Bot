@@ -38,7 +38,7 @@ class OnboardingController {
             .then()
         OnboardingController.addReminderToStartOnboarding(user.id)
 
-        ChannelController.archivedThreadInactive(user.id,thread)
+        ChannelController.archivedThreadInactive(user.id,thread,15)
     }
 
     static async startOnboarding(interaction){
