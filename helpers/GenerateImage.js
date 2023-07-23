@@ -14,6 +14,8 @@ class GenerateImage{
         const imageResolution = 2
         function drawProgressBar(context,x,y,percentage,type='long'){
             context.beginPath()
+            x = x * imageResolution
+            y = y * imageResolution
             let maxLength = 351 * imageResolution
             if(type === 'short') maxLength = 122.5 * imageResolution
             if(percentage >= 100) percentage = 100 
@@ -26,6 +28,8 @@ class GenerateImage{
             context.closePath()
         }
         function drawTimeBreakdown(context,x,y,focusTime,breakTime){
+            x = x * imageResolution
+            y = y * imageResolution
             const totalTime = focusTime + breakTime
             const percentageFocus = Math.round(focusTime/totalTime* 100) 
             const percentageBreak = 100 - percentageFocus
@@ -45,7 +49,6 @@ class GenerateImage{
             }
             
             if(breakTime){
-                console.log(breakStart);
                 context.beginPath()
                 context.moveTo(breakStart, y);
                 context.lineTo(breakStart + (maxLength * percentageBreak / 100), y);
@@ -58,13 +61,13 @@ class GenerateImage{
         }
         function drawHistogram(day,{focusTime,breakTime,dateOnly},highestLabel=2,showTime){
             const sumbuX = {
-                'Mon':152 * imageResolution,
-                'Tue':282 * imageResolution,
-                'Wed':412 * imageResolution,
-                'Thu':542 * imageResolution,
-                'Fri':672 * imageResolution,
-                'Sat':802 * imageResolution,
-                'Sun':932 * imageResolution,
+                'Mon':152,
+                'Tue':282,
+                'Wed':412,
+                'Thu':542,
+                'Fri':672,
+                'Sat':802,
+                'Sun':932,
             }
             let sumbuY = 301 * imageResolution
             if(breakTime){
@@ -73,7 +76,7 @@ class GenerateImage{
                 sumbuY -= val
                 context.fillStyle = "#9393FF";
                 context.beginPath();
-                context.roundRect(sumbuX[day] , sumbuY , 78 * imageResolution, val, [2 * imageResolution,2 * imageResolution,1 * imageResolution,1 * imageResolution]);
+                context.roundRect(sumbuX[day] * imageResolution, sumbuY, 78 * imageResolution, val, [1 * imageResolution,1 * imageResolution,1 * imageResolution,1 * imageResolution]);
                 context.fill();
                 sumbuY -= 4 * imageResolution
             }
@@ -84,7 +87,7 @@ class GenerateImage{
                 sumbuY -= val
                 context.fillStyle = "#30D794";
                 context.beginPath();
-                context.roundRect(sumbuX[day], sumbuY , 78 * imageResolution, val, [2 * imageResolution,2 * imageResolution,1 * imageResolution,1 * imageResolution]);
+                context.roundRect(sumbuX[day] * imageResolution, sumbuY, 78 * imageResolution, val, [2 * imageResolution,2 * imageResolution,1 * imageResolution,1 * imageResolution]);
                 context.fill();
             }
     
@@ -92,12 +95,12 @@ class GenerateImage{
                 context.fillStyle = "#888888"; 
                 changeFont(context,"500 15px Inter");
                 context.textAlign = 'center'
-                fillText(context,formatHour(focusTime+breakTime),sumbuX[day] + (39 * imageResolution),(sumbuY - 7) * imageResolution)
+                fillText(context,formatHour(focusTime+breakTime),sumbuX[day] + 39,(sumbuY / imageResolution) - 7 )
             }
             
             context.fillStyle = "#888888"; 
             changeFont(context,"500 15px Inter");
-            fillText(context,`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + (39 * imageResolution),329 * imageResolution)
+            fillText(context,`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + 39, 329)
         }
     
         function drawAverageLine(averageTime,highestLabel,image) {
@@ -113,6 +116,12 @@ class GenerateImage{
         }
     
         function roundedRect(context, x, y, width, height, radius) {
+            x = x * imageResolution
+            y = y * imageResolution
+            width = width * imageResolution
+            height = height * imageResolution
+            radius = radius * imageResolution
+
             context.beginPath();
             context.moveTo(x + radius, y);
             context.lineTo(x + width - radius, y);
@@ -126,10 +135,11 @@ class GenerateImage{
         }
     
         function drawRoundedImage(context, img, x, y, width, height, radius) {
+
             context.save();
             roundedRect(context, x, y, width, height, radius);
             context.clip();
-            context.drawImage(img, x, y, width, height);
+            context.drawImage(img, x * imageResolution, y * imageResolution, width * imageResolution, height * imageResolution);
             context.restore();
         }
     
@@ -154,29 +164,28 @@ class GenerateImage{
         const canvas = createCanvas(widthCanvas ,heightCanvas)
         const context = canvas.getContext('2d')
         const template = await loadImage(`./assets/images/advance_coworking_report.png`)
-        // const template = await loadImage(`./assets/images/advance_coworking_report_tes.png`)
-        // const template = await loadImage(`./assets/images/advance_coworking_report_empty.png`)
         const averageLine = await loadImage(`./assets/images/advance_coworking_average_line.png`)
-        const frameAvatar = await loadImage(`./assets/images/advance_coworking_frame_avatar.png`)
-        const streakPartner = await loadImage(`./assets/images/advance_coworking_streak.png`)
+        const streakPartner = await loadImage(`./assets/images/advance_coworking_streak_oneDigit.png`)
+        const streakPartnerTwoDigit = await loadImage(`./assets/images/advance_coworking_streak_twoDigit.png`)
+        const streakPartnerThreeDigit = await loadImage(`./assets/images/advance_coworking_streak_threeDigit.png`)
         const fillGrey = await loadImage(`./assets/images/advance_coworking_grey_line.png`)
     
         context.drawImage(template,0,0)
         
         const avatarUrl = InfoUser.getAvatar(user)
         const photoUser = await loadImage(avatarUrl)
-        drawRoundedImage(context,photoUser,33 * imageResolution,27 * imageResolution,56 * imageResolution,56 * imageResolution,13.5 * imageResolution)
-        context.fillStyle = "#31373D"; 
-        changeFont(context,"500 24px Inter");
-        fillText(context,UserController.getNameFromUserDiscord(user),111,51)
+        drawRoundedImage(context,photoUser,32.5,26.5,57,57,13.5)
+        context.fillStyle = "#31373D";  
+        changeFont(context,"500 20px Inter");
+        fillText(context,UserController.getNameFromUserDiscord(user),111,48)
         
-        context.fillStyle = "#888888"; 
-        changeFont(context,"400 16px Inter");
-        fillText(context,dateRange,111,78)
+        context.fillStyle = "#888888";  
+        changeFont(context,"400 15px Inter");
+        fillText(context,dateRange,111,77.2)
         
-        context.fillStyle = "#31373D"; 
-        changeFont(context,"500 15px Inter");
-        fillText(context,totalSession,843.5,49)
+        context.fillStyle = "#31373D";  
+        changeFont(context,"500 14px Inter");
+        fillText(context,totalSession,844,49)
         
         context.fillStyle = "#888888"; 
         changeFont(context,"400 14px Inter");
@@ -186,7 +195,7 @@ class GenerateImage{
         else fillText(context,`${totalSessionLastWeek}x`,1051,74)
         context.textAlign = 'start'
         
-        changeFont(context,"500 15px Inter");
+        changeFont(context,"500 14px Inter");
         if(totalSessionLastWeek === null){
             context.fillStyle = "#7E7C7C"; 
             fillText(context,`-`,844,74)
@@ -197,6 +206,7 @@ class GenerateImage{
                 fillText(context,`0`,844,74)
             }else if(totalSessionThisWeek > totalSessionLastWeek){
                 context.fillStyle = "#00B264"; 
+     
                 fillText(context,`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }else{
                 context.fillStyle = "#FF3666"; 
@@ -244,12 +254,12 @@ class GenerateImage{
         const {width:paddingPercentageWorkHours} = context.measureText(`of ${Time.convertTime(weeklyGoal,'short',true,true)}`)
         context.fillStyle = '#31373D'
         changeFont(context,"500 24px Inter");
-        fillText(context,`${percentageWorkHours}% `,511 - paddingPercentageWorkHours,456)
+        fillText(context,`${percentageWorkHours}% `,511 - (paddingPercentageWorkHours/imageResolution),456)
         context.textAlign = 'start'
         
     
         
-        drawTimeBreakdown(context,38 * imageResolution,525 * imageResolution,focusTime,breakTime)
+        drawTimeBreakdown(context,38,525,focusTime,breakTime)
         
         if(focusTime){
             context.fillStyle = '#31373D'
@@ -258,7 +268,7 @@ class GenerateImage{
             const metrics = context.measureText(Time.convertTime(focusTime,'short',true,true));
             context.fillStyle = '#888888'
             changeFont(context,"400 18px Inter");
-            fillText(context,` · ${Math.round(focusTime/totalTime*100)}%`,35 + metrics.width,560)
+            fillText(context,` · ${Math.round(focusTime/totalTime*100)}%`,35 + (metrics.width/imageResolution),560)
         }
         if(breakTime){
             context.textAlign = 'end'
@@ -268,43 +278,48 @@ class GenerateImage{
             const metrics = context.measureText(` · ${Math.round(breakTime/totalTime*100)}%`);
             changeFont(context,"500 18px Inter");
             context.fillStyle = '#31373D'
-            fillText(context,Time.convertTime(breakTime,'short',true,true),511 - metrics.width,560)
+            fillText(context,Time.convertTime(breakTime,'short',true,true),511 - (metrics.width/imageResolution),560)
             context.textAlign = 'start'
         }
     
         //--- Coworking Friends ----//
-        const coworkerImageSize = 61;
-        let xCoordinatCoworker = 38
-        let yCoordinatCoworker = 619.2
+        const coworkerImageSize = 62
+        let xCoordinatCoworker = 36.9 
+        let yCoordinatCoworker = 619
+        
+        
+        let xCoordinatStreak = 38 
+        let yCoordinatStreak = 619.2
     
-        const sizeFrame = 62
-        let xCoordinateFrame = 37
-        let yCoordinateFrame = 619
         for (let i = 0; i < coworkingPartners.length; i++) {
             const coworkingPartner = coworkingPartners[i];
             const photo = await loadImage(coworkingPartner.avatar)
-            context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
-            context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
+            drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
     
             if(coworkingPartner.streak > 1){
-                context.textAlign = 'end'
+                context.textAlign = 'center'
                 context.fillStyle = "#888888"; 
-                changeFont(context,"500 16px Inter");
-                context.drawImage(streakPartner,xCoordinatCoworker+3,yCoordinatCoworker + 51.2)
-                fillText(context,coworkingPartner.streak,xCoordinatCoworker+29.5,yCoordinatCoworker + 70);
+     
+                changeFont(context,"500 15px Inter");
+
+                context.drawImage(
+                    coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
+                    (xCoordinatStreak+4) * imageResolution,(yCoordinatStreak + 50.9) * imageResolution
+                )
+                fillText(context,coworkingPartner.streak,xCoordinatStreak+22.2,yCoordinatStreak + 68.8);
             }
             xCoordinatCoworker += 83
-            xCoordinateFrame += 83 
+            xCoordinatStreak += 83
         }
         context.textAlign = 'start'
         context.fillStyle = '#31373D'
-        changeFont(context,"500 16px Inter");
+        changeFont(context,"500 15px Inter");
         fillText(context,getMostProductiveTime(productiveTime),49,759)
         
         context.textAlign = 'center'
-        changeFont(context,"400 14px Inter");
-        fillText(context,totalVacationTicket ? `${totalVacationTicket}x` : '-',489,735)
-        fillText(context,totalSickTicket ? `${totalSickTicket}x` : '-',489,761)
+        changeFont(context,"400 13px Inter");
+        fillText(context,totalVacationTicket ? `${totalVacationTicket}x` : '-',490.5,736)
+        fillText(context,totalSickTicket ? `${totalSickTicket}x` : '-',490.5,760)
         
         context.textAlign = 'start'
     
@@ -345,8 +360,8 @@ class GenerateImage{
         }
     
         // context.drawImage(fillGrey,35,763)
-        if(projects.length < 2) context.drawImage(fillGrey,565,471)
-        if(projects.length < 3) context.drawImage(fillGrey,565,501)
+        if(projects.length < 2) context.drawImage(fillGrey,565 * imageResolution,471 * imageResolution)
+        if(projects.length < 3) context.drawImage(fillGrey,565 * imageResolution,501 * imageResolution)
     
         // //--- Tasks ----//
         let totalTaskTime = 0
@@ -382,8 +397,8 @@ class GenerateImage{
             koordinatProgressTask += 31
         }
     
-        if(tasks.length < 2) context.drawImage(fillGrey,565,635)
-        if(tasks.length < 3) context.drawImage(fillGrey,565,665)
+        if(tasks.length < 2) context.drawImage(fillGrey,565 * imageResolution,635 * imageResolution)
+        if(tasks.length < 3) context.drawImage(fillGrey,565 * imageResolution,665 * imageResolution)
     
         //--- Average Hours ----//
         const averageHour = Math.floor(totalTime/7)
