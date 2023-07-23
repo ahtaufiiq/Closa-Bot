@@ -75,7 +75,9 @@ class CoworkingController {
         let name = "coworking 👩‍💻🧑‍💻✅"
         let description = `• Feel free to drop in anytime.
 • Before leaving, say good bye in voice chat.
-• if you're turning on camera, make sure others can see you :)`
+• follow coworking rules: turn on camera 📸 or sharescreen 🖥️
+• if you're turning on camera, make sure others can see you :)
+• if you're sharing screen, don't share any sensitive data 🚫`
         let scheduledStartTime = CoworkingController.getStartTimeCoworkingSession()
         
         return await CoworkingController.scheduleEvent(client,{
