@@ -103,7 +103,7 @@ module.exports = {
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
 						const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
 						await interaction.editReply(AdvanceReportMessage.report(dataWeeklyReport,weeklyReportFiles))
-						// interaction.message.edit({components:[]})
+						interaction.message.edit({components:[]})
 						break;
 					case "verifyDM":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("⚠️ Can't verify DM someone else")
