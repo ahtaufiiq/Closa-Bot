@@ -78,7 +78,7 @@ All-time:${FocusSessionMessage.addSpace(5,"\u2002")}\u202F\u0020${all} h`,
             return `hi ${MessageFormatting.tagUser(userId)}, now please follow coworking rules:
 \`\`\`
 • turn-on camera 📸, don't cover your camera 🚫 
-• or sharescreen 🖥️, whatever you comfortable with.
+• or sharescreen 🖥️, whatever you comfortable with, please no sensitive data 🚫
 \`\`\`
 your time tracker will automatically start right after.`
         }else{
@@ -87,7 +87,7 @@ your time tracker will automatically start right after.`
 then follow coworking rules:
 \`\`\`
 • turn-on camera 📸, don't cover your camera 🚫 
-• or sharescreen 🖥️, whatever you comfortable with.
+• or sharescreen 🖥️, whatever you comfortable with, please no sensitive data 🚫
 \`\`\`
 your time tracker will automatically start right after.`
         }
@@ -247,10 +247,10 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
     }
 
     static askToWriteSessionGoal(userId){
-        return `Hi ${MessageFormatting.tagUser(userId)} to start your session, follow these steps:
+        return `Hi @user to start your session, follow these steps:
 1. write 1 specific task here → ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)}
-2. select your project inside session thread
-3. __turn-on video__ :camera_with_flash: or __sharescreen__ :computer: to stay accountable. **required*`
+2. select your project inside session goals thread
+3. follow cowokring rules: turn on video :camera_with_flash: or sharescreen :desktop: (pls no sensitive data ✖︎)`
     }
 
     static askToAccountability(userId,alreadySetSessionGoal,statusSetSessionGoal){

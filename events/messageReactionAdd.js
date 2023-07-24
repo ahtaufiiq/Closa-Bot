@@ -24,6 +24,7 @@ module.exports = {
 				reaction.message.id
 			)
 			const embed = msg.embeds[0]
+			const titleThread = embed.title
 			let email = ''
 			let nickname = ''
 			for (let i = 0; i < embed.fields.length; i++) {
@@ -34,27 +35,23 @@ module.exports = {
 					nickname = value
 				}
 			}	
-			let invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
-                maxAge:2_592_000,
-                unique:true,
-				maxUses:1,
-                reason: 'invite link',
-            })
+			let inviteLink
+			if(titleThread === 'Sign Up from Lisa'){
+				inviteLink = 'https://discord.gg/zMrRJrXCgb'
+			}else{
+				const invite = await ChannelController.getChannel(reaction.client,CHANNEL_GUIDELINE).createInvite({
+					maxAge:2_592_000,
+					unique:true,
+					maxUses:1,
+					reason: 'invite link',
+				})
+				inviteLink = MessageFormatting.inviteLink(invite.code)
+			}
 			
-            const inviteLink = MessageFormatting.inviteLink(invite.code)
-			const thread = await ChannelController.getThread(
-				ChannelController.getChannel(reaction.client,CHANNEL_PAYMENT),
-				reaction.message.id
-			)
 			if(`${reaction.emoji}`=== '✅'){
 				Email.sendInvitationForProductiveMember(nickname,email,inviteLink)
 			}else{
 				Email.sendInvitation6WeekChallenge(nickname,email,inviteLink)
-			}
-			if(thread) thread.send(inviteLink)
-			else{
-				const newThread = await ChannelController.createThread(reaction.message,'Sign Up')
-				newThread.send(inviteLink)
 			}
 		}
 		if(reaction.message.id !== "960790258256064542" && reaction.message.id !== "1013254534262423553") return

@@ -1,12 +1,13 @@
 const ChannelController = require("../controllers/ChannelController");
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 const { CHANNEL_NOTIFICATION } = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 
 module.exports = {
 	name: 'guildMemberRemove',
 	async execute(member) {
-		const channelNotifications = ChannelController.getChannel(member.client,CHANNEL_NOTIFICATION)
+		try {
 		const data = await supabase.from("Users")
 			.select('notificationId')
 			.eq("id",member.user.id)
@@ -17,12 +18,13 @@ module.exports = {
 			.update({notificationId:null})
 			.eq('id',member.user.id)
 			.then()
-		const message = await ChannelController.getMessage(channelNotifications,data.body.notificationId)
-		message.delete()
 		if(data.body.notificationId){
 			const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notificationId)
 			thread.delete()
 			GuidelineInfoController.deleteData(member.user.id)
+		}
+		} catch (error) {
+			DiscordWebhook.sendError(error)
 		}
 
 	},

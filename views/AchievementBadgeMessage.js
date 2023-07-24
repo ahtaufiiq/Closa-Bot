@@ -115,14 +115,14 @@ class AchievementBadgeMessage{
                 30:{point:1000,description:"it's equal to 16+ hr of cowork",color: '#FF3B30',url: 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'},
                 100:{point:3500,description:"it's equal to 58+ hr of cowork",color: '#99F2D2',url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'},
                 200:{point:7000,description:"it's equal to 116+ hr of cowork",color: '#5856ff',url: 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'},
-                365:{point:12000,description:"it's equal to 200+ hr of cowork",color: '#ffcc00',url: 'https://file.notion.so/f/s/50887520-c1d6-4abf-ba86-96a1d48a03c1/708780647157858324.gif?id=9cf98df4-c25f-474e-858e-13866a6302be&table=block&spaceId=d75f0238-b808-4d5a-a2dd-8e96e4a1aa7b&expirationTimestamp=1688817600000&signature=TxTJiEs3UOVabieN0gVcz-8Tu_6xNRefVxeayppabOY'},
+                365:{point:12000,description:"it's equal to 200+ hr of cowork",color: '#ffcc00',url: 'https://cdn3.emoji.gg/emojis/8840_wumpus.gif'},
             },
             coworkingStreak:{
                 7:{point:250,description:"it's equal to 4+ hr of cowork",color: '#FF3B30',url: 'https://media1.giphy.com/media/lp8JndnFvTMndTWYWs/giphy.gif'},
                 30:{point:1000,description:"it's equal to 16+ hr of cowork",color: '#FF3B30',url: 'https://emojis.slackmojis.com/emojis/images/1564765165/6075/hot_fire.gif?1564765165'},
                 100:{point:3500,description:"it's equal to 58+ hr of cowork",color: '#99F2D2',url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjRhOTg5OTUyMzY5NjU0MTBmMGJhMDZjODg5MjJhMGJiOGE5ZTU4MyZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PXM/xlA7W6oUIyYT5pnj9o/giphy.gif'},
                 200:{point:7000,description:"it's equal to 116+ hr of cowork",color: '#5856ff',url: 'https://media3.giphy.com/media/AEHWYyOBSmYRDl7kDc/giphy.gif'},
-                365:{point:12000,description:"it's equal to 200+ hr of cowork",color: '#ffcc00',url: 'https://file.notion.so/f/s/50887520-c1d6-4abf-ba86-96a1d48a03c1/708780647157858324.gif?id=9cf98df4-c25f-474e-858e-13866a6302be&table=block&spaceId=d75f0238-b808-4d5a-a2dd-8e96e4a1aa7b&expirationTimestamp=1688817600000&signature=TxTJiEs3UOVabieN0gVcz-8Tu_6xNRefVxeayppabOY'},
+                365:{point:12000,description:"it's equal to 200+ hr of cowork",color: '#ffcc00',url: 'https://cdn3.emoji.gg/emojis/8840_wumpus.gif'},
             },
             coworkingTime:{
                 '1000min':{point:300,description:"it's equal to 8+ hr of cowork"},

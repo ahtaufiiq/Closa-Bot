@@ -1,6 +1,9 @@
+const DiscordWebhook = require("../helpers/DiscordWebhook")
 const {GUILD_ID} = require("../helpers/config")
 const supabase = require("../helpers/supabaseClient")
+const OnboardingMessage = require("../views/OnboardingMessage")
 const ChannelController = require("./ChannelController")
+const UserController = require("./UserController")
 
 class MemberController{
 
@@ -10,7 +13,7 @@ class MemberController{
             const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
             return await user.roles.add(role)
         } catch (error) {
-            ChannelController.sendError(error,`${userId} addRole ${roleId}`)            
+            DiscordWebhook.sendError(error,`${userId} addRole ${roleId}`)            
         }
     }
 
@@ -23,6 +26,26 @@ class MemberController{
         return count
     }
 
+    static async sendToDM(client,messageContent,UserId,remindToOpenDM=false){
+        const data = await UserController.getDetail(UserId,'DMChannelId,attemptSendDM,notificationId')
+        const {DMChannelId,attemptSendDM,notificationId} = data.body
+        try {
+            const {user} = await MemberController.getMember(client,UserId)
+            const msg = await user.send(messageContent)
+            if(!DMChannelId) UserController.updateData({DMChannelId:msg.channelId},UserId)
+        } catch (error) {
+            if(remindToOpenDM && attemptSendDM <= 3){
+                ChannelController.sendToNotification(
+                    client,
+                    OnboardingMessage.howToActivateDM(UserId),
+                    UserId,
+                    notificationId
+                )
+                UserController.updateData({attemptSendDM:attemptSendDM+1},UserId)
+            }
+            if(DMChannelId) UserController.updateData({DMChannelId:null},UserId)
+        }
+    }
 
     static async removeRole(client,userId,roleId) {
         try {
@@ -30,7 +53,7 @@ class MemberController{
             const user = await client.guilds.cache.get(GUILD_ID).members.fetch(userId)
             user.roles.remove(role)
         } catch (error) {
-            ChannelController.sendError(error,`${userId} removeRole ${roleId}`)                   
+            DiscordWebhook.sendError(error,`${userId} removeRole ${roleId}`)                   
         }
     }
 

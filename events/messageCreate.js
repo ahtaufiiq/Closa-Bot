@@ -8,7 +8,7 @@ const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
 const GenerateImage = require("../helpers/GenerateImage");
-const { AttachmentBuilder, MessageActivityType, MessageType } = require("discord.js");
+const { AttachmentBuilder, MessageActivityType, MessageType, userMention, codeBlock, ThreadAutoArchiveDuration } = require("discord.js");
 const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
@@ -34,6 +34,7 @@ const AchievementBadgeController = require("../controllers/AchievementBadgeContr
 const GuidelineInfoController = require("../controllers/GuidelineInfoController");
 const UserController = require("../controllers/UserController");
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 
 module.exports = {
 	name: 'messageCreate',
@@ -46,15 +47,41 @@ module.exports = {
 				}else{
 					titleThread = `Post — ${msg.embeds[0].data.title}`
 				}
-				const thread = await ChannelController.createThread(msg,titleThread)
-				thread.setArchive(true)
+				await ChannelController.createThread(msg,titleThread,true)
 			}else if(msg.channelId === CHANNEL_TESTIMONIAL){
 				if(!msg.mentions.users.first()) return
 				const titleThread = `${msg.mentions.users.first().username} just joined the hype`
-				const thread = await ChannelController.createThread(msg,titleThread)
-				thread.setArchive(true)
+				await ChannelController.createThread(msg,titleThread,true)
 			}
 			return
+		}else if(msg.author.id === MY_ID){
+			//handle data coworking users (focusRoomUser)
+			if(msg.content.includes('/delete')){
+				const focusUserId = msg.content.split('/delete ')[1]
+				delete focusRoomUser[focusUserId]
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
+				return
+			}else if(msg.content.includes('/search')){
+				const idUsers = Object.keys(focusRoomUser)
+				if(idUsers.length > 0) msg.reply(idUsers.map(idUser => `${userMention(idUser)}`).join(' '))
+				else msg.reply('empty')
+				return
+			}else if(msg.content.includes('/detail')){
+				const focusUserId = msg.content.split('/detail ')[1]
+				if(focusRoomUser[focusUserId]){
+					msg.reply(codeBlock(JSON.stringify(focusRoomUser[focusUserId],null,2)))
+				}else msg.reply("no user")
+				return
+			}else if(msg.content.includes('/update')){
+				const focusUserId = msg.content.split('/update ')[1]
+				focusRoomUser[focusUserId] = {
+					...focusRoomUser[focusUserId],
+					...JSON.parse(msg.content.split(`\`\`\``)[1])
+				}
+				return
+			}
 		}
 
 		// PartyController.handleMentionOutsideMemberInPartyRoom(msg)
@@ -80,7 +107,7 @@ module.exports = {
 					TestimonialMessage.successPostVibes(msg.author.id),
 					msg.author.id
 				)
-				ChannelController.createThread(msg,titleTestimonial)
+				ChannelController.createThread(msg,titleTestimonial,true)
 				break;
 			case CHANNEL_SESSION_GOAL:
 				if(focusRoomUser[msg.author.id] && !focusRoomUser[msg.author.id].firstTime) {
@@ -89,7 +116,7 @@ module.exports = {
 					ChannelController.deleteMessage(msg)
 				}else{
 					try {
-						await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`)
+						await ChannelController.createThread(msg,`🟢 Tracking — ${msg.content}`,false,null,ThreadAutoArchiveDuration.OneDay)
 						const threadSession = await ChannelController.getThread(
 							ChannelController.getChannel(msg.client,CHANNEL_SESSION_GOAL),
 							msg.id
@@ -111,7 +138,7 @@ module.exports = {
 						
 						FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
 					} catch (error) {
-						ChannelController.sendError(error,msg.author.id+' messageCreate '+msg.id)
+						DiscordWebhook.sendError(error,msg.author.id+' messageCreate '+msg.id)
 					}
 				}
 				break;
@@ -239,7 +266,7 @@ module.exports = {
 				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 
-				ChannelController.createThread(msg,titleProgress)
+				ChannelController.createThread(msg,titleProgress,true)
 
 				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
 				// 	avatarURL:msg.author.displayAvatarURL(),
@@ -381,16 +408,16 @@ module.exports = {
 				})
 				
 				.catch(err => {
-					console.log(err)
+					DiscordWebhook.sendError(err)
 				})
 						
 				break;
 			case CHANNEL_TOPICS:
-				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`)	
+				ChannelController.createThread(msg,`${msg.content.split('\n')[0]}`,true)	
 				break;
 			case CHANNEL_CELEBRATE:
 				if (msg.attachments.size > 0 || msg.content.includes('http')) {
-					ChannelController.createThread(msg,`${msg.author.username} celebration 🎉`)
+					ChannelController.createThread(msg,`${msg.author.username} celebration 🎉`,true)
 				}	
 				const dataUser = await supabase
 									.from('Users')

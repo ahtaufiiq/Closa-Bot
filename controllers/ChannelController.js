@@ -1,15 +1,21 @@
-const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType } = require("discord.js");
+const { WebhookClient, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, ChannelType, ThreadAutoArchiveDuration } = require("discord.js");
 const { GUILD_ID, CHANNEL_NOTIFICATION, ROLE_MEMBER, ROLE_NEW_MEMBER, CHANNEL_GOALS, CHANNEL_6WIC } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 
 class ChannelController{
     
     static getChannel(client,channelId){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId)
     }
+
+    static async getDMChannel(client,DMChannelId){
+        return await client.channels.fetch(DMChannelId)
+    }
+
     static changeName(client,channelId,name){
         return client.guilds.cache.get(GUILD_ID).channels.cache.get(channelId).setName(name)
     }
@@ -68,7 +74,7 @@ class ChannelController{
             .select("notificationId")
             .eq('id',userId)
             .single()
-            if(!data.body) return null
+            if(!data.body || !data.body.notificationId) return null
             const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
             return thread
         }
@@ -87,7 +93,7 @@ class ChannelController{
             const msg = await ChannelController.getMessage(channelGoals,goalId)
             await ChannelController.createThread(msg,project)
             thread = await ChannelController.getThread(channelGoals,id)
-            ChannelController.sendError('goal thread is null',MessageFormatting.linkToMessage(channelGoals.id,id))
+            DiscordWebhook.sendError('goal thread is null',MessageFormatting.linkToMessage(channelGoals.id,id))
         }
         return thread
     }
@@ -96,7 +102,7 @@ class ChannelController{
         try {
             return await channel.threads.fetch(threadId);
         } catch (error) {
-            ChannelController.sendError(error,MessageFormatting.linkToInsideThread(threadId))
+            DiscordWebhook.sendError(error,MessageFormatting.linkToInsideThread(threadId))
             return null
         }
     }
@@ -105,7 +111,7 @@ class ChannelController{
             const msg = await channel?.messages?.fetch(messageId)
             return msg
         } catch (error) {
-            ChannelController.sendError(error,MessageFormatting.linkToMessage(channel.id,messageId))
+            DiscordWebhook.sendError(error,MessageFormatting.linkToMessage(channel.id,messageId))
             return null
         }
     }
@@ -131,7 +137,7 @@ class ChannelController{
         })
     }
 
-    static async createThread(msg,threadName,byAuthor){
+    static async createThread(msg,threadName,immediatelyCloseThread = false,byAuthor,autoArchiveDuration=ThreadAutoArchiveDuration.OneHour){
         try {
             if (byAuthor) {
                 const maxLength = 90 - `by ${byAuthor}`.length
@@ -140,11 +146,28 @@ class ChannelController{
                 threadName = FormatString.truncateString(threadName,90)
             }
             
-            return await msg.startThread({
+            const thread = await msg.startThread({
                 name: threadName,
+                autoArchiveDuration
             });
+            if(immediatelyCloseThread) thread.setArchived(true)
+            return thread
         } catch (error) {
-            ChannelController.sendError(error,'create thread')
+            DiscordWebhook.sendError(error,'create thread')
+        }
+    }
+
+    static async createPrivateThread(channel,threadName,immediatelyCloseThread=false){
+        try {
+            const thread = await channel.threads.create({
+                name: threadName,
+                autoArchiveDuration:ThreadAutoArchiveDuration.OneHour,
+                type: ChannelType.PrivateThread
+            });
+            if(immediatelyCloseThread) thread.setArchived(true)
+            return thread
+        } catch (error) {
+            DiscordWebhook.sendError(error,'create thread')
         }
     }
 
@@ -177,18 +200,43 @@ class ChannelController{
         try {
             return await msg.delete()
         } catch (error) {
-            ChannelController.sendError(error)
+            DiscordWebhook.sendError(error)
             return null
         }
     }
 
-    static async sendToNotification(client,messageContent,userId,notificationId){
+    static archivedThreadInactive(UserId,thread,ttl=60){
+        try {
+            const latestNotificationTime = Time.getDate().getTime().toString()
+            supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',UserId).then()
+
+            setTimeout(async () => {
+                const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
+                if(data.body.latestNotificationTime === latestNotificationTime){
+                    thread.setArchived(true)
+                }
+            }, Time.oneMinute() * ttl);
+        } catch (error) {
+            DiscordWebhook.sendError(error,'archivedThreadInactive')
+        }
+    }
+
+    static async sendToNotification(client,messageContent,userId,notificationId,isImmediatelyArchived=false){
+
         try {
             const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+            if(!notificationThread) return null
+
+            if(!isImmediatelyArchived) ChannelController.archivedThreadInactive(userId,notificationThread)
+
             if(Array.isArray(messageContent)){
                 messageContent.forEach(msg=>{
-                    notificationThread.send(msg)
                 })
+                for (let i = 0; i < messageContent.length; i++) {
+                    const msg = messageContent[i];
+                    await notificationThread.send(msg)
+                }
+                if(isImmediatelyArchived) await notificationThread.setArchived(true)
                 supabase
                     .rpc('incrementTotalNotification', { x: messageContent.length, row_id: userId })
                     .then()
@@ -196,10 +244,13 @@ class ChannelController{
                 supabase
                     .rpc('incrementTotalNotification', { x: 1, row_id: userId })
                     .then()
-                return await notificationThread.send(messageContent)
+
+                const msg = await notificationThread.send(messageContent)
+                if(isImmediatelyArchived) await notificationThread.setArchived(true)
+                return msg
             }
         } catch (error) {
-            ChannelController.sendError(error,`sendToNotification ${userId}`)
+            DiscordWebhook.sendError(error,`sendToNotification ${userId}`)
         }
     }
 

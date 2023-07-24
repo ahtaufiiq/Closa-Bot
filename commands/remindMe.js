@@ -39,13 +39,13 @@ module.exports = {
 			.eq('id',userId)
 			.single()
 
-		const [hours,minutes] = time.split(/[.:]/)
+		const [hours,minutes] = time.split(/[.: ]/)
 		switch (command) {
 			case 'me':
 				await interaction.deferReply({ephemeral:true})
 				const differentTime = time.toLowerCase().includes(' wita') ? 1 : time.toLowerCase().includes(' wit') ? 2 : 0
 				const date = Time.getDate()
-				date.setHours(Number(hours) + differentTime,minutes)
+				date.setHours(Number(hours) - differentTime,minutes)
 				const isMoreThanTenMinutes = Time.getDiffTime(Time.getDate(),date) > 10
 				if(isMoreThanTenMinutes) date.setMinutes(date.getMinutes()-10)
 				

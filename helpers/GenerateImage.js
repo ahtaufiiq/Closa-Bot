@@ -8,6 +8,7 @@ const {split} = require('canvas-hypertxt')
 const supabase = require('./supabaseClient')
 const ChannelController = require('../controllers/ChannelController')
 const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProductiveTime, getWeekDateRange } = require('../controllers/AdvanceReportController')
+const DiscordWebhook = require('./DiscordWebhook')
 class GenerateImage{
 
     static async advanceCoworkingReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
@@ -660,7 +661,7 @@ class GenerateImage{
                 xCoordinatStreak += 200.5
                 
             } catch (error) {
-                ChannelController.sendError('invalid avatar image',friends[i].id)
+                DiscordWebhook.sendError('invalid avatar image',friends[i].id)
                 supabase.from("Users")
                     .update({avatarURL:null})
                     .eq('id',friends[i].id)

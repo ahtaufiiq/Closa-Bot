@@ -11,6 +11,7 @@ const UserController = require('./UserController');
 const ReferralCodeController = require('./ReferralCodeController');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 class OnboardingController {
 
@@ -21,23 +22,23 @@ class OnboardingController {
             MemberController.addRole(client,user.id,ROLE_ONBOARDING_PROGRESS),
         ])
         const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
-        const msg = await channelNotifications.send(`${user}`)
-            await supabase.from("Users")
-          .update({
-                    notificationId:msg.id,
-                    onboardingStep:'firstQuest',
-                })
-          .eq('id',user.id)
-        ChannelController.createThread(msg,user.username)
-          .then(async thread=>{
-            const msgGuideline = await thread.send(OnboardingMessage.guidelineInfoQuest(user.id,'firstQuest'))
-                    GuidelineInfoController.addNewData(user.id,msgGuideline.id)
-          })
+       
+        const thread = await ChannelController.createPrivateThread(channelNotifications,user.username)
+        await supabase.from("Users")
+            .update({
+                notificationId:thread.id,
+                onboardingStep:'firstQuest',
+            })
+            .eq('id',user.id)
+        const msgGuideline = await thread.send(OnboardingMessage.guidelineInfoQuest(user.id,'firstQuest'))
+        GuidelineInfoController.addNewData(user.id,msgGuideline.id)
         supabase.from("Users")
             .update({type:'new member'})
             .eq('id',user.id)
             .then()
         OnboardingController.addReminderToStartOnboarding(user.id)
+
+        ChannelController.archivedThreadInactive(user.id,thread,15)
     }
 
     static async startOnboarding(interaction){
@@ -111,7 +112,7 @@ class OnboardingController {
                             msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
                             MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
                         }
-                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId)
+                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
                     })
                 })
         })    
@@ -252,6 +253,19 @@ class OnboardingController {
 			return true
 		}
         return false
+    }
+
+    static async checkOpenDM(client,user){
+        setTimeout(async () => {
+            try {
+                const msg = await user.send(OnboardingMessage.welcomingNewUser(user))
+                UserController.updateData({DMChannelId:msg.channelId},user.id)
+            } catch (error) {
+                ChannelController.sendToNotification(client,OnboardingMessage.howToActivateDM(user.id),user.id)
+                UserController.updateData({attemptSendDM:1},user.id)
+                DiscordWebhook.sendError(`cannot send dm to ${user.id}`)
+            }
+        }, Time.oneMinute() * 2);
     }
 }
 

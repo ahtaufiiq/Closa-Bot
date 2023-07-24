@@ -11,6 +11,7 @@ const {AttachmentBuilder, Collection } = require("discord.js");
 const MemberController = require("./MemberController");
 const { CHANNEL_GUIDELINE, GUILD_ID } = require("../helpers/config");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 class ReferralCodeController{
     static showModalRedeem(interaction){
         if(interaction.customId === 'redeem'){
@@ -74,9 +75,9 @@ class ReferralCodeController{
         }
     }
 
-    static async incrementTotalInvite(inviteCode){
+    static async incrementTotalInvite(invite_code='',user_id=''){
         const {data:totalInvite} = await supabase
-        .rpc('incrementTotalInvite', { invite_code:inviteCode })
+        .rpc('incrementTotalInvite', { invite_code,user_id })
         
         return totalInvite
     }
@@ -98,7 +99,7 @@ class ReferralCodeController{
                 .eq('inviteCode',inviteCode)
                 .single()
         } catch (error) {
-            ChannelController.sendError(error,'delete invite link')
+            DiscordWebhook.sendError(error,'delete invite link')
         }
     }
 

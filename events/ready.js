@@ -23,16 +23,16 @@ const OnboardingController = require('../controllers/OnboardingController');
 module.exports = {
 	name: 'ready',
 	once: true,
-	async execute(client,focusRoomUser,invites) {
+	async execute(client,focusRoomUser,listFocusRoom,invites) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
-		await ReferralCodeController.cachingAllInviteLink(client,invites)
+		ReferralCodeController.cachingAllInviteLink(client,invites)
 		
 		OnboardingController.reminderStartOnboarding(client)
 
-		FocusSessionController.continueFocusTimer(client,focusRoomUser)
+		FocusSessionController.continueFocusTimer(client,focusRoomUser,listFocusRoom)
 
 		GuidelineInfoController.updateAllGuideline(client)
 
@@ -89,7 +89,6 @@ module.exports = {
 		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
 
 		BoostController.remindBoostInactiveMember(client)
-		BoostController.remindEveryMonday(client)
 		BoostController.remindUserAboutToLoseStreak(client)
 		BoostController.resetChannelBoost(client)
 

@@ -16,32 +16,29 @@ const MessageFormatting = require("../helpers/MessageFormatting");
 const AdvanceReportController = require("./AdvanceReportController");
 class FocusSessionController {
 
-    static continueFocusTimer(client,focusRoomUser){
+    static continueFocusTimer(client,focusRoomUser,listFocusRoom){
         if(!fs.existsSync('focusRoom')) fs.mkdirSync('focusRoom')
         if(!fs.existsSync('focusRoom/data.json')) fs.writeFileSync('focusRoom/data.json','{}')
 
-        const oldFocusRoomUser = JSON.parse(fs.readFileSync('focusRoom/data.json'))
+        const data = JSON.parse(fs.readFileSync('focusRoom/data.json'))
+        const oldFocusRoomUser = data?.focusRoomUser || {}
         if(Object.keys(oldFocusRoomUser).length > 0){
             for (const UserId in oldFocusRoomUser) {
                 focusRoomUser[UserId] = oldFocusRoomUser[UserId]
                 FocusSessionController.restartFocusTimer(client,UserId,focusRoomUser)
             }
         }
-        setInterval(() => {
-            if(Object.keys(focusRoomUser).length > 0){
-                const dateOnly = Time.getTodayDateOnly()
-                const stringTime = Time.getTimeOnly(Time.getDate())
-                if(!fs.existsSync(`focusRoom/${dateOnly}`)) fs.mkdirSync(`focusRoom/${dateOnly}`)
-                if(!fs.existsSync(`focusRoom/${dateOnly}/${stringTime}`)) fs.mkdirSync(`focusRoom/${dateOnly}/${stringTime}`)
 
-                for (const UserId in focusRoomUser) {
-                    fs.writeFileSync(`focusRoom/${dateOnly}/${stringTime}/${UserId}.json`,JSON.stringify(focusRoomUser[UserId],null,2))
-                }
+        const oldListFocusRoom = data?.listFocusRoom || {}
+        if(Object.keys(oldListFocusRoom).length > 0){
+            for (const ChannelId in oldListFocusRoom) {
+                listFocusRoom[ChannelId] = oldListFocusRoom[ChannelId]
             }
-        }, 1000 * 60);
+        }
+ 
         setInterval(() => {
-            fs.writeFileSync('focusRoom/data.json',JSON.stringify(focusRoomUser,null,2))
-        }, 1000);
+            fs.writeFileSync('focusRoom/data.json',JSON.stringify({focusRoomUser,listFocusRoom},null,2))
+        }, 300);
     }
 
     static updateMessageFocusTimerId(userId,msgFocusTimerId){

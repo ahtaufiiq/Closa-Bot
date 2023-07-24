@@ -265,7 +265,7 @@ class VacationController{
         }
         msg.startThread({
             name: `${usersOnVacation} on vacation mode `,
-        });
+        }).then(thread=>thread.setArchived(true))
     }
 
     static showModalCustomDate(interaction){

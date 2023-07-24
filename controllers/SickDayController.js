@@ -168,7 +168,7 @@ class SickDayController{
         }
         msg.startThread({
             name: `${usersOnSickLeave} on sick leave `,
-        });
+        }).then(thread => thread.setArchived(true))
     }
 
 

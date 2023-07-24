@@ -45,6 +45,9 @@ const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const AdvanceReportController = require("../controllers/AdvanceReportController");
 const GenerateImage = require("../helpers/GenerateImage");
 const AdvanceReportMessage = require("../views/AdvanceReportMessage");
+const RedisController = require("../helpers/RedisController");
+const MessageFormatting = require("../helpers/MessageFormatting");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -72,14 +75,15 @@ module.exports = {
 				if(FocusSessionController.showModalSettingBreakReminder(interaction)) return
 				if(CoworkingController.showModalScheduleCoworking(interaction)) return
 				if(CoworkingController.showModalEditCoworking(interaction)) return
+				if(CoworkingController.showModalEditQuickRoom(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
 				if(OnboardingController.showModalReminderCoworking(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id
-				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward'){
+				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward' || commandButton === 'inviteQuickRoom'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
 					await interaction.deferReply();
 				}else if(commandButton !== 'advanceReport'){
 					await interaction.deferReply({ephemeral:true});
@@ -101,6 +105,39 @@ module.exports = {
 						await interaction.editReply(AdvanceReportMessage.report(dataWeeklyReport,weeklyReportFiles))
 						// interaction.message.edit({components:[]})
 						break;
+					case "verifyDM":
+						if(targetUserId !== interaction.user.id) return interaction.editReply("⚠️ Can't verify DM someone else")
+						try {
+							const msg = await interaction.user.send(OnboardingMessage.successVerifyDM(interaction.user))
+							UserController.updateData({DMChannelId:msg.channelId},targetUserId)
+							interaction.editReply(OnboardingMessage.replySuccessActivateDM())
+							ChannelController.deleteMessage(interaction.message)
+						} catch (error) {
+							interaction.editReply(OnboardingMessage.replyFailedActivateDM())
+							GuidelineInfoController.incrementTotalNotification(1,targetUserId)
+						}
+						break
+					case "checkyMyNotif":
+						const myNotificationId = await UserController.getNotificationId(interaction.user.id)
+						await interaction.editReply(`here's your notification → ${MessageFormatting.linkToInsideThread(myNotificationId)}`)			
+						break;
+					case "guidelineQuickRoom":
+						interaction.editReply(CoworkingMessage.guidelineQuickRoom())
+						break;
+					case "howToStartQuickRoom":
+						interaction.editReply(CoworkingMessage.replyHowToStartQuickRoom())
+						break
+					case "inviteQuickRoom":
+						interaction.channel.createInvite({
+							maxAge:86_400,
+							unique:true,
+						}).then(async invite=>{
+							const dataUser = await UserController.getDetail(interaction.user.id,'totalInvite')
+							const totalInvite = dataUser.body.totalInvite
+							RedisController.set(`invite_${invite.code}`,interaction.user.id,86_400)
+							interaction.editReply(CoworkingMessage.shareInviteQuickRoom(invite.code,totalInvite))
+						})
+						break
 					case "claimReward":
 						const inviteLink = await ReferralCodeController.generateInviteLink(interaction.client,targetUserId)
 						await interaction.editReply(AchievementBadgeMessage.howToClaimReward(targetUserId,value,inviteLink))
@@ -304,7 +341,7 @@ module.exports = {
 								delete focusRoomUser[targetUserId].msgIdSmartBreakReminder
 							}
 						}else{
-							ChannelController.sendError('focusRoomUser Undefined ' + targetUserId,JSON.stringify(focusRoomUser[targetUserId],null,2))
+							DiscordWebhook.sendError('focusRoomUser Undefined ' + targetUserId,JSON.stringify(focusRoomUser[targetUserId],null,2))
 						}
 						const channel = await ChannelController.getChannel(interaction.client,interaction.channelId)
 						const [msgFocusOld,replyBreak] = await Promise.all([
@@ -725,15 +762,16 @@ module.exports = {
 								content:interaction.message.content,
 							})
 							 
-							await ChannelController.createThread(msgTestimonial,`milestone by ${testimonialUser.username}`)
-							const thread = await ChannelController.getThread(
-								ChannelController.getChannel(interaction.client,msgTestimonial.channelId),
-								msgTestimonial.id
-							)
-							thread.send({embeds})
+							const thread = await ChannelController.createThread(msgTestimonial,`milestone by ${testimonialUser.username}`)
+							// const thread = await ChannelController.getThread(
+							// 	ChannelController.getChannel(interaction.client,msgTestimonial.channelId),
+							// 	msgTestimonial.id
+							// )
+							await thread.send({embeds})
+							thread.setArchived(true)
 						}else{
 							const msgTestimonial = await channelAchievements.send(interaction.message.content)
-							ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`)
+							ChannelController.createThread(msgTestimonial,`from ${testimonialUser.username}`,true)
 						}
 						break;
 					default:
@@ -783,7 +821,7 @@ module.exports = {
 								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
 								ChannelController.deleteMessage(interaction.message)
 							} catch (error) {
-								ChannelController.sendError(error,`${modal.user.id} ${coworkingTime}`)
+								DiscordWebhook.sendError(error,`${modal.user.id} ${coworkingTime}`)
 							}
 						}
 						break;
@@ -913,7 +951,7 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			ChannelController.sendError(error,`interaction create ${interaction?.user?.id} ${interaction.customId}`)
+			DiscordWebhook.sendError(error,`interaction create ${interaction?.user?.id} ${interaction.customId}`)
 		}
 	},
 };

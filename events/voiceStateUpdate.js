@@ -23,6 +23,7 @@ const AchievementBadgeMessage = require('../views/AchievementBadgeMessage');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
 const AdvanceReportController = require('../controllers/AdvanceReportController');
 const InfoUser = require('../helpers/InfoUser');
+const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 let closaCafe = {
 
@@ -39,6 +40,7 @@ module.exports = {
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channelId
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
+			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember)
 	
 			RecurringMeetupController.handleVoiceRoomWeeklySync(newMember,meetup,userId)
 
@@ -60,9 +62,10 @@ module.exports = {
 			}
 
 			if(isFirsTimeJoinFocusRoom(listFocusRoom,focusRoomUser,joinedChannelId,userId)){
-				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder')
+				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder,totalFocusSession')
 				const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
 				const breakReminder = Number(dataUser.body?.breakReminder)
+				const totalFocusSession = Number(dataUser.body?.totalFocusSession)
 				const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 				focusRoomUser[userId] = {
 					timestamp:Time.getDate().getTime(),
@@ -85,7 +88,7 @@ module.exports = {
 					joinedChannelId,
 					...focusRoomUser[userId]
 				}
-				kickUser(userId,newMember.client,joinedChannelId,focusRoomUser)
+				kickUser(userId,newMember.client,joinedChannelId,focusRoomUser,listFocusRoom)
 				.then(()=>{
 					newMember.disconnect()
 				})
@@ -100,7 +103,7 @@ module.exports = {
 					.then(async ({data})=>{
 					if (data) {
 						FocusSessionController.startFocusTimer(newMember.client,data.threadId,userId,focusRoomUser)
-					}else{
+					}else if(totalFocusSession <= 3){
 						ChannelController.sendToNotification(
 							newMember.client,
 							FocusSessionMessage.askToWriteSessionGoal(userId),
@@ -116,7 +119,7 @@ module.exports = {
 				if (!focusRoomUser[userId]?.selfVideo && !focusRoomUser[userId]?.streaming) {
 					if (focusRoomUser[userId]?.status !== 'processed' ) {
 						focusRoomUser[userId]?.status === 'processed'
-						kickUser(userId,newMember.client,joinedChannelId,focusRoomUser)
+						kickUser(userId,newMember.client,joinedChannelId,focusRoomUser,listFocusRoom)
 							.then(()=>{		
 								newMember.disconnect()	
 							})
@@ -261,24 +264,24 @@ module.exports = {
 							await thread.edit({name:`⚪ Ended — ${thread.name.split('— ')[1]}`})
 							setTimeout(() => {
 								thread.setArchived(true)
-							}, 5000);
+							}, Time.oneMinute() * 2);
 						}
 					}
 				} catch (error) {
-					ChannelController.sendError(error,'thread edit and archived')
+					DiscordWebhook.sendError(error,'thread edit and archived')
 				}
 
 				FocusSessionController.deleteFocusSession(userId)
 				delete focusRoomUser[userId]
 			}
 		} catch (error) {
-			ChannelController.sendError(error,`voice state ${newMember.member.user.id}`)
+			DiscordWebhook.sendError(error,`voice state ${newMember.member.user.id}`)
 		}
 	},
 };
 
 
-async function kickUser(userId,client,joinedChannelId,focusRoomUser) {			
+async function kickUser(userId,client,joinedChannelId,focusRoomUser,listFocusRoom) {			
 	const time = Time.oneMinute() * 2
 	const oldTimestamp = focusRoomUser[userId]?.timestamp
 	return new Promise((resolve,reject)=>{
@@ -304,6 +307,12 @@ async function kickUser(userId,client,joinedChannelId,focusRoomUser) {
 							})
 					}else if(joinedChannelId === CHANNEL_CLOSA_CAFE){
 						const channel = ChannelController.getChannel(client,CHANNEL_CLOSA_CAFE)
+						channel.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
+							.then(msgReminder =>{
+								msg = msgReminder
+							})
+					}else if(listFocusRoom[joinedChannelId]?.type === 'quickRoom'){
+						const channel = await ChannelController.getChannel(client,joinedChannelId)
 						channel.send(FocusSessionMessage.askToAccountability(userId,isAlreadySetSessionGoal))
 							.then(msgReminder =>{
 								msg = msgReminder
