@@ -16,6 +16,7 @@ const UserController = require('./UserController');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const getRandomValue = require('../helpers/getRandomValue');
 const PartyController = require('./PartyController');
+const AdvanceReportController = require('./AdvanceReportController');
 
 class VacationController{
     static async getMaxHoldVacationTicket(userId){
@@ -92,6 +93,7 @@ class VacationController{
 
             UserController.updateOnVacation(true,interaction.user.id)
             // PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
+            AdvanceReportController.updateDataWeeklyPurchaseTicket(interaction.user.id,'vacation')
             VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             const todayDate = Time.getFormattedDate(Time.getDate())
             const tomorrowDate = Time.getFormattedDate(Time.getNextDate(1))
@@ -159,6 +161,7 @@ class VacationController{
                     UserController.updateLastSafety(Time.getTodayDateOnly(),interaction.user.id)
                     await DailyStreakController.addSafetyDot(interaction.user.id,new Date())
                     // PartyController.updateDataProgressRecap(interaction.user.id,'vacation')
+                    AdvanceReportController.updateDataWeeklyPurchaseTicket(interaction.user.id,'vacation')
                     VacationController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
 
                     const vacationTicketLeft = totalTicket - 1
@@ -202,6 +205,7 @@ class VacationController{
             for (let i = 0; i < data.body.length; i++) {
                 const vacation = data.body[i];
                 const userId = vacation.UserId
+                AdvanceReportController.updateDataWeeklyPurchaseTicket(userId,'vacation')
                 // PartyController.updateDataProgressRecap(userId,'vacation')
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = vacation.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)

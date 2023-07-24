@@ -5,6 +5,7 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 const Time = require("../helpers/time")
 const UserController = require("../controllers/UserController")
+const AdvanceReportController = require("../controllers/AdvanceReportController")
 
 class FocusSessionMessage{
 
@@ -223,7 +224,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
 
-    static recapDailySummary(user,files,incrementVibePoint,totalPoint,totalTime,totalFocusTime,dailyWorkTime){
+    static recapDailySummary(user,files,incrementVibePoint,totalPoint,totalTime,totalFocusTime,dailyWorkTime,week=0){
         const totalBreakTime = totalTime - totalFocusTime
         const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
         let content = `Here's your recap ${user}\n`
@@ -238,7 +239,10 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
             files,
             embeds:[
                 FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
-            ]
+            ],
+            components:[MessageComponent.createComponent(
+                MessageComponent.addEmojiButton(`advanceReport_${user.id}_${AdvanceReportController.getWeekDateRange(week)}`,'Advance Report','📊',ButtonStyle.Secondary)
+            )]
         }
     }
 

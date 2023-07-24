@@ -21,6 +21,8 @@ const ReferralCodeController = require('../controllers/ReferralCodeController');
 const AchievementBadgeController = require('../controllers/AchievementBadgeController');
 const AchievementBadgeMessage = require('../views/AchievementBadgeMessage');
 const GuidelineInfoController = require('../controllers/GuidelineInfoController');
+const AdvanceReportController = require('../controllers/AdvanceReportController');
+const InfoUser = require('../helpers/InfoUser');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
 
 let closaCafe = {
@@ -44,7 +46,13 @@ module.exports = {
 
 			if(oldMember.channel === null){
 				closaCafe[userId] = Time.getDate()
-				UserController.updateLastActive(userId)
+				UserController.updateData(
+					{
+						avatarURL:InfoUser.getAvatar(newMember.member),
+						lastActive:Time.getTodayDateOnly()
+					},
+					userId
+				)
 			}else if (newMember.channel === null) {
 				const {totalInMinutes}= Time.getGapTime(closaCafe[userId],true)
 				await DailyReport.activeMember(oldMember.client,userId)
@@ -165,15 +173,16 @@ module.exports = {
 							})
 
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
-						const yesterdayTotalTime = focusRoomUser[userId]?.yesterdayTotalTime
-						const incrementVibePoint = totalTime - (yesterdayTotalTime || 0)
+						const yesterdayProgress = focusRoomUser[userId]?.yesterdayProgress
+						const incrementVibePoint = totalTime - (yesterdayProgress?.totalTime || 0)
 						PointController.addPoint(userId,'voice',incrementVibePoint)
-						if(yesterdayTotalTime){
+						if(yesterdayProgress){
+							const incrementVibePoint = yesterdayProgress.totalTime
 							const yesterdayDateOnly = Time.getDateOnly(Time.getNextDate(-1))
-							const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId,yesterdayDateOnly)
+							const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId,yesterdayDateOnly)
 							const buffer = await GenerateImage.dailySummary({
 								user:newMember.member.user,
-								coworkingFriends:coworkingPartner,
+								coworkingPartners:coworkingPartners,
 								dailyWorkTime,
 								projects:projectThisWeek,
 								tasks,
@@ -188,12 +197,12 @@ module.exports = {
 								totalTaskFocusTime += Number(task.focusTime)
 							}
 							const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
-							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,yesterdayTotalTime,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
+							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,-1))
 						}
-						const {coworkingPartner,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
-							coworkingFriends:coworkingPartner,
+							coworkingPartners:coworkingPartners,
 							dailyWorkTime,
 							projects:projectThisWeek,
 							tasks,
@@ -207,8 +216,18 @@ module.exports = {
 							totalTaskFocusTime += Number(task.focusTime)
 						}
 						const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
+						await AdvanceReportController.updateDataWeeklyReport(
+							newMember.member.user.id,
+							{
+								taskName,totalTime,focusTime,breakTime
+							},
+							data?.Projects,
+							coworkingPartners,
+							yesterdayProgress
+						)
 						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
 						OnboardingController.handleOnboardingCoworking(oldMember.client,newMember.member.user)
+						
 					}
 					const {msgIdFocusRecap,channelIdFocusRecap} = focusRoomUser[userId]
 					const channel = await ChannelController.getChannel(oldMember.client,channelIdFocusRecap)

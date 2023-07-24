@@ -331,11 +331,16 @@ module.exports = {
 								.single()
 						}
 					}else{
+						const updatedData = {
+							currentStreak:1,
+							totalDay,
+						}
+						if (currentStreak > data.body.longestStreak) {
+							updatedData.longestStreak = currentStreak
+							updatedData.endLongestStreak = Time.getTodayDateOnly()
+						}
 						return supabase.from("Users")
-							.update({
-								'currentStreak':1,
-								totalDay,
-							})
+							.update(updatedData)
 							.eq('id',msg.author.id)
 							.single()
 					}
