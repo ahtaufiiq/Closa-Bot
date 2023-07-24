@@ -102,7 +102,7 @@ module.exports = {
 						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
 						const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
-						await interaction.editReply(AdvanceReportMessage.report(dataWeeklyReport,weeklyReportFiles))
+						await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles))
 						interaction.message.edit({components:[]})
 						break;
 					case "verifyDM":

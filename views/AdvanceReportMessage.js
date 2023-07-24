@@ -3,7 +3,13 @@ const Time = require("../helpers/time")
 const AdvanceReportController = require("../controllers/AdvanceReportController")
 
 class AdvanceReportMessage{
-    static report({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files){
+    static onlyReport(UserId,files){
+        return {
+            content:`Here's your detailed report ${userMention(UserId)}`,
+            files,
+        }
+    }
+    static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files){
         const {totalTime,focusTime,breakTime} = thisWeekStats
         let percentageFocusTime = Math.ceil(focusTime / totalTime * 100)
         let percentageBreakTime = 100 - percentageFocusTime
