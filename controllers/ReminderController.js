@@ -30,9 +30,10 @@ class ReminderController{
 		.select()
 		.neq('reminderProgress',null)
 		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
-		.then(data=>{
+		.then(async data=>{
 			if (data.body) {
-				data.body.forEach(user=>{
+				for (let i = 0; i < data.body.length; i++) {
+					const user = data.body[i];
 					const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 					let ruleReminderProgress = new schedule.RecurrenceRule();
 					ruleReminderProgress.hour = Time.minus7Hours(hours)
@@ -49,7 +50,7 @@ class ReminderController{
 										scheduleReminderProgress.cancel()
 									}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
 										const {id:userId,notificationId} = data;
-										ChannelController.sendToNotification(
+										await ChannelController.sendToNotification(
 											client,
 											TodoReminderMessage.progressReminder(userId),
 											userId,
@@ -60,9 +61,8 @@ class ReminderController{
 								}
 							})
 						}
-					
 					})
-				})
+				}
 			}
 			
 		})
@@ -76,7 +76,8 @@ class ReminderController{
 			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
 			.then(data=>{
 				if(data.body){
-					data.body.forEach(user=>{
+					for (let i = 0; i < data.body.length; i++) {
+						const user = data.body[i];
 						const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 						
 						let ruleReminderHighlight = new schedule.RecurrenceRule();
@@ -94,7 +95,7 @@ class ReminderController{
 											scheduleReminderHighlight.cancel()
 										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
 											const {id:userId,notificationId} = data;
-											ChannelController.sendToNotification(
+											await ChannelController.sendToNotification(
 												client,
 												HighlightReminderMessage.highlightReminder(userId),
 												userId,
@@ -106,7 +107,8 @@ class ReminderController{
 								})
 							}
 						})
-					})
+						
+					}
 					
 				}
 				

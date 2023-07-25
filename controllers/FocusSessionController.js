@@ -13,6 +13,7 @@ const CoworkingController = require("./CoworkingController");
 const AchievementBadgeController = require("./AchievementBadgeController");
 const fs = require('fs');
 const MessageFormatting = require("../helpers/MessageFormatting");
+const AdvanceReportController = require("./AdvanceReportController");
 class FocusSessionController {
 
     static continueFocusTimer(client,focusRoomUser,listFocusRoom){
@@ -155,8 +156,10 @@ class FocusSessionController {
 
             if(focusRoomUser[userId].date !== Time.getTodayDateOnly()){
                 focusRoomUser[userId].date = Time.getTodayDateOnly()
-                focusRoomUser[userId].yesterdayTotalTime = focusRoomUser[userId].totalTime
-                const data = await FocusSessionController.getDetailFocusSession(userId)
+                const [coworkingPartners,data] = await Promise.all([
+                    FocusSessionController.getAllCoworkingPartners(userId),
+                    FocusSessionController.getDetailFocusSession(userId)
+                ])
 				const taskName = data?.taskName
 				const projectName = data.Projects.name
 				const projectId = data.Projects.id
@@ -165,7 +168,17 @@ class FocusSessionController {
 				.then(async response=>{
                     FocusSessionController.insertFocusSession(userId,taskName,projectId)
                 })
-
+                AdvanceReportController.updateDataWeeklyReport(
+                    userId,
+                    {
+                        taskName,totalTime,focusTime,breakTime
+                    },
+                    {
+                        ProjectId:projectId,
+                        name:projectName
+                    },
+                    coworkingPartners,null,-1
+                )
                 focusRoomUser[userId].yesterdayProgress = {
                     totalTime,focusTime,breakTime
                 }
@@ -348,18 +361,30 @@ class FocusSessionController {
     }
 
     static async getAllCoworkingPartners(userId){
-        return await supabase.from('CoworkingPartners')
+        const dataCoworkingPartner = await supabase.from('CoworkingPartners')
             .select()
             .gte('lastCoworking',Time.getDateOnly(Time.getNextDate(-1)))
             .like('id',`%${userId}%`)
             .order('currentStreak',{ascending:false})
             .order('updatedAt',{ascending:false})
             .limit(5)
+        const coworkingPartners = []
+        for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
+            const partner = dataCoworkingPartner.body[i];
+            const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
+            const dataUser = await UserController.getDetail(idPartner,'avatarURL')
+
+            coworkingPartners.push({
+                avatar:dataUser.body.avatarURL,
+                streak: partner.currentStreak
+            })
+        }
+        return coworkingPartners
     }
 
     static async getRecapFocusSession(client,userId,dateOnly){
         const queryDate = dateOnly ? `?date=${dateOnly}` : ''
-        const [dataCoworkingPartner, tasks, projectThisWeek,dataUser] = await Promise.all([
+        const [coworkingPartners, tasks, projectThisWeek,dataUser] = await Promise.all([
             FocusSessionController.getAllCoworkingPartners(userId),
             RequestAxios.get(`voice/dailySummary/${userId}${queryDate}`),
             RequestAxios.get(`voice/weeklyProject/${userId}${queryDate}`),
@@ -367,20 +392,9 @@ class FocusSessionController {
         ])
 
         const {dailyWorkTime,totalPoint,totalFocusSession} = dataUser.body
-        const coworkingPartner = []
-
-        for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
-            const partner = dataCoworkingPartner.body[i];
-            const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
-            const {user} = await MemberController.getMember(client,idPartner)
-            coworkingPartner.push({
-                avatar:InfoUser.getAvatar(user),
-                streak: partner.currentStreak
-            })
-        }
 
         return {
-            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartner,totalSession:totalFocusSession
+            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartners,totalSession:totalFocusSession
         }
 
     }
@@ -502,9 +516,8 @@ class FocusSessionController {
                 await FocusSessionController.updateProjectId(taskId,ProjectId)
                 const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
                 if (!dataUser.body?.dailyWorkTime) {
-                    await supabase.from("Users")
-                        .update({dailyWorkTime:60})
-                        .eq('id',userId)
+                    await UserController.updateData({dailyWorkTime:60},userId)
+                    AdvanceReportController.updateDataWeeklyGoal(60,userId)
                 }
                 focusRoomUser[userId].statusSetSessionGoal = 'done'
                 if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
@@ -520,9 +533,8 @@ class FocusSessionController {
                     await FocusSessionController.updateProjectId(taskId,ProjectId)
                     const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
                     if (!dataUser.body?.dailyWorkTime) {
-                        await supabase.from("Users")
-                            .update({dailyWorkTime:60})
-                            .eq('id',userId)
+                        await UserController.updateData({dailyWorkTime:60},userId)
+                        AdvanceReportController.updateDataWeeklyGoal(60,userId)
                     }
                     focusRoomUser[userId].statusSetSessionGoal = 'done'
                     if (FocusSessionController.isValidToStartFocusTimer(focusRoomUser,userId)){
