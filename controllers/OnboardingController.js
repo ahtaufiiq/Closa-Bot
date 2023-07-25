@@ -104,16 +104,17 @@ class OnboardingController {
                 .select('*,Users(notificationId,onboardingStep)')
                 .or('type.eq.reminderStartOnboarding,type.eq.turnOffReminderOnboarding')
                 .eq('message',Time.getTodayDateOnly())
-                .then(data=>{
-                    data.body?.forEach(({Users:{notificationId,onboardingStep},type,UserId})=>{
-                        let msgContent
+                .then(async data=>{
+                    for (let i = 0; i < data.body.length; i++) {
+                        const {Users:{notificationId,onboardingStep},type,UserId} = data.body[i];
                         if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId,onboardingStep)
                         else {
                             msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
                             MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
                         }
-                        ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
-                    })
+                        await ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
+                        await Time.wait(2000)
+                    }
                 })
         })    
     }

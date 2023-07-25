@@ -25,13 +25,14 @@ class WeeklyReflectionController {
 					.then(async data=>{
 						for (let i = 0; i < data.body.length; i++) {
 							const {id:userId,notificationId} = data.body[i]
-							ChannelController.sendToNotification(
+							await ChannelController.sendToNotification(
 								client,
 								WeeklyReflectionMessage.writeReflection(userId),
 								userId,
 								notificationId,
 								true
 							)
+							await Time.wait(1000)
 						}
 					})
 			}

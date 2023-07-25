@@ -1,6 +1,6 @@
+const DiscordWebhook = require("../helpers/DiscordWebhook")
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
-const ChannelController = require("./ChannelController")
 
 class AdvanceReportController{
     static getMaxCoworkingHours(days){
@@ -180,7 +180,7 @@ class AdvanceReportController{
                     .insert(data)
             }
         } catch (error) {
-            ChannelController.sendError(error,'update weekly purchase ticket ' + UserId)
+            DiscordWebhook.sendError(error,'update weekly purchase ticket ' + UserId)
         }
     }
 
@@ -329,7 +329,7 @@ class AdvanceReportController{
                     
             }
         } catch (error) {
-            ChannelController.sendError(error,'updateDataWeeklyReport '+ UserId)
+            DiscordWebhook.sendError(error,'updateDataWeeklyReport '+ UserId)
         }
     }
 

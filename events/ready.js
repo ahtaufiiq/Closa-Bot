@@ -28,10 +28,13 @@ module.exports = {
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
+		OnboardingController.reminderStartOnboarding(client)
+		ReminderController.remindSetHighlight(client)
+		ReminderController.remindPostProgress(client)
+		WeeklyReflectionController.sendReflectionEveryWeek(client)
+
 		ReferralCodeController.cachingAllInviteLink(client,invites)
 		
-		OnboardingController.reminderStartOnboarding(client)
-
 		FocusSessionController.continueFocusTimer(client,focusRoomUser,listFocusRoom)
 
 		GuidelineInfoController.updateAllGuideline(client)
@@ -77,9 +80,8 @@ module.exports = {
 
 		ReferralCodeController.resetTotalDaysThisCohort()
 
-		ReminderController.remindSetHighlight(client)
+		
 		ReminderController.remindHighlightUser(client)
-		ReminderController.remindPostProgress(client)
 		
 		DailyStreakController.remindMissOneDay(client)
 		DailyStreakController.remindAboutToLoseStreak(client)
@@ -93,7 +95,6 @@ module.exports = {
 		BoostController.resetChannelBoost(client)
 
 		WeeklyReflectionController.sendReminderReflection(client)
-		WeeklyReflectionController.sendReflectionEveryWeek(client)
 		WeeklyReflectionController.updateAnnouncementReflection(client)
 		WeeklyReflectionController.hideChannelReflection(client)
 
