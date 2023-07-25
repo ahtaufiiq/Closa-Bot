@@ -99,10 +99,29 @@ module.exports = {
 					case "generateThumbnailAdvanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate thumbnail advance report someone else")
 						const dataThumbnailWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
-						const bufferImageThumbnail = await GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport)
-						const thumbnailReportFiles = [new AttachmentBuilder(bufferImageThumbnail,{name:`thumbnail_advance_report_${interaction.user.username}.png`})]
+						const [thumbnail1,thumbnail2,thumbnail3,thumbnail4,thumbnail5,thumbnail6,thumbnail7,thumbnail8,thumbnail9] = await Promise.all([
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),1),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),2),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),3),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),4),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),5),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),6),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),7),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),8),
+							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),9),
+						])
+						const thumbnailReportFiles = [
+							new AttachmentBuilder(thumbnail1,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail2,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail3,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail4,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail5,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail6,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail7,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail8,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+							new AttachmentBuilder(thumbnail9,{name:`thumbnail_advance_report_${interaction.user.username}.png`}),
+						]
 						await interaction.editReply(AdvanceReportMessage.thumbnailReport(interaction.user.id,thumbnailReportFiles))
-						interaction.message.edit({components:[]})
 						break;
 					case "advanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report someone else")
