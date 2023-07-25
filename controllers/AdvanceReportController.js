@@ -333,7 +333,7 @@ class AdvanceReportController{
         }
     }
 
-    static async getDataWeeklyReport(UserId,dateRange){
+    static async getDataWeeklyReport(UserId,dateRange=AdvanceReportController.getWeekDateRange()){
         const [dataUser,dataWeeklyReport,dataPurchaseTicket] = await Promise.all([
             supabase.from("Users")
                 .select('totalFocusSession')

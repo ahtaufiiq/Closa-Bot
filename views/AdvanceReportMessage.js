@@ -1,12 +1,22 @@
 const { userMention } = require("discord.js")
 const Time = require("../helpers/time")
 const AdvanceReportController = require("../controllers/AdvanceReportController")
+const MessageComponent = require("../helpers/MessageComponent")
 
 class AdvanceReportMessage{
+    static thumbnailReport(UserId,files){
+        return {
+            content:`Here's your detailed report as a thumbnail ${userMention(UserId)}`,
+            files,
+        }
+    }
     static onlyReport(UserId,files){
         return {
             content:`Here's your detailed report ${userMention(UserId)}`,
             files,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${AdvanceReportController.getWeekDateRange(week)}`,'Generate Thumbnail').setEmoji('🖼️')
+            )]
         }
     }
     static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files){
@@ -50,6 +60,9 @@ please find the all the details below:`
         return {
             content,
             files,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${AdvanceReportController.getWeekDateRange(week)}`,'Generate Thumbnail').setEmoji('🖼️')
+            )]
         }
     }
 

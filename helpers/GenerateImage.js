@@ -11,7 +11,9 @@ const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProdu
 const DiscordWebhook = require('./DiscordWebhook')
 class GenerateImage{
 
-    static async advanceCoworkingThumbnail(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+    static async thumbnailAdvanceReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+        tasks.sort((a, b) => b.totalTime - a.totalTime);
+        projects.sort((a, b) => b.totalTime - a.totalTime);
         const imageResolution = 2
         const adjustmentX = 97
         const adjustmentY = 109
@@ -293,26 +295,34 @@ class GenerateImage{
         
         let xCoordinatStreak = 38 
         let yCoordinatStreak = 619.2 
-    
+        
         for (let i = 0; i < coworkingPartners.length; i++) {
-            const coworkingPartner = coworkingPartners[i];
-            const photo = await loadImage(coworkingPartner.avatar)
-            drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
+            try {
+                const coworkingPartner = coworkingPartners[i];
+                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
+                drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
+        
+                if(coworkingPartner.streak > 1){
+                    context.textAlign = 'center'
+                    context.fillStyle = "#888888"; 
+         
+                    changeFont(context,"500 15px Inter");
     
-            if(coworkingPartner.streak > 1){
-                context.textAlign = 'center'
-                context.fillStyle = "#888888"; 
-     
-                changeFont(context,"500 15px Inter");
-
-                context.drawImage(
-                    coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
-                    (xCoordinatStreak+4+adjustmentX) * imageResolution,(yCoordinatStreak + 50.9 + adjustmentY) * imageResolution
-                )
-                fillText(context,coworkingPartner.streak,xCoordinatStreak+22.2,yCoordinatStreak + 68.8);
+                    context.drawImage(
+                        coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
+                        (xCoordinatStreak+4+adjustmentX) * imageResolution,(yCoordinatStreak + 50.9 + adjustmentY) * imageResolution
+                    )
+                    fillText(context,coworkingPartner.streak,xCoordinatStreak+22.2,yCoordinatStreak + 68.8);
+                }
+                xCoordinatCoworker += 83
+                xCoordinatStreak += 83
+            } catch (error) {
+                DiscordWebhook.sendError('invalid avatar image',coworkingPartners[i].id)
+                supabase.from("Users")
+                    .update({avatarURL:null})
+                    .eq('id',coworkingPartners[i].id)
+                    .then()
             }
-            xCoordinatCoworker += 83
-            xCoordinatStreak += 83
         }
         context.textAlign = 'start'
         context.fillStyle = '#31373D'
@@ -460,6 +470,8 @@ class GenerateImage{
         return buffer
     }
     static async advanceCoworkingReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+        tasks.sort((a, b) => b.totalTime - a.totalTime);
+        projects.sort((a, b) => b.totalTime - a.totalTime);
         const imageResolution = 2
         function drawProgressBar(context,x,y,percentage,type='long'){
             context.beginPath()
@@ -741,24 +753,32 @@ class GenerateImage{
         let yCoordinatStreak = 619.2
     
         for (let i = 0; i < coworkingPartners.length; i++) {
-            const coworkingPartner = coworkingPartners[i];
-            const photo = await loadImage(coworkingPartner.avatar)
-            drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
+            try {
+                const coworkingPartner = coworkingPartners[i];
+                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
+                drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
+        
+                if(coworkingPartner.streak > 1){
+                    context.textAlign = 'center'
+                    context.fillStyle = "#888888"; 
+         
+                    changeFont(context,"500 15px Inter");
     
-            if(coworkingPartner.streak > 1){
-                context.textAlign = 'center'
-                context.fillStyle = "#888888"; 
-     
-                changeFont(context,"500 15px Inter");
-
-                context.drawImage(
-                    coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
-                    (xCoordinatStreak+4) * imageResolution,(yCoordinatStreak + 50.9) * imageResolution
-                )
-                fillText(context,coworkingPartner.streak,xCoordinatStreak+22.2,yCoordinatStreak + 68.8);
+                    context.drawImage(
+                        coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
+                        (xCoordinatStreak+4) * imageResolution,(yCoordinatStreak + 50.9) * imageResolution
+                    )
+                    fillText(context,coworkingPartner.streak,xCoordinatStreak+22.2,yCoordinatStreak + 68.8);
+                }
+                xCoordinatCoworker += 83
+                xCoordinatStreak += 83
+            } catch (error) {
+                DiscordWebhook.sendError('invalid avatar image',coworkingPartners[i].id)
+                supabase.from("Users")
+                    .update({avatarURL:null})
+                    .eq('id',coworkingPartners[i].id)
+                    .then()
             }
-            xCoordinatCoworker += 83
-            xCoordinatStreak += 83
         }
         context.textAlign = 'start'
         context.fillStyle = '#31373D'
@@ -1100,7 +1120,7 @@ class GenerateImage{
                 const {currentStreak,avatarURL} = friends[i];
                 const totalDigitStreak = `${currentStreak}`.length
                 const addCoordinate = totalDigitStreak === 2 ? 5 : totalDigitStreak === 1 ? 10 : 0
-                const photo = await loadImage(avatarURL)
+                const photo = await loadImage(GenerateImage.changeWebpToPNG(avatarURL))
                 const streakImage = currentStreak >= 365 ? zap365 : currentStreak >= 200 ? zap200 : currentStreak >= 100 ? zap100 : zap
                 drawRoundedImage(context,photo,xCoordinatFriends,yCoordinatFriends,friendsImageSize,friendsImageSize,friendsImageSize/2)
                 context.drawImage(streakImage,xCoordinatFriends+78.5,yCoordinatFriends + 145.2)
@@ -1449,7 +1469,7 @@ class GenerateImage{
         for (let i = 0; i < coworkingPartners.length; i++) {
             try {
                 const coworkingPartner = coworkingPartners[i];
-                const photo = await loadImage(coworkingPartner.avatar)
+                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
                 context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
                 context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
     
@@ -1839,6 +1859,11 @@ class GenerateImage{
         drawRoundedImage(context,photoUser,rectX,rectY,rectWidth,rectHeight,cornerRadius)
         const buffer = canvas.toBuffer('image/png')
         return buffer
+    }
+
+    static changeWebpToPNG(avatarURL){
+        if(avatarURL.includes('.webp')) return avatarURL.split(".webp")[0]+'.png'
+        else return avatarURL
     }
 }
 

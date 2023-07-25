@@ -96,6 +96,14 @@ module.exports = {
 				
 				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "generateThumbnailAdvanceReport":
+						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate thumbnail advance report someone else")
+						const dataThumbnailWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
+						const bufferImageThumbnail = await GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport)
+						const thumbnailReportFiles = [new AttachmentBuilder(bufferImageThumbnail,{name:`thumbnail_advance_report_${interaction.user.username}.png`})]
+						await interaction.editReply(AdvanceReportMessage.thumbnailReport(interaction.user.id,thumbnailReportFiles))
+						interaction.message.edit({components:[]})
+						break;
 					case "advanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report someone else")
 						await interaction.deferReply();
