@@ -408,7 +408,6 @@ module.exports = {
 				})
 				
 				.catch(err => {
-					DiscordWebhook.sendError(err)
 				})
 						
 				break;

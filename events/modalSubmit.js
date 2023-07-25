@@ -42,6 +42,7 @@ const OnboardingController = require("../controllers/OnboardingController");
 const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const ReminderController = require("../controllers/ReminderController");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
+const AdvanceReportController = require("../controllers/AdvanceReportController");
 
 module.exports = {
 	name: 'modalSubmit',
