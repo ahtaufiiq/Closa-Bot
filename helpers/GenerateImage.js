@@ -1447,21 +1447,29 @@ class GenerateImage{
         let yCoordinateFrame = 806
         let counterCoordinatFrame = 0
         for (let i = 0; i < coworkingPartners.length; i++) {
-            const coworkingPartner = coworkingPartners[i];
-            const photo = await loadImage(coworkingPartner.avatar)
-            context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
-            context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
-
-            if(coworkingPartner.streak > 1){
-                context.textAlign = 'end'
-                context.fillStyle = "#888888"; 
-                context.font = "500 20px Archivo";
-                context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
-                context.fillText(coworkingPartner.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
+            try {
+                const coworkingPartner = coworkingPartners[i];
+                const photo = await loadImage(coworkingPartner.avatar)
+                context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
+                context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
+    
+                if(coworkingPartner.streak > 1){
+                    context.textAlign = 'end'
+                    context.fillStyle = "#888888"; 
+                    context.font = "500 20px Archivo";
+                    context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
+                    context.fillText(coworkingPartner.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
+                }
+                counterCoordinatFrame += 0.01
+                xCoordinatCoworker += 76.2
+                xCoordinateFrame += 76.2 + counterCoordinatFrame 
+            } catch (error) {
+                ChannelController.sendError('invalid avatar image',coworkingPartners[i].id)
+                supabase.from("Users")
+                    .update({avatarURL:null})
+                    .eq('id',coworkingPartners[i].id)
+                    .then()
             }
-            counterCoordinatFrame += 0.01
-            xCoordinatCoworker += 76.2
-            xCoordinateFrame += 76.2 + counterCoordinatFrame
         }
 
         const buffer = canvas.toBuffer('image/png')
