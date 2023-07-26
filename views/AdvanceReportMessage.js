@@ -1,25 +1,30 @@
-const { userMention } = require("discord.js")
+const { userMention, ButtonStyle } = require("discord.js")
 const Time = require("../helpers/time")
 const AdvanceReportController = require("../controllers/AdvanceReportController")
 const MessageComponent = require("../helpers/MessageComponent")
 
 class AdvanceReportMessage{
-    static thumbnailReport(UserId,files){
+    static thumbnailReport(UserId,files,dateRange,position=2){
         return {
-            content:`Here's your detailed report as a thumbnail ${userMention(UserId)}`,
+            content:`Here's a new thumbnail for you:`,
             files,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|${position}`,'Change stye',ButtonStyle.Secondary).setEmoji('🔁'),
+            )]
         }
     }
-    static onlyReport(UserId,files,week=0){
+    static onlyReport(UserId,files,dateRange,action='thisWeek'){
         return {
             content:`Here's your detailed report ${userMention(UserId)}`,
             files,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${AdvanceReportController.getWeekDateRange(week)}`,'Generate Thumbnail').setEmoji('🖼️')
+                MessageComponent.addButton(`lastWeek_${UserId}_${dateRange}`,'Last week',ButtonStyle.Secondary).setEmoji('⬅️').setDisabled(action === 'lastWeek'),
+                MessageComponent.addButton(`thisWeek_${UserId}_${dateRange}`,'This week',ButtonStyle.Secondary).setEmoji('➡️').setDisabled(action === 'thisWeek'),
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate thumbnail').setEmoji('🖼️')
             )]
         }
     }
-    static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files,week=0){
+    static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files){
         const {totalTime,focusTime,breakTime} = thisWeekStats
         let percentageFocusTime = Math.ceil(focusTime / totalTime * 100)
         let percentageBreakTime = 100 - percentageFocusTime
@@ -61,11 +66,15 @@ please find the all the details below:`
             content,
             files,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${AdvanceReportController.getWeekDateRange(week)}`,'Generate Thumbnail').setEmoji('🖼️')
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate Thumbnail').setEmoji('🖼️')
             )]
         }
     }
 
+    static emptyLastWeekReport(UserId){
+        return `⚠️ You haven't done any coworking session last week ${userMention(UserId)}
+need at least few coworking sessions done to generate the report.`
+    }
     static emptyReport(week,UserId){
         let selectedPeriod = 'this week'
         if(week === -1) selectedPeriod = 'last week'

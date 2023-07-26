@@ -113,13 +113,13 @@ class AdvanceReportController{
 
     static getMostProductiveTime(productiveTime){
         const mostProductiveTime = {
-            time:null,
+            time:'-',
             total:0
         }
         
         for (const key in productiveTime) {
             const {time,total} = mostProductiveTime
-            if(time === null || (time > key && total <= productiveTime[key])) {
+            if(time === '-' || (time > key && total <= productiveTime[key])) {
                 mostProductiveTime.time = key
                 mostProductiveTime.total = productiveTime[key]
             }
@@ -225,7 +225,7 @@ class AdvanceReportController{
                 thisWeekStats.totalTime += totalTime
                 thisWeekStats.focusTime += focusTime
                 thisWeekStats.breakTime += breakTime
-                thisWeekStats.totalSessionThisWeek += totalTime
+                thisWeekStats.totalSessionThisWeek ++
 
                 let isMatchingTaskName = false
                 for (let i = 0; i < tasks.length; i++) {
@@ -369,6 +369,13 @@ class AdvanceReportController{
                 .update({weeklyGoal:dailyWorkTime*7})
                 .eq('id',data.body.id)
         }
+    }
+
+    static getThumbnailOption(position,action='next'){
+        let newPosition = +position + (action === 'next' ? 1 : -1)
+        if(newPosition > 9) return 0
+        else if(newPosition === 0) return 9
+        else return newPosition
     }
 }
 
