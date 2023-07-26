@@ -435,7 +435,8 @@ class GenerateImage{
         if(tasks.length < 3) context.drawImage(fillGrey,(565 + adjustmentX) * imageResolution,(665 + adjustmentY) * imageResolution)
     
         //--- Average Hours ----//
-        const averageHour = Math.floor(totalTime/7)
+        const incrementDay = Time.getDate().getDay()||7
+        const averageHour = Math.floor(totalTime/incrementDay)
         const averageHourLastWeek = Math.floor(totalTimeLastWeek/7)
         const diffAverageHour = Math.abs(averageHour-averageHourLastWeek)
         
@@ -473,19 +474,16 @@ class GenerateImage{
             textAverageHours = '-'
         }
         else {
-            const incrementDay = Time.getDate().getDay()||7
-            const averageHourThisDay = (averageHourLastWeek/7* incrementDay)
-            const diffAverageHourThisTime = Math.abs(averageHour-averageHourThisDay)
-            if(diffAverageHourThisTime === 0){
+            if(diffAverageHour === 0){
                 context.fillStyle = '#7E7C7C'
                 textAverageHours = '0%'
             }else 
-            if(averageHour > averageHourThisDay){
+            if(averageHour > averageHourLastWeek){
                 context.fillStyle = '#00B264'
-                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↑`
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
             }else{
                 context.fillStyle = '#888888'
-                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↓`
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
             }
         }
         fillText(context,textAverageHours,565,759)
@@ -893,7 +891,8 @@ class GenerateImage{
         if(tasks.length < 3) context.drawImage(fillGrey,565 * imageResolution,665 * imageResolution)
     
         //--- Average Hours ----//
-        const averageHour = Math.floor(totalTime/7)
+        const incrementDay = Time.getDate().getDay()||7
+        const averageHour = Math.floor(totalTime/incrementDay)
         const averageHourLastWeek = Math.floor(totalTimeLastWeek/7)
         const diffAverageHour = Math.abs(averageHour-averageHourLastWeek)
         
@@ -931,19 +930,16 @@ class GenerateImage{
             textAverageHours = '-'
         }
         else {
-            const incrementDay = Time.getDate().getDay()||7
-            const averageHourThisDay = (averageHourLastWeek/7* incrementDay)
-            const diffAverageHourThisTime = Math.abs(averageHour-averageHourThisDay)
-            if(diffAverageHourThisTime === 0){
+            if(diffAverageHour === 0){
                 context.fillStyle = '#7E7C7C'
                 textAverageHours = '0%'
             }else 
-            if(averageHour > averageHourThisDay){
+            if(averageHour > averageHourLastWeek){
                 context.fillStyle = '#00B264'
-                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↑`
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
             }else{
                 context.fillStyle = '#888888'
-                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↓`
+                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
             }
         }
         fillText(context,textAverageHours,565,759)

@@ -51,7 +51,6 @@ const DiscordWebhook = require("../helpers/DiscordWebhook");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
-		console.log('masuk');
 		try {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {

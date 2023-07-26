@@ -225,7 +225,7 @@ class AdvanceReportController{
                 thisWeekStats.totalTime += totalTime
                 thisWeekStats.focusTime += focusTime
                 thisWeekStats.breakTime += breakTime
-                thisWeekStats.totalSessionThisWeek += totalTime
+                thisWeekStats.totalSessionThisWeek ++
 
                 let isMatchingTaskName = false
                 for (let i = 0; i < tasks.length; i++) {
