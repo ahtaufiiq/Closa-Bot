@@ -110,6 +110,13 @@ class AdvanceReportController{
         
         return `${AdvanceReportController.getFormattedReportDate(startingDate)} — ${AdvanceReportController.getFormattedReportDate(endingDate)}`
     }
+    static getWeekDateRangeByDate(date){
+        const day = date.getDay() || 7
+        const startingDate = Time.getNextDate(-(day-1),Time.getDateOnly(date))
+        const endingDate = Time.getNextDate(6,Time.getDateOnly(startingDate))
+        
+        return `${AdvanceReportController.getFormattedReportDate(startingDate)} — ${AdvanceReportController.getFormattedReportDate(endingDate)}`
+    }
 
     static getMostProductiveTime(productiveTime){
         const mostProductiveTime = {
@@ -128,8 +135,9 @@ class AdvanceReportController{
         return mostProductiveTime.time
     }
 
-    static getThisDay(){
-        return Time.getDay(Time.getDate(),'short')
+    static getThisDay(date){
+        if(date) return Time.getDay(date,'short')
+        else return Time.getDay(Time.getDate(),'short')
     }
 
     static generateListProductiveTime(totalTime){
@@ -185,7 +193,8 @@ class AdvanceReportController{
     }
 
     static async updateDataWeeklyReport(UserId,{taskName,totalTime,focusTime,breakTime},project,coworkingPartners,yesterdayProgress,week=0){
-        const dateRange = AdvanceReportController.getWeekDateRange(week)
+        const date = Time.getNextDate(week)
+        const dateRange = AdvanceReportController.getWeekDateRangeByDate(date)
         if(yesterdayProgress){
             totalTime -= yesterdayProgress.totalTime
             focusTime -= yesterdayProgress.focusTime
@@ -210,7 +219,7 @@ class AdvanceReportController{
                 } = dataWeeklyReport.body
                 let updatedDailyCoworkingStats = false
                 for (const day in dailyCoworkingStats) {
-                    if(day === AdvanceReportController.getThisDay()){
+                    if(day === AdvanceReportController.getThisDay(date)){
                         dailyCoworkingStats[day].totalTime += totalTime
                         dailyCoworkingStats[day].focusTime += focusTime
                         dailyCoworkingStats[day].breakTime += breakTime
@@ -219,13 +228,13 @@ class AdvanceReportController{
                     }
                 }
                 if(!updatedDailyCoworkingStats){
-                    dailyCoworkingStats[AdvanceReportController.getThisDay()] = {totalTime,focusTime,breakTime,dateOnly:Time.getTodayDateOnly()}
+                    dailyCoworkingStats[AdvanceReportController.getThisDay(date)] = {totalTime,focusTime,breakTime,dateOnly:Time.getDateOnly(date)}
                 }
 
                 thisWeekStats.totalTime += totalTime
                 thisWeekStats.focusTime += focusTime
                 thisWeekStats.breakTime += breakTime
-                thisWeekStats.totalSessionThisWeek ++
+                thisWeekStats.totalSessionThisWeek += 1
 
                 let isMatchingTaskName = false
                 for (let i = 0; i < tasks.length; i++) {
@@ -274,7 +283,6 @@ class AdvanceReportController{
                     .then()
 
             }else{
-                //get vacation dan sick day for first data in this week
                 const dataUser = await supabase.from("Users")
                     .select()
                     .eq("id",UserId)
