@@ -51,6 +51,7 @@ const DiscordWebhook = require("../helpers/DiscordWebhook");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
+		console.log('masuk');
 		try {
 			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
 			if (interaction.isButton()) {
@@ -97,7 +98,7 @@ module.exports = {
 				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
 					case "generateThumbnailAdvanceReport":
-						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate thumbnail advance report someone else")
+						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate thumbnail advance report of someone else")
 						const dataThumbnailWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
 						const [thumbnail1,thumbnail2,thumbnail3,thumbnail4,thumbnail5,thumbnail6,thumbnail7,thumbnail8,thumbnail9] = await Promise.all([
 							GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,AdvanceReportController.getWeekDateRange(),1),
@@ -124,7 +125,7 @@ module.exports = {
 						await interaction.editReply(AdvanceReportMessage.thumbnailReport(interaction.user.id,thumbnailReportFiles))
 						break;
 					case "advanceReport":
-						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report someone else")
+						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report of someone else")
 						await interaction.deferReply();
 						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)

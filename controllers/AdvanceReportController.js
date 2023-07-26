@@ -113,13 +113,13 @@ class AdvanceReportController{
 
     static getMostProductiveTime(productiveTime){
         const mostProductiveTime = {
-            time:null,
+            time:'-',
             total:0
         }
         
         for (const key in productiveTime) {
             const {time,total} = mostProductiveTime
-            if(time === null || (time > key && total <= productiveTime[key])) {
+            if(time === '-' || (time > key && total <= productiveTime[key])) {
                 mostProductiveTime.time = key
                 mostProductiveTime.total = productiveTime[key]
             }

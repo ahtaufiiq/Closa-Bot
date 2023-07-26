@@ -235,7 +235,7 @@ class GenerateImage{
      
                 fillText(context,`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }else{
-                context.fillStyle = "#FF3666"; 
+                context.fillStyle = "#888888"; 
                 fillText(context,`${sessionDiff}- (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }
         }
@@ -385,7 +385,7 @@ class GenerateImage{
             context.fillStyle = "#888888"; 
             changeFont(context,"400 16px Inter");
             context.textAlign = 'right'
-            fillText(context,Time.convertTime(+project.totalTime,'short',true), 1042 , koordinatProject);
+            fillText(context,Time.convertTime(+project.totalTime,'short',true,true), 1042 , koordinatProject);
             context.textAlign = 'left'
     
             drawProgressBar(context,797.5,koordinatProgressProject,percentage,'short')
@@ -416,12 +416,12 @@ class GenerateImage{
             
             context.fillStyle = "#31373D"; 
             changeFont(context,"400 16px Inter");
-            fillText(context,FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 615 , koordinatTask);
+            fillText(context,FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true,true), 615 , koordinatTask);
     
             context.fillStyle = "#888888"; 
             changeFont(context,"400 16px Inter");
             context.textAlign = 'right'
-            fillText(context,Time.convertTime(+task.totalTime,'short',true), 1042 , koordinatTask);
+            fillText(context,Time.convertTime(+task.totalTime,'short',true,true), 1042 , koordinatTask);
             context.textAlign = 'left'
     
     
@@ -442,15 +442,14 @@ class GenerateImage{
         context.fillStyle = "#31373D"; 
         changeFont(context,"400 15px Inter");
         context.textAlign = 'end'
-        fillText(context,Time.convertTime(averageHour,'short',true),1041,735)
+        fillText(context,Time.convertTime(averageHour,'short',true,true),1041,735)
         if(totalTimeLastWeek === null){
             context.fillStyle = '#7E7C7C'
             fillText(context,'-',1041,761)
-        }else fillText(context,Time.convertTime(averageHourLastWeek,'short',true),1041,761)
+        }else fillText(context,Time.convertTime(averageHourLastWeek,'short',true,true),1041,761)
     
         context.textAlign = 'start'
         context.fillStyle = "#888888"; 
-        // fillText(context,'2 hr 2 min↓',600,761)
         let textAverageHoursChange
         if(totalTimeLastWeek === null) {
             textAverageHoursChange = '-'
@@ -459,9 +458,9 @@ class GenerateImage{
             if(diffAverageHour === 0){
                 textAverageHoursChange = '0 min'
             }else if(averageHour > averageHourLastWeek){
-                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↑`
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true,true)}↑`
             }else{
-                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↓`
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true,true)}↓`
             }
         }
         fillText(context,textAverageHoursChange,660,758)
@@ -474,16 +473,19 @@ class GenerateImage{
             textAverageHours = '-'
         }
         else {
-            if(diffAverageHour === 0){
+            const incrementDay = Time.getDate().getDay()||7
+            const averageHourThisDay = (averageHourLastWeek/7* incrementDay)
+            const diffAverageHourThisTime = Math.abs(averageHour-averageHourThisDay)
+            if(diffAverageHourThisTime === 0){
                 context.fillStyle = '#7E7C7C'
                 textAverageHours = '0%'
             }else 
-            if(averageHour > averageHourLastWeek){
+            if(averageHour > averageHourThisDay){
                 context.fillStyle = '#00B264'
-                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
+                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↑`
             }else{
-                context.fillStyle = '#FF3666'
-                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
+                context.fillStyle = '#888888'
+                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↓`
             }
         }
         fillText(context,textAverageHours,565,759)
@@ -691,7 +693,7 @@ class GenerateImage{
      
                 fillText(context,`${sessionDiff}+ (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }else{
-                context.fillStyle = "#FF3666"; 
+                context.fillStyle = "#888888"; 
                 fillText(context,`${sessionDiff}- (${Math.ceil(sessionDiff/totalSessionLastWeek*100)}%)`,844,74)
             }
         }
@@ -906,18 +908,24 @@ class GenerateImage{
     
         context.textAlign = 'start'
         context.fillStyle = "#888888"; 
-        // fillText(context,'2 hr 2 min↓',600,761)
         let textAverageHoursChange
         if(totalTimeLastWeek === null) {
             textAverageHoursChange = '-'
         }
         else {
-            if(diffAverageHour === 0){
-                textAverageHoursChange = '0 min'
-            }else if(averageHour > averageHourLastWeek){
-                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↑`
+            const incrementDay = Time.getDate().getDay()||7
+            const averageHourThisDay = (averageHourLastWeek/7* incrementDay)
+            const diffAverageHourThisTime = Math.abs(averageHour-averageHourThisDay)
+            if(diffAverageHourThisTime === 0){
+                context.fillStyle = '#7E7C7C'
+                textAverageHours = '0%'
+            }else 
+            if(averageHour > averageHourThisDay){
+                context.fillStyle = '#00B264'
+                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↑`
             }else{
-                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↓`
+                context.fillStyle = '#888888'
+                textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↓`
             }
         }
         fillText(context,textAverageHoursChange,660,758)
@@ -938,7 +946,7 @@ class GenerateImage{
                 context.fillStyle = '#00B264'
                 textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
             }else{
-                context.fillStyle = '#FF3666'
+                context.fillStyle = '#888888'
                 textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
             }
         }
