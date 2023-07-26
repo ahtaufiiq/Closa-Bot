@@ -11,7 +11,28 @@ const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProdu
 const DiscordWebhook = require('./DiscordWebhook')
 class GenerateImage{
 
-    static async thumbnailAdvanceReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange()){
+    static async thumbnail(urlAdvanceReport){
+        const imageResolution = 2
+        const widthCanvas = 1280 * imageResolution
+        const heightCanvas = 1024 * imageResolution
+        const canvas = createCanvas(widthCanvas ,heightCanvas)
+        const context = canvas.getContext('2d')
+        const template = await loadImage(`./assets/images/advance_coworking_thumbnail.png`)
+        // const template = await loadImage(`./assets/images/basic.png`)
+        const advanceReport = await loadImage(urlAdvanceReport)
+        context.drawImage(template,0,0)
+        const adjustmentX = (97 + 15) * imageResolution
+        const adjustmentY = (106 + 15) * imageResolution
+        const crop = 60
+        console.log(advanceReport.width);
+        //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+        const advanceReportWidth = advanceReport.width - (crop * 2)
+        const advanceReportHeight = advanceReport.height - (crop * 2)
+        context.drawImage(advanceReport, crop, crop, advanceReportWidth, advanceReportHeight, adjustmentX, adjustmentY, advanceReportWidth, advanceReportHeight)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer
+    }
+    static async thumbnailAdvanceReport(user,{dailyCoworkingStats,productiveTime,lastWeekStats,thisWeekStats,totalSession,coworkingPartners,totalSickTicket,totalVacationTicket,weeklyGoal,tasks,projects},dateRange=getWeekDateRange(),type=1){
         tasks.sort((a, b) => b.totalTime - a.totalTime);
         projects.sort((a, b) => b.totalTime - a.totalTime);
         const imageResolution = 2
@@ -168,7 +189,7 @@ class GenerateImage{
         const heightCanvas = 1024 * imageResolution
         const canvas = createCanvas(widthCanvas ,heightCanvas)
         const context = canvas.getContext('2d')
-        const template = await loadImage(`./assets/images/advance_coworking_thumbnail.png`)
+        const template = await loadImage(`./assets/images/advance_coworking_thumbnail_${type}.png`)
         const averageLine = await loadImage(`./assets/images/advance_coworking_average_line.png`)
         const streakPartner = await loadImage(`./assets/images/advance_coworking_streak_oneDigit.png`)
         const streakPartnerTwoDigit = await loadImage(`./assets/images/advance_coworking_streak_twoDigit.png`)

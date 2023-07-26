@@ -26,7 +26,7 @@ module.exports = {
 		if(weeklyReport){
 			const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,weeklyReport)
 			const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
-			await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles))
+			await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,week))
 		}else{
 			interaction.editReply(AdvanceReportMessage.emptyReport(week,interaction.user.id))
 		}

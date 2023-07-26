@@ -10,7 +10,7 @@ class AdvanceReportMessage{
             files,
         }
     }
-    static onlyReport(UserId,files){
+    static onlyReport(UserId,files,week=0){
         return {
             content:`Here's your detailed report ${userMention(UserId)}`,
             files,
@@ -19,7 +19,7 @@ class AdvanceReportMessage{
             )]
         }
     }
-    static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files){
+    static summaryReport({dateRange,UserId,thisWeekStats,productiveTime,tasks,lastWeekStats,totalSickTicket,totalVacationTicket,weeklyGoal},files,week=0){
         const {totalTime,focusTime,breakTime} = thisWeekStats
         let percentageFocusTime = Math.ceil(focusTime / totalTime * 100)
         let percentageBreakTime = 100 - percentageFocusTime
