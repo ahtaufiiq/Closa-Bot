@@ -370,6 +370,13 @@ class AdvanceReportController{
                 .eq('id',data.body.id)
         }
     }
+
+    static getThumbnailOption(position,action='next'){
+        let newPosition = +position + (action === 'next' ? 1 : -1)
+        if(newPosition > 9) return 0
+        else if(newPosition === 0) return 9
+        else return newPosition
+    }
 }
 
 module.exports = AdvanceReportController
