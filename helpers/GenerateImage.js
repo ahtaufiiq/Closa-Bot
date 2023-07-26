@@ -913,6 +913,24 @@ class GenerateImage{
             textAverageHoursChange = '-'
         }
         else {
+            if(diffAverageHour === 0){
+                textAverageHoursChange = '0 min'
+            }else if(averageHour > averageHourLastWeek){
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↑`
+            }else{
+                textAverageHoursChange = `${Time.convertTime(diffAverageHour,'short',true)}↓`
+            }
+        }
+        fillText(context,textAverageHoursChange,660,758)
+    
+        changeFont(context,"500 16px Inter");
+    
+        let textAverageHours
+        if(totalTimeLastWeek === null) {
+            context.fillStyle = '#7E7C7C'
+            textAverageHours = '-'
+        }
+        else {
             const incrementDay = Time.getDate().getDay()||7
             const averageHourThisDay = (averageHourLastWeek/7* incrementDay)
             const diffAverageHourThisTime = Math.abs(averageHour-averageHourThisDay)
@@ -926,28 +944,6 @@ class GenerateImage{
             }else{
                 context.fillStyle = '#888888'
                 textAverageHours = `${Math.ceil(diffAverageHourThisTime/averageHourThisDay*100)}%↓`
-            }
-        }
-        fillText(context,textAverageHoursChange,660,758)
-    
-        changeFont(context,"500 16px Inter");
-    
-        let textAverageHours
-        if(totalTimeLastWeek === null) {
-            context.fillStyle = '#7E7C7C'
-            textAverageHours = '-'
-        }
-        else {
-            if(diffAverageHour === 0){
-                context.fillStyle = '#7E7C7C'
-                textAverageHours = '0%'
-            }else 
-            if(averageHour > averageHourLastWeek){
-                context.fillStyle = '#00B264'
-                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↑`
-            }else{
-                context.fillStyle = '#888888'
-                textAverageHours = `${Math.ceil(diffAverageHour/averageHourLastWeek*100)}%↓`
             }
         }
         fillText(context,textAverageHours,565,759)
