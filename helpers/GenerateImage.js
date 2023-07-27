@@ -120,10 +120,8 @@ class GenerateImage{
             if(showTime){
                 context.fillStyle = "#888888"; 
                 changeFont(context,"500 15px Inter");
-                context.textAlign = 'center'
                 fillText(context,formatHour(focusTime+breakTime),sumbuX[day] + 39,(sumbuY / imageResolution) - 7 )
             }
-            
             context.fillStyle = "#888888"; 
             changeFont(context,"500 15px Inter");
             fillText(context,`${day} · ${dateOnly.split('-')[2]}`,sumbuX[day] + 39, 329)
@@ -252,6 +250,7 @@ class GenerateImage{
        
         for (const day in dailyCoworkingStats) {
             const showTime = dailyCoworkingStats[day]?.showTime ? true : false
+            context.textAlign = 'center'
             drawHistogram(day,dailyCoworkingStats[day],highestLabel,showTime)
         }
         context.fillStyle = "#888888"; 
@@ -574,10 +573,10 @@ class GenerateImage{
                 context.fill();
             }
     
+            
             if(showTime){
                 context.fillStyle = "#888888"; 
                 changeFont(context,"500 15px Inter");
-                context.textAlign = 'center'
                 fillText(context,formatHour(focusTime+breakTime),sumbuX[day] + 39,(sumbuY / imageResolution) - 7 )
             }
             
@@ -709,6 +708,7 @@ class GenerateImage{
        
         for (const day in dailyCoworkingStats) {
             const showTime = dailyCoworkingStats[day]?.showTime ? true : false
+            context.textAlign = 'center'
             drawHistogram(day,dailyCoworkingStats[day],highestLabel,showTime)
         }
         context.fillStyle = "#888888"; 

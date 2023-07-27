@@ -381,7 +381,7 @@ class AdvanceReportController{
 
     static getThumbnailOption(position,action='next'){
         let newPosition = +position + (action === 'next' ? 1 : -1)
-        if(newPosition > 9) return 0
+        if(newPosition > 9) return 1
         else if(newPosition === 0) return 9
         else return newPosition
     }
