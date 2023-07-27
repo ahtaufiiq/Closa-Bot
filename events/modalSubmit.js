@@ -65,16 +65,19 @@ module.exports = {
 				modal.editReply(`✅ success edited your channel`)
 
 				let counterEditRoom 
+				let tableNumber
 				for (let i = 0; i < modal.message.components[0].components.length; i++) {
 					const {custom_id} = modal.message.components[0].components[i].data;
 					const [prevCommandButton,_,prevValue] = custom_id.split('_')
 					if(prevCommandButton === 'editQuickRoom'){
-						counterEditRoom = Number(prevValue) + 1
+						const [number,counter] = prevValue.split('-')
+						tableNumber = number
+						counterEditRoom = Number(counter) + 1
 						break
 					}
 				}
 				
-				await modal.message.edit(CoworkingMessage.successCreateQuickRoom(modal.user.id,counterEditRoom))
+				await modal.message.edit(CoworkingMessage.successCreateQuickRoom(modal.user.id,tableNumber,counterEditRoom))
 			}else if (commandButton === 'reminderCoworking') {
 				await modal.deferReply({ephemeral:true});
 				const reminderTime = modal.getTextInputValue('schedule');

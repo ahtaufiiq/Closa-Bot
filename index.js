@@ -38,6 +38,10 @@ const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'
 
 const focusRoomUser = {
 }
+const listCafeTable = []
+for (let i = 1; i <= 25; i++) {
+    listCafeTable.push(i)
+}
 
 let invites = new Collection()
 
@@ -53,7 +57,7 @@ for (const file of eventFiles) {
 		if(file === 'guildMemberAdd.js'){
 			client.on(event.name, (...args) => event.execute(...args,invites));
 		}else if(file === 'interactionCreate.js' || file === 'messageCreate.js' || file === 'modalSubmit.js' || file === 'voiceStateUpdate.js' ){
-			client.on(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom));
+			client.on(event.name, (...args) => event.execute(...args,focusRoomUser,listFocusRoom,listCafeTable));
 		}else{
 			client.on(event.name, (...args) => event.execute(...args));
 		}

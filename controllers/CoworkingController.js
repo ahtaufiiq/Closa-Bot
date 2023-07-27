@@ -537,15 +537,17 @@ class CoworkingController {
         return oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && listFocusRoom[oldMember.channelId]?.type === 'quickRoom' && totalOldMember === 0 && oldMember?.channel?.parentId === CHANNEL_WEEKLY_SCYNC_CATEGORY
     }
 
-    static async handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember){
+    static async handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember,listCafeTable){
         try {
             if(CoworkingController.isDeleteQuickRoom(oldMember,listFocusRoom,totalOldMember)){
                 oldMember.channel.delete()
                 setTimeout(() => {
+                    listCafeTable.push(listFocusRoom[oldMember.channelId].tableNumber)
                     delete listFocusRoom[oldMember.channelId]
                 }, Time.oneMinute() * 5);
             }
             if(oldMember.channelId !== CHANNEL_CREATE_YOUR_ROOM && newMember.channelId === CHANNEL_CREATE_YOUR_ROOM){
+                const tableNumber = listCafeTable.shift()
                 const guild = newMember.client.guilds.cache.get(GUILD_ID)
                 const permissionOverwrites = [
                     {
@@ -565,19 +567,20 @@ class CoworkingController {
                     },
                 ]
                 const voiceChannel = await guild.channels.create({
-                    name:`☕ ${UserController.getNameFromUserDiscord(newMember.member.user)}'s table`,
+                    name:`table ${tableNumber}`,
                     permissionOverwrites,
                     parent:ChannelController.getChannel(newMember.client,CHANNEL_WEEKLY_SCYNC_CATEGORY),
                     type:ChannelType.GuildVoice,
                     userLimit:9
                 })
                 listFocusRoom[voiceChannel.id] = {
+                    tableNumber,
                     type:'quickRoom',
                     HostId:newMember.member.id
                 }
                 await newMember.member.voice.setChannel(voiceChannel)
                 
-                voiceChannel.send(CoworkingMessage.successCreateQuickRoom(newMember.member.id))
+                voiceChannel.send(CoworkingMessage.successCreateQuickRoom(newMember.member.id,tableNumber))
 
             }
         } catch (error) {
