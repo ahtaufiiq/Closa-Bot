@@ -199,6 +199,11 @@ class AdvanceReportController{
             totalTime -= yesterdayProgress.totalTime
             focusTime -= yesterdayProgress.focusTime
             breakTime -= yesterdayProgress.breakTime
+            await this.updateDataWeeklyReport(
+                UserId,
+                {taskName,totalTime:yesterdayProgress.totalTime,focusTime:yesterdayProgress.focusTime,breakTime:yesterdayProgress.breakTime},
+                project,coworkingPartners,null,-1
+            )
         }
         try {
             const dataWeeklyReport = await supabase.from("CoworkingWeeklyReports")
@@ -276,11 +281,11 @@ class AdvanceReportController{
                 }
 
 
-                supabase.from("CoworkingWeeklyReports")
+                await supabase.from("CoworkingWeeklyReports")
                     .update(data)
                     .eq("UserId",UserId)
                     .eq('dateRange',dateRange)
-                    .then()
+                    
 
             }else{
                 const dataUser = await supabase.from("Users")
@@ -331,10 +336,8 @@ class AdvanceReportController{
                     UserId,
                     dateRange
                 }
-                supabase.from("CoworkingWeeklyReports")
+                await supabase.from("CoworkingWeeklyReports")
                     .insert(data)
-                    .then()
-                    
             }
         } catch (error) {
             DiscordWebhook.sendError(error,'updateDataWeeklyReport '+ UserId)

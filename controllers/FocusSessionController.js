@@ -168,17 +168,7 @@ class FocusSessionController {
 				.then(async response=>{
                     FocusSessionController.insertFocusSession(userId,taskName,projectId)
                 })
-                AdvanceReportController.updateDataWeeklyReport(
-                    userId,
-                    {
-                        taskName,totalTime,focusTime,breakTime
-                    },
-                    {
-                        ProjectId:projectId,
-                        name:projectName
-                    },
-                    coworkingPartners,null,-1
-                )
+
                 focusRoomUser[userId].yesterdayProgress = {
                     totalTime,focusTime,breakTime
                 }
