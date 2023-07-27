@@ -241,7 +241,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
             ],
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`advanceReport_${user.id}_${AdvanceReportController.getWeekDateRange(week)}`,'Advance Report','📊')
+                MessageComponent.addEmojiButton(`advanceReport_${user.id}_${AdvanceReportController.getWeekDateRange(week)}`,'Advance Report','📊',ButtonStyle.Secondary)
             )]
         }
     }
