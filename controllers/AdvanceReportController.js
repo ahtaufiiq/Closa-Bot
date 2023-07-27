@@ -137,7 +137,7 @@ class AdvanceReportController{
 
     static getThisDay(date){
         if(date) return Time.getDay(date,'short')
-        else return Time.getDay(Time.getDate(),'short')
+        else return Time.getDay(Time.getTodayDateOnly(),'short')
     }
 
     static generateListProductiveTime(totalTime){
@@ -219,7 +219,7 @@ class AdvanceReportController{
                 } = dataWeeklyReport.body
                 let updatedDailyCoworkingStats = false
                 for (const day in dailyCoworkingStats) {
-                    if(day === AdvanceReportController.getThisDay(date)){
+                    if(day === AdvanceReportController.getThisDay(Time.getDateOnly(date))){
                         dailyCoworkingStats[day].totalTime += totalTime
                         dailyCoworkingStats[day].focusTime += focusTime
                         dailyCoworkingStats[day].breakTime += breakTime
@@ -228,7 +228,7 @@ class AdvanceReportController{
                     }
                 }
                 if(!updatedDailyCoworkingStats){
-                    dailyCoworkingStats[AdvanceReportController.getThisDay(date)] = {totalTime,focusTime,breakTime,dateOnly:Time.getDateOnly(date)}
+                    dailyCoworkingStats[AdvanceReportController.getThisDay(Time.getDateOnly(date))] = {totalTime,focusTime,breakTime,dateOnly:Time.getDateOnly(date)}
                 }
 
                 thisWeekStats.totalTime += totalTime
