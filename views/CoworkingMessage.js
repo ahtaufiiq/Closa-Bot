@@ -340,22 +340,21 @@ set ${MessageFormatting.tagChannel(CHANNEL_SESSION_GOAL)} & invite ${partner.use
 or a new host will be assigned.`
     }
 
-    static successCreateQuickRoom(UserId,counterEditRoomName=0){
+    static successCreateQuickRoom(UserId,tableNumber,counterEditRoomName=0){
         return {
-            content:`Hi ${userMention(UserId)}, you've reserved your own table for custom coworking session at closa cafe ☕ 
+            content:`Hi ${userMention(UserId)}, you've reserved table ${tableNumber} for custom coworking at closa cafe ☕
 
-Here host can edit the channel: (\`\`max 2x\`\`)
-- limit the number of user in this channel.
-- change the name of the room.
+please start your session in 2 mins, 
+↳ write 1 specific task at ${channelMention(CHANNEL_SESSION_GOAL)} (if you haven't)
 
-Everyone can:
-- invite friends inside or outside closa to the room.
+• Host can edit the channel: (\`\`max 2x\`\`)
+• Everyone can invite friends inside or outside closa to the room.
 
-\`\`note:\`\` *for advance settings, host can right click this channel & choose "edit channel"*`,
+\`\`note:\`\` *for advance settings, right click this channel then "edit channel"*`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addEmojiButton(`inviteQuickRoom`,'Invite friends','💌'),
-                MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
-                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Guideline','💡', ButtonStyle.Secondary),
+                MessageComponent.addEmojiButton(`editQuickRoom_${UserId}_${tableNumber}-${counterEditRoomName}`,'Edit channel','🎛️').setDisabled(counterEditRoomName >= 2),
+                MessageComponent.addEmojiButton(`guidelineQuickRoom`,'Quick Guideline','💡', ButtonStyle.Secondary),
             )]
         }
     }

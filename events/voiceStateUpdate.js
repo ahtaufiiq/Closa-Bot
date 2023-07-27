@@ -32,7 +32,7 @@ let closaCafe = {
 let meetup = {}
 module.exports = {
 	name: 'voiceStateUpdate',
-	async execute(oldMember,newMember,focusRoomUser,listFocusRoom) {
+	async execute(oldMember,newMember,focusRoomUser,listFocusRoom,listCafeTable) {
 		try {
 			if(oldMember.member.user.bot) return
 			let totalOldMember = oldMember.channel? oldMember.channel.members.size : 0
@@ -40,7 +40,7 @@ module.exports = {
 			const userId = newMember.member.id || oldMember.member.id
 			const joinedChannelId = newMember?.channelId
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
-			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember)
+			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember,listCafeTable)
 	
 			RecurringMeetupController.handleVoiceRoomWeeklySync(newMember,meetup,userId)
 

@@ -216,7 +216,7 @@ Let's get started:
 - first ⁠write 1 specific task to get done → ${channelMention(CHANNEL_SESSION_GOAL)}
 - then join the coworking channel → ⁠ ${channelMention(CHANNEL_CLOSA_CAFE)} (on-cam/sharescreen)
 
-**3. ** Share your progress recap in a story-telling format → ${channelMention(CHANNEL_TODO)}
+**3. ** Share all your progress recap in story-telling format → ${channelMention(CHANNEL_TODO)}\`(1x /day)\`
 - try to keep your streak in your first week → ${channelMention(CHANNEL_STREAK)}
 
 **complete all the steps above to unlock all channels** :unlock:
