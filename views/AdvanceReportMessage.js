@@ -20,7 +20,7 @@ class AdvanceReportMessage{
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`lastWeek_${UserId}_${dateRange}`,'Last week',ButtonStyle.Secondary).setEmoji('⬅️').setDisabled(action === 'lastWeek'),
                 MessageComponent.addButton(`thisWeek_${UserId}_${dateRange}`,'This week',ButtonStyle.Secondary).setEmoji('➡️').setDisabled(action === 'thisWeek'),
-                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate thumbnail').setEmoji('🖼️')
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate thumbnail',ButtonStyle.Secondary).setEmoji('🖼️')
             )]
         }
     }
@@ -66,7 +66,7 @@ please find the all the details below:`
             content,
             files,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate Thumbnail').setEmoji('🖼️')
+                MessageComponent.addButton(`generateThumbnailAdvanceReport_${UserId}_${dateRange}`,'Generate Thumbnail',ButtonStyle.Secondary).setEmoji('🖼️')
             )]
         }
     }
