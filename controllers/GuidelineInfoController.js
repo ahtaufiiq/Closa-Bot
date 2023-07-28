@@ -145,20 +145,21 @@ class GuidelineInfoController {
                     if(threadNotification.archived) {
                         await threadNotification.setArchived(false)
                     }
-                    
-                    const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-                    if(!msg) {
-                        DiscordWebhook.sendError('delete notification: msg undefined',id)
-                        continue
-                    }
+                    await GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
+                    GuidelineInfoController.resetDataTotalNotification(id)
                     let guideline
                     if(onboardingStep) guideline = OnboardingMessage.guidelineInfoQuest(id,onboardingStep,statusCompletedQuest)
                     else guideline = GuidelineInfoMessage.guideline(id,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite)
-                    await Promise.all([
-                        msg.edit(guideline),
-                        GuidelineInfoController.deleteNotification(threadNotification,totalNotification)
-                    ])
-                    GuidelineInfoController.resetDataTotalNotification(id)
+
+                    const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
+                    if(!msg) {
+                        DiscordWebhook.sendError('delete notification: msg undefined',id)
+                        const msgGuideline = await threadNotification.send('.')
+                        await msgGuideline.edit(guideline)
+                        await GuidelineInfoController.addNewData(id,msgGuideline.id)
+                    }else{
+                        await msg.edit(guideline)
+                    }
                     await threadNotification.setArchived(true)
                 } catch (error) {
                     DiscordWebhook.sendError(error,id)
