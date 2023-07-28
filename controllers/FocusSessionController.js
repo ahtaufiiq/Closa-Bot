@@ -116,6 +116,62 @@ class FocusSessionController {
         return menus
     }
 
+    static async countdownBreakSession(focusRoomUser,targetUserId,taskName,projectName,msgFocusOld,replyBreak,event){
+
+        FocusSessionController.countdownFocusSession(msgFocusOld,taskName,projectName,focusRoomUser,targetUserId,event)
+        const intervalBreak = setInterval(() => {
+            if(!focusRoomUser[targetUserId]) {
+                clearInterval(intervalBreak)
+                ChannelController.deleteMessage(replyBreak)
+            }
+            if(focusRoomUser[targetUserId]?.msgIdReplyBreak != replyBreak.id) return clearInterval(intervalBreak)
+            if(focusRoomUser[targetUserId]?.breakCounter === 1) {
+                clearInterval(intervalBreak)
+                if(focusRoomUser[targetUserId]?.msgIdReplyBreak != replyBreak.id) return
+                replyBreak.reply(FocusSessionMessage.reminderEndedBreak(targetUserId))
+                    .then(msg=>{
+                        focusRoomUser[targetUserId].msgIdReplyBreak = msg.id
+                        setTimeout(async () => {
+                            if(!focusRoomUser[targetUserId]) return ChannelController.deleteMessage(msg)
+                            if(focusRoomUser[targetUserId]?.msgIdReplyBreak != msg.id) return 
+                            ChannelController.deleteMessage(msgFocusOld)
+                            msg.reply(FocusSessionMessage.messageTimer(focusRoomUser[targetUserId],taskName,projectName,targetUserId))
+                                .then(msgFocus=>{
+                                    FocusSessionController.updateMessageFocusTimerId(targetUserId,msgFocus.id)
+                                    FocusSessionController.countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,targetUserId)
+                                    ChannelController.deleteMessage(msg)
+                                        .then(()=> focusRoomUser[targetUserId].msgIdReplyBreak = null)
+                                })
+                        }, Time.oneMinute());
+                        ChannelController.deleteMessage(replyBreak)
+                    })
+            }else{
+                replyBreak.edit(FocusSessionMessage.messageBreakTime(focusRoomUser[targetUserId]?.breakCounter,targetUserId))
+            }
+        }, Time.oneMinute());
+    }
+
+    static async restartFocusTimer(client,UserId,focusRoomUser){
+        if(focusRoomUser[UserId]?.firstTime === false){
+            const threadId = focusRoomUser[UserId]?.threadId
+            const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
+            const thread = await ChannelController.getThread(channel,threadId)
+            const msgTimer = await ChannelController.getMessage(thread,focusRoomUser[UserId]?.msgIdFocusRecap)
+            const data = await supabase.from("FocusSessions")
+                .select('*,Projects(id,name)')
+                .eq('threadId',threadId)
+                .single()
+            const taskName = data.body?.taskName
+            const projectName = data.body?.Projects?.name
+            if(focusRoomUser[UserId].isFocus){
+                FocusSessionController.countdownFocusSession(msgTimer,taskName,projectName,focusRoomUser,UserId,'restart')
+            }else{
+                const replyBreak = await ChannelController.getMessage(thread,focusRoomUser[UserId]?.msgIdReplyBreak)
+                FocusSessionController.countdownBreakSession(focusRoomUser,UserId,taskName,projectName,msgTimer,replyBreak,'restart')
+            }
+        }
+    }
+
     static countdownFocusSession(msgFocus,taskName,projectName,focusRoomUser,userId,event) {
         focusRoomUser[userId].msgIdFocusRecap = msgFocus.id
         focusRoomUser[userId].channelIdFocusRecap = msgFocus.channelId
@@ -428,22 +484,6 @@ class FocusSessionController {
             })
             focusRoomUser[userId].firstTime = false
             if(focusRoomUser[userId]?.joinedChannelId === CHANNEL_CLOSA_CAFE) CoworkingController.handleStartEvent(client)
-        }
-    }
-
-    static async restartFocusTimer(client,UserId,focusRoomUser){
-        if(focusRoomUser[UserId]?.firstTime === false){
-            const threadId = focusRoomUser[UserId]?.threadId
-            const channel = ChannelController.getChannel(client,CHANNEL_SESSION_GOAL)
-            const thread = await ChannelController.getThread(channel,threadId)
-            const msgTimer = await ChannelController.getMessage(thread,focusRoomUser[UserId]?.msgIdFocusRecap)
-            const data = await supabase.from("FocusSessions")
-                .select('*,Projects(id,name)')
-                .eq('threadId',threadId)
-                .single()
-            const taskName = data.body?.taskName
-            const projectName = data.body?.Projects?.name
-            FocusSessionController.countdownFocusSession(msgTimer,taskName,projectName,focusRoomUser,UserId,'restart')
         }
     }
 

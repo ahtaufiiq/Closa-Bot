@@ -28,10 +28,10 @@ module.exports = {
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
-		OnboardingController.reminderStartOnboarding(client)
+		// OnboardingController.reminderStartOnboarding(client)
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindPostProgress(client)
-		WeeklyReflectionController.sendReflectionEveryWeek(client)
+		// WeeklyReflectionController.sendReflectionEveryWeek(client)
 
 		ReferralCodeController.cachingAllInviteLink(client,invites)
 		

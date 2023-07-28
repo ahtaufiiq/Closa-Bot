@@ -29,7 +29,8 @@ class ReminderController{
         supabase.from('Users')
 		.select()
 		.neq('reminderProgress',null)
-		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
+		.neq('goalId',null)
+		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 		.then(async data=>{
 			if (data.body) {
 				for (let i = 0; i < data.body.length; i++) {
@@ -73,7 +74,8 @@ class ReminderController{
         supabase.from('Users')
 			.select()
 			.neq('reminderHighlight',null)
-			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-14)))
+			.neq('goalId',null)
+			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 			.then(data=>{
 				if(data.body){
 					for (let i = 0; i < data.body.length; i++) {
