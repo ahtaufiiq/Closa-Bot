@@ -11,6 +11,7 @@ const OnboardingMessage = require("../views/OnboardingMessage");
 const fs = require('fs');
 const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const RedisController = require("../helpers/RedisController");
+const UserController = require("../controllers/UserController");
 module.exports = {
 	name: 'guildMemberAdd',
 	async execute(member,invites) {
@@ -25,7 +26,7 @@ module.exports = {
 			await supabase.from("Users")
 				.insert([{
 					id:member.user.id,
-					username:member.user.username,
+					username:UserController.getNameFromUserDiscord(member.user),
 					name:member.nickname || member.user.username,
 					avatarURL:InfoUser.getAvatar(member.user),
 					currentStreak:0,

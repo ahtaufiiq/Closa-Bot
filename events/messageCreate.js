@@ -250,6 +250,7 @@ module.exports = {
 						channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))
 					}
 					msgGoalId = msgGoal.id
+					ChannelController.archivedThreadInactive(msg.author.id,thread,60,false)
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
@@ -292,7 +293,7 @@ module.exports = {
 					if (data.length > 0) {
 						throw new Error("Tidak perlu kirim daily streak ke channel")
 					} else {
-						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author)}).eq('id',msg.author.id).then()
+						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()
 						if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
 					}
 					

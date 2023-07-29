@@ -7,9 +7,13 @@ const Time = require('./time')
 const {split} = require('canvas-hypertxt')
 const supabase = require('./supabaseClient')
 const ChannelController = require('../controllers/ChannelController')
-const { generateLeftLabel, getMaxCoworkingHours, getStatsCoworking, getMostProductiveTime, getWeekDateRange } = require('../controllers/AdvanceReportController')
+const { generateLeftLabel, getStatsCoworking, getMostProductiveTime, getWeekDateRange } = require('../helpers/AdvanceReportHelper')
 const DiscordWebhook = require('./DiscordWebhook')
 class GenerateImage{
+
+    static async getImage(url){
+        return await loadImage(GenerateImage.changeWebpToPNG(url))
+    }
 
     static async thumbnail(urlAdvanceReport){
         const imageResolution = 2
@@ -19,7 +23,7 @@ class GenerateImage{
         const context = canvas.getContext('2d')
         const template = await loadImage(`./assets/images/advance_coworking_thumbnail.png`)
         // const template = await loadImage(`./assets/images/basic.png`)
-        const advanceReport = await loadImage(urlAdvanceReport)
+        const advanceReport = await GenerateImage.getImage(urlAdvanceReport)
         context.drawImage(template,0,0)
         const adjustmentX = (97 + 15) * imageResolution
         const adjustmentY = (106 + 15) * imageResolution
@@ -197,7 +201,7 @@ class GenerateImage{
         context.drawImage(template,0,0)
 
         const avatarUrl = InfoUser.getAvatar(user)
-        const photoUser = await loadImage(avatarUrl)
+        const photoUser = await GenerateImage.getImage(avatarUrl)
         drawRoundedImage(context,photoUser,32.5 + adjustmentX,26.5 + adjustmentY,57,57,13.5)
         context.fillStyle = "#31373D";  
         changeFont(context,"500 20px Inter");
@@ -319,7 +323,7 @@ class GenerateImage{
         for (let i = 0; i < coworkingPartners.length; i++) {
             try {
                 const coworkingPartner = coworkingPartners[i];
-                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
+                const photo = await GenerateImage.getImage(coworkingPartner.avatar)
                 drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
         
                 if(coworkingPartner.streak > 1){
@@ -655,7 +659,7 @@ class GenerateImage{
         context.drawImage(template,0,0)
         
         const avatarUrl = InfoUser.getAvatar(user)
-        const photoUser = await loadImage(avatarUrl)
+        const photoUser = await GenerateImage.getImage(avatarUrl)
         drawRoundedImage(context,photoUser,32.5,26.5,57,57,13.5)
         context.fillStyle = "#31373D";  
         changeFont(context,"500 20px Inter");
@@ -777,7 +781,7 @@ class GenerateImage{
         for (let i = 0; i < coworkingPartners.length; i++) {
             try {
                 const coworkingPartner = coworkingPartners[i];
-                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
+                const photo = await GenerateImage.getImage(coworkingPartner.avatar)
                 drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
         
                 if(coworkingPartner.streak > 1){
@@ -1143,7 +1147,7 @@ class GenerateImage{
                 const {currentStreak,avatarURL} = friends[i];
                 const totalDigitStreak = `${currentStreak}`.length
                 const addCoordinate = totalDigitStreak === 2 ? 5 : totalDigitStreak === 1 ? 10 : 0
-                const photo = await loadImage(GenerateImage.changeWebpToPNG(avatarURL))
+                const photo = await GenerateImage.getImage(avatarURL)
                 const streakImage = currentStreak >= 365 ? zap365 : currentStreak >= 200 ? zap200 : currentStreak >= 100 ? zap100 : zap
                 drawRoundedImage(context,photo,xCoordinatFriends,yCoordinatFriends,friendsImageSize,friendsImageSize,friendsImageSize/2)
                 context.drawImage(streakImage,xCoordinatFriends+78.5,yCoordinatFriends + 145.2)
@@ -1161,7 +1165,7 @@ class GenerateImage{
         }
 
 
-        const photoUser = await loadImage(photo)
+        const photoUser = await GenerateImage.getImage(photo)
 
         const rectWidth = 112;
         const rectHeight = 112;
@@ -1237,7 +1241,7 @@ class GenerateImage{
         context.fillText(FormatString.truncateString(username,20), 300 , 1786);
 
 		const avatarUrl = InfoUser.getAvatar(user)
-        const photoUser = await loadImage(avatarUrl)
+        const photoUser = await GenerateImage.getImage(avatarUrl)
 
         const rectWidth = 83;
         const rectHeight = 83.5;
@@ -1273,7 +1277,7 @@ class GenerateImage{
         context.fillText(username, 719 , 1358);
 
 		const avatarUrl = InfoUser.getAvatar(user)
-        const photoUser = await loadImage(avatarUrl)
+        const photoUser = await GenerateImage.getImage(avatarUrl)
 
         const rectWidth = 135.7;
         const rectHeight = 135.7;
@@ -1342,7 +1346,7 @@ class GenerateImage{
         const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
         const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
         const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
-        const photoUser = await loadImage(InfoUser.getAvatar(user))
+        const photoUser = await GenerateImage.getImage(InfoUser.getAvatar(user))
         const canvas = createCanvas(546,906)
         const context = canvas.getContext('2d')
         context.drawImage(template,0,0)
@@ -1489,10 +1493,11 @@ class GenerateImage{
         let xCoordinateFrame = 161.9
         let yCoordinateFrame = 806
         let counterCoordinatFrame = 0
-        for (let i = 0; i < coworkingPartners.length; i++) {
+        const maxCoworkingParter = coworkingPartners > 4 ? 5 : coworkingPartners.length
+        for (let i = 0; i < maxCoworkingParter; i++) {
             try {
                 const coworkingPartner = coworkingPartners[i];
-                const photo = await loadImage(GenerateImage.changeWebpToPNG(coworkingPartner.avatar))
+                const photo = await GenerateImage.getImage(coworkingPartner.avatar)
                 context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
                 context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
     
@@ -1610,13 +1615,13 @@ class GenerateImage{
 
 
         for (let i = startPoint; i >= 0; i--) {
-            const photo = await loadImage(attendances[i])
+            const photo = await GenerateImage.getImage(attendances[i])
             roundedRect(context,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
             drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,48)
             xCoordinatCoworker -= 85
         }
 
-        const hostAvatar = await loadImage(InfoUser.getAvatar(host))
+        const hostAvatar = await GenerateImage.getImage(InfoUser.getAvatar(host))
         
         const rectX = 795
         const rectY = 510
@@ -1714,7 +1719,7 @@ class GenerateImage{
         context.fillText(FormatString.truncateString(UserController.getNameFromUserDiscord(user),20),239,1010)
 
 
-        const hostAvatar = await loadImage(InfoUser.getAvatar(user))
+        const hostAvatar = await GenerateImage.getImage(InfoUser.getAvatar(user))
         const sizeAvatar = 138
         const coordinatX = 71.5
         const coordinatY = 875.5
@@ -1800,8 +1805,8 @@ class GenerateImage{
         const rectY = 1242;
         const cornerRadius = 45;
         
-        const photoUser = await loadImage(InfoUser.getAvatar(user))
-        const photoPartner = await loadImage(InfoUser.getAvatar(partner))
+        const photoUser = await GenerateImage.getImage(InfoUser.getAvatar(user))
+        const photoPartner = await GenerateImage.getImage(InfoUser.getAvatar(partner))
         drawRoundedImage(context,photoPartner,rectX + 71,rectY,rectWidth,rectHeight,cornerRadius)
         drawRoundedImage(context,photoUser,rectX,rectY,rectWidth,rectHeight,cornerRadius)
         const buffer = canvas.toBuffer('image/png')
@@ -1878,7 +1883,7 @@ class GenerateImage{
         const rectY = 1300.5;
         const cornerRadius = 45;
         
-        const photoUser = await loadImage(InfoUser.getAvatar(user))
+        const photoUser = await GenerateImage.getImage(InfoUser.getAvatar(user))
         drawRoundedImage(context,photoUser,rectX,rectY,rectWidth,rectHeight,cornerRadius)
         const buffer = canvas.toBuffer('image/png')
         return buffer

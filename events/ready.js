@@ -18,6 +18,7 @@ const GuidelineInfoController = require('../controllers/GuidelineInfoController'
 const CelebrationController = require('../controllers/CelebrationController');
 const FocusSessionController = require('../controllers/FocusSessionController');
 const OnboardingController = require('../controllers/OnboardingController');
+const AdvanceReportController = require('../controllers/AdvanceReportController');
 
 
 module.exports = {
@@ -28,6 +29,7 @@ module.exports = {
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
 		user.send("Restart Bot")
 
+		AdvanceReportController.sendAdvanceReportEveryMonday(client)
 		// OnboardingController.reminderStartOnboarding(client)
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindPostProgress(client)

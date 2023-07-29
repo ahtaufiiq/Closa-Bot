@@ -5,11 +5,10 @@ module.exports = {
 	name: 'userUpdate',
 	async execute(oldUser,newUser) {
 		try {
-			if(InfoUser.getAvatar(oldUser) !== InfoUser.getAvatar(newUser)){
-				UserController.updateData({
-					avatarURL:InfoUser.getAvatar(newUser),
-				},newUser.id)
-			}
+			UserController.updateData({
+				username:UserController.getNameFromUserDiscord(newUser),
+				avatarURL:InfoUser.getAvatar(newUser),
+			},newUser.id)
 		} catch (error) {
 			DiscordWebhook.sendError(error,'userUpdate')			
 		}

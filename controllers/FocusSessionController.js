@@ -99,7 +99,11 @@ class FocusSessionController {
 
     static getFormattedMenu(projects){
         const menus = []
+        if(projects.length > 0) menus.push({
+            label:"✨ Add new project +",
+            value:'addNewProject'
 
+        })
         for (let i = 0; i < projects.length; i++) {
             const project = projects[i];
             menus.push({
@@ -108,11 +112,6 @@ class FocusSessionController {
             })
         }
 
-        if(menus.length > 0) menus.push({
-            label:"✨ Add new project +",
-            value:'addNewProject'
-
-        })
         return menus
     }
 
@@ -413,7 +412,7 @@ class FocusSessionController {
             .like('id',`%${userId}%`)
             .order('currentStreak',{ascending:false})
             .order('updatedAt',{ascending:false})
-            .limit(5)
+            .limit(6)
         const coworkingPartners = []
         for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
             const partner = dataCoworkingPartner.body[i];

@@ -205,17 +205,23 @@ class ChannelController{
         }
     }
 
-    static archivedThreadInactive(UserId,thread,ttl=60){
+    static archivedThreadInactive(UserId,thread,ttl=60,isNotification=true){
         try {
-            const latestNotificationTime = Time.getDate().getTime().toString()
-            supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',UserId).then()
-
-            setTimeout(async () => {
-                const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
-                if(data.body.latestNotificationTime === latestNotificationTime){
+            if(!isNotification){
+                setTimeout(async () => {
                     thread.setArchived(true)
-                }
-            }, Time.oneMinute() * ttl);
+                }, Time.oneMinute() * ttl);
+            }else{
+                const latestNotificationTime = Time.getDate().getTime().toString()
+                supabase.from("GuidelineInfos").update({latestNotificationTime}).eq('UserId',UserId).then()
+
+                setTimeout(async () => {
+                    const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
+                    if(data.body.latestNotificationTime === latestNotificationTime){
+                        thread.setArchived(true)
+                    }
+                }, Time.oneMinute() * ttl);
+            }
         } catch (error) {
             DiscordWebhook.sendError(error,'archivedThreadInactive')
         }
