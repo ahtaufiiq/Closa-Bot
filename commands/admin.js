@@ -92,6 +92,7 @@ module.exports = {
 					}])
 			}
 			OnboardingController.welcomeOnboarding(interaction.client,user)
+			interaction.editReply('success')
 		}else if(command === 'party__add_user'){
 			const user = interaction.options.getUser('user')
 			const partyNumber = interaction.options.getString('party')
