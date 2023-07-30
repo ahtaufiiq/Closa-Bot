@@ -9,7 +9,15 @@ class AdvanceReportMessage{
             content:`Here's a new thumbnail for you:`,
             files,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|${position}`,'Change stye',ButtonStyle.Secondary).setEmoji('🔁'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|1`,'1',ButtonStyle.Secondary).setEmoji('⚪'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|2`,'2',ButtonStyle.Secondary).setEmoji('⚪'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|3`,'3',ButtonStyle.Secondary).setEmoji('⚫'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|4`,'4',ButtonStyle.Secondary).setEmoji('⚫'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|5`,'5',ButtonStyle.Secondary).setEmoji('🟠'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|6`,'6',ButtonStyle.Secondary).setEmoji('🔴'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|7`,'7',ButtonStyle.Secondary).setEmoji('🟣'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|8`,'8',ButtonStyle.Secondary).setEmoji('🟣'),
+                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|9`,'9',ButtonStyle.Secondary).setEmoji('🟣'),
             )]
         }
     }

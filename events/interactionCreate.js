@@ -99,13 +99,12 @@ module.exports = {
 					case "changeThumbnail":{
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate advance report thumbnail of someone else")
 						const [dateRange,position] = value.split('|')
-						const newPosition = AdvanceReportController.getThumbnailOption(position,'next')
 						const dataThumbnailWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,dateRange)
-						const thumbnail = await GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,dateRange,newPosition)
+						const thumbnail = await GenerateImage.thumbnailAdvanceReport(interaction.user,dataThumbnailWeeklyReport,dateRange,position)
 						const thumbnailReportFiles = [
 							new AttachmentBuilder(thumbnail,{name:`thumbnail_advance_report_${interaction.user.username}.png`})
 						]
-						await interaction.editReply(AdvanceReportMessage.thumbnailReport(interaction.user.id,thumbnailReportFiles,dateRange,newPosition))
+						await interaction.editReply(AdvanceReportMessage.thumbnailReport(interaction.user.id,thumbnailReportFiles,dateRange,position))
 						break;
 					}case "generateThumbnailAdvanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate advance report thumbnail of someone else")
