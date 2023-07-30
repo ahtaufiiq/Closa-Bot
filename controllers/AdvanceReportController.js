@@ -1,6 +1,12 @@
-const DiscordWebhook = require("../helpers/DiscordWebhook")
+const { getWeekDateRange } = require("../helpers/AdvanceReportHelper");
+const DiscordWebhook = require("../helpers/DiscordWebhook");
+const GenerateImage = require("../helpers/GenerateImage");
 const supabase = require("../helpers/supabaseClient")
 const Time = require("../helpers/time")
+const schedule = require('node-schedule');
+const ChannelController = require("./ChannelController");
+const AdvanceReportMessage = require("../views/AdvanceReportMessage");
+const { AttachmentBuilder } = require("discord.js");
 
 class AdvanceReportController{
     static getMaxCoworkingHours(days){
@@ -387,6 +393,47 @@ class AdvanceReportController{
         if(newPosition > 9) return 1
         else if(newPosition === 0) return 9
         else return newPosition
+    }
+
+    static async sendAdvanceReportEveryMonday(client){
+        let rule = new schedule.RecurrenceRule();
+        rule.hour = Time.minus7Hours(9)
+        rule.minute = 0
+        schedule.scheduleJob(rule,async function(){
+            const dateRange = getWeekDateRange(-1)
+            const data = await supabase.from('CoworkingWeeklyReports')
+                .select(`*,Users(totalFocusSession,avatarURL,username)`)
+                .eq('dateRange',dateRange)
+            for (let i = 0; i < data.body.length; i++) {
+                const advanceReport = data.body[i];
+                const {totalFocusSession:totalSession,avatarURL,username} = advanceReport.Users
+                const dataPurchaseTicket = await supabase.from("WeeklyPurchaseTickets")
+                .select()
+                .eq("UserId",advanceReport.UserId)
+                .eq('dateRange',dateRange)
+                .single()
+                const user ={
+                    username,
+                    displayAvatarURL(){
+                        return avatarURL
+                    },
+                }
+                console.log(avatarURL);
+                const dataWeeklyReport = {
+                    ...advanceReport,
+                    totalSession,
+                    totalSickTicket: dataPurchaseTicket.body?.totalSickTicket,
+                    totalVacationTicket: dataPurchaseTicket.body?.totalVacationTicket,
+                }
+                const buffer = await GenerateImage.advanceCoworkingReport(user,dataWeeklyReport,dateRange)
+                const weeklyReportFiles = [new AttachmentBuilder(buffer,{name:`advance_report_${user.username}.png`})]
+                await ChannelController.sendToNotification(
+                    client,
+                    AdvanceReportMessage.summaryReport(dataWeeklyReport,weeklyReportFiles),
+                    advanceReport.UserId
+                )
+            }
+        })
     }
 }
 

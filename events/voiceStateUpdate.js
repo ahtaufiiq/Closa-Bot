@@ -48,6 +48,7 @@ module.exports = {
 				closaCafe[userId] = Time.getDate()
 				UserController.updateData(
 					{
+						username:UserController.getNameFromUserDiscord(newMember.member),
 						avatarURL:InfoUser.getAvatar(newMember.member),
 						lastActive:Time.getTodayDateOnly()
 					},

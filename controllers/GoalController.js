@@ -168,12 +168,6 @@ class GoalController {
 			files
 		},isSixWeekChallenge))
 
-		const updatedData = await supabase.from("Goals")
-		.update({deadlineGoal:Time.getDateOnly(Time.getNextDate(-1))})
-		.eq("UserId",user.id)
-		.gte('deadlineGoal',Time.getTodayDateOnly())
-		.single()
-
 		supabase.from('Goals')
 		.insert({
 			goalCategory,
@@ -183,16 +177,13 @@ class GoalController {
 			shareProgressAt,
 			id:msg.id,
 			deadlineGoal:Time.getDateOnly(deadlineGoal),
+			lastProgress:Time.getTodayDateOnly(),
 			isPartyMode:false,
 			alreadySetHighlight:false,
 			UserId:user.id,
 			goalType: isSixWeekChallenge ? '6wic' : 'default'
 		})
 		.then()
-
-		if (updatedData.body) {
-			GoalController.updateGoal(client,updatedData.body,preferredCoworkingTime)
-		}
 
 		supabase.from("Projects")
 			.select()
@@ -365,7 +356,7 @@ class GoalController {
 		return data
 	}
 	static async getAllActiveGoal(){
-		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly())
+		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30)))
 		return data
 	}
 
