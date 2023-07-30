@@ -245,6 +245,7 @@ module.exports = {
 					const msgGoal = await thread.send(
 						GoalMessage.shareProgress(msg,files,totalDay)
 					)
+					supabase.from("Goals").update({lastProgress:Time.getTodayDateOnly()}).eq('id',data?.goalId).then()
 					if(totalDay === 1){
 						const channelStatus = ChannelController.getChannel(msg.client,CHANNEL_STATUS)
 						channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))

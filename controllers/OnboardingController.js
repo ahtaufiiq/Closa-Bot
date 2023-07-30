@@ -212,6 +212,7 @@ class OnboardingController {
     static async handleOnboardingProgress(client,user){
         const isHasRoleOnboardingProgress = await OnboardingController.isHasRoleOnboardingProgress(client,user.id)
         if(isHasRoleOnboardingProgress){
+            GuidelineInfoController.updateStatusCompletedQuest(user.id,'thirdQuest')
             const isHasRoleOnboardingCoworking = await OnboardingController.isHasRoleOnboardingCoworking(client,user.id)
             if(isHasRoleOnboardingCoworking){
                 OnboardingController.updateOnboardingStep(client,user.id,'secondQuest')

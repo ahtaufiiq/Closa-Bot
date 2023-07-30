@@ -7,11 +7,13 @@ const UserController = require('../controllers/UserController');
 const Time = require('../helpers/time');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const supabase = require('../helpers/supabaseClient');
-const { CHANNEL_PARTY_ROOM, ROLE_NEW_MEMBER, ROLE_ONBOARDING_WELCOME, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_LATER, ROLE_ONBOARDING_PROGRESS, ROLE_ONBOARDING_PROJECT, MY_ID } = require('../helpers/config');
+const { CHANNEL_PARTY_ROOM, ROLE_NEW_MEMBER, ROLE_ONBOARDING_WELCOME, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_LATER, ROLE_ONBOARDING_PROGRESS, ROLE_ONBOARDING_PROJECT, MY_ID, ROLE_ACTIVE_MEMBER } = require('../helpers/config');
 const PartyMessage = require('../views/PartyMessage');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const MemberController = require('../controllers/MemberController');
 const GoalController = require('../controllers/GoalController');
+const InfoUser = require('../helpers/InfoUser');
+const OnboardingController = require('../controllers/OnboardingController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -23,6 +25,11 @@ module.exports = {
 				.setDescription('add user to party')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
 				.addStringOption(option => option.setName('party').setDescription("Party Number").setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('welcome__onboarding')
+				.setDescription('onboarding new user')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('thread__remove_user')
@@ -61,7 +68,31 @@ module.exports = {
 		const command = interaction.options.getSubcommand()
 		await interaction.deferReply({ephemeral:true});
 		
-		if(command === 'party__add_user'){
+		if(command === 'welcome__onboarding'){
+			const user = interaction.options.getUser('user')
+			MemberController.addRole(interaction.client,user.id,ROLE_ACTIVE_MEMBER)
+		
+			const data = await supabase.from("Users")
+				.select('notificationId')
+				.eq('id',user.id)
+				.single()
+			
+			if (!data.body) {
+				await supabase.from("Users")
+					.insert([{
+						id:user.id,
+						username:UserController.getNameFromUserDiscord(user),
+						name:interaction.nickname || user.username,
+						avatarURL:InfoUser.getAvatar(user),
+						currentStreak:0,
+						longestStreak:0,
+						totalDay:0,
+						totalPoint:0,
+						lastActive:Time.getTodayDateOnly(),
+					}])
+			}
+			OnboardingController.welcomeOnboarding(interaction.client,user)
+		}else if(command === 'party__add_user'){
 			const user = interaction.options.getUser('user')
 			const partyNumber = interaction.options.getString('party')
 			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
