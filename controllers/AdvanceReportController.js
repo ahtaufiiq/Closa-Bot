@@ -418,7 +418,6 @@ class AdvanceReportController{
                         return avatarURL
                     },
                 }
-                console.log(avatarURL);
                 const dataWeeklyReport = {
                     ...advanceReport,
                     totalSession,
@@ -432,6 +431,7 @@ class AdvanceReportController{
                     AdvanceReportMessage.summaryReport(dataWeeklyReport,weeklyReportFiles),
                     advanceReport.UserId
                 )
+                await Time.wait(2000)
             }
         })
     }
