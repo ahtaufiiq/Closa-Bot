@@ -8,17 +8,23 @@ class AdvanceReportMessage{
         return {
             content:`Here's a new thumbnail for you:`,
             files,
-            components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|1`,'1',ButtonStyle.Secondary).setEmoji('⚪'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|2`,'2',ButtonStyle.Secondary).setEmoji('⚪'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|3`,'3',ButtonStyle.Secondary).setEmoji('⚫'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|4`,'4',ButtonStyle.Secondary).setEmoji('⚫'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|5`,'5',ButtonStyle.Secondary).setEmoji('🟠'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|6`,'6',ButtonStyle.Secondary).setEmoji('🔴'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|7`,'7',ButtonStyle.Secondary).setEmoji('🟣'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|8`,'8',ButtonStyle.Secondary).setEmoji('🟣'),
-                MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|9`,'9',ButtonStyle.Secondary).setEmoji('🟣'),
-            )]
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|1`,'1',ButtonStyle.Secondary).setEmoji('⚪').setDisabled(position==1),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|2`,'2',ButtonStyle.Secondary).setEmoji('⚪').setDisabled(position==2),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|3`,'3',ButtonStyle.Secondary).setEmoji('⚫').setDisabled(position==3),
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|4`,'4',ButtonStyle.Secondary).setEmoji('⚫').setDisabled(position==4),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|5`,'5',ButtonStyle.Secondary).setEmoji('🟠').setDisabled(position==5),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|6`,'6',ButtonStyle.Secondary).setEmoji('🔴').setDisabled(position==6),
+                ),
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|7`,'7',ButtonStyle.Secondary).setEmoji('🟣').setDisabled(position==7),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|8`,'8',ButtonStyle.Secondary).setEmoji('🟣').setDisabled(position==8),
+                    MessageComponent.addButton(`changeThumbnail_${UserId}_${dateRange}|9`,'9',ButtonStyle.Secondary).setEmoji('🟣').setDisabled(position==9),
+                ),
+            ]
         }
     }
     static onlyReport(UserId,files,dateRange,action='thisWeek'){
