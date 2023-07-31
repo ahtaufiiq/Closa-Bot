@@ -420,7 +420,20 @@ class GoalController {
 		const notificationId = await UserController.getNotificationId(targetUserId)
 		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg.id))
 	}
-    
+
+	static getFormattedGoalMenu(goals){
+        const menus = []
+		const maxLength = goals.length > 25 ? 25 : goals.length
+        for (let i = 0; i < maxLength; i++) {
+            const project = goals[i];
+            menus.push({
+                label:FormatString.truncateString(project.goal,90),
+                value:`${project.id}`
+            })
+        }
+
+        return menus
+    }
 }
 
 module.exports = GoalController

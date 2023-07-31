@@ -6,21 +6,23 @@ const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
 const IntroMessage = require('../views/IntroMessage');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
+const GoalController = require('../controllers/GoalController');
+const GoalMessage = require('../views/GoalMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('search')
 		.setDescription('search')
+		// .addSubcommand(subcommand =>
+		// 	subcommand
+		// 	.setName('profile')
+		// 	.setDescription("Search profile of closa members")
+		// 	.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('goal')
-				.setDescription("Search goal & latest update from a user")
-				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('profile')
-				.setDescription("Search profile of closa members")
-				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))),
+				.setName('project')
+				.setDescription("search your own project or project from a user")
+				.addUserOption(option => option.setName('user').setDescription('user'))),
 	async execute(interaction) {
 		try {
 			await interaction.deferReply({ephemeral:true})
@@ -28,7 +30,11 @@ module.exports = {
 			const taggedUser = interaction.options.getUser('user')
 			const user = taggedUser? taggedUser : interaction.user
 
-			if(command === 'profile'){
+			if(command === 'project'){
+				const {body:goals} = await supabase.from("Goals").select("id,goal,goalType").eq('UserId',user.id).order('lastProgress',{ascending:false}).limit(25)
+				const goalMenus = GoalController.getFormattedGoalMenu(goals)
+				interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
+			}else if(command === 'profile'){
 				const dataUser = await supabase.from('Intros')
 				.select()
 				.eq('UserId',user.id)

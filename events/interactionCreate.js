@@ -828,7 +828,7 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningReplyYourself())
 						return	
 					}
-				}else if(commandMenu === 'buyVacationTicket' ){
+				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject'){
 					await interaction.deferReply({ephemeral:true});
 				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
@@ -837,6 +837,9 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case "searchProject":
+						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToInsideThread(valueMenu)}`)
+						break;
 					case 'selectPreferredCoworkingTime':
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select preferred daily coworking time someone else.**`,ephemeral:true})
 						if(valueMenu === 'custom'){

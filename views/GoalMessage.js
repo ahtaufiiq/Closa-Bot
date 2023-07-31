@@ -268,6 +268,23 @@ ${aboutProject}
 
 this is my goal at @joinclosa:`
     }
+
+    static searchProject(userId,goalMenus,isAnotherUser=false){
+        const components = []
+
+        components.push(MessageComponent.createComponent(
+            MessageComponent.addMenu( 
+                `searchProject`,
+                "-- Select project --",
+                goalMenus
+            ),
+        ))
+
+        return {
+            content:isAnotherUser? `Project by ${userMention(userId)}, select one to go to the project history:` :`Here your project ${userMention(userId)}, select one to go to the project history:`,
+            components
+        }
+    }
 }
 
 module.exports = GoalMessage
