@@ -1,7 +1,7 @@
 const { userMention, ButtonStyle } = require("discord.js")
 const Time = require("../helpers/time")
-const AdvanceReportController = require("../controllers/AdvanceReportController")
 const MessageComponent = require("../helpers/MessageComponent")
+const { getWeekDateRange } = require("../helpers/AdvanceReportHelper")
 
 class AdvanceReportMessage{
     static thumbnailReport(UserId,files,dateRange,position=2){
@@ -92,7 +92,7 @@ need at least few coworking sessions done to generate the report.`
     static emptyReport(week,UserId){
         let selectedPeriod = 'this week'
         if(week === -1) selectedPeriod = 'last week'
-        else selectedPeriod = `on \`\`${AdvanceReportController.getWeekDateRange(week)}\`\``
+        else selectedPeriod = `on \`\`${getWeekDateRange(week)}\`\``
         return `⚠️ You haven't done any coworking session ${selectedPeriod} ${userMention(UserId)}
 need at least few coworking sessions done to generate the report.`
     }

@@ -138,7 +138,7 @@ module.exports = {
 						interaction.editReply('changed to **this week** ✅')
 						break;
 					}case "advanceReport":
-						if(targetUserId !== interaction.user.id) return interaction.reply("You can't generate advance report of someone else")
+						if(targetUserId !== interaction.user.id) return interaction.reply({content:"You can't generate advance report of someone else",ephemeral:true})
 						await interaction.deferReply();
 						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
