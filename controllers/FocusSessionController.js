@@ -104,7 +104,8 @@ class FocusSessionController {
             value:'addNewProject'
 
         })
-        for (let i = 0; i < projects.length; i++) {
+        const maxLength = projects.length > 24 ? 24 : projects.length
+        for (let i = 0; i < maxLength; i++) {
             const project = projects[i];
             menus.push({
                 label:project.name,

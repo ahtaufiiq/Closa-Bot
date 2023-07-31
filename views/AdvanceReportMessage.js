@@ -58,7 +58,7 @@ class AdvanceReportMessage{
         content += `- with average daily work: \`\`${Time.convertTime(averageDailyWork,'short',true,true)}\`\` `
         if(totalTimeLastWeek !== null){
             const averageDailyWorkLastWeek = Math.floor(totalTimeLastWeek/7)
-            const diffAverageHour = Math.abs(averageDailyWork-averageDailyWorkLastWeek)
+            const diffAverageHour = Math.ceil(Math.abs(averageDailyWork-averageDailyWorkLastWeek)/averageDailyWorkLastWeek*100)
             if(totalTime > totalTimeLastWeek){
                 content += `increased (\`\`↑${diffAverageHour}% \`\`vs last week)\n`
             }else if(totalTime < totalTimeLastWeek){
