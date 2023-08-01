@@ -50,76 +50,6 @@ When setting your goal you can follow:
         return `**For the next step check your** 🔔 notification → ${MessageFormatting.linkToInsideThread(notificationId)}/${messageId}`
     }
 
-	static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
-        let command = `selectDailyWorkGoal`
-        if(fromSetting) command = `setDailyWorkTime`
-        return {
-            content:`⬇️ continue start project
-
-**How much time you want to work daily on your project?** ${userMention(userId)}`,
-            components: [
-                MessageComponent.createComponent(
-                    MessageComponent.addMenu( 
-                        `${command}_${userId}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,
-                        "- Select daily work time goal -",
-                        [
-                            {
-                                label: "25 min/day (Casual)",
-                                value: "25_25 min/day"
-                            },
-                            {
-                                label: "1 hour/day (Regular)",
-                                value: "60_1 hour/day"
-                            },
-                            {
-                                label: "2 hour/day (Serious) ",
-                                value: "120_2 hour/day"
-                            },
-                            {
-                                label: "4 hour/day (Intense)",
-                                value: "240_4 hour/day"
-                            },
-                            {
-                                label: '✎ Custom Time',
-                                value: 'custom'
-                            }
-                        ]
-                    ),
-                )
-            ]
-        }
-    }
-
-    static preferredCoworkingTime(userId,isSixWeekChallenge=false){
-        return {
-            content:`**Schedule your preferred daily coworking time 🕖👩‍💻👨‍💻**`,
-            components:[MessageComponent.createComponent(
-                MessageComponent.addMenu( 
-                    `selectPreferredCoworkingTime_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
-                    "- Select your default coworking time –",
-                    [
-                        {
-                            label: "08.00 🕗",
-                            value: "8.00"
-                        },
-                        {
-                            label: "15.00 🕒",
-                            value: "15.00"
-                        },
-                        {
-                            label: "20.00 🕗",
-                            value: "20.00"
-                        },
-                        {
-                            label: 'Custom ⏲️',
-                            value: 'custom'
-                        }
-                    ]
-                ),
-            )]
-        }
-    }
-
     static remindToWriteGoal(userId){
         return `Hi ${MessageFormatting.tagUser(userId)} you haven't pick your role & set your goals yet. 
 Please follow the step below until finish. `
@@ -215,18 +145,18 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
 
     static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge=false){
         const dayLeft = Time.getDiffDay(Time.getDate(),deadlineGoal)
-        const deadlineDate = Time.getDateOnly(deadlineGoal)
         const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
+
+
         return new EmbedBuilder()
         .setColor(isSixWeekChallenge ? '#0E827B' : "#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
         .addFields(
             { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
-            { name: 'About project', value:FormatString.truncateString( about,1020) },
             { name: "I'll share my progress at", value:FormatString.truncateString( `${shareProgressAt} WIB every day`,1020) },
             { name: "Preferred coworking time", value:FormatString.truncateString( `${preferredCoworkingTime}`,1020) },
-            { name: "Project deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
+            { name: "Project deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) }
         )
     }
 
@@ -267,6 +197,212 @@ currently, I'm working on ${projectName} for the next few weeks.
 ${aboutProject}
 
 this is my goal at @joinclosa:`
+    }
+
+    static searchProject(userId,goalMenus,isAnotherUser=false){
+        const components = []
+
+        components.push(MessageComponent.createComponent(
+            MessageComponent.addMenu( 
+                `searchProject`,
+                "-- Select project --",
+                goalMenus
+            ),
+        ))
+
+        return {
+            content:isAnotherUser? `Project by ${userMention(userId)}, select one to go to the project history:` :`Here's your project ${userMention(userId)}, select one to go to the project history:`,
+            components
+        }
+    }
+    static selectGoal(userId,goalMenus){
+        const components = []
+
+        if(goalMenus.length > 0){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectProject_${userId}_${taskId}`,
+                    "-Select project-",
+                    goalMenus
+                ),
+            ))
+        }else{
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton(`addNewProject_${userId}_${taskId}`,"Add new project +").setEmoji('✨')
+            ))
+        }
+
+        return {
+            content:`Select the project you want to work on ${MessageFormatting.tagUser(userId)}`,
+            components
+        }
+    }
+
+    static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
+        let command = `selectDailyWorkGoal`
+        if(fromSetting) command = `setDailyWorkTime`
+        return {
+            content:`⬇️ Continue to start project
+ 
+**How much time you want to work on your project daily?** ${userMention(userId)}`,
+            components: [
+                MessageComponent.createComponent(
+                    MessageComponent.addMenu( 
+                        `${command}_${userId}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,
+                        "- Select daily work time goal -",
+                        [
+                            {
+                                label: "25 min/day (Casual)",
+                                value: "25_25 min/day"
+                            },
+                            {
+                                label: "1 hour/day (Regular)",
+                                value: "60_1 hour/day"
+                            },
+                            {
+                                label: "2 hour/day (Serious) ",
+                                value: "120_2 hour/day"
+                            },
+                            {
+                                label: "4 hour/day (Intense)",
+                                value: "240_4 hour/day"
+                            },
+                            {
+                                label: '✎ Custom Time',
+                                value: 'custom'
+                            }
+                        ]
+                    ),
+                )
+            ]
+        }
+    }
+
+    static preferredCoworkingTime(userId,isSixWeekChallenge=false){
+        return {
+            content:`**Schedule your preferred daily coworking time** 👩‍💻👩‍💻🕗 ${userMention(userId)}`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectPreferredCoworkingTime_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
+                    "- Select your default coworking time –",
+                    [
+                        {
+                            label: "08.00 🕗",
+                            value: "8.00"
+                        },
+                        {
+                            label: "15.00 🕒",
+                            value: "15.00"
+                        },
+                        {
+                            label: "20.00 🕗",
+                            value: "20.00"
+                        },
+                        {
+                            label: 'Custom ⏲️',
+                            value: 'custom'
+                        }
+                    ]
+                ),
+            )]
+        }
+    }
+
+    static setReminderShareProgress(userId,isSixWeekChallenge){
+        return {
+            content:`**Set a reminder to share your daily progress ** 🔔`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `setReminderShareProgress_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
+                    "– Remind me to share my progress at –",
+                    [
+                        {
+                            label: "21.00 🔔",
+                            value: "21.00"
+                        },
+                        {
+                            label: "22.00 🔔",
+                            value: "22.00"
+                        },
+                        {
+                            label: "23.00 🔔",
+                            value: "23.00"
+                        },
+                        {
+                            label: '✏️ Set custom time',
+                            value: 'custom'
+                        }
+                    ]
+                ),
+            )]
+        }
+    }
+    static setDeadlineProject(userId,isSixWeekChallenge){
+        const options = []
+        const sixWeekDeadlineDate = Time.getNextDate(7*6)
+        if(isSixWeekChallenge){
+            const {deadlineDate,dayLeft} = Time.getDayLeftBeforeDemoDay()
+            options.push(
+                {
+                    label: `6 weeks — ${Time.getFormattedDate(sixWeekDeadlineDate)} (set your own)`,
+                    value: `${Time.getDateOnly(sixWeekDeadlineDate)}`
+                },
+                {
+                    label: `${dayLeft} day${dayLeft>1?'s':''} — ${Time.getFormattedDate(deadlineDate)} (join community deadline)`,
+                    value: `${Time.getDateOnly(deadlineDate)}`
+                }
+            )
+        }else {
+            const fourWeekDeadlineDate = Time.getNextDate(7*4)
+            const twoWeekDeadlineDate = Time.getNextDate(7*2)
+            options.push(
+                {
+                    label: `6 weeks — ${Time.getFormattedDate(sixWeekDeadlineDate)}`,
+                    value: `${Time.getDateOnly(sixWeekDeadlineDate)}`
+                },
+                {
+                    label: `4 weeks — ${Time.getFormattedDate(fourWeekDeadlineDate)}`,
+                    value: `${Time.getDateOnly(fourWeekDeadlineDate)}`
+                },
+                {
+                    label: `2 weeks — ${Time.getFormattedDate(twoWeekDeadlineDate)}`,
+                    value: `${Time.getDateOnly(twoWeekDeadlineDate)}`
+                },
+                {
+                    label: '✏️ Set custom date',
+                    value: 'custom'
+                }
+            )
+        }
+
+        return {
+            content:`**Set deadline for your project 🗓️**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `setDeadlineProject_${userId}${isSixWeekChallenge?'_sixWeekChallenge':''}`,
+                    "– Pick a deadline –",
+                    [
+                        ...options
+                    ]
+                ),
+            )]
+        }
+    }
+
+    static startNewProject(userId,deadlineDate,isSixWeekChallenge){
+        return {
+            content:`**Last, set a name & goal for your passion project** :dart:
+
+\`\`explore / build / grow your passion projects.\`\`
+
+Read & follow this guideline first to avoid common mistakes.
+↳ https://closa.me/how-to-set-right-goal`,
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`startNewProject_${userId}_${deadlineDate}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"🎯 Set name & goal")
+                )
+            ]
+        }
     }
 }
 

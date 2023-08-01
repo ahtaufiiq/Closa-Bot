@@ -276,7 +276,7 @@ module.exports = {
 				delete focusRoomUser[userId]
 			}
 		} catch (error) {
-			DiscordWebhook.sendError(error,`voice state ${newMember.member.user.id}`)
+			DiscordWebhook.sendError(error,`voice state ${newMember?.member?.user?.id}`)
 		}
 	},
 };

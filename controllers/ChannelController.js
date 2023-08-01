@@ -217,8 +217,9 @@ class ChannelController{
 
                 setTimeout(async () => {
                     const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
-                    if(data.body.latestNotificationTime === latestNotificationTime){
-                        thread.setArchived(true)
+                    if(data.body?.latestNotificationTime === latestNotificationTime){
+                        if(thread) thread.setArchived(true)
+                        else DiscordWebhook.sendError(`${UserId} : archivedThreadInactive isArchived`)
                     }
                 }, Time.oneMinute() * ttl);
             }

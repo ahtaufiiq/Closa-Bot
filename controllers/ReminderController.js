@@ -95,7 +95,7 @@ class ReminderController{
 									if (data) {
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()
-										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
+										}else if(data.lastHighlight !== Time.getDate().toISOString().substring(0,10) && data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation){
 											const {id:userId,notificationId} = data;
 											await ChannelController.sendToNotification(
 												client,

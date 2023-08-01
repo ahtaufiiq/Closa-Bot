@@ -81,12 +81,12 @@ module.exports = {
 			}else if (commandButton === 'reminderCoworking') {
 				await modal.deferReply({ephemeral:true});
 				const reminderTime = modal.getTextInputValue('schedule');
-				const differentTime = reminderTime.toLowerCase().includes(' wita') ? -1 : reminderTime.toLowerCase().includes(' wit') ? -2 : 0
+				const differentTime = reminderTime.toLowerCase().includes(' wita') ? 1 : reminderTime.toLowerCase().includes(' wit') ? 2 : 0
 				const time = Time.getTimeFromText(reminderTime)
 				const [hours,minutes] = time.split(/[.:]/)
 				const date = new Date()
 
-				date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+				date.setHours(Time.minus7Hours(Number(hours)-differentTime,false))
 				date.setMinutes(minutes)
 				const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
 				if(isMoreThanTenMinutes) date.setMinutes(minutes-10)
@@ -121,6 +121,9 @@ module.exports = {
 				AdvanceReportController.updateDataWeeklyGoal(totalMinute,modal.user.id)
 				UserController.updateData({dailyWorkTime:totalMinute},modal.user.id)
 				await modal.editReply(FocusSessionMessage.successSetDailyWorkTime(totalMinute))
+			}else if(commandButton === 'setReminderShareProgress'){
+				let shareProgressAt = modal.getTextInputValue('shareProgress')
+				GoalController.interactionSetReminderShareProgress(modal,shareProgressAt)
 			}else if(commandButton === 'selectDailyWorkGoal'){
 				await modal.deferReply()
 				const dailyWorkGoal = modal.getTextInputValue('dailyWorkGoal');
@@ -193,6 +196,33 @@ module.exports = {
 					
 				}
 				
+			}else if(commandButton === "startNewProject"){
+				await modal.deferReply()
+
+				const project = modal.getTextInputValue('project');
+				const goal = modal.getTextInputValue('goal');
+				const dataUser = await UserController.getDetail(modal.user.id,'reminderProgress')
+				const shareProgressAt = dataUser.body.reminderProgress
+				const deadlineGoal = Time.getDate(value)
+				const isSixWeekChallenge = !!modal.customId.split("_")[3]
+
+				await GoalController.interactionPostGoal(modal,{
+					goal,project,shareProgressAt,deadlineGoal
+				},isSixWeekChallenge)
+				ChannelController.deleteMessage(modal.message)
+				OnboardingController.handleOnboardingProject(modal.client,modal.user)
+				
+			}else if(commandButton === "setDeadlineProject"){
+				await modal.deferReply()
+
+				const deadline = modal.getTextInputValue('deadline');
+				const deadlineGoal = Time.getDate(deadline)
+				deadlineGoal.setFullYear(Time.getDate().getFullYear())
+				if(Time.getTodayDateOnly() > Time.getDateOnly(deadlineGoal)) deadlineGoal.setFullYear(deadlineGoal.getFullYear()+1)
+				const isSixWeekChallenge = !!value
+				await modal.editReply(GoalMessage.startNewProject(modal.user.id,Time.getDateOnly(deadlineGoal),isSixWeekChallenge))
+				ChannelController.deleteMessage(modal.message)
+
 			}else if(commandButton === "writeGoal"){
 				await modal.deferReply()
 
@@ -203,6 +233,7 @@ module.exports = {
 				const deadline = modal.getTextInputValue('deadline');
 				const deadlineGoal = Time.getDate(deadline)
 				deadlineGoal.setFullYear(Time.getDate().getFullYear())
+				if(Time.getTodayDateOnly() > Time.getDateOnly(deadlineGoal)) deadlineGoal.setFullYear(deadlineGoal.getFullYear()+1)
 				const isSixWeekChallenge = !!value
 				await GoalController.interactionPostGoal(modal,{
 					goal,about,project,shareProgressAt,deadlineGoal
@@ -600,7 +631,7 @@ The correct format:
 				const taskName = modal.getTextInputValue('taskName');
 				if (Time.haveTime(taskName)) {
 					await modal.deferReply();
-					const differentTime = taskName.toLowerCase().includes(' wita') ? -1 : taskName.toLowerCase().includes(' wit') ? -2 : 0
+					const differentTime = taskName.toLowerCase().includes(' wita') ? 1 : taskName.toLowerCase().includes(' wit') ? 2 : 0
 					const isTomorrow = taskName.toLowerCase().includes('tomorrow') 
 					const time = Time.getTimeFromText(taskName)
 					const [hours,minutes] = time.split(/[.:]/)
@@ -611,7 +642,7 @@ The correct format:
 						lastHighlight = Time.getTomorrowDateOnly()
 					}
 
-					date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+					date.setHours(Time.minus7Hours(Number(hours)-differentTime,false))
 					date.setMinutes(minutes)
 					const isMoreThanTenMinutes = Time.getDiffTime(new Date(),date) > 10
 					if(isMoreThanTenMinutes) date.setMinutes(minutes-10)

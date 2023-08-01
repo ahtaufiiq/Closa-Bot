@@ -1,7 +1,8 @@
 const { userMention, ButtonStyle } = require("discord.js")
 const Time = require("../helpers/time")
-const AdvanceReportController = require("../controllers/AdvanceReportController")
 const MessageComponent = require("../helpers/MessageComponent")
+const { getWeekDateRange } = require("../helpers/AdvanceReportHelper")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class AdvanceReportMessage{
     static thumbnailReport(UserId,files,dateRange,position=2){
@@ -58,7 +59,7 @@ class AdvanceReportMessage{
         content += `- with average daily work: \`\`${Time.convertTime(averageDailyWork,'short',true,true)}\`\` `
         if(totalTimeLastWeek !== null){
             const averageDailyWorkLastWeek = Math.floor(totalTimeLastWeek/7)
-            const diffAverageHour = Math.abs(averageDailyWork-averageDailyWorkLastWeek)
+            const diffAverageHour = Math.ceil(Math.abs(averageDailyWork-averageDailyWorkLastWeek)/averageDailyWorkLastWeek*100)
             if(totalTime > totalTimeLastWeek){
                 content += `increased (\`\`↑${diffAverageHour}% \`\`vs last week)\n`
             }else if(totalTime < totalTimeLastWeek){
@@ -69,8 +70,8 @@ class AdvanceReportMessage{
         }
         content += `- most of your time are invested into ${tasks[0].taskName} with \`\`${Time.convertTime(tasks[0].totalTime,'short',true,true)}\`\` work time.\n`
 
-        if(totalSickTicket >= 2) content += `- you took \`\`${totalSickTicket}x \`\`sick day, please take care of yourself & have a decent rest next time.\n`
-        else if(totalVacationTicket >= 3) content += `- you took \`\`${totalVacationTicket}\`\` vacation day, i hope you're having a good time!\n`
+        if(totalSickTicket >= 2) content += `- you took \`\`${totalSickTicket}x \`\`sick day, please take care of yourself & have a decent rest next time ${MessageFormatting.customEmoji().pensivemassivecry}\n`
+        else if(totalVacationTicket >= 3) content += `- you took \`\`${totalVacationTicket}\`\` vacation day, i hope you're having a good time! 🔆\n`
 
         content += `\nhave a good week!
 
@@ -92,7 +93,7 @@ need at least few coworking sessions done to generate the report.`
     static emptyReport(week,UserId){
         let selectedPeriod = 'this week'
         if(week === -1) selectedPeriod = 'last week'
-        else selectedPeriod = `on \`\`${AdvanceReportController.getWeekDateRange(week)}\`\``
+        else selectedPeriod = `on \`\`${getWeekDateRange(week)}\`\``
         return `⚠️ You haven't done any coworking session ${selectedPeriod} ${userMention(UserId)}
 need at least few coworking sessions done to generate the report.`
     }

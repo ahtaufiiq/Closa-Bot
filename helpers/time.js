@@ -147,7 +147,7 @@ class Time {
             error:null,
             data:null,
         }
-        const differentTime = string.includes(' wita') ? -1 : string.includes(' wit') ? -2 : 0
+        const differentTime = string.includes(' wita') ? 1 : string.includes(' wit') ? 2 : 0
         const isTomorrow = string.includes('tomorrow')
         const isToday = string.includes('today')
         const patternTime = /\d+[.:]\d+/
@@ -171,7 +171,7 @@ class Time {
             coworkingDate.setMonth(monthInNumber)
             coworkingDate.setDate(date)
         }
-        coworkingDate.setHours(Time.minus7Hours(Number(hours) + differentTime,false))
+        coworkingDate.setHours(Time.minus7Hours(Number(hours) - differentTime,false))
         coworkingDate.setMinutes(minutes)
         result.data = coworkingDate
         return result
@@ -365,6 +365,23 @@ class Time {
 			resolve('wait')
 			}, time);
 		})
+	}
+
+    static getDayLeftBeforeDemoDay(){
+		const {celebrationDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const result = {
+			dayLeft:null,
+			deadlineDate:null,
+			formattedDate:''
+		}
+		
+		result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
+		result.deadlineDate = Time.getDate(celebrationDate)
+		const [month,dateOfMonth] = Time.getFormattedDate(result.deadlineDate,false,'medium').split(/[, ]+/)
+		result.formattedDate = `${dateOfMonth} ${month}`
+		
+		return result
 	}
 
 }

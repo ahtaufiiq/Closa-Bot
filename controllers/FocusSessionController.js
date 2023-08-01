@@ -104,7 +104,8 @@ class FocusSessionController {
             value:'addNewProject'
 
         })
-        for (let i = 0; i < projects.length; i++) {
+        const maxLength = projects.length > 24 ? 24 : projects.length
+        for (let i = 0; i < maxLength; i++) {
             const project = projects[i];
             menus.push({
                 label:project.name,
@@ -414,7 +415,7 @@ class FocusSessionController {
             .order('updatedAt',{ascending:false})
             .limit(6)
         const coworkingPartners = []
-        for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
+        for (let i = 0; i < dataCoworkingPartner?.body?.length; i++) {
             const partner = dataCoworkingPartner.body[i];
             const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
             const dataUser = await UserController.getDetail(idPartner,'avatarURL')

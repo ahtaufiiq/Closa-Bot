@@ -17,6 +17,7 @@ const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
 const ReminderController = require('./ReminderController');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
+const TodoReminderMessage = require('../views/TodoReminderMessage');
 
 class GoalController {
 
@@ -29,7 +30,7 @@ class GoalController {
 		await modal.deferReply()
 		const coworkingTime = modal.getTextInputValue('coworkingTime');
 		let preferredCoworkingTime = Time.getTimeFromText(coworkingTime)
-		const differentTime = coworkingTime.toLowerCase().includes(' wita') ? -1 :coworkingTime.toLowerCase().includes(' wit') ? -2 : 0
+		const differentTime = coworkingTime.toLowerCase().includes(' wita') ? 1 :coworkingTime.toLowerCase().includes(' wit') ? 2 : 0
 		try {
 			if(preferredCoworkingTime){
 				const date = Time.getDate()
@@ -46,7 +47,7 @@ class GoalController {
 			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
 			const [commandButton,_,value] = modal.customId.split("_")
 			const isSixWeekChallenge = !!value
-			await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id,isSixWeekChallenge))
+			await modal.editReply(GoalMessage.setReminderShareProgress(modal.user.id,isSixWeekChallenge))
 			ChannelController.deleteMessage(modal.message)
 			
 		} catch (error) {
@@ -116,6 +117,32 @@ class GoalController {
 			.setTitle("Preferred coworking time 🕖👩‍💻👨‍💻")
 			.addComponents(
 				new TextInputComponent().setCustomId('coworkingTime').setLabel("Preferred daily coworking time (minimal one)").setPlaceholder("e.g. 08.00, 15.00, 20.00 wib").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
+	static showModalReminderShareProgress(interaction){
+        if(interaction.customId.includes('setReminderShareProgress')){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set reminder 🔔")
+			.addComponents(
+				new TextInputComponent().setCustomId('shareProgress').setLabel("Remind me to share progress at 🔔").setPlaceholder("e.g. 21.30").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
+	static showModalDeadlineProject(interaction){
+        if(interaction.customId.includes('setDeadlineProject')){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set custom deadline 🗓️")
+			.addComponents(
+				new TextInputComponent().setCustomId('deadline').setLabel("Set project's deadline 🗓️").setPlaceholder("e.g. 22 Aug / 22 August").setStyle("SHORT").setRequired(true),
 			)
 			showModal(modal, { client: interaction.client, interaction: interaction});
 			return true
@@ -296,7 +323,7 @@ class GoalController {
 				.then(async data=>{
 					if (data.body) {
 						for (let i = 0; i < data.body.length; i++) {
-							await Time.wait()
+							await Time.wait(10000)
 							const goal = data.body[i];
 							await GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
 						}
@@ -353,6 +380,10 @@ class GoalController {
 
 	static async getActiveGoal(UserId){
 		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly()).eq("UserId",UserId).order('createdAt',{ascending:false}).limit(1).single()
+		return data
+	}
+	static async getActiveGoalUser(UserId){
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30)))
 		return data
 	}
 	static async getAllActiveGoal(){
@@ -420,7 +451,88 @@ class GoalController {
 		const notificationId = await UserController.getNotificationId(targetUserId)
 		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg.id))
 	}
-    
+
+	static getFormattedGoalMenu(goals){
+        const menus = []
+		const maxLength = goals.length > 25 ? 25 : goals.length
+        for (let i = 0; i < maxLength; i++) {
+            const project = goals[i];
+            menus.push({
+                label:FormatString.truncateString(project.goal,90),
+                value:`${project.id}`
+            })
+        }
+
+        return menus
+    }
+
+	static async interactionSetReminderShareProgress(interaction,shareProgressAt){
+		await interaction.deferReply()
+		const value = interaction.customId.split("_")[2]
+		const dataUser = await UserController.getDetail(interaction.user.id,'reminderProgress')
+		const differentTime = shareProgressAt.toLowerCase().includes(' wita') ? 1 :shareProgressAt.toLowerCase().includes(' wit') ? 2 : 0
+		let reminderProgress = Time.getTimeFromText(shareProgressAt)
+		if(differentTime > 0){
+			const date = Time.getDate()
+			const [hours,minutes] = reminderProgress.split(/[.:]/)
+			date.setHours(hours - differentTime,minutes)
+			reminderProgress = Time.getTimeOnly(date,true)
+		}
+		if(dataUser.body.reminderProgress !== reminderProgress){
+			try {
+				UserController.updateData({reminderProgress},interaction.user.id)
+				const [hours,minutes] = reminderProgress.split(/[.:]/)
+				let ruleReminderProgress = new schedule.RecurrenceRule();
+				ruleReminderProgress.hour = Time.minus7Hours(hours)
+				ruleReminderProgress.minute = minutes
+				const scheduleReminderProgress = schedule.scheduleJob(ruleReminderProgress,function(){
+					if (!Time.isCooldownPeriod()) {
+						supabase.from('Users')
+						.select()
+						.eq('id',interaction.user.id)
+						.single()
+						.then(async ({body:data})=>{
+							if (data) {
+								if (reminderProgress !== data.reminderProgress) {
+									scheduleReminderProgress.cancel()
+								}else if (data.lastDone !== Time.getDate().toISOString().substring(0,10) && !data.onVacation) {
+									const {id:userId,notificationId} = data;
+									await ChannelController.sendToNotification(
+										interaction.client,
+										TodoReminderMessage.progressReminder(userId),
+										userId,
+										notificationId,
+										true
+									)
+								}
+							}
+						})
+					}
+				})
+				const isSixWeekChallenge = !!value
+				await interaction.editReply(GoalMessage.setDeadlineProject(interaction.user.id,isSixWeekChallenge))
+				ChannelController.deleteMessage(interaction.message)
+			} catch (error) {
+				DiscordWebhook.sendError(error,`${interaction?.user?.id} setReminderShareProgress`)
+			}
+		}
+	}
+
+	static showModalStartNewProject(interaction){
+		let [commandButton,_,value] = interaction.customId.split("_")
+        if(commandButton === 'startNewProject'){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set your goal 🎯")
+			.addComponents(
+				new TextInputComponent().setCustomId('project').setLabel("Project Name").setPlaceholder("Short project's name up to 5 words").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you)").setPlaceholder("idea you want to build & the final result").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
 }
 
 module.exports = GoalController
