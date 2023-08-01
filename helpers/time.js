@@ -367,6 +367,23 @@ class Time {
 		})
 	}
 
+    static getDayLeftBeforeDemoDay(){
+		const {celebrationDate} = LocalData.getData()
+		const todayDate = Time.getTodayDateOnly()
+		const result = {
+			dayLeft:null,
+			deadlineDate:null,
+			formattedDate:''
+		}
+		
+		result.dayLeft = Time.getDiffDay(Time.getDate(todayDate),Time.getDate(celebrationDate))
+		result.deadlineDate = Time.getDate(celebrationDate)
+		const [month,dateOfMonth] = Time.getFormattedDate(result.deadlineDate,false,'medium').split(/[, ]+/)
+		result.formattedDate = `${dateOfMonth} ${month}`
+		
+		return result
+	}
+
 }
 
 module.exports = Time

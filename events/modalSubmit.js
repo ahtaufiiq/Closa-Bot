@@ -204,11 +204,12 @@ module.exports = {
 				const dataUser = await UserController.getDetail(modal.user.id,'reminderProgress')
 				const shareProgressAt = dataUser.body.reminderProgress
 				const deadlineGoal = Time.getDate(value)
+				const isSixWeekChallenge = !!modal.customId.split("_")[3]
+
 				await GoalController.interactionPostGoal(modal,{
 					goal,project,shareProgressAt,deadlineGoal
-				},false)
-				// ChannelController.deleteMessage(modal.message)
-
+				},isSixWeekChallenge)
+				ChannelController.deleteMessage(modal.message)
 				OnboardingController.handleOnboardingProject(modal.client,modal.user)
 				
 			}else if(commandButton === "setDeadlineProject"){
@@ -218,8 +219,8 @@ module.exports = {
 				const deadlineGoal = Time.getDate(deadline)
 				deadlineGoal.setFullYear(Time.getDate().getFullYear())
 				if(Time.getTodayDateOnly() > Time.getDateOnly(deadlineGoal)) deadlineGoal.setFullYear(deadlineGoal.getFullYear()+1)
-
-				await modal.editReply(GoalMessage.startNewProject(modal.user.id,Time.getDateOnly(deadlineGoal)))
+				const isSixWeekChallenge = !!value
+				await modal.editReply(GoalMessage.startNewProject(modal.user.id,Time.getDateOnly(deadlineGoal),isSixWeekChallenge))
 				ChannelController.deleteMessage(modal.message)
 
 			}else if(commandButton === "writeGoal"){

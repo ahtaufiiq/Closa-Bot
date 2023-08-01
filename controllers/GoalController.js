@@ -47,8 +47,7 @@ class GoalController {
 			const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
 			const [commandButton,_,value] = modal.customId.split("_")
 			const isSixWeekChallenge = !!value
-			if(isSixWeekChallenge) await modal.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,modal.user.id,isSixWeekChallenge))
-			else await modal.editReply(GoalMessage.setReminderShareProgress(modal.user.id))
+			await modal.editReply(GoalMessage.setReminderShareProgress(modal.user.id,isSixWeekChallenge))
 			ChannelController.deleteMessage(modal.message)
 			
 		} catch (error) {
@@ -469,6 +468,7 @@ class GoalController {
 
 	static async interactionSetReminderShareProgress(interaction,shareProgressAt){
 		await interaction.deferReply()
+		const value = interaction.customId.split("_")[2]
 		const dataUser = await UserController.getDetail(interaction.user.id,'reminderProgress')
 		const differentTime = shareProgressAt.toLowerCase().includes(' wita') ? 1 :shareProgressAt.toLowerCase().includes(' wit') ? 2 : 0
 		let reminderProgress = Time.getTimeFromText(shareProgressAt)
@@ -509,11 +509,11 @@ class GoalController {
 						})
 					}
 				})
-				
-				await interaction.editReply(GoalMessage.setDeadlineProject(interaction.user.id))
+				const isSixWeekChallenge = !!value
+				await interaction.editReply(GoalMessage.setDeadlineProject(interaction.user.id,isSixWeekChallenge))
 				ChannelController.deleteMessage(interaction.message)
 			} catch (error) {
-				DiscordWebhook.sendError(error,`${interaction.user.id} setReminderShareProgress`)
+				DiscordWebhook.sendError(error,`${interaction?.user?.id} setReminderShareProgress`)
 			}
 		}
 	}

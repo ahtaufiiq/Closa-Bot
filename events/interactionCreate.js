@@ -848,7 +848,8 @@ module.exports = {
 							GoalController.showModalDeadlineProject(interaction)
 						}else{
 							await interaction.deferReply()
-							await interaction.editReply(GoalMessage.startNewProject(interaction.user.id,valueMenu))
+							const isSixWeekChallenge = !!value
+							await interaction.editReply(GoalMessage.startNewProject(interaction.user.id,valueMenu,isSixWeekChallenge))
 							ChannelController.deleteMessage(interaction.message)
 						}
 						break
@@ -880,10 +881,9 @@ module.exports = {
 										.eq('id',interaction.user.id)
 										.then()
 								}
-								const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
+								
 								const isSixWeekChallenge = !!value
-								if(isSixWeekChallenge) await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
-								else await interaction.editReply(GoalMessage.setReminderShareProgress(interaction.user.id))
+								await interaction.editReply(GoalMessage.setReminderShareProgress(interaction.user.id,isSixWeekChallenge))
 								ChannelController.deleteMessage(interaction.message)
 							} catch (error) {
 								DiscordWebhook.sendError(error,`${modal.user.id} ${coworkingTime}`)
