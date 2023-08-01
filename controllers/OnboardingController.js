@@ -36,7 +36,6 @@ class OnboardingController {
             .update({type:'new member'})
             .eq('id',user.id)
             .then()
-        OnboardingController.addReminderToStartOnboarding(user.id)
 
         ChannelController.archivedThreadInactive(user.id,thread,15)
     }
@@ -45,7 +44,6 @@ class OnboardingController {
         const UserId = interaction.user.id
         const value = interaction.customId.split("_")[2]
         await OnboardingController.updateOnboardingStep(interaction.client,UserId,'firstQuest')
-        OnboardingController.addReminderToStartOnboarding(UserId)
 
         MemberController.removeRole(interaction.client,UserId,ROLE_ONBOARDING_LATER)
 
@@ -95,29 +93,24 @@ class OnboardingController {
             .then()
     }
 
-    static reminderStartOnboarding(client){
-        let ruleRemindOnboarding = new schedule.RecurrenceRule();
-        ruleRemindOnboarding.hour = Time.minus7Hours(19)
-        ruleRemindOnboarding.minute = 20
-        schedule.scheduleJob(ruleRemindOnboarding,async function(){
-            supabase.from("Reminders")
-                .select('*,Users(notificationId,onboardingStep)')
-                .or('type.eq.reminderStartOnboarding,type.eq.turnOffReminderOnboarding')
-                .eq('message',Time.getTodayDateOnly())
-                .then(async data=>{
-                    for (let i = 0; i < data.body.length; i++) {
-                        const {Users:{notificationId,onboardingStep},type,UserId} = data.body[i];
-                        let msgContent
-                        if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId,onboardingStep)
-                        else {
-                            msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)
-                            MemberController.addRole(client,UserId,ROLE_NEW_MEMBER)
-                        }
-                        await ChannelController.sendToNotification(client,msgContent,UserId,notificationId,true)
-                        await Time.wait(2000)
-                    }
-                })
-        })    
+    static reminderContinueQuest(client){
+        supabase.from("Reminders")
+            .select('*,Users(notificationId,onboardingStep)')
+            .eq('type','reminderContinueQuest')
+            .eq('message',Time.getTodayDateOnly())
+            .then(async data=>{
+                for (let i = 0; i < data.body.length; i++) {
+                    const reminder = data.body[i]
+                    schedule.scheduleJob(reminder.time,async function() {
+                        ChannelController.sendToNotification(
+                            client,
+                            HighlightReminderMessage.remindHighlightUser(reminder.UserId,reminder.message),
+                            reminder.UserId,
+                            reminder.Users.notificationId
+                        )
+                    })
+                }
+            })
     }
 
     static async isHasRoleOnboardingProject(client,userId){
@@ -269,6 +262,32 @@ class OnboardingController {
                 DiscordWebhook.sendError(`cannot send dm to ${user.id}`)
             }
         }, Time.oneMinute() * 2);
+    }
+
+    static async setReminderContinueQuest(interaction,reminderDate){
+        
+        supabase.from('Reminders')
+            .insert({
+                message:`${message} at ${time}`,
+                time:date,
+                UserId:interaction.user.id,
+            })
+            .then()
+
+        schedule.scheduleJob(date,async function () {
+            ChannelController.sendToNotification(
+                interaction.client,
+                HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
+                interaction.user.id,
+                data.body.notificationId
+            )
+        })
+        
+        await interaction.editReply({
+            content:`Reminder set: \`\`${message} at ${time}\`\` ${interaction.user}
+
+${isMoreThanTenMinutes ? "**i'll remind you 10 minutes before the schedule**" : ''}`
+        })		
     }
 }
 

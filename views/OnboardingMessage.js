@@ -222,8 +222,8 @@ Let's get started:
 **complete all the steps above to unlock all channels** :unlock:
 **↓**`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addButton(`onboardingFromGuideline`,"Check my quest"),
-                MessageComponent.addLinkButton('Watch Demo (3 mins)','https://www.loom.com/share/244afe1607a64c77995145a61c04b0f1').setEmoji('▶️'),
+                MessageComponent.addButton(`onboardingFromGuideline`,"Check my quest").setEmoji('📜'),
+                MessageComponent.addButton(`remindContinueQuest`,"🔔 Remind me later",ButtonStyle.Secondary),
             )]
         }
     }
@@ -293,6 +293,36 @@ welcome to closa ${user}!
 \`\`note:\`\` we'll use this direct message to send you reminders to help you stay on track.
 
 **To get started go to →** ${channelMention(CHANNEL_GUIDELINE)}`
+    }
+
+    static setReminderContinueQuest(){
+        return {
+            content:`**Select your preferred time** ⏲️`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `setReminderContinueQuest`,
+                    "-- pick time below --",
+                    [
+                        {
+                            label: "tomorrow 08.00 🕗",
+                            value: "8.00"
+                        },
+                        {
+                            label: "tomorrow 15.00 🕒",
+                            value: "15.00"
+                        },
+                        {
+                            label: "tomorrow 20.00 🕗",
+                            value: "20.00"
+                        },
+                        {
+                            label: 'Custom date & time ⏲️',
+                            value: 'custom'
+                        }
+                    ]
+                ),
+            )]
+        }
     }
 }
 

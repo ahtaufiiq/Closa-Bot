@@ -30,20 +30,16 @@ module.exports = {
 		user.send("Restart Bot")
 
 		AdvanceReportController.sendAdvanceReportEveryMonday(client)
-		// OnboardingController.reminderStartOnboarding(client)
+
 		ReminderController.remindSetHighlight(client)
 		ReminderController.remindPostProgress(client)
-		// WeeklyReflectionController.sendReflectionEveryWeek(client)
-
-		ReferralCodeController.cachingAllInviteLink(client,invites)
 		
 		FocusSessionController.continueFocusTimer(client,focusRoomUser,listFocusRoom)
+		ReferralCodeController.cachingAllInviteLink(client,invites)
 
 		GuidelineInfoController.updateAllGuideline(client)
+		GoalController.updateAllActiveGoal(client)
 
-		// PaymentController.remindMember(client)
-		// PaymentController.remindBeforeKickoffCohort(client)
-		// if(CLIENT_ID === "948546574550695936") return
 		VacationController.activateVacationTicket(client)
 		VacationController.notifyVacationEnded(client)
 
@@ -51,6 +47,35 @@ module.exports = {
 		SickDayController.notifySickEnded(client)
 
 		TimelineController.updateTimeline(client)
+
+
+		ReferralCodeController.resetTotalDaysThisCohort()
+
+		
+		ReminderController.remindHighlightUser(client)
+		
+		DailyStreakController.remindMissOneDay(client)
+		DailyStreakController.remindAboutToLoseStreak(client)
+		DailyStreakController.sendRepairStreak(client)
+		DailyStreakController.resetDailyStreak()
+
+		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
+
+		BoostController.remindBoostInactiveMember(client)
+		BoostController.remindUserAboutToLoseStreak(client)
+		BoostController.resetChannelBoost(client)
+
+		WeeklyReflectionController.sendReminderReflection(client)
+		WeeklyReflectionController.updateAnnouncementReflection(client)
+		WeeklyReflectionController.hideChannelReflection(client)
+
+		DailyReport.inactiveMember(client)
+
+		WeeklyReport.sendWeeklyStatus(client)
+		OnboardingController.reminderContinueQuest(client)
+		// WeeklyReflectionController.sendReflectionEveryWeek(client)
+		// PaymentController.remindMember(client)
+		// PaymentController.remindBeforeKickoffCohort(client)
 		// TimelineController.sendNotifBeforeCelebration(client)
 		// TimelineController.sendNotif5DaysBeforeCelebration(client)
 		// TimelineController.sendNotifShareStoryCelebrationDay(client)
@@ -78,35 +103,10 @@ module.exports = {
 		// RecurringMeetupController.setReminderWeeklyMeetup(client)
 
 		// GoalController.remindToWriteGoal(client)
-		GoalController.updateAllActiveGoal(client)
 
-		ReferralCodeController.resetTotalDaysThisCohort()
-
-		
-		ReminderController.remindHighlightUser(client)
-		
-		DailyStreakController.remindMissOneDay(client)
-		DailyStreakController.remindAboutToLoseStreak(client)
-		DailyStreakController.sendRepairStreak(client)
-		DailyStreakController.resetDailyStreak()
-
-		CoworkingController.setReminderFiveMinutesBeforeCoworking(client)
-
-		BoostController.remindBoostInactiveMember(client)
-		BoostController.remindUserAboutToLoseStreak(client)
-		BoostController.resetChannelBoost(client)
-
-		WeeklyReflectionController.sendReminderReflection(client)
-		WeeklyReflectionController.updateAnnouncementReflection(client)
-		WeeklyReflectionController.hideChannelReflection(client)
 
 		// CelebrationController.sendAnnouncementCelebration(client)
 		// CelebrationController.updateAnnouncementCelebration(client)
 		// CelebrationController.hideCelebrationChannel(client)
-
-		DailyReport.inactiveMember(client)
-
-		WeeklyReport.sendWeeklyStatus(client)
-		
 	},
 };
