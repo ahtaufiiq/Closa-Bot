@@ -98,6 +98,9 @@ module.exports = {
 				
 				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "remindContinueQuest":
+						interaction.editReply(OnboardingMessage.setReminderContinueQuest())
+						break;
 					case "changeThumbnail":{
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate advance report thumbnail of someone else")
 						const [dateRange,position] = value.split('|')
@@ -830,7 +833,7 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningReplyYourself())
 						return	
 					}
-				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject'){
+				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' || commandMenu === 'setReminderContinueQuest'){
 					await interaction.deferReply({ephemeral:true});
 				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
@@ -839,6 +842,16 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case 'setReminderContinueQuest':
+						if(valueMenu === 'custom'){
+							
+						}else{
+							const tomorrowDate = Time.getNextDate(1)
+							const [hours,minutes] = valueMenu.split(/[.:]/)
+							tomorrowDate.setHours(hours,minutes)
+							OnboardingController.setReminderContinueQuest(interaction,tomorrowDate)
+						}
+						break;
 					case "searchProject":
 						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToInsideThread(valueMenu)}`)
 						break;

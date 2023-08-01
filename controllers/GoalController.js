@@ -83,15 +83,10 @@ class GoalController {
 		let [commandButton,_,value] = interaction.customId.split("_")
         if(commandButton === 'editGoal'){
 			const project = interaction.message.embeds[0].title
-			const [{value:goal},{value:about},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
+			const [{value:goal},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
 			const [month,dateOfMonth] = deadlineValue.split('(')[0].split(/[, ]/)
 			const [commandButton,userId] = interaction.customId.split('_')
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else goal.`})
-
-			const isSixWeekChallenge = !!value
-			const labelAbout = isSixWeekChallenge ? 'About (in one-liner)' : "About project"
-			const placeholderAbout = isSixWeekChallenge ? 'Write in one-liner format. e.g. Closa is a smart discord bot to boost your productivity with friends' : "Tell a bit about this project"
-			const fieldTypeAbout = isSixWeekChallenge ? "SHORT" : "LONG"
 
 			const shareProgressAt = Time.getTimeFromText(descriptionShareProgress)
 			const modal = new Modal()
@@ -100,7 +95,6 @@ class GoalController {
 			.addComponents(
 				new TextInputComponent().setCustomId('project').setLabel("Project Name (up to 4 words)").setDefaultValue(project).setPlaceholder("Short project's name e.g: Design Exploration").setStyle("SHORT").setRequired(true),
 				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you & can be quantify)").setDefaultValue(goal).setPlaceholder("e.g. 10 design exploration & get 1 clients").setStyle("SHORT").setRequired(true),
-				new TextInputComponent().setCustomId('about').setLabel(labelAbout).setDefaultValue(about).setPlaceholder(placeholderAbout).setStyle(fieldTypeAbout).setRequired(true),
 				new TextInputComponent().setCustomId('deadline').setLabel("Project Deadline").setPlaceholder("e.g. 20 may").setStyle("SHORT").setDefaultValue(`${dateOfMonth} ${month}`).setRequired(true),
 				new TextInputComponent().setCustomId('shareProgressAt').setLabel("i'll try to share my progress at").setDefaultValue(shareProgressAt).setPlaceholder("e.g. 21.00").setStyle("SHORT").setRequired(true),
 			)
