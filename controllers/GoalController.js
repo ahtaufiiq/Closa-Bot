@@ -83,7 +83,7 @@ class GoalController {
 		let [commandButton,_,value] = interaction.customId.split("_")
         if(commandButton === 'editGoal'){
 			const project = interaction.message.embeds[0].title
-			const [{value:goal},{value:about},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
+			const [{value:goal},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
 			const [month,dateOfMonth] = deadlineValue.split('(')[0].split(/[, ]/)
 			const [commandButton,userId] = interaction.customId.split('_')
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else goal.`})
