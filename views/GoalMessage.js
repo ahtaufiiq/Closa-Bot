@@ -215,18 +215,25 @@ here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
 
     static templateEmbedMessageGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user},isSixWeekChallenge=false){
         const dayLeft = Time.getDiffDay(Time.getDate(),deadlineGoal)
-        const deadlineDate = Time.getDateOnly(deadlineGoal)
         const formattedDate = Time.getFormattedDate(deadlineGoal)
         let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`
+        const fields = [
+            { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
+        ]
+
+        if(isSixWeekChallenge) fields.push({ name: 'About project', value:FormatString.truncateString( about,1020) },)
+
+        fields.push(
+            { name: "I'll share my progress at", value:FormatString.truncateString( `${shareProgressAt} WIB every day`,1020) },
+            { name: "Preferred coworking time", value:FormatString.truncateString( `${preferredCoworkingTime}`,1020) },
+            { name: "Project deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) }
+        )
+
         return new EmbedBuilder()
         .setColor(isSixWeekChallenge ? '#0E827B' : "#ffffff")
         .setTitle(FormatString.truncateString(project,250) || null)
         .addFields(
-            { name: 'Goal 🎯', value:FormatString.truncateString( goal,1020) },
-            { name: 'About project', value:FormatString.truncateString( about,1020) },
-            { name: "I'll share my progress at", value:FormatString.truncateString( `${shareProgressAt} WIB every day`,1020) },
-            { name: "Preferred coworking time", value:FormatString.truncateString( `${preferredCoworkingTime}`,1020) },
-            { name: "Project deadline", value:FormatString.truncateString( `${formattedDate} ${dayLeft > 0 ? dayLeftDescription :'(ended)'}`,1020) },
+            ...fields
         )
     }
 
@@ -281,8 +288,108 @@ this is my goal at @joinclosa:`
         ))
 
         return {
-            content:isAnotherUser? `Project by ${userMention(userId)}, select one to go to the project history:` :`Here your project ${userMention(userId)}, select one to go to the project history:`,
+            content:isAnotherUser? `Project by ${userMention(userId)}, select one to go to the project history:` :`Here's your project ${userMention(userId)}, select one to go to the project history:`,
             components
+        }
+    }
+    static selectGoal(userId,goalMenus){
+        const components = []
+
+        if(goalMenus.length > 0){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectProject_${userId}_${taskId}`,
+                    "-Select project-",
+                    goalMenus
+                ),
+            ))
+        }else{
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addButton(`addNewProject_${userId}_${taskId}`,"Add new project +").setEmoji('✨')
+            ))
+        }
+
+        return {
+            content:`Select the project you want to work on ${MessageFormatting.tagUser(userId)}`,
+            components
+        }
+    }
+
+    static setReminderShareProgress(userId){
+        return {
+            content:`**Set a reminder to share your daily progress ** 🔔`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `setReminderShareProgress_${userId}`,
+                    "– Remind me to share my progress at –",
+                    [
+                        {
+                            label: "21.00 🔔",
+                            value: "21.00"
+                        },
+                        {
+                            label: "22.00 🔔",
+                            value: "22.00"
+                        },
+                        {
+                            label: "23.00 🔔",
+                            value: "23.00"
+                        },
+                        {
+                            label: '✏️ Set custom time',
+                            value: 'custom'
+                        }
+                    ]
+                ),
+            )]
+        }
+    }
+    static setDeadlineProject(userId){
+        const sixWeekDeadlineDate = Time.getNextDate(7*6)
+        const fourWeekDeadlineDate = Time.getNextDate(7*4)
+        const twoWeekDeadlineDate = Time.getNextDate(7*2)
+        return {
+            content:`**Set deadline for your project 🗓️**`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `setDeadlineProject_${userId}`,
+                    "– Pick a deadline –",
+                    [
+                        {
+                            label: `6 weeks — ${Time.getFormattedDate(sixWeekDeadlineDate)}`,
+                            value: `${Time.getDateOnly(sixWeekDeadlineDate)}`
+                        },
+                        {
+                            label: `4 weeks — ${Time.getFormattedDate(fourWeekDeadlineDate)}`,
+                            value: `${Time.getDateOnly(fourWeekDeadlineDate)}`
+                        },
+                        {
+                            label: `2 weeks — ${Time.getFormattedDate(twoWeekDeadlineDate)}`,
+                            value: `${Time.getDateOnly(twoWeekDeadlineDate)}`
+                        },
+                        {
+                            label: '✏️ Set custom date',
+                            value: 'custom'
+                        }
+                    ]
+                ),
+            )]
+        }
+    }
+
+    static startNewProject(userId,deadlineDate){
+        return {
+            content:`**Last, set a name & goal for your passion project** :dart:
+
+\`\`explore / build / grow your passion projects.\`\`
+
+Read & follow this guideline first, so you can avoid common mistakes.
+↳ https://closa.me/how-to-set-right-goal`,
+            components:[
+                MessageComponent.createComponent(
+                    MessageComponent.addButton(`startNewProject_${userId}_${deadlineDate}`,"🎯 Set name & goal")
+                )
+            ]
         }
     }
 }

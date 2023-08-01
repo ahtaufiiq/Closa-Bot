@@ -48,6 +48,7 @@ const AdvanceReportMessage = require("../views/AdvanceReportMessage");
 const RedisController = require("../helpers/RedisController");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
+const TodoReminderMessage = require("../views/TodoReminderMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -59,6 +60,7 @@ module.exports = {
 				if(GoalController.showModalWriteGoal(interaction)) return
 				if(GoalController.showModalEditGoal(interaction)) return 
 				if(GoalController.showModalPreferredCoworkingTime(interaction)) return 
+				if(GoalController.showModalStartNewProject(interaction)) return 
 				if(VacationController.showModalCustomDate(interaction)) return
 				if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 				if(RecurringMeetupController.showModalExtendTime(interaction)) return
@@ -830,7 +832,7 @@ module.exports = {
 					}
 				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject'){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
+				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
@@ -839,6 +841,24 @@ module.exports = {
 				switch (commandMenu) {
 					case "searchProject":
 						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToInsideThread(valueMenu)}`)
+						break;
+					case "setDeadlineProject":
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't set deadline project for someone else.**`,ephemeral:true})
+						if(valueMenu === 'custom'){
+							GoalController.showModalDeadlineProject(interaction)
+						}else{
+							await interaction.deferReply()
+							await interaction.editReply(GoalMessage.startNewProject(interaction.user.id,valueMenu))
+							ChannelController.deleteMessage(interaction.message)
+						}
+						break
+					case 'setReminderShareProgress':
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't set a reminder for someone else.**`,ephemeral:true})
+						if(valueMenu === 'custom'){
+							GoalController.showModalReminderShareProgress(interaction)
+						}else{
+							await GoalController.interactionSetReminderShareProgress(interaction,valueMenu)
+						}
 						break;
 					case 'selectPreferredCoworkingTime':
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't select preferred daily coworking time someone else.**`,ephemeral:true})
@@ -862,7 +882,8 @@ module.exports = {
 								}
 								const deadlineGoal = GoalController.getDayLeftBeforeDemoDay()
 								const isSixWeekChallenge = !!value
-								await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
+								if(isSixWeekChallenge) await interaction.editReply(GoalMessage.askUserWriteGoal(deadlineGoal.dayLeft,interaction.user.id,isSixWeekChallenge))
+								else await interaction.editReply(GoalMessage.setReminderShareProgress(interaction.user.id))
 								ChannelController.deleteMessage(interaction.message)
 							} catch (error) {
 								DiscordWebhook.sendError(error,`${modal.user.id} ${coworkingTime}`)

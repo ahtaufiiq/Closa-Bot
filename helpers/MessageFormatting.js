@@ -43,6 +43,7 @@ class MessageFormatting{
             thumbsupkid:'<:thumbsupkid:1000911696031924275>',
             stonks:'<:stonks:741455081106309131>',
             success:'<:success:741455081009840128>',
+            pensivemassivecry:'<:pensivemassivecry:1110390943959494696>',
         }
     }
     static customEmojiAnimated(){

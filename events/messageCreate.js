@@ -146,7 +146,7 @@ module.exports = {
 				const patternEmoji = /^🔆/
 				if (patternEmoji.test(msg.content.trimStart())) {
 					if (Time.haveTime(msg.content)) {
-						const differentTime = msg.content.toLowerCase().includes(' wita') ? -1 : msg.content.toLowerCase().includes(' wit') ? -2 : 0
+						const differentTime = msg.content.toLowerCase().includes(' wita') ? 1 : msg.content.toLowerCase().includes(' wit') ? 2 : 0
 						const isTomorrow = msg.content.toLowerCase().includes('tomorrow') 
 						const time = Time.getTimeFromText(msg.content)
                         const [hours,minutes] = time.split(/[.:]/)
@@ -157,7 +157,7 @@ module.exports = {
 							lastHighlight = Time.getTomorrowDateOnly()
 						}
 
-						date.setHours(Time.minus7Hours(Number(hours)+differentTime,false))
+						date.setHours(Time.minus7Hours(Number(hours)-differentTime,false))
 						date.setMinutes(minutes-10)
 						supabase.from('Reminders')
 							.insert({

@@ -2,6 +2,7 @@ const { userMention, ButtonStyle } = require("discord.js")
 const Time = require("../helpers/time")
 const MessageComponent = require("../helpers/MessageComponent")
 const { getWeekDateRange } = require("../helpers/AdvanceReportHelper")
+const MessageFormatting = require("../helpers/MessageFormatting")
 
 class AdvanceReportMessage{
     static thumbnailReport(UserId,files,dateRange,position=2){
@@ -69,8 +70,8 @@ class AdvanceReportMessage{
         }
         content += `- most of your time are invested into ${tasks[0].taskName} with \`\`${Time.convertTime(tasks[0].totalTime,'short',true,true)}\`\` work time.\n`
 
-        if(totalSickTicket >= 2) content += `- you took \`\`${totalSickTicket}x \`\`sick day, please take care of yourself & have a decent rest next time.\n`
-        else if(totalVacationTicket >= 3) content += `- you took \`\`${totalVacationTicket}\`\` vacation day, i hope you're having a good time!\n`
+        if(totalSickTicket >= 2) content += `- you took \`\`${totalSickTicket}x \`\`sick day, please take care of yourself & have a decent rest next time ${MessageFormatting.customEmoji().pensivemassivecry}\n`
+        else if(totalVacationTicket >= 3) content += `- you took \`\`${totalVacationTicket}\`\` vacation day, i hope you're having a good time! 🔆\n`
 
         content += `\nhave a good week!
 
