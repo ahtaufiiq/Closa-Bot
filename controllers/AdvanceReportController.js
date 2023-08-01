@@ -396,10 +396,7 @@ class AdvanceReportController{
     }
 
     static async sendAdvanceReportEveryMonday(client){
-        let rule = new schedule.RecurrenceRule();
-        rule.hour = Time.minus7Hours(9)
-        rule.minute = 0
-        schedule.scheduleJob(rule,async function(){
+        schedule.scheduleJob(`0 ${Time.minus7Hours(9)} * * 1`, async function(){
             const dateRange = getWeekDateRange(-1)
             const data = await supabase.from('CoworkingWeeklyReports')
                 .select(`*,Users(totalFocusSession,avatarURL,username)`)

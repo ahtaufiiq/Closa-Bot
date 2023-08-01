@@ -117,7 +117,9 @@ class GuidelineInfoController {
         const {isHaveProfile,showSubmitTestimonial,endMembership,msgGuidelineId,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(UserId)
         const threadNotification = await ChannelController.getNotificationThread(client,UserId)
         const msg = await ChannelController.getMessage(threadNotification,msgGuidelineId)
-
+        if(threadNotification.archived) {
+            await threadNotification.setArchived(false)
+        }
         if(onboardingStep) msg.edit(OnboardingMessage.guidelineInfoQuest(UserId,onboardingStep,statusCompletedQuest))
         else msg.edit(GuidelineInfoMessage.guideline(UserId,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite))
         
@@ -133,7 +135,7 @@ class GuidelineInfoController {
                 .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
             for (let i = 0; i < dataUser.body.length; i++) {
-                await Time.wait(1000)
+                await Time.wait(5000)
                 const {Users:{id,notificationId}} = dataUser.body[i];
                 try {
                     const {isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(id)

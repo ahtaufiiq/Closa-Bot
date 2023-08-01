@@ -271,7 +271,7 @@ class BoostController{
 		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
 		dataBoost.body.forEach(async boost=>{
 			const msg = await ChannelController.getMessage(channelBoost,boost.message)
-			msg.delete()
+			ChannelController.deleteMessage(msg)
 			await supabase.from('Reminders')
 				.delete()
 				.eq('id',boost.id)

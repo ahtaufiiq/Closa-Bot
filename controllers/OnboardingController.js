@@ -107,6 +107,7 @@ class OnboardingController {
                 .then(async data=>{
                     for (let i = 0; i < data.body.length; i++) {
                         const {Users:{notificationId,onboardingStep},type,UserId} = data.body[i];
+                        let msgContent
                         if(type === 'reminderStartOnboarding') msgContent = OnboardingMessage.reminderToStartOnboarding(UserId,onboardingStep)
                         else {
                             msgContent = OnboardingMessage.turnOffReminderOnboarding(UserId)

@@ -415,7 +415,7 @@ class FocusSessionController {
             .order('updatedAt',{ascending:false})
             .limit(6)
         const coworkingPartners = []
-        for (let i = 0; i < dataCoworkingPartner.body.length; i++) {
+        for (let i = 0; i < dataCoworkingPartner?.body?.length; i++) {
             const partner = dataCoworkingPartner.body[i];
             const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
             const dataUser = await UserController.getDetail(idPartner,'avatarURL')

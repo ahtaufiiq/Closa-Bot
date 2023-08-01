@@ -296,7 +296,7 @@ class GoalController {
 				.then(async data=>{
 					if (data.body) {
 						for (let i = 0; i < data.body.length; i++) {
-							await Time.wait()
+							await Time.wait(10000)
 							const goal = data.body[i];
 							await GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
 						}
