@@ -37,7 +37,7 @@ class OnboardingController {
             .eq('id',user.id)
             .then()
 
-        ChannelController.archivedThreadInactive(user.id,thread,15)
+        ChannelController.archivedThreadInactive(user.id,thread,15,false)
     }
 
     static async startOnboarding(interaction){
