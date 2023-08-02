@@ -49,7 +49,21 @@ module.exports = {
 	async execute(modal,focusRoomUser) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
-			if(commandButton === 'editQuickRoom'){
+			if(commandButton === 'setReminderContinueQuest'){
+				await modal.deferReply({ephemeral:true});
+				const reminder = modal.getTextInputValue('reminder');
+				const [date,time] = reminder.split(' at ')
+				if(!date || !time) return await modal.editReply(OnboardingMessage.wrongFormatReminderContinueQuest())
+				
+				const [hours,minutes] = time.trim().split(/[.:]/)
+				if(!hours,!minutes) return await modal.editReply(OnboardingMessage.wrongFormatReminderContinueQuest())
+				
+				const reminderDate = Time.getDate(date)
+				reminderDate.setFullYear(Time.getDate().getFullYear())
+				reminderDate.setHours(hours,minutes)
+				if(Time.getDateOnly(reminderDate) < Time.getTodayDateOnly()) reminderDate.setFullYear(reminderDate.getFullYear()+1)
+				OnboardingController.setReminderContinueQuest(modal,reminderDate)
+			}else if(commandButton === 'editQuickRoom'){
 				await modal.deferReply({ephemeral:true});
 				const name = modal.getTextInputValue('name');
 				let limit = Number(modal.getTextInputValue('limit'));

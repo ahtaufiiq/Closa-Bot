@@ -31,7 +31,7 @@ class OnboardingMessage {
             buttons.push(MessageComponent.addButton(`continueThirdQuest_${userId}_guideline`,"Continue Quest 3"))
             iconStep[2] = '⏳'
         }
-
+        buttons.push(MessageComponent.addButton(`remindContinueQuest`,"🔔 Remind me later",ButtonStyle.Secondary))
         return {
             content:`${fromGuidelines ? `Here's your onboarding quest progress ${userMention(userId)}`:`Welcome to closa ${userMention(userId)}!`}
 
@@ -321,6 +321,34 @@ welcome to closa ${user}!
                         }
                     ]
                 ),
+            )]
+        }
+    }
+
+    static reminderContinueQuest(UserId,step){
+        const buttons = []
+        if(step === 'firstQuest') {
+            buttons.push(MessageComponent.addButton(`continueFirstQuest_${UserId}`,"Start Quest"))
+        }else if(step === 'secondQuest'){
+            buttons.push(MessageComponent.addButton(`continueSecondQuest_${UserId}`,"Continue Quest 2"))
+        }else if(step === 'thirdQuest'){
+            buttons.push(MessageComponent.addButton(`continueThirdQuest_${UserId}`,"Continue Quest 3"))
+        }
+        return {
+            content:`Reminder ${userMention(UserId)}: let's start working on your quest & learn how to use closa to boost your productivity ⚡`,
+            components:[MessageComponent.createComponent(
+                ...buttons
+            )]
+        }
+    }
+
+    static wrongFormatReminderContinueQuest(){
+        return {
+            content:`Seems the format you're inputing is invalid
+please follow this format:
+e.g: \`\`27 July at 20.00\`\``,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton('setReminderContinueQuest','Set reminder')
             )]
         }
     }

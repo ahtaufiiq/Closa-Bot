@@ -104,7 +104,7 @@ class OnboardingController {
                     schedule.scheduleJob(reminder.time,async function() {
                         ChannelController.sendToNotification(
                             client,
-                            HighlightReminderMessage.remindHighlightUser(reminder.UserId,reminder.message),
+                            OnboardingMessage.reminderContinueQuest(reminder.UserId,reminder.Users.onboardingStep),
                             reminder.UserId,
                             reminder.Users.notificationId
                         )
@@ -250,6 +250,21 @@ class OnboardingController {
 		}
         return false
     }
+    static showModalQuestReminder(interaction){
+        if(interaction.customId === 'setReminderContinueQuest'){
+			const modal = new ModalBuilder()
+			.setCustomId(interaction.customId)
+			.setTitle("Set reminder to continue your quest 🔔")
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reminder').setLabel("Set reminder (e.g.: 27 July at 20.00)").setStyle(TextInputStyle.Short).setPlaceholder('e.g. 27 July at 20.00').setRequired(true))
+            )
+            
+			interaction.showModal(modal);
+			return true
+		}
+        return false
+    }
 
     static async checkOpenDM(client,user){
         setTimeout(async () => {
@@ -265,29 +280,39 @@ class OnboardingController {
     }
 
     static async setReminderContinueQuest(interaction,reminderDate){
-        
-        supabase.from('Reminders')
+        try {
+            supabase.from('Reminders')
             .insert({
-                message:`${message} at ${time}`,
-                time:date,
+                time:reminderDate,
+                type:'reminderContinueQuest',
                 UserId:interaction.user.id,
             })
             .then()
 
-        schedule.scheduleJob(date,async function () {
-            ChannelController.sendToNotification(
-                interaction.client,
-                HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
-                interaction.user.id,
-                data.body.notificationId
-            )
-        })
-        
-        await interaction.editReply({
-            content:`Reminder set: \`\`${message} at ${time}\`\` ${interaction.user}
-
-${isMoreThanTenMinutes ? "**i'll remind you 10 minutes before the schedule**" : ''}`
-        })		
+            schedule.scheduleJob(reminderDate,async function () {
+                const dataUser = await UserController.getDetail(interaction.user.id,'onboardingStep,id,notificationId')
+                const {onboardingStep,notificationId,id:UserId} = dataUser.body
+                ChannelController.sendToNotification(
+                    interaction.client,
+                    OnboardingMessage.reminderContinueQuest(UserId,onboardingStep),
+                    UserId,
+                    notificationId
+                )
+            })
+            const time = Time.getTimeOnly(reminderDate,2)
+            const reminderDateOnly = Time.getDateOnly(reminderDate)
+            let descriptionReminderTime 
+            if(Time.getTodayDateOnly() === reminderDateOnly) descriptionReminderTime = 'set today'
+            else if(Time.getTomorrowDateOnly() === reminderDateOnly) descriptionReminderTime = 'set tomorrow'
+            else {
+                const [month,dateOfMonth,year] = Time.getFormattedDate(reminderDate,false,'long').split(/[, ]+/)
+                descriptionReminderTime = `set: ${dateOfMonth} ${month}`
+            }
+            
+            await interaction.editReply(`Your quest reminder has been ${descriptionReminderTime} at ${time} ${interaction.user} ✅`)	
+        } catch (error) {
+            DiscordWebhook.sendError(error,'setReminderContinueQuest')
+        }	
     }
 }
 

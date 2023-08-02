@@ -1,5 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
-const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, ROLE_TRIAL_MEMBER, CHANNEL_BOT, CHANNEL_6WIC } = require('../helpers/config');
+const { CHANNEL_GOALS, CHANNEL_PARTY_ROOM, CHANNEL_GENERAL, CHANNEL_CLOSA_CAFE, GUILD_ID, CATEGORY_CHAT, ROLE_TRIAL_MEMBER, CHANNEL_BOT, CHANNEL_6WIC, CHANNEL_STATUS, CHANNEL_STREAK } = require('../helpers/config');
 const LocalData = require('../helpers/LocalData.js');
 const supabase = require('../helpers/supabaseClient');
 const Time = require('../helpers/time');
@@ -18,6 +18,15 @@ const { AttachmentBuilder } = require('discord.js');
 const ReminderController = require('./ReminderController');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
+const OnboardingController = require('./OnboardingController');
+const BoostController = require('./BoostController');
+const RequestAxios = require('../helpers/axios');
+const InfoUser = require('../helpers/InfoUser');
+const ReferralCodeController = require('./ReferralCodeController');
+const DailyStreakController = require('./DailyStreakController');
+const ReferralCodeMessage = require('../views/ReferralCodeMessage');
+const DailyStreakMessage = require('../views/DailyStreakMessage');
+const AchievementBadgeController = require('./AchievementBadgeController');
 
 class GoalController {
 
@@ -83,7 +92,18 @@ class GoalController {
 		let [commandButton,_,value] = interaction.customId.split("_")
         if(commandButton === 'editGoal'){
 			const project = interaction.message.embeds[0].title
-			const [{value:goal},{value:descriptionShareProgress},{},{value:deadlineValue}] = interaction.message.embeds[0].fields
+			let goal
+			let descriptionShareProgress
+			let deadlineValue
+			if(interaction.message.embeds[0].fields.length === 5){
+				goal = interaction.message.embeds[0].fields[0].value
+				descriptionShareProgress = interaction.message.embeds[0].fields[2].value
+				deadlineValue = interaction.message.embeds[0].fields[4].value
+			}else{
+				goal = interaction.message.embeds[0].fields[0].value
+				descriptionShareProgress = interaction.message.embeds[0].fields[1].value
+				deadlineValue = interaction.message.embeds[0].fields[3].value
+			}
 			const [month,dateOfMonth] = deadlineValue.split('(')[0].split(/[, ]/)
 			const [commandButton,userId] = interaction.customId.split('_')
 			if(interaction.user.id !== userId) return interaction.reply({ephemeral:true,content:`Hi ${interaction.user}, you can't edit someone else goal.`})
