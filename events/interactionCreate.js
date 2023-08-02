@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS } = require("../helpers/config");
+const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS, CHANNEL_6WIC } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -859,7 +859,12 @@ module.exports = {
 						}
 						break;
 					case "searchProject":
-						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToInsideThread(valueMenu)}`)
+						const [msgGoalId,goalType] = valueMenu.split('-')
+						
+						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
+							!!goalType ? CHANNEL_6WIC : CHANNEL_GOALS,
+							msgGoalId	
+						)}`)
 						break;
 					case "setDeadlineProject":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't set deadline project for someone else.**`,ephemeral:true})

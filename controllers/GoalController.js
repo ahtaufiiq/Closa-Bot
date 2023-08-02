@@ -466,14 +466,14 @@ class GoalController {
 		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg.id))
 	}
 
-	static getFormattedGoalMenu(goals){
+	static getFormattedGoalMenu(goals,withGoalType=false){
         const menus = []
 		const maxLength = goals.length > 25 ? 25 : goals.length
         for (let i = 0; i < maxLength; i++) {
             const project = goals[i];
             menus.push({
                 label:FormatString.truncateString(project.goal,90),
-                value:`${project.id}`
+                value:`${project.id}${withGoalType ? `-${project.goalType}`:''}`
             })
         }
 
