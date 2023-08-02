@@ -96,13 +96,13 @@ class GoalController {
 			let descriptionShareProgress
 			let deadlineValue
 			if(interaction.message.embeds[0].fields.length === 5){
-				goal = interaction.message.embeds[0].fields[0]
-				descriptionShareProgress = interaction.message.embeds[0].fields[2]
-				deadlineValue = interaction.message.embeds[0].fields[4]
+				goal = interaction.message.embeds[0].fields[0].value
+				descriptionShareProgress = interaction.message.embeds[0].fields[2].value
+				deadlineValue = interaction.message.embeds[0].fields[4].value
 			}else{
-				goal = interaction.message.embeds[0].fields[0]
-				descriptionShareProgress = interaction.message.embeds[0].fields[1]
-				deadlineValue = interaction.message.embeds[0].fields[3]
+				goal = interaction.message.embeds[0].fields[0].value
+				descriptionShareProgress = interaction.message.embeds[0].fields[1].value
+				deadlineValue = interaction.message.embeds[0].fields[3].value
 			}
 			const [month,dateOfMonth] = deadlineValue.split('(')[0].split(/[, ]/)
 			const [commandButton,userId] = interaction.customId.split('_')
