@@ -32,7 +32,7 @@ module.exports = {
 
 			if(command === 'project'){
 				const {body:goals} = await supabase.from("Goals").select("id,goal,goalType").eq('UserId',user.id).order('lastProgress',{ascending:false}).limit(25)
-				const goalMenus = GoalController.getFormattedGoalMenu(goals)
+				const goalMenus = GoalController.getFormattedGoalMenu(goals,true)
 				interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
 			}else if(command === 'profile'){
 				const dataUser = await supabase.from('Intros')
