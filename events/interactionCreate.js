@@ -80,6 +80,7 @@ module.exports = {
 				if(CoworkingController.showModalEditQuickRoom(interaction)) return
 				if(ReminderController.showModalSetHighlightReminder(interaction)) return
 				if(OnboardingController.showModalReminderCoworking(interaction)) return
+				if(OnboardingController.showModalQuestReminder(interaction)) return
 
 				let [commandButton,targetUserId=interaction.user.id,value] = interaction.customId.split("_")
 				if(targetUserId === 'null') targetUserId = interaction.user.id

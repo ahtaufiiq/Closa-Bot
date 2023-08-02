@@ -341,6 +341,17 @@ welcome to closa ${user}!
             )]
         }
     }
+
+    static wrongFormatReminderContinueQuest(){
+        return {
+            content:`Seems the format you're inputing is invalid
+please follow this format:
+e.g: \`\`27 July at 20.00\`\``,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton('setReminderContinueQuest','Set reminder')
+            )]
+        }
+    }
 }
 
 module.exports = OnboardingMessage

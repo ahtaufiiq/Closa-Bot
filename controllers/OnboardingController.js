@@ -254,10 +254,10 @@ class OnboardingController {
         if(interaction.customId === 'setReminderContinueQuest'){
 			const modal = new ModalBuilder()
 			.setCustomId(interaction.customId)
-			.setTitle("Set quest reminder")
+			.setTitle("Set reminder to continue your quest 🔔")
 
             modal.addComponents(
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reminder').setLabel("Set reminder to continue your quest").setStyle(TextInputStyle.Short).setPlaceholder('e.g. 27 July at 20.00').setRequired(true))
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reminder').setLabel("Set reminder (e.g.: 27 July at 20.00)").setStyle(TextInputStyle.Short).setPlaceholder('e.g. 27 July at 20.00').setRequired(true))
             )
             
 			interaction.showModal(modal);

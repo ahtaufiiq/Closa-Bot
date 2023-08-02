@@ -52,8 +52,12 @@ module.exports = {
 			if(commandButton === 'setReminderContinueQuest'){
 				await modal.deferReply({ephemeral:true});
 				const reminder = modal.getTextInputValue('reminder');
-				const [date,time] = reminder.split('at')
+				const [date,time] = reminder.split(' at ')
+				if(!date || !time) return await modal.editReply(OnboardingMessage.wrongFormatReminderContinueQuest())
+				
 				const [hours,minutes] = time.trim().split(/[.:]/)
+				if(!hours,!minutes) return await modal.editReply(OnboardingMessage.wrongFormatReminderContinueQuest())
+				
 				const reminderDate = Time.getDate(date)
 				reminderDate.setFullYear(Time.getDate().getFullYear())
 				reminderDate.setHours(hours,minutes)
