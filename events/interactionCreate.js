@@ -99,7 +99,13 @@ module.exports = {
 				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
 					case "remindContinueQuest":
-						interaction.editReply(OnboardingMessage.setReminderContinueQuest())
+						const dataUser = await UserController.getDetail(interaction.user.id,'onboardingStep')
+						const {onboardingStep} = dataUser.body
+						if(onboardingStep === 'done' || onboardingStep === null){
+							interaction.editReply("You've completed your onboarding quest previously ✅ ")
+						}else{
+							interaction.editReply(OnboardingMessage.setReminderContinueQuest())
+						}
 						break;
 					case "changeThumbnail":{
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't generate advance report thumbnail of someone else")
@@ -206,8 +212,6 @@ module.exports = {
 							}else{
 								interaction.editReply(OnboardingMessage.guidelineInfoQuest(interaction.user.id,onboardingStep,statusCompletedQuest,true))
 							}
-						}else{
-							interaction.editReply('redeem your referral code')
 						}
 						break;
 					case 'replySecondQuest':
@@ -833,9 +837,9 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningReplyYourself())
 						return	
 					}
-				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' || commandMenu === 'setReminderContinueQuest'){
+				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
+				}else if(commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
@@ -844,8 +848,9 @@ module.exports = {
 				switch (commandMenu) {
 					case 'setReminderContinueQuest':
 						if(valueMenu === 'custom'){
-							
+							OnboardingController.showModalQuestReminder(interaction)
 						}else{
+							await interaction.deferReply({ephemeral:true});
 							const tomorrowDate = Time.getNextDate(1)
 							const [hours,minutes] = valueMenu.split(/[.:]/)
 							tomorrowDate.setHours(hours,minutes)
