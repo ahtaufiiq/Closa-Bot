@@ -215,20 +215,16 @@ this is my goal at @joinclosa:`
             components
         }
     }
-    static selectGoal(userId,goalMenus){
+    static selectGoal(userId,goalMenus,msgId,taskId){
         const components = []
 
         if(goalMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectProject_${userId}_${taskId}`,
+                    `selectGoal_${userId}_${msgId}-${taskId}`,
                     "-Select project-",
                     goalMenus
                 ),
-            ))
-        }else{
-            components.push(MessageComponent.createComponent(
-                MessageComponent.addButton(`addNewProject_${userId}_${taskId}`,"Add new project +").setEmoji('✨')
             ))
         }
 
