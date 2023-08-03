@@ -218,7 +218,7 @@ class GoalController {
 			shareProgressAt,
 			id:msg.id,
 			deadlineGoal:Time.getDateOnly(deadlineGoal),
-			lastProgress:Time.getTodayDateOnly(),
+			lastProgress:new Date(),
 			isPartyMode:false,
 			alreadySetHighlight:false,
 			UserId:user.id,
@@ -572,7 +572,7 @@ class GoalController {
 		const msgGoal = await thread.send(
 			GoalMessage.shareProgress(msg,files,totalDay)
 		)
-		supabase.from("Goals").update({lastProgress:Time.getTodayDateOnly()}).eq('id',goalId).then()
+		supabase.from("Goals").update({lastProgress:new Date()}).eq('id',goalId).then()
 		if(totalDay === 1){
 			const channelStatus = ChannelController.getChannel(msg.client,CHANNEL_STATUS)
 			channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))

@@ -229,7 +229,7 @@ this is my goal at @joinclosa:`
         }
 
         return {
-            content:`Select the project you want to work on ${MessageFormatting.tagUser(userId)}`,
+            content:`Select which projects belong to this progress @user ${MessageFormatting.tagUser(userId)}`,
             components
         }
     }
