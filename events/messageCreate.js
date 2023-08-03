@@ -227,8 +227,9 @@ module.exports = {
 							const goalId = allActiveGoal.body[0].id
 							await ChannelController.deleteMessage(msgSelectProject)
 							GoalController.postProgress(msg,goalId,taskId)
-							threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+							await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
 						}
+						threadProgress.setArchived(true)
 					}, Time.oneMinute() * 2);
 				}else if(allActiveGoal.body.length === 1){
 					const goalId = allActiveGoal.body[0].id
