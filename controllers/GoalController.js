@@ -472,7 +472,7 @@ class GoalController {
         for (let i = 0; i < maxLength; i++) {
             const project = goals[i];
             menus.push({
-                label:FormatString.truncateString(project.goal,90),
+                label:FormatString.truncateString(`${project.project} — ${project.goal}`,90),
                 value:`${project.id}${withGoalType ? `-${project.goalType}`:''}`
             })
         }
