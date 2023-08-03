@@ -218,7 +218,7 @@ class GoalController {
 			shareProgressAt,
 			id:msg.id,
 			deadlineGoal:Time.getDateOnly(deadlineGoal),
-			lastProgress:Time.getTodayDateOnly(),
+			lastProgress:new Date(),
 			isPartyMode:false,
 			alreadySetHighlight:false,
 			UserId:user.id,
@@ -397,7 +397,7 @@ class GoalController {
 		return data
 	}
 	static async getActiveGoalUser(UserId){
-		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30)))
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false})
 		return data
 	}
 	static async getAllActiveGoal(){
@@ -472,7 +472,7 @@ class GoalController {
         for (let i = 0; i < maxLength; i++) {
             const project = goals[i];
             menus.push({
-                label:FormatString.truncateString(project.goal,90),
+                label:FormatString.truncateString(`${FormatString.capitalizeFirstChar(project.project)} — ${project.goal}`,90),
                 value:`${project.id}${withGoalType ? `-${project.goalType}`:''}`
             })
         }
@@ -547,6 +547,173 @@ class GoalController {
 		}
         return false
     }
+
+	static async postProgress(msg,goalId,taskId){
+		const ChannelStreak = ChannelController.getChannel(msg.client,CHANNEL_STREAK)
+		const data = await UserController.getDetail(msg.author.id)
+		let goalName = ''
+		let msgGoalId
+		const attachments = []
+		let files = []
+
+		msg.attachments.each(data=>{
+			const fileSizeInMB = Math.ceil(data.size / 1e6)
+			if(fileSizeInMB <= 24){
+				files.push({
+					attachment:data.attachment
+				})
+			}
+			attachments.push(data.attachment)
+		})
+		const thread = await ChannelController.getGoalThread(msg.client,goalId)
+		goalName = thread.name.split('by')[0]
+		let {totalDay,lastDone} = data
+		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
+		const msgGoal = await thread.send(
+			GoalMessage.shareProgress(msg,files,totalDay)
+		)
+		supabase.from("Goals").update({lastProgress:new Date()}).eq('id',goalId).then()
+		if(totalDay === 1){
+			const channelStatus = ChannelController.getChannel(msg.client,CHANNEL_STATUS)
+			channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))
+		}
+		msgGoalId = msgGoal.id
+		ChannelController.archivedThreadInactive(msg.author.id,thread,60,false)
+	
+		OnboardingController.handleOnboardingProgress(msg.client,msg.author)
+		BoostController.deleteBoostMessage(msg.client,msg.author.id)
+		
+		RequestAxios.get(`todos/${msg.author.id}`)
+		.then(async (data) => {
+			await supabase.from("Todos")
+				.update({
+					attachments,
+					msgGoalId,
+					type:null
+				})
+				.eq('id',taskId)
+
+			if (data.length > 0) {
+				throw new Error("Tidak perlu kirim daily streak ke channel")
+			} else {
+				supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()
+				if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
+			}
+			
+			return supabase.from("Users")
+				.select()
+				.eq('id',msg.author.id)
+				.single()
+		})
+		.then(async data=>{
+			let currentStreak = data.body.currentStreak + 1
+			let totalDay =  (data.body.totalDay || 0) + 1
+			
+			if (Time.isValidStreak(currentStreak,data.body.lastDone,data.body.lastSafety) || Time.isValidCooldownPeriod(data.body.lastDone)) {
+				if (Time.onlyMissOneDay(data.body.lastDone,data.body.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
+					const missedDate = Time.getNextDate(-1)
+					missedDate.setHours(8)
+					await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
+				}
+				if (currentStreak > data.body.longestStreak) {
+					return supabase.from("Users")
+						.update({
+							currentStreak,
+							totalDay,
+							'longestStreak':currentStreak,
+							'endLongestStreak':Time.getTodayDateOnly()
+						})
+						.eq('id',msg.author.id)
+						.single()
+				}else{
+					return supabase.from("Users")
+						.update({
+							currentStreak,
+							totalDay
+						})
+						.eq('id',msg.author.id)
+						.single()
+				}
+			}else{
+				const updatedData = {
+					currentStreak:1,
+					totalDay,
+				}
+				if (currentStreak > data.body.longestStreak) {
+					updatedData.longestStreak = currentStreak
+					updatedData.endLongestStreak = Time.getTodayDateOnly()
+				}
+				return supabase.from("Users")
+					.update(updatedData)
+					.eq('id',msg.author.id)
+					.single()
+			}
+		})
+		.then(async data => {
+			supabase.from('Users')
+				.update({lastDone:Time.getTodayDateOnly()})
+				.eq('id',msg.author.id)
+				.then()
+			let {
+				currentStreak,
+				longestStreak, 
+				totalDay ,
+				totalPoint, 
+				endLongestStreak,
+				totalDaysThisCohort
+			} = data.body
+
+			if(totalDay === 20){
+				await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
+				MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+				ChannelController.sendToNotification(
+					msg.client,
+					ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
+					msg.author.id
+				)
+				supabase.from("Users")
+					.update({type:'member'})
+					.eq('id',msg.author.id)
+					.then()
+			}
+
+			if(totalDaysThisCohort === 12 && !Time.isCooldownPeriod()){
+				ChannelController.sendToNotification(
+					msg.client,
+					ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
+					msg.author.id
+				)
+			}
+			
+			if (goalName) {
+				DailyStreakController.generateHabitBuilder(msg.client,msg.author)
+					.then(async files=>{
+						await ChannelStreak.send({
+							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
+							files
+						})
+
+						if(endLongestStreak === Time.getTodayDateOnly()){
+							if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
+							}
+						}else {
+							if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
+							}
+						}
+					})
+			}else{
+				ChannelStreak.send({
+					embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
+				})
+			}
+			
+		})
+		
+		.catch(err => {
+		})
+	}
 }
 
 module.exports = GoalController

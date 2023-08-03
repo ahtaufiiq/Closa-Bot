@@ -1,40 +1,29 @@
-const DailyStreakController = require("../controllers/DailyStreakController");
 const RequestAxios = require("../helpers/axios");
 const { CHANNEL_HIGHLIGHT, CHANNEL_TODO,CHANNEL_STREAK,GUILD_ID,CHANNEL_GOALS, CHANNEL_TOPICS, CHANNEL_REFLECTION, CHANNEL_CELEBRATE, CHANNEL_PAYMENT, MY_ID, CHANNEL_INTRO, CHANNEL_SESSION_GOAL, CHANNEL_CLOSA_CAFE, ROLE_INACTIVE_MEMBER, CHANNEL_MEMES, CLIENT_ID, CHANNEL_COMMAND, CHANNEL_FEATURE_REQUEST, ROLE_NEW_MEMBER, ROLE_MEMBER, ROLE_ONBOARDING_PROGRESS, CHANNEL_TESTIMONIAL, CHANNEL_STATUS} = require("../helpers/config");
 const supabase = require("../helpers/supabaseClient");
 const Time = require("../helpers/time");
-const DailyStreakMessage = require("../views/DailyStreakMessage");
 const schedule = require('node-schedule');
 const FormatString = require("../helpers/formatString");
 const Email = require("../helpers/Email");
-const GenerateImage = require("../helpers/GenerateImage");
 const { AttachmentBuilder, MessageActivityType, MessageType, userMention, codeBlock, ThreadAutoArchiveDuration } = require("discord.js");
-const InfoUser = require("../helpers/InfoUser");
 const ChannelController = require("../controllers/ChannelController");
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const HighlightReminderMessage = require("../views/HighlightReminderMessage");
 const PointController = require("../controllers/PointController");
 const DailyReport = require("../controllers/DailyReport");
 const MembershipController = require("../controllers/MembershipController");
-const ReferralCodeController = require("../controllers/ReferralCodeController");
 const PartyController = require("../controllers/PartyController");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const TestimonialController = require("../controllers/TestimonialController");
-const GoalMessage = require("../views/GoalMessage");
 const LocalData = require("../helpers/LocalData");
 const MemeContestMessage = require("../views/MemeContestMessage");
 const MemeController = require("../controllers/MemeController");
-const BoostController = require("../controllers/BoostController");
 const FocusSessionController = require("../controllers/FocusSessionController");
-const MemberController = require("../controllers/MemberController");
-const OnboardingController = require("../controllers/OnboardingController");
-const OnboardingMessage = require("../views/OnboardingMessage");
 const TestimonialMessage = require("../views/TestimonialMessage");
-const AchievementBadgeController = require("../controllers/AchievementBadgeController");
-const GuidelineInfoController = require("../controllers/GuidelineInfoController");
-const UserController = require("../controllers/UserController");
-const ReferralCodeMessage = require("../views/ReferralCodeMessage");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
+const GoalController = require("../controllers/GoalController");
+const GoalMessage = require("../views/GoalMessage");
+const MessageFormatting = require("../helpers/MessageFormatting");
 
 module.exports = {
 	name: 'messageCreate',
@@ -215,43 +204,38 @@ module.exports = {
 					return
 				}
 				
-				
-				const { data, error } = await supabase
-					.from('Users')
-					.select()
-					.eq('id',msg.author.id)
-					.single()
+				const allActiveGoal = await GoalController.getActiveGoalUser(msg.author.id)
 
-				const attachments = []
-				let files = []
-
-				msg.attachments.each(data=>{
-					const fileSizeInMB = Math.ceil(data.size / 1e6)
-					if(fileSizeInMB <= 24){
-						files.push({
-							attachment:data.attachment
-						})
-					}
-					attachments.push(data.attachment)
+				const splittedMessage = msg.content.trimStart().split('\n')
+				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
+				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
+				const threadProgress = await ChannelController.createThread(msg,titleProgress,allActiveGoal.body.length < 2)
+				const dataProgress = await supabase.from("Todos")
+				.insert({
+					description:msg.content,
+					UserId:msg.author.id,
+					msgProgressId:msg.id,
+					type:'waiting'
 				})
-
-				let goalName = ''
-				let msgGoalId
-				if (data?.goalId) {
-					const thread = await ChannelController.getGoalThread(msg.client,data.goalId)
-					goalName = thread.name.split('by')[0]
-					let {totalDay,lastDone} = data
-					if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
-					const msgGoal = await thread.send(
-						GoalMessage.shareProgress(msg,files,totalDay)
-					)
-					supabase.from("Goals").update({lastProgress:Time.getTodayDateOnly()}).eq('id',data?.goalId).then()
-					if(totalDay === 1){
-						const channelStatus = ChannelController.getChannel(msg.client,CHANNEL_STATUS)
-						channelStatus.send(GoalMessage.shareProgress(msg,files,totalDay))
-					}
-					msgGoalId = msgGoal.id
-					ChannelController.archivedThreadInactive(msg.author.id,thread,60,false)
+				const taskId = dataProgress.body[0].id
+				if(allActiveGoal.body.length > 1){
+					const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body)
+					const msgSelectProject = await threadProgress.send(GoalMessage.selectGoal(msg.author.id,goalMenus,msg.id,taskId))
+					setTimeout(async () => {
+						const data = await supabase.from("Todos").select().eq('id',taskId).single()
+						if(data.body.type === 'waiting'){
+							const goalId = allActiveGoal.body[0].id
+							await ChannelController.deleteMessage(msgSelectProject)
+							GoalController.postProgress(msg,goalId,taskId)
+							await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+						}
+						threadProgress.setArchived(true)
+					}, Time.oneMinute() * 2);
+				}else if(allActiveGoal.body.length === 1){
+					const goalId = allActiveGoal.body[0].id
+					GoalController.postProgress(msg,goalId,taskId)
+					await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+					threadProgress.setArchived(true)
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
@@ -259,158 +243,8 @@ module.exports = {
 						msg.author.id,
 						data?.notificationId
 					)
-					return msg.delete()
+					return ChannelController.deleteMessage(msg)
 				}
-				OnboardingController.handleOnboardingProgress(msg.client,msg.author)
-				BoostController.deleteBoostMessage(msg.client,msg.author.id)
-
-				const splittedMessage = msg.content.trimStart().split('\n')
-				let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
-				if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
-
-				ChannelController.createThread(msg,titleProgress,true)
-
-				// PartyController.updateDataProgressRecap(msg.author.id,'progress',{
-				// 	avatarURL:msg.author.displayAvatarURL(),
-				// 	username:msg.author.username,
-				// 	msgId:msg.id,
-				// 	msgContent:msg.content.split('\n')[0],
-				// 	time:Time.getTimeOnly(Time.getDate()),
-				// 	type:"progress"
-				// })
-				
-				
-				RequestAxios.get(`todos/${msg.author.id}`)
-				.then(async (data) => {
-					await supabase.from("Todos")
-						.insert({
-							attachments,
-							msgGoalId,
-							description:msg.content,
-							UserId:msg.author.id,
-							msgProgressId:msg.id,
-						})
-
-					if (data.length > 0) {
-						throw new Error("Tidak perlu kirim daily streak ke channel")
-					} else {
-						supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()
-						if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
-					}
-					
-					return supabase.from("Users")
-						.select()
-						.eq('id',msg.author.id)
-						.single()
-				})
-				.then(async data=>{
-					let currentStreak = data.body.currentStreak + 1
-					let totalDay =  (data.body.totalDay || 0) + 1
-					
-					if (Time.isValidStreak(currentStreak,data.body.lastDone,data.body.lastSafety) || Time.isValidCooldownPeriod(data.body.lastDone)) {
-						if (Time.onlyMissOneDay(data.body.lastDone,data.body.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
-							const missedDate = Time.getNextDate(-1)
-							missedDate.setHours(8)
-							await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
-						}
-						if (currentStreak > data.body.longestStreak) {
-							return supabase.from("Users")
-								.update({
-									currentStreak,
-									totalDay,
-									'longestStreak':currentStreak,
-									'endLongestStreak':Time.getTodayDateOnly()
-								})
-								.eq('id',msg.author.id)
-								.single()
-						}else{
-							return supabase.from("Users")
-								.update({
-									currentStreak,
-									totalDay
-								})
-								.eq('id',msg.author.id)
-								.single()
-						}
-					}else{
-						const updatedData = {
-							currentStreak:1,
-							totalDay,
-						}
-						if (currentStreak > data.body.longestStreak) {
-							updatedData.longestStreak = currentStreak
-							updatedData.endLongestStreak = Time.getTodayDateOnly()
-						}
-						return supabase.from("Users")
-							.update(updatedData)
-							.eq('id',msg.author.id)
-							.single()
-					}
-				})
-				.then(async data => {
-					supabase.from('Users')
-						.update({lastDone:Time.getTodayDateOnly()})
-						.eq('id',msg.author.id)
-						.then()
-					let {
-						currentStreak,
-						longestStreak, 
-						totalDay ,
-						totalPoint, 
-						endLongestStreak,
-						totalDaysThisCohort
-					} = data.body
-
-					if(totalDay === 20){
-						await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
-						MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
-						ChannelController.sendToNotification(
-							msg.client,
-							ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
-							msg.author.id
-						)
-						supabase.from("Users")
-							.update({type:'member'})
-							.eq('id',msg.author.id)
-							.then()
-					}
-
-					if(totalDaysThisCohort === 12 && !Time.isCooldownPeriod()){
-						ChannelController.sendToNotification(
-							msg.client,
-							ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
-							msg.author.id
-						)
-					}
-					
-					if (goalName) {
-						DailyStreakController.generateHabitBuilder(msg.client,msg.author)
-							.then(async files=>{
-								await ChannelStreak.send({
-									embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
-									files
-								})
-
-								if(endLongestStreak === Time.getTodayDateOnly()){
-									if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
-									}
-								}else {
-									if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-										AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
-									}
-								}
-							})
-					}else{
-						ChannelStreak.send({
-							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
-						})
-					}
-					
-				})
-				
-				.catch(err => {
-				})
 						
 				break;
 			case CHANNEL_TOPICS:

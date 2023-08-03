@@ -9,7 +9,7 @@ const PartyMessage = require("../views/PartyMessage");
 const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
-const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS, CHANNEL_6WIC } = require("../helpers/config");
+const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS, CHANNEL_6WIC, CHANNEL_TODO } = require("../helpers/config");
 const RecurringMeetupController = require("../controllers/RecurringMeetupController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
@@ -632,10 +632,6 @@ module.exports = {
 						PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.body?.goalId)
 						break;
 					case "joinPartyMode":{
-						const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
-						if (alreadyHaveGoal) {
-							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
-						}else{
 							const data = await supabase.from('JoinParties')
 								.select()
 								.eq("UserId",interaction.user.id)
@@ -658,7 +654,7 @@ module.exports = {
 									})
 								PartyController.updateMessageWaitingRoom(interaction.client)
 							}
-						}}
+						}
 						break;
 					case "acceptConfirmationMeetup":
 						RecurringMeetupController.interactionConfirmationAttendance(interaction,true,value)
@@ -688,22 +684,10 @@ module.exports = {
 						await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
 						break;
 					case "startProject":
-						const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
-						if (alreadyHaveGoal) {
-							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
-						}else{
-							GoalController.interactionStartProject(interaction,targetUserId)
-						}
+						GoalController.interactionStartProject(interaction,targetUserId)
 						break;
 					case "start6WIC":
-						GoalController.alreadyHaveGoal(interaction.user.id)
-							.then(alreadyHaveGoal=>{
-								if (alreadyHaveGoal) {
-									interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,true))
-								}else{
-									GoalController.interactionStartProject(interaction,targetUserId,true)
-								}
-							})
+						GoalController.interactionStartProject(interaction,targetUserId,true)
 						break;
 					case "defaultReminder":
 						await PartyController.interactionSetDefaultReminder(interaction,value)
@@ -840,13 +824,26 @@ module.exports = {
 					}
 				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
+				}else if(commandMenu !== 'selectGoal' && commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case 'selectGoal':{
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`You can't select others project 🚫`,ephemeral:true})
+						await interaction.deferReply();
+						const goalId = valueMenu
+						const [msgProgressId,taskId] = value.split('-')
+						const msgProgress = await ChannelController.getMessage(
+							ChannelController.getChannel(interaction.client,CHANNEL_TODO),
+							msgProgressId
+						)
+						await GoalController.postProgress(msgProgress,goalId,taskId)
+						ChannelController.deleteMessage(interaction.message)
+						interaction.editReply(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+						break;}
 					case 'setReminderContinueQuest':
 						if(valueMenu === 'custom'){
 							OnboardingController.showModalQuestReminder(interaction)
@@ -862,7 +859,7 @@ module.exports = {
 						const [msgGoalId,goalType] = valueMenu.split('-')
 						
 						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
-							!!goalType ? CHANNEL_6WIC : CHANNEL_GOALS,
+							goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
 							msgGoalId	
 						)}`)
 						break;
