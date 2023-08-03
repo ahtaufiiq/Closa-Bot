@@ -240,8 +240,7 @@ module.exports = {
 					ChannelController.sendToNotification(
 						msg.client,
 						TodoReminderMessage.warningNeverSetGoal(msg.author.id,msg.content),
-						msg.author.id,
-						data?.notificationId
+						msg.author.id
 					)
 					return ChannelController.deleteMessage(msg)
 				}
