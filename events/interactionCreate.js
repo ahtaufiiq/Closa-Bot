@@ -840,7 +840,7 @@ module.exports = {
 					}
 				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' ){
 					await interaction.deferReply({ephemeral:true});
-				}else if(commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
+				}else if(commandMenu !== 'selectGoal' && commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
 				}
 				
@@ -848,6 +848,8 @@ module.exports = {
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
 					case 'selectGoal':{
+						if(interaction.user.id !== targetUserId) return interaction.reply({content:`You can't select others project 🚫`,ephemeral:true})
+						await interaction.deferReply();
 						const goalId = valueMenu
 						const [msgProgressId,taskId] = value.split('-')
 						const msgProgress = await ChannelController.getMessage(
