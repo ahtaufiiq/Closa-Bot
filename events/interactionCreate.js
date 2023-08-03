@@ -632,10 +632,6 @@ module.exports = {
 						PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.body?.goalId)
 						break;
 					case "joinPartyMode":{
-						const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
-						if (alreadyHaveGoal) {
-							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
-						}else{
 							const data = await supabase.from('JoinParties')
 								.select()
 								.eq("UserId",interaction.user.id)
@@ -658,7 +654,7 @@ module.exports = {
 									})
 								PartyController.updateMessageWaitingRoom(interaction.client)
 							}
-						}}
+						}
 						break;
 					case "acceptConfirmationMeetup":
 						RecurringMeetupController.interactionConfirmationAttendance(interaction,true,value)
@@ -688,22 +684,10 @@ module.exports = {
 						await interaction.editReply(PartyMessage.cancelReplaceGoal(value))
 						break;
 					case "startProject":
-						const alreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
-						if (alreadyHaveGoal) {
-							interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id))
-						}else{
-							GoalController.interactionStartProject(interaction,targetUserId)
-						}
+						GoalController.interactionStartProject(interaction,targetUserId)
 						break;
 					case "start6WIC":
-						GoalController.alreadyHaveGoal(interaction.user.id)
-							.then(alreadyHaveGoal=>{
-								if (alreadyHaveGoal) {
-									interaction.editReply(PartyMessage.warningReplaceExistingGoal(interaction.user.id,true))
-								}else{
-									GoalController.interactionStartProject(interaction,targetUserId,true)
-								}
-							})
+						GoalController.interactionStartProject(interaction,targetUserId,true)
 						break;
 					case "defaultReminder":
 						await PartyController.interactionSetDefaultReminder(interaction,value)
@@ -875,7 +859,7 @@ module.exports = {
 						const [msgGoalId,goalType] = valueMenu.split('-')
 						
 						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
-							!!goalType ? CHANNEL_6WIC : CHANNEL_GOALS,
+							goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
 							msgGoalId	
 						)}`)
 						break;
