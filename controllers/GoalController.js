@@ -397,7 +397,7 @@ class GoalController {
 		return data
 	}
 	static async getActiveGoalUser(UserId){
-		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false})
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false})
 		return data
 	}
 	static async getAllActiveGoal(){
