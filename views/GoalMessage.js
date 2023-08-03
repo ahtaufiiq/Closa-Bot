@@ -121,7 +121,7 @@ p.s: *you can always change it in the next cohort*`,
     static replySuccessSubmitGoal(userId,channelId,goalId){
         return `Congrats on starting your project ${MessageFormatting.tagUser(userId)}! 🎉
 
-here's your project → ${MessageFormatting.linkToMessage(channelId,goalId)}`
+check your project here → ${MessageFormatting.linkToMessage(channelId,goalId)}`
     }
 
     static postGoal({project,goal,about,shareProgressAt,preferredCoworkingTime,deadlineGoal,user,files},isSixWeekChallenge=false){
@@ -388,8 +388,6 @@ this is my goal at @joinclosa:`
     static startNewProject(userId,deadlineDate,isSixWeekChallenge){
         return {
             content:`**Last, set a name & goal for your passion project** :dart:
-
-\`\`explore / build / grow your passion projects.\`\`
 
 Read & follow this guideline first to avoid common mistakes.
 ↳ https://closa.me/how-to-set-right-goal`,
