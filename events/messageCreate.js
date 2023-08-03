@@ -231,7 +231,10 @@ module.exports = {
 						}
 					}, Time.oneMinute() * 2);
 				}else if(allActiveGoal.body.length === 1){
-					GoalController.postProgress(msg,allActiveGoal.body[0].id,taskId)
+					const goalId = allActiveGoal.body[0].id
+					GoalController.postProgress(msg,goalId,taskId)
+					await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+					threadProgress.setArchived(true)
 				}else{
 					ChannelController.sendToNotification(
 						msg.client,
