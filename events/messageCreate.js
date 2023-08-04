@@ -205,8 +205,11 @@ module.exports = {
 						return
 					}
 					
-					const allActiveGoal = await GoalController.getActiveGoalUser(msg.author.id)
-	
+					const [allActiveGoal,haveArchivedProject] = await Promise.all([
+						GoalController.getActiveGoalUser(msg.author.id),
+						GoalController.haveArchivedProject(msg.author.id)
+					])
+					
 					const splittedMessage = msg.content.trimStart().split('\n')
 					let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 					if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
@@ -219,8 +222,14 @@ module.exports = {
 						type:'waiting'
 					})
 					const taskId = dataProgress.body[0].id
-					if(allActiveGoal.body.length > 1){
+					if(allActiveGoal.body.length > 1 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
 						const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body)
+						if(haveArchivedProject){
+							goalMenus.push({
+								label:'📁 Archived projects',
+								value:`archivedProject`
+							})
+						}
 						const msgSelectProject = await threadProgress.send(GoalMessage.selectGoal(msg.author.id,goalMenus,msg.id,taskId))
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
@@ -237,7 +246,21 @@ module.exports = {
 						GoalController.postProgress(msg,goalId,taskId)
 						await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
 						threadProgress.setArchived(true)
-					}else{
+					}else if(haveArchivedProject){
+						const allArchivedGoal = await GoalController.getArchivedGoalUser(msg.author.id)
+						const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
+						const msgSelectProject = await threadProgress.send(GoalMessage.selectGoal(msg.author.id,goalMenus,msg.id,taskId))
+						setTimeout(async () => {
+							const data = await supabase.from("Todos").select().eq('id',taskId).single()
+							if(data.body.type === 'waiting'){
+								const goalId = allArchivedGoal.body[0].id
+								await ChannelController.deleteMessage(msgSelectProject)
+								GoalController.postProgress(msg,goalId,taskId)
+								await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+							}
+							threadProgress.setArchived(true)
+						}, Time.oneMinute() * 2);
+					}else {
 						ChannelController.sendToNotification(
 							msg.client,
 							TodoReminderMessage.warningNeverSetGoal(msg.author.id,msg.content),

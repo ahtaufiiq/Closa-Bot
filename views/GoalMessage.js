@@ -215,13 +215,13 @@ this is my goal at @joinclosa:`
             components
         }
     }
-    static selectGoal(userId,goalMenus,msgId,taskId){
+    static selectGoal(userId,goalMenus,msgId,taskId,msgIdSelectMenu){
         const components = []
 
         if(goalMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectGoal_${userId}_${msgId}-${taskId}`,
+                    `selectGoal_${userId}_${msgId}-${taskId}${msgIdSelectMenu?`-${msgIdSelectMenu}`:''}`,
                     "-Select project-",
                     goalMenus
                 ),
