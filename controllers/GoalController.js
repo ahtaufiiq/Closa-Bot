@@ -400,6 +400,10 @@ class GoalController {
 		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false})
 		return data
 	}
+	static async getArchivedGoalUser(UserId){
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).lt('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false})
+		return data
+	}
 	static async getAllActiveGoal(){
 		const data = await supabase.from("Goals").select("*,Users(preferredCoworkingTime)").gte('deadlineGoal',Time.getTodayDateOnly()).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30)))
 		return data
@@ -498,9 +502,9 @@ class GoalController {
 			date.setHours(hours - differentTime,minutes)
 			reminderProgress = Time.getTimeOnly(date,true)
 		}
-		if(dataUser.body.reminderProgress !== reminderProgress){
-			try {
-				UserController.updateData({reminderProgress},interaction.user.id)
+		try {
+			UserController.updateData({reminderProgress},interaction.user.id)
+			if(dataUser.body.reminderProgress !== reminderProgress){
 				const [hours,minutes] = reminderProgress.split(/[.:]/)
 				let ruleReminderProgress = new schedule.RecurrenceRule();
 				ruleReminderProgress.hour = Time.minus7Hours(hours)
@@ -529,12 +533,12 @@ class GoalController {
 						})
 					}
 				})
-				const isSixWeekChallenge = !!value
-				await interaction.editReply(GoalMessage.setDeadlineProject(interaction.user.id,isSixWeekChallenge))
-				ChannelController.deleteMessage(interaction.message)
-			} catch (error) {
-				DiscordWebhook.sendError(error,`${interaction?.user?.id} setReminderShareProgress`)
 			}
+			const isSixWeekChallenge = !!value
+			await interaction.editReply(GoalMessage.setDeadlineProject(interaction.user.id,isSixWeekChallenge))
+			ChannelController.deleteMessage(interaction.message)
+		} catch (error) {
+			DiscordWebhook.sendError(error,`${interaction?.user?.id} setReminderShareProgress`)
 		}
 	}
 
