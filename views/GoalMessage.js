@@ -217,19 +217,19 @@ this is my goal at @joinclosa:`
     }
     static selectGoal(userId,goalMenus,msgId,taskId,msgIdSelectMenu){
         const components = []
-
+        const isArchivedProject = !!msgIdSelectMenu
         if(goalMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectGoal_${userId}_${msgId}-${taskId}${msgIdSelectMenu?`-${msgIdSelectMenu}`:''}`,
-                    "-Select project-",
+                    `selectGoal_${userId}_${msgId}-${taskId}${isArchivedProject?`-${msgIdSelectMenu}`:''}`,
+                    isArchivedProject ? '--Select archived project to update--':"-Select project-",
                     goalMenus
                 ),
             ))
         }
 
         return {
-            content:`Select which projects belong to this progress ${MessageFormatting.tagUser(userId)}`,
+            content:isArchivedProject ? `Select a project to update your progress ${MessageFormatting.tagUser(userId)}`:`Select which projects belong to this progress ${MessageFormatting.tagUser(userId)}`,
             components
         }
     }
