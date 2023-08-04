@@ -397,7 +397,7 @@ class GoalController {
 		return data
 	}
 	static async getActiveGoalUser(UserId){
-		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false})
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false})
 		return data
 	}
 	static async getAllActiveGoal(){
@@ -408,6 +408,11 @@ class GoalController {
 	static async alreadyHaveGoal(userId){
 		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gte('deadlineGoal',Time.getTodayDateOnly())
 		return data.body.length !== 0
+	}
+
+	static async haveArchivedProject(UserId){
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).lt('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).limit(1).single()
+		return !!data.body
 	}
 
     static async updateGoalId(goalId,userId){
@@ -463,7 +468,8 @@ class GoalController {
 			targetUserId
 		)
 		const notificationId = await UserController.getNotificationId(targetUserId)
-		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg.id))
+		if(!msg) DiscordWebhook.sendError('msg null start project',targetUserId)
+		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg?.id))
 	}
 
 	static getFormattedGoalMenu(goals,withGoalType=false){
