@@ -215,21 +215,37 @@ this is my goal at @joinclosa:`
             components
         }
     }
-    static selectGoal(userId,goalMenus,msgId,taskId,msgIdSelectMenu){
+    static selectGoal(userId,goalMenus,msgId,taskId){
         const components = []
-        const isArchivedProject = !!msgIdSelectMenu
         if(goalMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
-                    `selectGoal_${userId}_${msgId}-${taskId}${isArchivedProject?`-${msgIdSelectMenu}`:''}`,
-                    isArchivedProject ? '--Select archived project to update--':"-Select project-",
+                    `selectGoal_${userId}_${msgId}-${taskId}`,
+                    "-Select project-",
                     goalMenus
                 ),
             ))
         }
 
         return {
-            content:isArchivedProject ? `Select a project to update your progress ${MessageFormatting.tagUser(userId)}`:`Select which projects belong to this progress ${MessageFormatting.tagUser(userId)}`,
+            content:`Select which projects belong to this progress ${MessageFormatting.tagUser(userId)}`,
+            components
+        }
+    }
+    static selectArchivedGoal(userId,goalMenus,msgId,taskId,msgIdSelectMenu){
+        const components = []
+        if(goalMenus.length > 0){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectGoal_${userId}_${msgId}-${taskId}${msgIdSelectMenu?`-${msgIdSelectMenu}`:''}`,
+                    '--Select archived project to update--',
+                    goalMenus
+                ),
+            ))
+        }
+
+        return {
+            content:`Select a project to update your progress ${MessageFormatting.tagUser(userId)}`,
             components
         }
     }

@@ -249,7 +249,7 @@ module.exports = {
 					}else if(haveArchivedProject){
 						const allArchivedGoal = await GoalController.getArchivedGoalUser(msg.author.id)
 						const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
-						const msgSelectProject = await threadProgress.send(GoalMessage.selectGoal(msg.author.id,goalMenus,msg.id,taskId))
+						const msgSelectProject = await threadProgress.send(GoalMessage.selectArchivedGoal(msg.author.id,goalMenus,msg.id,taskId))
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
 							if(data.body.type === 'waiting'){

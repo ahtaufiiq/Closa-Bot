@@ -838,7 +838,7 @@ module.exports = {
 							await interaction.deferReply({ephemeral:true});
 							const allArchivedGoal = await GoalController.getArchivedGoalUser(interaction.user.id)
 							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
-							await interaction.editReply(GoalMessage.selectGoal(interaction.user.id,goalMenus,msgProgressId,taskId,interaction.message.id))
+							await interaction.editReply(GoalMessage.selectArchivedGoal(interaction.user.id,goalMenus,msgProgressId,taskId,interaction.message.id))
 						}else{
 							await interaction.deferReply();
 							const goalId = valueMenu
