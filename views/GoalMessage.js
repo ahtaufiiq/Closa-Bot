@@ -234,9 +234,16 @@ this is my goal at @joinclosa:`
         }
     }
 
-    static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
+    static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false,dailyWorkTime){
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
+        let content = `⬇️ Continue to start project\n`
+        if(dailyWorkTime){
+            content += `**Set the new daily goal to work on all of your projects** ${userMention(userId)} 
+Your current daily goal: \`\`${Time.convertTime(dailyWorkTime)}\`\``
+        }else {
+            content += `**Set daily work goal on your projects** ${userMention(userId)}`
+        }
         return {
             content:`⬇️ Continue to start project
  
@@ -245,7 +252,7 @@ this is my goal at @joinclosa:`
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
                         `${command}_${userId}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,
-                        "- Select daily work time goal -",
+                        dailyWorkTime ? '–Select the new daily work goal–':"- Select daily work time goal -",
                         [
                             {
                                 label: "25 min/day (Casual)",

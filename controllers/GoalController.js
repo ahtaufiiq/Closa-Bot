@@ -466,9 +466,11 @@ class GoalController {
 	}
 
 	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
+		const dataUser = await UserController.getDetail('dailyWorkTime')
+		const dailyWorkTime = dataUser.body?.dailyWorkTime
 		const msg = await ChannelController.sendToNotification(
 			interaction.client,
-			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge),
+			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge,dailyWorkTime),
 			targetUserId
 		)
 		const notificationId = await UserController.getNotificationId(targetUserId)
