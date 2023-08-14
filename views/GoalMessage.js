@@ -217,7 +217,6 @@ this is my goal at @joinclosa:`
     }
     static selectGoal(userId,goalMenus,msgId,taskId){
         const components = []
-
         if(goalMenus.length > 0){
             components.push(MessageComponent.createComponent(
                 MessageComponent.addMenu( 
@@ -233,10 +232,34 @@ this is my goal at @joinclosa:`
             components
         }
     }
+    static selectArchivedGoal(userId,goalMenus,msgId,taskId,msgIdSelectMenu){
+        const components = []
+        if(goalMenus.length > 0){
+            components.push(MessageComponent.createComponent(
+                MessageComponent.addMenu( 
+                    `selectGoal_${userId}_${msgId}-${taskId}${msgIdSelectMenu?`-${msgIdSelectMenu}`:''}`,
+                    '--Select archived project to update--',
+                    goalMenus
+                ),
+            ))
+        }
 
-    static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false){
+        return {
+            content:`Select a project to update your progress ${MessageFormatting.tagUser(userId)}`,
+            components
+        }
+    }
+
+    static setDailyWorkTime(userId,fromSetting,isSixWeekChallenge = false,dailyWorkTime){
         let command = `selectDailyWorkGoal`
         if(fromSetting) command = `setDailyWorkTime`
+        let content = `⬇️ Continue to start project\n`
+        if(dailyWorkTime){
+            content += `**Set the new daily goal to work on all of your projects** ${userMention(userId)} 
+Your current daily goal: \`\`${Time.convertTime(dailyWorkTime)}\`\``
+        }else {
+            content += `**Set daily work goal on your projects** ${userMention(userId)}`
+        }
         return {
             content:`⬇️ Continue to start project
  
@@ -245,7 +268,7 @@ this is my goal at @joinclosa:`
                 MessageComponent.createComponent(
                     MessageComponent.addMenu( 
                         `${command}_${userId}${isSixWeekChallenge ? '_sixWeekChallenge' : ''}`,
-                        "- Select daily work time goal -",
+                        dailyWorkTime ? '–Select the new daily work goal–':"- Select daily work time goal -",
                         [
                             {
                                 label: "25 min/day (Casual)",

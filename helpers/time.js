@@ -275,6 +275,7 @@ class Time {
     }
 
     static isValidCooldownPeriod(lastDone){
+        return false
         const {kickoffDate} = LocalData.getData()
 		const oneDayBeforeCelebrationDay = Time.getDateOnly(Time.getNextDate(-15,kickoffDate))
 		const isFirstDayAfterKickoff = Time.getDateOnly(Time.getNextDate(-34,kickoffDate)) === Time.getTodayDateOnly()
@@ -282,6 +283,7 @@ class Time {
     }
 
     static isCooldownPeriod(){
+        return false
 		const {kickoffDate} = LocalData.getData()
 		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
 		const todayDate = Time.getTodayDateOnly()
@@ -289,6 +291,7 @@ class Time {
 	}
 
     static isFirstDayCooldownPeriod(){
+        return false
         const {kickoffDate} = LocalData.getData()
 		const startCooldownPeriod = Time.getDateOnly(Time.getNextDate(-14,kickoffDate))
 		const todayDate = Time.getTodayDateOnly()

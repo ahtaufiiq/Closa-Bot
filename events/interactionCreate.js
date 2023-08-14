@@ -833,16 +833,33 @@ module.exports = {
 				switch (commandMenu) {
 					case 'selectGoal':{
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`You can't select others project 🚫`,ephemeral:true})
-						await interaction.deferReply();
-						const goalId = valueMenu
-						const [msgProgressId,taskId] = value.split('-')
-						const msgProgress = await ChannelController.getMessage(
-							ChannelController.getChannel(interaction.client,CHANNEL_TODO),
-							msgProgressId
-						)
-						await GoalController.postProgress(msgProgress,goalId,taskId)
-						ChannelController.deleteMessage(interaction.message)
-						interaction.editReply(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+						const [msgProgressId,taskId,msgIdSelectMenu] = value.split('-')
+						if(valueMenu === 'archivedProject'){
+							await interaction.deferReply({ephemeral:true});
+							const allArchivedGoal = await GoalController.getArchivedGoalUser(interaction.user.id)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
+							await interaction.editReply(GoalMessage.selectArchivedGoal(interaction.user.id,goalMenus,msgProgressId,taskId,interaction.message.id))
+						}else{
+							await interaction.deferReply();
+							const goalId = valueMenu
+							
+							const msgProgress = await ChannelController.getMessage(
+								ChannelController.getChannel(interaction.client,CHANNEL_TODO),
+								msgProgressId
+							)
+							await GoalController.postProgress(msgProgress,goalId,taskId)
+							interaction.editReply(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
+							if(msgIdSelectMenu){
+								const msg = await ChannelController.getMessage(
+									interaction.channel,
+									msgIdSelectMenu
+								)
+								ChannelController.deleteMessage(msg)
+							}else{
+								ChannelController.deleteMessage(interaction.message)
+							}
+						}
+
 						break;}
 					case 'setReminderContinueQuest':
 						if(valueMenu === 'custom'){

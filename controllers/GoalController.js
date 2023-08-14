@@ -397,11 +397,11 @@ class GoalController {
 		return data
 	}
 	static async getActiveGoalUser(UserId){
-		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false})
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).gte('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false}).limit(25)
 		return data
 	}
 	static async getArchivedGoalUser(UserId){
-		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).lt('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false})
+		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).lt('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).order('lastProgress',{ascending:false}).order('createdAt',{ascending:false}).limit(25)
 		return data
 	}
 	static async getAllActiveGoal(){
@@ -466,9 +466,11 @@ class GoalController {
 	}
 
 	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
+		const dataUser = await UserController.getDetail('dailyWorkTime')
+		const dailyWorkTime = dataUser.body?.dailyWorkTime
 		const msg = await ChannelController.sendToNotification(
 			interaction.client,
-			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge),
+			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge,dailyWorkTime),
 			targetUserId
 		)
 		const notificationId = await UserController.getNotificationId(targetUserId)
