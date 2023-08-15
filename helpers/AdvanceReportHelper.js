@@ -67,7 +67,7 @@ class AdvanceReportHelper{
         const startingDate = Time.getNextDate(-(day-1),Time.getDateOnly(date))
         const endingDate = Time.getNextDate(6,Time.getDateOnly(startingDate))
         
-        return `${AdvanceReportController.getFormattedReportDate(startingDate)} — ${AdvanceReportController.getFormattedReportDate(endingDate)}`
+        return `${AdvanceReportHelper.getFormattedReportDate(startingDate)} — ${AdvanceReportHelper.getFormattedReportDate(endingDate)}`
     }
 
     static getMostProductiveTime(productiveTime){
@@ -78,7 +78,7 @@ class AdvanceReportHelper{
         
         for (const key in productiveTime) {
             const {time,total} = mostProductiveTime
-            if(time === '-' || (time > key && total <= productiveTime[key])) {
+            if(time === '-' || total < productiveTime[key]) {
                 mostProductiveTime.time = key
                 mostProductiveTime.total = productiveTime[key]
             }
