@@ -874,18 +874,18 @@ module.exports = {
 						break;
 					case "searchProject":
 						if(valueMenu.includes('archivedProject')){
-							const [_,UserId,latestProgressGoalId] = valueMenu.split('-')
+							const UserId = valueMenu.split('-')[1]
 							const allArchivedGoal = await GoalController.getArchivedGoalUser(UserId)
-							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true,latestProgressGoalId)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
 							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
 						}else{
-							const [msgGoalId,goalType,latestProgressGoalId] = valueMenu.split('-')
+							const [msgGoalId,goalType] = valueMenu.split('-')
 							interaction.editReply(GoalMessage.replySearchProject(
 								MessageFormatting.linkToMessage(
 									goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
 									msgGoalId	
 								),
-								MessageFormatting.linkToInsideThread(latestProgressGoalId)
+								MessageFormatting.linkToInsideThread(msgGoalId)
 							))
 						}
 						break;
