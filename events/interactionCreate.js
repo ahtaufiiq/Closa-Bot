@@ -53,7 +53,7 @@ module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
 		try {
-			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
+			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu() && !interaction.isUserSelectMenu()) return;
 			if (interaction.isButton()) {
 				if(ReferralCodeController.showModalRedeem(interaction)) return
 				// if(PartyController.showModalCustomReminder(interaction)) return
@@ -873,12 +873,19 @@ module.exports = {
 						}
 						break;
 					case "searchProject":
-						const [msgGoalId,goalType] = valueMenu.split('-')
-						
-						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
-							goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
-							msgGoalId	
-						)}`)
+						if(valueMenu.includes('archivedProject')){
+							const UserId = valueMenu.split('-')[1]
+							const allArchivedGoal = await GoalController.getArchivedGoalUser(UserId)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
+						}else{
+							const [msgGoalId,goalType] = valueMenu.split('-')
+							
+							interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
+								goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
+								msgGoalId	
+							)}`)
+						}
 						break;
 					case "setDeadlineProject":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't set deadline project for someone else.**`,ephemeral:true})
@@ -1028,6 +1035,10 @@ module.exports = {
 						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 						break;
 				}
+			}else if(interaction.isUserSelectMenu()){
+				await interaction.deferReply({ephemeral:true})
+				const user = interaction.users.first()
+				GoalController.interactionSearchProject(interaction,user)
 			}else if (interaction.isAutocomplete()) {
 				const command = interaction.client.commands.get(interaction.commandName);
 				console.log(command);

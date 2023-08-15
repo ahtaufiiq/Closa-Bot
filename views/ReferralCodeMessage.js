@@ -22,27 +22,20 @@ Unlock interesting rewards! (*the reward will be revealed later*)`,
     static replyInviteFriends(inviteLink,totalInvited,files){
         return {
             files,
-            content:`**Invite friends** with your referral link to help us grow the community.
-Unlock interesting rewards! :gift: (*the reward will be revealed later*)
+            content:`**Invite your friends that also builders & help us grow the community 💌**
 
-Copy & share your referral link below 🔗
-\`\`\`
-${inviteLink}
-\`\`\`
+Copy & share your referral link below ↓ :link:
+\`\`\`${inviteLink}\`\`\`
 Or copy & share the template below :clipboard:
 \`\`\`
-**I'm inviting you to join closa** → ${inviteLink}
+I'm inviting you to join closa → ${inviteLink}
 
-A smart discord server to work on your ideas from start to finish. 
-You can join daily coworking, meet new friends, & boost productivity.
-
-Let's stay productive together! 
+A smart discord where builders stay productive on passion projects.
+you can join daily coworking, track your progress, & boost productivity.
 \`\`\`
 Your status:
-\`\`\`
-${totalInvited} Friends Invited 🎁
-\`\`\`
-feel free to use the image below when sharing your invite links:`,
+\`\`\`${totalInvited} Friends Invited 🎁\`\`\`
+feel free to use the image below:`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addLinkButton('Share on Twitter',`https://twitter.com/intent/tweet?text=${ encodeURIComponent(ReferralCodeMessage.templateShareTwitterInviteLink(inviteLink))}`).setEmoji({id:'1000905823368794214',name:'twitterlogo'}),
             )]
@@ -125,7 +118,8 @@ Let's stay productive together! `
     static templateShareTagClosa(inviteLink){
         return `... @joinclosa
 
-join closa → ${inviteLink}`
+Join a community of builders on closa discord
+↳ ${inviteLink}`
     }
 
     static allReferralAlreadyBeenRedeemed(){

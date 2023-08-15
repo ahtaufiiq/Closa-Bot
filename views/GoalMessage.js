@@ -1,4 +1,4 @@
-const { EmbedBuilder, channelMention, userMention, ButtonStyle } = require("discord.js")
+const { EmbedBuilder, channelMention, userMention, ButtonStyle, UserSelectMenuBuilder } = require("discord.js")
 const { CHANNEL_TODO, CHANNEL_GOALS } = require("../helpers/config")
 const FormatString = require("../helpers/formatString")
 const InfoUser = require("../helpers/InfoUser")
@@ -199,13 +199,13 @@ ${aboutProject}
 this is my goal at @joinclosa:`
     }
 
-    static searchProject(userId,goalMenus,isAnotherUser=false){
+    static searchProject(userId,goalMenus,isAnotherUser=false,isArchivedProject=false){
         const components = []
 
         components.push(MessageComponent.createComponent(
             MessageComponent.addMenu( 
                 `searchProject`,
-                "-- Select project --",
+                isArchivedProject ? "-- Select archived project --" :"-- Select project --",
                 goalMenus
             ),
         ))
@@ -213,6 +213,19 @@ this is my goal at @joinclosa:`
         return {
             content:isAnotherUser? `Project by ${userMention(userId)}, select one to go to the project history:` :`Here's your project ${userMention(userId)}, select one to go to the project history:`,
             components
+        }
+    }
+    static menuShowProjectUser(){
+        return {
+            components:[
+                MessageComponent.createComponent([
+                    new UserSelectMenuBuilder()
+                        .setCustomId('showProjectUser')
+                        .setMaxValues(1)
+                        .setMinValues(1)
+                        .setPlaceholder("🔍 Search a member")
+                ])
+            ]
         }
     }
     static selectGoal(userId,goalMenus,msgId,taskId){
@@ -412,10 +425,10 @@ Your current daily goal: \`\`${Time.convertTime(dailyWorkTime)}\`\``
         return {
             content:`**Last, set a name & goal for your passion project** :dart:
 
-Read & follow this guideline first to avoid common mistakes.
-↳ https://closa.me/how-to-set-right-goal`,
+Read & follow the community guideline first to avoid common mistakes.`,
             components:[
                 MessageComponent.createComponent(
+                    MessageComponent.addLinkButton("Read guideline",'https://closa.me/how-to-set-right-goal').setEmoji('📋'),
                     MessageComponent.addButton(`startNewProject_${userId}_${deadlineDate}${isSixWeekChallenge?'_sixWeekChallenge':''}`,"🎯 Set name & goal")
                 )
             ]
