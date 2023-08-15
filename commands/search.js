@@ -31,16 +31,33 @@ module.exports = {
 			const user = taggedUser? taggedUser : interaction.user
 
 			if(command === 'project'){
-				const {body:goals} = await supabase.from("Goals").select("id,project,goal,goalType").eq('UserId',user.id).order('lastProgress',{ascending:false}).limit(25)
-				const goalMenus = GoalController.getFormattedGoalMenu(goals,true)
-				interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
+				const [allActiveGoal,haveArchivedProject] = await Promise.all([
+					GoalController.getActiveGoalUser(user.id),
+					GoalController.haveArchivedProject(user.id)
+				])
+				if(allActiveGoal.body.length > 0 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
+					const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true)
+					if(haveArchivedProject){
+						goalMenus.push({
+							label:'📁 Archived projects',
+							value:`archivedProject-${user.id}`
+						})
+					}
+					interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
+				}else if(haveArchivedProject){
+					const allArchivedGoal = await GoalController.getArchivedGoalUser(user.id)
+					const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+					interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id,true))
+				}else {
+					interaction.editReply(`${user} has never started a project.`)
+				}
 			}else if(command === 'profile'){
 				const dataUser = await supabase.from('Intros')
 				.select()
 				.eq('UserId',user.id)
 				.limit(1)
 				.single()
-
+				
 				if(!dataUser.body) return interaction.editReply("this member haven't made an intro")
 
 				const {id,name,about,expertise,needHelp,social} = dataUser.body

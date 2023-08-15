@@ -199,13 +199,13 @@ ${aboutProject}
 this is my goal at @joinclosa:`
     }
 
-    static searchProject(userId,goalMenus,isAnotherUser=false){
+    static searchProject(userId,goalMenus,isAnotherUser=false,isArchivedProject=false){
         const components = []
 
         components.push(MessageComponent.createComponent(
             MessageComponent.addMenu( 
                 `searchProject`,
-                "-- Select project --",
+                isArchivedProject ? "-- Select archived project --" :"-- Select project --",
                 goalMenus
             ),
         ))

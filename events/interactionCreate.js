@@ -873,12 +873,19 @@ module.exports = {
 						}
 						break;
 					case "searchProject":
-						const [msgGoalId,goalType] = valueMenu.split('-')
-						
-						interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
-							goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
-							msgGoalId	
-						)}`)
+						if(valueMenu.includes('archivedProject')){
+							const UserId = valueMenu.split('-')[1]
+							const allArchivedGoal = await GoalController.getArchivedGoalUser(UserId)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
+						}else{
+							const [msgGoalId,goalType] = valueMenu.split('-')
+							
+							interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
+								goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
+								msgGoalId	
+							)}`)
+						}
 						break;
 					case "setDeadlineProject":
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`**You can't set deadline project for someone else.**`,ephemeral:true})
