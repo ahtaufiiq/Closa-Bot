@@ -733,18 +733,18 @@ class GoalController {
 			GoalController.haveArchivedProject(user.id)
 		])
 		if(allActiveGoal.body.length > 0 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
-			const latestProgressGoalId = allActiveGoal.body[1].id
+			const latestProgressGoalId = allActiveGoal.body[0].id
 			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true,latestProgressGoalId)
 			if(haveArchivedProject){
 				goalMenus.push({
 					label:'📁 Archived projects',
-					value:`archivedProject-${user.id}`
+					value:`archivedProject-${user.id}-${latestProgressGoalId}`
 				})
 			}
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
 		}else if(haveArchivedProject){
 			const allArchivedGoal = await GoalController.getArchivedGoalUser(user.id)
-			const latestProgressGoalId = allArchivedGoal.body[1].id
+			const latestProgressGoalId = allArchivedGoal.body[0].id
 			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true,latestProgressGoalId)
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id,true))
 		}else {

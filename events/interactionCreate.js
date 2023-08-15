@@ -874,9 +874,9 @@ module.exports = {
 						break;
 					case "searchProject":
 						if(valueMenu.includes('archivedProject')){
-							const UserId = valueMenu.split('-')[1]
+							const [_,UserId,latestProgressGoalId] = valueMenu.split('-')
 							const allArchivedGoal = await GoalController.getArchivedGoalUser(UserId)
-							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true,latestProgressGoalId)
 							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
 						}else{
 							const [msgGoalId,goalType,latestProgressGoalId] = valueMenu.split('-')
@@ -1043,7 +1043,6 @@ module.exports = {
 				GoalController.interactionSearchProject(interaction,user)
 			}else if (interaction.isAutocomplete()) {
 				const command = interaction.client.commands.get(interaction.commandName);
-				console.log(command);
 				if (!command) {
 					console.error(`No command matching ${interaction.commandName} was found.`);
 					return;
