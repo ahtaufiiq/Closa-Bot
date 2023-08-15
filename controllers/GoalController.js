@@ -579,7 +579,7 @@ class GoalController {
 		})
 		const thread = await ChannelController.getGoalThread(msg.client,goalId)
 		goalName = thread.name.split('by')[0]
-		let {totalDay,lastDone} = data
+		let {totalDay,lastDone} = data.body
 		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
 		const msgGoal = await thread.send(
 			GoalMessage.shareProgress(msg,files,totalDay)
