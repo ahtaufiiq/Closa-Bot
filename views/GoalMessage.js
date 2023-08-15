@@ -434,6 +434,12 @@ Read & follow the community guideline first to avoid common mistakes.`,
             ]
         }
     }
+
+    static replySearchProject(linkMessageGoal,linkLatestProgress){
+        return `Now you can:
+- go to latest update → ${linkLatestProgress}
+- follow / edit project → ${linkMessageGoal}`
+    }
 }
 
 module.exports = GoalMessage
