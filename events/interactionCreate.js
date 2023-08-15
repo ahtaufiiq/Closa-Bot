@@ -879,12 +879,14 @@ module.exports = {
 							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
 							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
 						}else{
-							const [msgGoalId,goalType] = valueMenu.split('-')
-							
-							interaction.editReply(`Here's the project history → ${MessageFormatting.linkToMessage(
-								goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
-								msgGoalId	
-							)}`)
+							const [msgGoalId,goalType,latestProgressGoalId] = valueMenu.split('-')
+							interaction.editReply(GoalMessage.replySearchProject(
+								MessageFormatting.linkToMessage(
+									goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC,
+									msgGoalId	
+								),
+								MessageFormatting.linkToInsideThread(latestProgressGoalId)
+							))
 						}
 						break;
 					case "setDeadlineProject":

@@ -478,14 +478,14 @@ class GoalController {
 		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg?.id))
 	}
 
-	static getFormattedGoalMenu(goals,withGoalType=false){
+	static getFormattedGoalMenu(goals,withGoalType=false,latestProgressGoalId){
         const menus = []
 		const maxLength = goals.length > 25 ? 25 : goals.length
         for (let i = 0; i < maxLength; i++) {
             const project = goals[i];
             menus.push({
                 label:FormatString.truncateString(`${FormatString.capitalizeFirstChar(project.project)} — ${project.goal}`,90),
-                value:`${project.id}${withGoalType ? `-${project.goalType}`:''}`
+                value:`${project.id}${withGoalType ? `-${project.goalType}`:''}${latestProgressGoalId ? `-${latestProgressGoalId}`:''}`
             })
         }
 
@@ -733,7 +733,8 @@ class GoalController {
 			GoalController.haveArchivedProject(user.id)
 		])
 		if(allActiveGoal.body.length > 0 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
-			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true)
+			const latestProgressGoalId = allActiveGoal.body[1].id
+			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true,latestProgressGoalId)
 			if(haveArchivedProject){
 				goalMenus.push({
 					label:'📁 Archived projects',
@@ -743,7 +744,8 @@ class GoalController {
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
 		}else if(haveArchivedProject){
 			const allArchivedGoal = await GoalController.getArchivedGoalUser(user.id)
-			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+			const latestProgressGoalId = allArchivedGoal.body[1].id
+			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true,latestProgressGoalId)
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id,true))
 		}else {
 			interaction.editReply(`${user} has never started a project.`)
