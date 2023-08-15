@@ -726,6 +726,30 @@ class GoalController {
 		.catch(err => {
 		})
 	}
+	
+	static async interactionSearchProject(interaction,user){
+		const [allActiveGoal,haveArchivedProject] = await Promise.all([
+			GoalController.getActiveGoalUser(user.id),
+			GoalController.haveArchivedProject(user.id)
+		])
+		if(allActiveGoal.body.length > 0 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
+			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true)
+			if(haveArchivedProject){
+				goalMenus.push({
+					label:'📁 Archived projects',
+					value:`archivedProject-${user.id}`
+				})
+			}
+			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
+		}else if(haveArchivedProject){
+			const allArchivedGoal = await GoalController.getArchivedGoalUser(user.id)
+			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id,true))
+		}else {
+			interaction.editReply(`${user} has never started a project.`)
+		}
+
+	}
 }
 
 module.exports = GoalController

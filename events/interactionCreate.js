@@ -53,7 +53,7 @@ module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
 		try {
-			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu()) return;
+			if (!interaction.isCommand() && !interaction.isButton() && !interaction.isStringSelectMenu() && !interaction.isUserSelectMenu()) return;
 			if (interaction.isButton()) {
 				if(ReferralCodeController.showModalRedeem(interaction)) return
 				// if(PartyController.showModalCustomReminder(interaction)) return
@@ -1035,6 +1035,10 @@ module.exports = {
 						await interaction.editReply(BoostMessage.successSendMessage(targetUser.user))
 						break;
 				}
+			}else if(interaction.isUserSelectMenu()){
+				await interaction.deferReply({ephemeral:true})
+				const user = interaction.users.first()
+				GoalController.interactionSearchProject(interaction,user)
 			}else if (interaction.isAutocomplete()) {
 				const command = interaction.client.commands.get(interaction.commandName);
 				console.log(command);
