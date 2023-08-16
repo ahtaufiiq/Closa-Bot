@@ -283,7 +283,7 @@ take frequent breaks to improve your productivity.
 You can pick a few:
 • Take a few deep breath, inhale 3s exhale 4s..
 • Drink some water & grab your snack.
-• Give you eye a rest, see the sky far-off your screen.
+• Give your eye a rest, see the sky far-off your screen.
 \`\`\`
 \`\`Pick your break time, before the next session\`\``,
             components:[MessageComponent.createComponent(
