@@ -104,10 +104,11 @@ your time tracker will automatically start right after.`
         }
         return {
             content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
-💻 Work: \`\`${Time.convertTime(totalTime,'short')}\`\` in total
-⏲️ Focus: \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
-☕ Breaks: \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
-🎯 Goal: \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily work time goal
+## 💻 Work: \`\`${Time.convertTime(totalTime,'short')}\`\` in total
+## ⏲️ Focus: \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— ``Tracking 🟢``':''}
+## ☕ Breaks: \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— ``Tracking 🟢``':''}
+## 🎯 Goal: \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily work time goal
+—
 
 \`\`\`
 Project: ${projectName}
