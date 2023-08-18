@@ -12,30 +12,13 @@ const MemberController = require('./MemberController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 2`, async function(){
-			if(!Time.isCooldownPeriod()){
-				const data = LocalData.getData()
-				const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-				const msg = await channelAnnouncement.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
-				ChannelController.createThread(msg,"Weekly Reflection",true)
-				data.msgIdWeeklyReflection = msg.id
-				LocalData.writeData(data)
-				WeeklyReflectionController.countdownWritingReflection(msg)
-
-				UserController.getActiveMembers()
-					.then(async data=>{
-						for (let i = 0; i < data.body.length; i++) {
-							const {id:userId,notificationId} = data.body[i]
-							await ChannelController.sendToNotification(
-								client,
-								WeeklyReflectionMessage.writeReflection(userId),
-								userId,
-								notificationId,
-								true
-							)
-							await Time.wait(1000)
-						}
-					})
-			}
+			const data = LocalData.getData()
+			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
+			const msg = await channelAnnouncement.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
+			ChannelController.createThread(msg,"Weekly Reflection",true)
+			data.msgIdWeeklyReflection = msg.id
+			LocalData.writeData(data)
+			WeeklyReflectionController.countdownWritingReflection(msg)
 		});
 	}
 	static async hideChannelReflection(client){

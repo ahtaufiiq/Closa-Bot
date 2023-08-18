@@ -5,22 +5,37 @@ const Time = require("../helpers/time")
 const GuidelineInfoMessage = require("../views/GuidelineInfoMessage")
 const OnboardingMessage = require("../views/OnboardingMessage")
 const ChannelController = require("./ChannelController")
+const MemberController = require("./MemberController")
 const ReferralCodeController = require("./ReferralCodeController")
 const UserController = require("./UserController")
 const schedule = require('node-schedule');
 class GuidelineInfoController {
 
     static async generateGuideline(client,userId,notificationId){
-        const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
- 
+
         const {isHaveProfile,showSubmitTestimonial,endMembership,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(userId)
         let msgContent 
         
         if(onboardingStep) msgContent = OnboardingMessage.guidelineInfoQuest(userId,onboardingStep,statusCompletedQuest)
         else msgContent = GuidelineInfoMessage.guideline(userId,endMembership,isHaveProfile,showSubmitTestimonial,totalInvite)
 
-		const msgGuideline = await notificationThread.send(msgContent)
-		GuidelineInfoController.addNewData(userId,msgGuideline.id)
+        const notificationThread = await ChannelController.getNotificationThread(client,userId,notificationId)
+        let msgGuidelineId
+        if(!notificationThread){
+            const channelNotifications = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
+            const {user} = await MemberController.getMember(client,userId)
+            const thread = await ChannelController.createPrivateThread(channelNotifications,user.username)
+            const msgGuideline = await thread.send(msgContent)
+            msgGuidelineId = msgGuideline.id
+            supabase.from("Users")
+			.update({notificationId:thread.id})
+			.eq('id',userId)
+            .then()
+        }else{
+            const msgGuideline = await notificationThread.send(msgContent)
+            msgGuidelineId = msgGuideline.id
+        }
+		GuidelineInfoController.addNewData(userId,msgGuidelineId)
     }
 
     static async resetDataTotalNotification(UserId){

@@ -104,10 +104,11 @@ your time tracker will automatically start right after.`
         }
         return {
             content:`\`\`\`Focus time ${isLive ? 'started' : 'ended'}\`\`\`
-💻 Work: \`\`${Time.convertTime(totalTime,'short')}\`\` in total
-⏲️ Focus: \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— **LIVE :red_circle:**':''}
-☕ Breaks: \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— **LIVE :red_circle:**':''}
-🎯 Goal: \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily work time goal
+## 💻 \`\`Work:\`\` \`\`${Time.convertTime(totalTime,'short')}\`\` \`\`in total\`\`
+## ⏲️ \`\`Focus:\`\` \`\`${Time.convertTime(focusTime,'short')}\`\` ${isFocus && isLive ? '— ``Tracking 🟢``':''}
+## ☕ \`\`Breaks:\`\` \`\`${Time.convertTime(breakTime,'short')}\`\` ${!isFocus && isLive ? '— ``Tracking 🟢``':''}
+## 🎯 \`\`Goal:\`\` \`\`${Math.round((totalTime + totalTimeToday) / Number(dailyWorkTime) * 100) }%\`\` \`\`from \`\`${Time.convertTime(dailyWorkTime,'short')}\`\` daily goal\`\`
+—
 
 \`\`\`
 Project: ${projectName}
@@ -283,7 +284,7 @@ take frequent breaks to improve your productivity.
 You can pick a few:
 • Take a few deep breath, inhale 3s exhale 4s..
 • Drink some water & grab your snack.
-• Give you eye a rest, see the sky far-off your screen.
+• Give your eye a rest, see the sky far-off your screen.
 \`\`\`
 \`\`Pick your break time, before the next session\`\``,
             components:[MessageComponent.createComponent(
