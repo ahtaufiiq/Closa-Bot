@@ -118,7 +118,7 @@ Let's stay productive together! `
     static templateShareTagClosa(inviteLink){
         return `... @joinclosa
 
-Join a community of builders on closa discord
+Join a community of builders
 ↳ ${inviteLink}`
     }
 
