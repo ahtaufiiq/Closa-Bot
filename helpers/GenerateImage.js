@@ -1342,8 +1342,8 @@ class GenerateImage{
             const percentageFocus = Math.round(totalFocusTime/totalTime* 100) 
             const percentageBreak = 100 - percentageFocus
             const haveBreakTime = percentageFocus < 100
-            const lengthFocusBar = (maxLength * percentageFocus / 100 - (haveBreakTime ? (5 * imageResolution) : 0)) * imageResolution
-            const lengthBreakBar = (maxLength * percentageBreak / 100 - (haveBreakTime ? (5 * imageResolution) : 0)) * imageResolution
+            const lengthFocusBar = (maxLength * percentageFocus / 100 - (haveBreakTime ? 5 : 0)) * imageResolution
+            const lengthBreakBar = (maxLength * percentageBreak / 100 - (haveBreakTime ? 5 : 0)) * imageResolution
             
             if(totalFocusTime){
                 context.beginPath()
@@ -1471,7 +1471,7 @@ class GenerateImage{
         drawCircle(context,439,185,"#00B264",percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
-        updateFont("600 48px Inter")
+        updateFont("500 48px Inter")
         fillText(Time.convertTime(totalTime,'short',true,true), 35 , 194);
         
         updateFont("500 24px Inter")
@@ -1522,8 +1522,8 @@ class GenerateImage{
             koordinatProgressTask += 40
         }
 
-        if(tasks.length < 2) context.drawImage(fillGrey,40,487)
-        if(tasks.length < 3) context.drawImage(fillGrey,40,527)
+        if(tasks.length < 2) drawImage(fillGrey,40,487)
+        if(tasks.length < 3) drawImage(fillGrey,40,527)
 
 
         //--- Coworking Friends ----//
