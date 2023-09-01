@@ -1408,7 +1408,7 @@ class GenerateImage{
             if(percentage === 0) return
             context.beginPath()
             
-            context.arc(x * imageResolution, y * imageResolution, 67.7 * imageResolution, 1.5 * Math.PI * imageResolution, (1.5 + (2 * percentage / 100)) * Math.PI * imageResolution);
+            context.arc(x * imageResolution, y * imageResolution, 67.7 * imageResolution, 1.5 * Math.PI , (1.5 + (2 * percentage / 100)) * Math.PI );
             context.lineCap = "round";
             if (stroke) {
               context.lineWidth = 7 * imageResolution
