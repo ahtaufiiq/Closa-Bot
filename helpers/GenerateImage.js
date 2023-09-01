@@ -1293,17 +1293,112 @@ class GenerateImage{
         return buffer
     }
 
-    static async dailySummary({user,dailyWorkTime,tasks,projects,totalSession,coworkingPartners,dateOnly}){
+    static async dailySummary({user,dailyWorkTime,tasks,totalSession,totalCoworkingTime,coworkingPartners,dateOnly}){
+        const imageResolution = 2;
+        registerFont('./assets/fonts/Inter-SemiBold.ttf',{family:'Inter',weight:600})
+        registerFont('./assets/fonts/Inter-Medium.ttf',{family:'Inter',weight:500})
+        registerFont('./assets/fonts/Inter-Regular.ttf',{family:'Inter',weight:400})
+        // import image
+        const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
+        const template = await loadImage(`./assets/images/template_daily_summary.png`)
+        const streakPartner = await loadImage(`./assets/images/advance_coworking_streak_oneDigit.png`)
+        const streakPartnerTwoDigit = await loadImage(`./assets/images/advance_coworking_streak_twoDigit.png`)
+        const streakPartnerThreeDigit = await loadImage(`./assets/images/advance_coworking_streak_threeDigit.png`)
+        const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
+        const photoUser = await GenerateImage.getImage(InfoUser.getAvatar(user))
+        const canvas = createCanvas(554*imageResolution,686*imageResolution)
+        const context = canvas.getContext('2d')
+        context.drawImage(template,0,0)
+
+        function roundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.arcTo(x + width, y, x + width, y + radius, radius);
+            context.lineTo(x + width, y + height - radius);
+            context.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            context.lineTo(x + radius, y + height);
+            context.arcTo(x, y + height, x, y + height - radius, radius);
+            context.lineTo(x, y + radius);
+            context.arcTo(x, y, x + radius, y, radius);
+        }
+        function drawRoundedImage(context, img, x, y, width, height, radius) {
+            x *= imageResolution
+            y *= imageResolution
+            width *= imageResolution
+            height *= imageResolution
+            radius *= imageResolution
+            context.save();
+            roundedRect(context, x, y, width, height, radius);
+            context.clip();
+            context.drawImage(img, x, y, width, height);
+            context.restore();
+        }
+        function drawTimeBreakdown(context,x,y,totalTime,totalFocusTime,width=6){
+            let maxLength = 478 
+            x *= imageResolution
+            y *= imageResolution
+            const totalBreakTime = totalTime - totalFocusTime
+            const percentageFocus = Math.round(totalFocusTime/totalTime* 100) 
+            const percentageBreak = 100 - percentageFocus
+            const haveBreakTime = percentageFocus < 100
+            const lengthFocusBar = (maxLength * percentageFocus / 100 - (haveBreakTime ? (5 * imageResolution) : 0)) * imageResolution
+            const lengthBreakBar = (maxLength * percentageBreak / 100 - (haveBreakTime ? (5 * imageResolution) : 0)) * imageResolution
+            
+            if(totalFocusTime){
+                context.beginPath()
+                context.moveTo(x, y);
+                context.lineTo(x + lengthFocusBar, y);
+                context.lineCap = 'round'
+                context.lineWidth = width * imageResolution;
+                context.strokeStyle = "#00B264";
+                context.stroke();
+                context.closePath()
+
+                context.textAlign = 'left'
+                context.fillStyle = "#31373D"; 
+                updateFont("500 20px Inter")
+                fillText(Time.convertTime(totalFocusTime,'short',true,true), 35 , 356);
+                const metrics = context.measureText(`${Time.convertTime(totalFocusTime,'short',true,true)} `);
+                context.fillStyle = "#888"; 
+                updateFont("400 20px Inter")
+                fillText(`· ${percentageFocus}%`, 35 + (metrics.width/imageResolution) , 356);
+            }
+            
+            if(haveBreakTime){
+                const breakStart = x + lengthFocusBar + (10 * imageResolution)
+                context.beginPath()
+                context.moveTo(breakStart, y);
+                context.lineTo(breakStart + lengthBreakBar, y);
+                context.lineCap = 'round'
+                context.lineWidth = width * imageResolution;
+                context.strokeStyle = "#6F6DFF";
+                context.stroke();
+                context.closePath()
+
+                context.textAlign = 'right'
+                context.fillStyle = "#888"; 
+                updateFont("400 20px Inter")
+                fillText(` · ${percentageBreak}%`, 520 , 356);
+                const metrics = context.measureText(` · ${percentageBreak}%`);
+
+                context.fillStyle = "#31373D"; 
+                updateFont("500 20px Inter")
+                fillText(Time.convertTime(totalBreakTime,'short',true,true),520 -  (metrics.width / imageResolution) , 356);
+
+            }           
+            context.textAlign = 'left'
+        }
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
-            let maxLength = 350
+            let maxLength = 485 * imageResolution
             if(type === 'short') maxLength = 100
             if(percentage >= 100) percentage = 100
-            maxLength -= 6.3
-            context.moveTo(x, y);
-            context.lineTo(x + (maxLength * percentage / 100), y);
+            maxLength -= 6.3 * imageResolution
+            context.moveTo(x * imageResolution, y * imageResolution);
+            context.lineTo((x + (maxLength * percentage / 100)) * imageResolution, y * imageResolution);
             context.lineCap = 'round'
-            context.lineWidth = width;
+            context.lineWidth = width * imageResolution;
             context.strokeStyle = "#00B264";
             context.stroke();
             context.closePath()
@@ -1312,20 +1407,16 @@ class GenerateImage{
         function drawCircle(context, x, y, stroke,percentage) {
             if(percentage === 0) return
             context.beginPath()
-
-            context.arc(x, y, 43, 1.5 * Math.PI, (1.5 + (2 * percentage / 100)) * Math.PI);
+            
+            context.arc(x * imageResolution, y * imageResolution, 67.7 * imageResolution, 1.5 * Math.PI * imageResolution, (1.5 + (2 * percentage / 100)) * Math.PI * imageResolution);
             context.lineCap = "round";
             if (stroke) {
-              context.lineWidth = 8
+              context.lineWidth = 7 * imageResolution
               context.strokeStyle = stroke
               context.stroke()
             }
             context.closePath()
         }
-
-        registerFont('./assets/fonts/Archivo-SemiBold.ttf',{family:'Archivo',weight:600})
-        registerFont('./assets/fonts/Archivo-Medium.ttf',{family:'Archivo',weight:500})
-        registerFont('./assets/fonts/Archivo-Regular.ttf',{family:'Archivo',weight:400})
 
         let totalTime = 0
         let totalFocusTime = 0
@@ -1335,182 +1426,129 @@ class GenerateImage{
             totalFocusTime += Number(task.focusTime)
         }
 
-        let totalProjectTime = 0
-        projects.forEach(project=>{
-            totalProjectTime += Number(project.totalTime)
-        })
+        function drawImage(image,x,y,width,height) {
+            if(width) context.drawImage(image,x * imageResolution,y * imageResolution,width * imageResolution,height * imageResolution)
+            else context.drawImage(image,x * imageResolution,y * imageResolution)
+        }
 
-        // import image
-        const fillGrey = await loadImage(`./assets/images/fill_grey.png`)
-        const template = await loadImage(`./assets/images/template_daily_summary.png`)
-        const streakPartner = await loadImage(`./assets/images/streak_partner.png`)
-        const frameAvatar = await loadImage(`./assets/images/frame_avatar.png`)
-        const frameProfile = await loadImage(`./assets/images/frame_profile.png`)
-        const photoUser = await GenerateImage.getImage(InfoUser.getAvatar(user))
-        const canvas = createCanvas(546,906)
-        const context = canvas.getContext('2d')
-        context.drawImage(template,0,0)
-
+        function updateFont(value) {
+            const [fontWeight,fontSize,fontFamily] = value.split(' ')
+            context.font =`${fontWeight} ${+fontSize.split('px')[0] * imageResolution}px ${fontFamily}`
+        }
+        
+        function fillText(text,x,y) {
+            context.fillText(text,x * imageResolution,y * imageResolution)
+        }
 
         //--- Header ----//
         
-        context.drawImage(photoUser,39,36,56,56)
-        context.drawImage(frameProfile,35,32,64,64)
+        drawImage(photoUser,39,35,56,56)
+        drawImage(frameProfile,35,31,64,64)
 
         context.fillStyle = "#31373D"; 
-        context.font = "600 24px Archivo";
-        context.fillText(FormatString.truncateString(UserController.getNameFromUserDiscord(user),16), 117.2 , 57);
+        updateFont("600 20px Inter")
+        fillText(FormatString.truncateString(UserController.getNameFromUserDiscord(user),16), 117.2 , 53);
         
         context.fillStyle = "#888888"; 
-        context.font = "400 18px Archivo";
-        context.fillText(`${totalSession}x ${totalSession > 1 ? 'sessions': 'session'}`, 117 , 86);
+        updateFont("400 18px Inter")
+        fillText(`${totalSession}x ${totalSession > 1 ? 'sessions': 'session'}`, 117 , 84);
 
         context.textAlign = 'right'
 
-        context.font = "400 20px Archivo";
-        context.fillText(Time.getFormattedDate(Time.getDate(dateOnly),false,'long'), 514.5 , 84);
+        context.fillStyle = '#222222'
+        updateFont("500 18px Inter")
+        fillText(Time.getFormattedDate(Time.getDate(dateOnly),false,'long'), 519.5 , 54);
+
+        context.fillStyle = '#888888'
+        updateFont("400 18px Inter")
+        fillText(Time.convertTime(totalCoworkingTime,'short',true,true) + ' · all time', 519.5 , 84);
+        
         context.textAlign = 'left'
 
 
         //--- Work Hours ----//
         const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
-        drawProgressBar(context,164,133,percentageWorkHours)
+        drawCircle(context,439,185,"#00B264",percentageWorkHours)
 
         context.fillStyle = "#31373D"; 
-        context.font = "600 48px Archivo";
-        context.fillText(Time.convertTime(totalTime,'short',true), 34 , 208);
-
-        context.font = "600 24px Archivo";
-        context.fillText(`${percentageWorkHours}%`, 326.8 , 208);
+        updateFont("600 48px Inter")
+        fillText(Time.convertTime(totalTime,'short',true,true), 35 , 194);
+        
+        updateFont("500 24px Inter")
+        fillText(`${percentageWorkHours}%`, 35 , 239);
+        const metrics = context.measureText(`${percentageWorkHours}% `);
 
         context.fillStyle = "#888888"; 
-        context.font = "400 20px Archivo";
-        context.fillText(`of ${Time.convertTime(dailyWorkTime,'short',true)}`, 396.3 , 208);
+        updateFont("400 20px Inter")
+        fillText(`from daily goal`, 35 + (metrics.width / imageResolution) , 239);
+        
+        context.textAlign = 'center'
+        updateFont("400 20px Inter")
+        if(dailyWorkTime % 60 === 0) fillText(`${Time.convertTime(dailyWorkTime,'long')}`, 438 , 192);
+        else fillText(`${Time.convertTime(dailyWorkTime,'short')}`, 439 , 192);
+        context.textAlign = 'left'
+        
 
 
         //--- Breakdown ----//
-        const totalBreak = totalTime - totalFocusTime
-        const percentageFocus = Math.round(totalFocusTime/totalTime* 100) 
-        const percentageBreak = 100 - percentageFocus
-        drawProgressBar(context,163,252,percentageFocus)
 
-        drawCircle(context,83.5,328.4,"#00B264",percentageFocus)
-        drawCircle(context,332.5,328.4,"#5856FF",percentageBreak)
-
-        context.textAlign = 'center'
-        context.fillStyle = "#31373D"; 
-        context.font = "500 20px Archivo";
-        context.fillText(`${percentageFocus}%`, 86 , 336);
-
-        context.fillStyle = "#31373D"; 
-        context.font = "500 20px Archivo";
-        context.fillText(`${percentageBreak}%`, 336 , 336);
-
-        context.textAlign = 'left'
-        context.fillStyle = "#31373D"; 
-        context.font = "600 22px Archivo";
-        context.fillText(Time.convertTime(totalFocusTime,'short',true), 147 , 351);
-        
-        context.fillStyle = "#31373D"; 
-        context.font = "600 22px Archivo";
-        context.fillText(Time.convertTime(totalBreak,'short',true), 396 , 352.7);
-
+        drawTimeBreakdown(context,38,320,totalTime,totalFocusTime)
 
         // //--- Tasks ----//
 
-        let koordinatTask = 482
-        let koordinatProgressTask = 474
+        let koordinatTask = 460
+        let koordinatProgressTask = 453
         for (let i = 0; i < tasks.length; i++) {
             if(i === 3) break
             const task = tasks[i];
             const percentage = Math.round(+task.totalTime / totalTime * 100) 
             context.fillStyle = "#31373D"; 
-            context.font = "400 20px Archivo";
-            context.fillText(`${percentage}%`, 35 , koordinatTask);
+            updateFont("400 20px Inter")
+            fillText(`${percentage}%`, 39 , koordinatTask);
             
-            context.fillStyle = "#31373D"; 
-            context.font = "400 20px Archivo";
-            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),18,true), 94.5 , koordinatTask);
+            updateFont("400 20px Inter")
+            fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(task.taskName),16,true), 98 , koordinatTask);
     
             context.fillStyle = "#888888"; 
-            context.font = "400 20px Archivo";
+            updateFont("400 20px Inter")
             context.textAlign = 'right'
-            context.fillText(Time.convertTime(+task.totalTime,'short',true), 510 , koordinatTask);
+            fillText(Time.convertTime(+task.totalTime,'short',true), 515 , koordinatTask);
             context.textAlign = 'left'
 
     
-            drawProgressBar(context,296,koordinatProgressTask,percentage,'short')
+            drawProgressBar(context,288.6,koordinatProgressTask,percentage,'short')
 
             koordinatTask += 39.2
             koordinatProgressTask += 40
         }
 
-        if(tasks.length < 2) context.drawImage(fillGrey,36,508)
-        if(tasks.length < 3) context.drawImage(fillGrey,36,548)
+        if(tasks.length < 2) context.drawImage(fillGrey,40,487)
+        if(tasks.length < 3) context.drawImage(fillGrey,40,527)
 
 
-
-        //--- Top Projects ----//
-
-
-        let koordinatProject = 683
-        let koordinatProgressProject = 676
-
-        // Project 1
-        for (let i = 0; i < projects.length; i++) {
-            if(i === 3) break
-            const project = projects[i];
-            const percentage = Math.round(+project.totalTime / totalProjectTime * 100) 
-
-            context.fillStyle = "#31373D"; 
-            context.font = "400 20px Archivo";
-            context.fillText(`${percentage}%`, 34.5 , koordinatProject);
-    
-            context.fillStyle = "#31373D"; 
-            context.font = "400 20px Archivo";
-            context.fillText(FormatString.truncateString(FormatString.capitalizeFirstChar(project.name),18,true), 94.8 , koordinatProject);
-    
-            context.fillStyle = "#888888"; 
-            context.font = "400 20px Archivo";
-            context.textAlign = 'right'
-            context.fillText(Time.convertTime(+project.totalTime,'short',true), 510 , koordinatProject);
-            context.textAlign = 'left'
-            drawProgressBar(context,296,koordinatProgressProject,percentage,'short')
-            koordinatProject += 40.2
-            koordinatProgressProject += 40
-        }
-
-        // context.drawImage(fillGrey,35,763)
-        if(projects.length < 2) context.drawImage(fillGrey,35,710)
-        if(projects.length < 3) context.drawImage(fillGrey,35,751)
-        
         //--- Coworking Friends ----//
-        const coworkerImageSize = 61;
-        let xCoordinatCoworker = 162.5
-        let yCoordinatCoworker = 806
+        const coworkerImageSize = 62;
+        let xCoordinatCoworker = 144
+        let yCoordinatCoworker = 586
 
-        const sizeFrame = 62
-        let xCoordinateFrame = 161.9
-        let yCoordinateFrame = 806
-        let counterCoordinatFrame = 0
-        const maxCoworkingParter = coworkingPartners > 4 ? 5 : coworkingPartners.length
+        const maxCoworkingParter = coworkingPartners.length > 4 ? 5 : coworkingPartners.length
         for (let i = 0; i < maxCoworkingParter; i++) {
             try {
                 const coworkingPartner = coworkingPartners[i];
                 const photo = await GenerateImage.getImage(coworkingPartner.avatar)
-                context.drawImage(photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize)
-                context.drawImage(frameAvatar,xCoordinateFrame,yCoordinateFrame,sizeFrame,sizeFrame)
+                drawRoundedImage(context,photo,xCoordinatCoworker,yCoordinatCoworker,coworkerImageSize,coworkerImageSize,coworkerImageSize/2)
     
                 if(coworkingPartner.streak > 1){
-                    context.textAlign = 'end'
+                    context.textAlign = 'center'
                     context.fillStyle = "#888888"; 
-                    context.font = "500 20px Archivo";
-                    context.drawImage(streakPartner,xCoordinatCoworker+2,yCoordinatCoworker + 50)
-                    context.fillText(coworkingPartner.streak,xCoordinatCoworker+31.8,yCoordinatCoworker + 73.8);
+                    updateFont("500 15px Inter")
+                    drawImage(
+                        coworkingPartner.streak > 99 ? streakPartnerThreeDigit : coworkingPartner.streak > 9 ? streakPartnerTwoDigit : streakPartner,
+                        xCoordinatCoworker+5,yCoordinatCoworker + 51
+                    )
+                    fillText(coworkingPartner.streak,xCoordinatCoworker+24,yCoordinatCoworker + 69);
                 }
-                counterCoordinatFrame += 0.01
-                xCoordinatCoworker += 76.2
-                xCoordinateFrame += 76.2 + counterCoordinatFrame 
+                xCoordinatCoworker += 80
             } catch (error) {
                 ChannelController.sendError('invalid avatar image',coworkingPartners[i].id)
                 supabase.from("Users")

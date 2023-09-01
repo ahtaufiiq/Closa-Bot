@@ -428,19 +428,18 @@ class FocusSessionController {
         return coworkingPartners
     }
 
-    static async getRecapFocusSession(client,userId,dateOnly){
+    static async getRecapFocusSession(userId,dateOnly){
         const queryDate = dateOnly ? `?date=${dateOnly}` : ''
-        const [coworkingPartners, tasks, projectThisWeek,dataUser] = await Promise.all([
+        const [coworkingPartners, tasks,dataUser] = await Promise.all([
             FocusSessionController.getAllCoworkingPartners(userId),
             RequestAxios.get(`voice/dailySummary/${userId}${queryDate}`),
-            RequestAxios.get(`voice/weeklyProject/${userId}${queryDate}`),
-            UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession')
+            UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime')
         ])
 
-        const {dailyWorkTime,totalPoint,totalFocusSession} = dataUser.body
+        const {dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime} = dataUser.body
 
         return {
-            dailyWorkTime,totalPoint,tasks,projectThisWeek,coworkingPartners,totalSession:totalFocusSession
+            dailyWorkTime,totalPoint,tasks,coworkingPartners,totalSession:totalFocusSession,totalCoworkingTime
         }
 
     }
