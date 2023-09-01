@@ -180,14 +180,14 @@ module.exports = {
 						if(yesterdayProgress){
 							const incrementVibePoint = yesterdayProgress.totalTime
 							const yesterdayDateOnly = Time.getDateOnly(Time.getNextDate(-1))
-							const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId,yesterdayDateOnly)
+							const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,totalCoworkingTime,tasks} = await FocusSessionController.getRecapFocusSession(userId,yesterdayDateOnly)
 							const buffer = await GenerateImage.dailySummary({
 								user:newMember.member.user,
 								coworkingPartners:coworkingPartners,
 								dailyWorkTime,
-								projects:projectThisWeek,
 								tasks,
 								totalSession,
+								totalCoworkingTime,
 								dateOnly:yesterdayDateOnly
 							})
 							let totalTaskTime = 0
@@ -200,14 +200,14 @@ module.exports = {
 							const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
 							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,-1))
 						}
-						const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,projectThisWeek,tasks} = await FocusSessionController.getRecapFocusSession(newMember.client,userId)
+						const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,totalCoworkingTime,tasks} = await FocusSessionController.getRecapFocusSession(userId)
 						const buffer = await GenerateImage.dailySummary({
 							user:newMember.member.user,
 							coworkingPartners:coworkingPartners,
 							dailyWorkTime,
-							projects:projectThisWeek,
 							tasks,
-							totalSession
+							totalSession,
+							totalCoworkingTime
 						})
 						let totalTaskTime = 0
 						let totalTaskFocusTime = 0
