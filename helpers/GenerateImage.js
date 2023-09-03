@@ -1392,7 +1392,7 @@ class GenerateImage{
         function drawProgressBar(context,x,y,percentage,type='long',width=6){
             context.beginPath()
             let maxLength = 485 * imageResolution
-            if(type === 'short') maxLength = 100
+            if(type === 'short') maxLength = 106.2
             if(percentage >= 100) percentage = 100
             maxLength -= 6.3 * imageResolution
             context.moveTo(x * imageResolution, y * imageResolution);
@@ -1516,7 +1516,7 @@ class GenerateImage{
             context.textAlign = 'left'
 
     
-            drawProgressBar(context,288.6,koordinatProgressTask,percentage,'short')
+            drawProgressBar(context,289.1,koordinatProgressTask,percentage,'short')
 
             koordinatTask += 39.2
             koordinatProgressTask += 40
