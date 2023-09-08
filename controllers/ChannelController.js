@@ -74,8 +74,8 @@ class ChannelController{
             .select("notificationId")
             .eq('id',userId)
             .single()
-            if(!data.body || !data.body.notificationId) return null
-            const thread = await ChannelController.getThread(channelNotifications,data.body.notificationId)
+            if(!data.data || !data.data.notificationId) return null
+            const thread = await ChannelController.getThread(channelNotifications,data.data.notificationId)
             return thread
         }
     }
@@ -85,8 +85,8 @@ class ChannelController{
             .select('id,project,goalType')
             .eq('id',goalId)
             .single()
-        if(!data.body) return null
-        const {goalType,project,id} = data.body
+        if(!data.data) return null
+        const {goalType,project,id} = data.data
         const channelGoals = ChannelController.getChannel(client,goalType === 'default' ? CHANNEL_GOALS : CHANNEL_6WIC)
         let thread = await ChannelController.getThread(channelGoals,id)
         if(!thread){
@@ -217,7 +217,7 @@ class ChannelController{
 
                 setTimeout(async () => {
                     const data = await supabase.from('GuidelineInfos').select('latestNotificationTime').eq('UserId',UserId).single()
-                    if(data.body?.latestNotificationTime === latestNotificationTime){
+                    if(data.data?.latestNotificationTime === latestNotificationTime){
                         if(thread) thread.setArchived(true)
                         else DiscordWebhook.sendError(`${UserId} : archivedThreadInactive isArchived`)
                     }

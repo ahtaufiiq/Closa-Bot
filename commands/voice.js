@@ -29,10 +29,10 @@ module.exports = {
 				.eq('cohort',cohort)
 				.then(async data=>{
 					const channelPartyRoom = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-					for (let i = 0; i < data.body.length; i++) {
-						const partyId = data.body[i].id
-						const members = data.body[i].MemberPartyRooms.map(member=>member.UserId)
-						const threadId = data.body[i].msgId
+					for (let i = 0; i < data.data.length; i++) {
+						const partyId = data.data[i].id
+						const members = data.data[i].MemberPartyRooms.map(member=>member.UserId)
+						const threadId = data.data[i].msgId
 						const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
 						supabase.from('TemporaryVoices')
 							.insert({
@@ -45,7 +45,7 @@ module.exports = {
 							.update({voiceChannelId})
 							.eq('id',partyId)
 							.then()
-						const tagPartyMembers = PartyController.formatTagPartyMembers(data.body[i].MemberPartyRooms)
+						const tagPartyMembers = PartyController.formatTagPartyMembers(data.data[i].MemberPartyRooms)
 						const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
 						threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 					}
@@ -59,11 +59,11 @@ module.exports = {
 				.eq('id',partyId)
 				.single()
 				.then(async data=>{
-					if(!data.body) return
+					if(!data.data) return
 
 					const channelPartyRoom = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-					const members = data.body.MemberPartyRooms.map(member=>member.UserId)
-					const threadId = data.body.msgId
+					const members = data.data.MemberPartyRooms.map(member=>member.UserId)
+					const threadId = data.data.msgId
 					const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(interaction.client,`Party ${partyId}`,members)
 					supabase.from('TemporaryVoices')
 							.insert({
@@ -76,7 +76,7 @@ module.exports = {
 						.update({voiceChannelId})
 						.eq('id',partyId)
 						.then()
-					const tagPartyMembers = PartyController.formatTagPartyMembers(data.body.MemberPartyRooms)
+					const tagPartyMembers = PartyController.formatTagPartyMembers(data.data.MemberPartyRooms)
 					const threadParty = await ChannelController.getThread(channelPartyRoom,threadId)
 					threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 				})

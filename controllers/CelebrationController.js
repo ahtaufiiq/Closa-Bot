@@ -27,8 +27,8 @@ class CelebrationController {
 
 			UserController.getActiveMembers('id,notificationId')
 				.then(async data=>{
-					for (let i = 0; i < data.body.length; i++) {
-						const {id:userId,notificationId} = data.body[i]
+					for (let i = 0; i < data.data.length; i++) {
+						const {id:userId,notificationId} = data.data[i]
 						ChannelController.sendToNotification(
 							client,
 							CelebrationMessage.writeCelebration(userId),
@@ -110,7 +110,7 @@ class CelebrationController {
 			.select()
 			.eq('cohort',cohort)
 
-		return data.body
+		return data.data
 	}
 
 	static getDataCelebrationFromMessage(message){

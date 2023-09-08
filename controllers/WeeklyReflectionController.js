@@ -110,7 +110,7 @@ class WeeklyReflectionController {
 			.select()
 			.eq('date',Time.getTodayDateOnly())
 
-		return data.body
+		return data.data
 	}
 
 	static getDataReflectionFromMessage(message){

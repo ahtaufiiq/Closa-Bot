@@ -60,7 +60,7 @@ class GuidelineInfoController {
             .select('id')
             .eq("UserId",UserId)
             .is('redeemedBy',null)
-        return data.body.length > 0
+        return data.data.length > 0
     }
     
     static async isHaveProfile(UserId){
@@ -69,7 +69,7 @@ class GuidelineInfoController {
             .eq('UserId',UserId)
             .limit(1)
             .single()
-        return !!data.body
+        return !!data.data
     }
 
     static async addNewData(UserId,msgGuidelineId){
@@ -77,7 +77,7 @@ class GuidelineInfoController {
             .select()
             .eq('UserId',UserId)
             .single()
-        if(data.body){
+        if(data.data){
             return await supabase.from("GuidelineInfos")
                 .update({id:msgGuidelineId})
                 .eq("UserId",UserId)
@@ -99,10 +99,10 @@ class GuidelineInfoController {
             GuidelineInfoController.isHaveProfile(UserId),
             ReferralCodeController.getTotalInvited(UserId)
         ])
-        if(!data.body) return {isHaveProfile,totalInvite}
+        if(!data.data) return {isHaveProfile,totalInvite}
         
-        const {id,showSubmitTestimonial,totalNotification,statusCompletedQuest} = data.body
-        let {endMembership,onboardingStep} = data.body.Users
+        const {id,showSubmitTestimonial,totalNotification,statusCompletedQuest} = data.data
+        let {endMembership,onboardingStep} = data.data.Users
         if(onboardingStep !== 'done' && onboardingStep !== null) return {onboardingStep,statusCompletedQuest,totalNotification,msgGuidelineId:id,}
         if(endMembership) endMembership = Time.getFormattedDate(Time.getDate(endMembership),false,'long')
 
@@ -196,13 +196,13 @@ class GuidelineInfoController {
         .eq('UserId',UserId)
         .single()
 
-        const statusCompletedQuest = {...data.body.statusCompletedQuest}
+        const statusCompletedQuest = {...data.data.statusCompletedQuest}
         statusCompletedQuest[step] = true
         const updatedData = await supabase.from("GuidelineInfos")
             .update({statusCompletedQuest})
             .eq('UserId',UserId)
             .single()
-        return data.body.statusCompletedQuest[step] === updatedData.body.statusCompletedQuest[step]
+        return data.data.statusCompletedQuest[step] === updateddata.data.statusCompletedQuest[step]
 
     }
 }

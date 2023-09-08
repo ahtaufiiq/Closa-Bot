@@ -13,13 +13,13 @@ module.exports = {
 			.eq("id",member.user.id)
 			.single()
 
-		if(!data.body) return
+		if(!data.data) return
 		supabase.from("Users")
 			.update({notificationId:null})
 			.eq('id',member.user.id)
 			.then()
-		if(data.body.notificationId){
-			const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.body.notificationId)
+		if(data.data.notificationId){
+			const thread = await ChannelController.getNotificationThread(member.client,member.user.id,data.data.notificationId)
 			thread.delete()
 			GuidelineInfoController.deleteData(member.user.id)
 		}

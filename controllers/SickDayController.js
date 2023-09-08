@@ -40,7 +40,7 @@ class SickDayController{
                 .select('goalId,longestStreak,totalDay,totalPoint,lastDone')
                 .eq("id",interaction.user.id)
                 .single()
-        const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
+        const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.data
         let goalName = 'Consistency'
         if (goalId) {
             const thread = await ChannelController.getGoalThread(interaction.client,goalId)
@@ -51,7 +51,7 @@ class SickDayController{
         const totalPriceTicket = SickDayController.calculatePriceSickTicket(totalTicket)
         const dataSickTicket = await SickDayController.checkSickTicket(interaction.user.id,startDate,endDate)
 
-        if(data.body?.totalPoint < totalPriceTicket){
+        if(data.data?.totalPoint < totalPriceTicket){
             await interaction.editReply(SickDayMessage.notHaveEnoughPoint(interaction.user.id))
         }else if(dataSickTicket.isAlreadyHaveSickTicket){
             await interaction.editReply(SickDayMessage.alreadyHaveSickTicket(dataSickTicket.date))
@@ -112,11 +112,11 @@ class SickDayController{
 		ruleActivateSickTicket.minute = 0
 		schedule.scheduleJob(ruleActivateSickTicket,async function(){
             const data = await SickDayController.getAllActiveSickTicket(Time.getTodayDateOnly())
-            const users = data.body.map(el => el.Users)
+            const users = data.data.map(el => el.Users)
             SickDayController.shareToProgress(client,users)
             
-            for (let i = 0; i < data.body.length; i++) {
-                const sickTicket = data.body[i];
+            for (let i = 0; i < data.data.length; i++) {
+                const sickTicket = data.data[i];
                 const userId = sickTicket.UserId
                 AdvanceReportController.updateDataWeeklyPurchaseTicket(userId,'sick')
                 // PartyController.updateDataProgressRecap(userId,'sick')
@@ -211,9 +211,9 @@ class SickDayController{
             .eq('type','sick')
             .order('message',{ascending:true})
 
-        if (data.body.length > 0) {
+        if (data.data.length > 0) {
             result.isAlreadyHaveSickTicket = true
-            const dateOnly = data.body[0].message
+            const dateOnly = data.data[0].message
             result.date = Time.getFormattedDate(Time.getDate(dateOnly),false,'long').split(',')[0]
         }
         return result

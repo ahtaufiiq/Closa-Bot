@@ -17,8 +17,8 @@ class DailyReport {
 				.eq('lastActive',Time.getDateOnly(Time.getNextDate(-6)))
 				.gte('endMembership',Time.getDateOnly(Time.getDate()))
 				.then(data=>{
-					if (data.body.length > 0) {
-						data.body.forEach(member=>{
+					if (data.data.length > 0) {
+						data.data.forEach(member=>{
 							MemberController.changeRole(client,member.id,ROLE_ACTIVE_MEMBER,ROLE_INACTIVE_MEMBER)
 							channelStatus.send(StatusReportMessage.inactiveMemberReport(member.id,member.email,member.goalId))
 						})
@@ -37,8 +37,8 @@ class DailyReport {
 		// 		.eq('UserId',userId)
 		// 		.single()
 				
-		// 	if(data.body){
-		// 		channelStatus.send(StatusReportMessage.activeMemberReport(data.body.Users.id,data.body.Users?.email,data.body.Users.goalId,data.body.updatedAt))
+		// 	if(data.data){
+		// 		channelStatus.send(StatusReportMessage.activeMemberReport(data.data.Users.id,data.data.Users?.email,data.data.Users.goalId,data.data.updatedAt))
 		// 	}
 		// }
 

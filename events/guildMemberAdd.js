@@ -22,7 +22,7 @@ module.exports = {
 			.eq('id',member.user.id)
 			.single()
 		
-		if (!data.body) {
+		if (!data.data) {
 			await supabase.from("Users")
 				.insert([{
 					id:member.user.id,

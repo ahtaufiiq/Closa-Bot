@@ -61,13 +61,13 @@ class VacationController{
                 .select('goalId,longestStreak,totalDay,totalPoint,lastDone')
                 .eq("id",interaction.user.id)
                 .single()
-        const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
+        const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.data
         let goalName = 'Consistency'
         if (goalId) {
             const thread = await ChannelController.getGoalThread(interaction.client,goalId)
             goalName = thread.name.split('by')[0]
         }
-        if(data.body?.totalPoint >= 250){
+        if(data.data?.totalPoint >= 250){
             VacationController.updateMessageTotalTicketSold(interaction.client,1)
 
             supabase.from('VacationTickets')
@@ -111,8 +111,8 @@ class VacationController{
         .eq("id",interaction.user.id)
         .single()
 
-        if(data.body?.totalPoint >= totalPrice){
-            const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.body
+        if(data.data?.totalPoint >= totalPrice){
+            const {goalId,longestStreak,totalDay,totalPoint,lastDone} = data.data
             const endDate = Time.getDateOnly(Time.getNextDate(totalTicket-1,startDate))
             const dataVacationUser = await VacationController.checkVacationTicket(interaction.user.id,startDate,endDate)
 
@@ -199,11 +199,11 @@ class VacationController{
 		ruleActivateVacation.minute = 0
 		schedule.scheduleJob(ruleActivateVacation,async function(){
             const data = await VacationController.getAllActiveVacationTicket(Time.getTodayDateOnly())
-            const users = data.body.map(el => el.Users)
+            const users = data.data.map(el => el.Users)
             VacationController.shareToProgress(client,users)
             
-            for (let i = 0; i < data.body.length; i++) {
-                const vacation = data.body[i];
+            for (let i = 0; i < data.data.length; i++) {
+                const vacation = data.data[i];
                 const userId = vacation.UserId
                 AdvanceReportController.updateDataWeeklyPurchaseTicket(userId,'vacation')
                 // PartyController.updateDataProgressRecap(userId,'vacation')
@@ -322,9 +322,9 @@ class VacationController{
             .eq('type','vacation')
             .order('message',{ascending:true})
 
-        if (data.body.length > 0) {
+        if (data.data.length > 0) {
             result.isAlreadyHaveVacationTicket = true
-            const dateOnly = data.body[0].message
+            const dateOnly = data.data[0].message
             result.date = Time.getFormattedDate(Time.getDate(dateOnly),false,'long').split(',')[0]
         }
         return result

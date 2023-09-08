@@ -118,10 +118,10 @@ class BoostController{
 					.eq('onVacation',false)
 					.gte('currentStreak',4)
 					.then(data =>{
-						if (data.body.length > 0) {
+						if (data.data.length > 0) {
 							ChannelController.updateChannelVisibilityForMember(client,CHANNEL_BOOST,true)
-							BoostController.incrementTotalBoostLocal(data.body.length)
-							data.body.forEach(async member=>{
+							BoostController.incrementTotalBoostLocal(data.data.length)
+							data.data.forEach(async member=>{
 								const {user} = await MemberController.getMember(client,member.id)
 								const msg = await channelBoost.send(BoostMessage.aboutToLoseStreak(user,member.currentStreak))
 								supabase.from("Reminders")
@@ -143,8 +143,8 @@ class BoostController{
 				.select('id,notificationId')
 				.gte('lastDone',Time.getDateOnly(Time.getNextDate(-14)))
 				.then(data=>{
-					if (data.body.length > 0) {
-						data.body.forEach(async member=>{
+					if (data.data.length > 0) {
+						data.data.forEach(async member=>{
 							const {id:userId,notificationId} = member
 							ChannelController.sendToNotification(
 								client,
@@ -199,8 +199,8 @@ class BoostController{
 			.eq('id',id)
 			.single()
 
-		let totalBoost = data.body ? data.body.total + 1 : 1
-		if (data.body) {
+		let totalBoost = data.data ? data.data.total + 1 : 1
+		if (data.data) {
 			supabase.from("Boosts")	
 				.update({
 					total:totalBoost,

@@ -46,7 +46,7 @@ class CoworkingController {
 
             CoworkingController.getCoworkingEvent(interaction.message.id)
                 .then(data=>{
-                    const {name,rules,date,totalMinute,totalSlot} = data.body
+                    const {name,rules,date,totalMinute,totalSlot} = data.data
                     const duration = Time.convertTime(totalMinute, "short")
                     const dateString = CoworkingController.formatDateToString(Time.getDate(date))
                     modal.addComponents(
@@ -194,10 +194,10 @@ class CoworkingController {
                             .eq('id',member.id)
                             .single()
                             .then(async data => {
-                                const notificationId = data.body?.notificationId
+                                const notificationId = data.data?.notificationId
                                 ChannelController.sendToNotification(
                                     client,
-                                    CoworkingMessage.notifCoworkingStarted(type,data.body.id,eventId),
+                                    CoworkingMessage.notifCoworkingStarted(type,data.data.id,eventId),
                                     member.id,
                                     notificationId
                                 )
@@ -213,8 +213,8 @@ class CoworkingController {
             .select("UserId")
             .eq('EventId',eventId)
         const sessionGuests = []
-        for (let i = 0; i < data.body?.length; i++) {
-            const {UserId} = data.body[i];
+        for (let i = 0; i < data.data?.length; i++) {
+            const {UserId} = data.data[i];
             sessionGuests.push(MessageFormatting.tagUser(UserId))
         }
         return sessionGuests
@@ -324,9 +324,9 @@ class CoworkingController {
 			.select()
 			.eq('type',"fiveMinutesBeforeCoworking")
 			.gte('time',new Date().toUTCString())
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:eventId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:eventId} = data.data[i];
             CoworkingController.remindFiveMinutesBeforeCoworking(client,time,eventId)
 		}
 	}
@@ -660,7 +660,7 @@ class CoworkingController {
                     .eq('EventId',id)
                     .is('alreadyJoined',false)
                     .then(data => {
-                            data.body.forEach(attendance=>{
+                            data.data.forEach(attendance=>{
                             ChannelController.sendToNotification(
                                 interaction.client,
                                 CoworkingMessage.notifySessionJustStarted(attendance.UserId,hostname,joinedChannelId),
@@ -682,7 +682,7 @@ class CoworkingController {
             .select()
             .eq('UserId',UserId)
             .eq("EventId",EventId)
-        return data.body.length > 0
+        return data.data.length > 0
     }
 
     static async updateHostId(newHostId,EventId){

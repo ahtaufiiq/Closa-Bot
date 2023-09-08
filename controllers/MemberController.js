@@ -28,7 +28,7 @@ class MemberController{
 
     static async sendToDM(client,messageContent,UserId,remindToOpenDM=false){
         const data = await UserController.getDetail(UserId,'DMChannelId,attemptSendDM,notificationId')
-        const {DMChannelId,attemptSendDM,notificationId} = data.body
+        const {DMChannelId,attemptSendDM,notificationId} = data.data
         try {
             const {user} = await MemberController.getMember(client,UserId)
             const msg = await user.send(messageContent)

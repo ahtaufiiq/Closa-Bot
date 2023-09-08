@@ -87,9 +87,9 @@ class RecurringMeetupController {
 			.eq('type',"twoDayBeforeMeetup")
 			.gte('time',new Date().toUTCString())
 
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.remindTwoDayBeforeMeetup(client,time,partyId)
 		}
 	}
@@ -165,9 +165,9 @@ class RecurringMeetupController {
 			.eq('type',"oneDayBeforeMeetup")
 			.gte('time',new Date().toUTCString())
 
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.remindOneDayBeforeMeetup(client,time,partyId)
 		}
 	}
@@ -196,9 +196,9 @@ class RecurringMeetupController {
 			.eq('type',"oneHourBeforeMeetup")
 			.gte('time',new Date().toUTCString())
 
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.remindOneHourBeforeMeetup(client,time,partyId)
 		}
 	}
@@ -241,9 +241,9 @@ class RecurringMeetupController {
 			.select()
 			.eq('type',"tenMinutesBeforeMeetup")
 			.gte('time',new Date().toUTCString())
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.remindTenMinuteBeforeMeetup(client,time,partyId)
 		}
 	}
@@ -268,9 +268,9 @@ class RecurringMeetupController {
 			.eq('type',"fiveMinutesBeforeMeetup")
 			.gte('time',new Date().toUTCString())
 
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.scheduleCreateTemporaryVoiceChannel(client,time,partyId)
 		}
 	}
@@ -285,7 +285,7 @@ class RecurringMeetupController {
 					.eq('id',partyId)
 					.single()
 					.then(async data=>{
-						const members = data.body.MemberPartyRooms.map(member=>member.UserId)
+						const members = data.data.MemberPartyRooms.map(member=>member.UserId)
 						const voiceChannelId = await RecurringMeetupController.createPrivateVoiceChannel(client,`Party ${partyId}`,members)
 						supabase.from('TemporaryVoices')
 							.insert({
@@ -309,9 +309,9 @@ class RecurringMeetupController {
 			.eq('type',"weeklyMeetup")
 			.gte('time',new Date().toUTCString())
 
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			RecurringMeetupController.remindWeeklyMeetup(client,time,partyId)
 		}
 	}
@@ -433,7 +433,7 @@ class RecurringMeetupController {
 			.eq('UserId',interaction.user.id)
 			.gte('meetupDate',new Date().toUTCString())
 
-		if (data.body.length === 0) {
+		if (data.data.length === 0) {
 			await supabase.from("WeeklyMeetups")
 			.insert({
 				meetupDate,
@@ -485,7 +485,7 @@ class RecurringMeetupController {
 			.eq('type',"cannotAttendMeetup")
 
 		if(isAcceptAttendance){
-			if(data.body.length > 0){
+			if(data.data.length > 0){
 				await supabase.from("Reminders")
 				.delete()
 				.eq('message',weeklyMeetupId)
@@ -493,7 +493,7 @@ class RecurringMeetupController {
 				.eq('type',"cannotAttendMeetup")
 			}
 		}else{
-			if (data.body.length === 0) {
+			if (data.data.length === 0) {
 				await supabase.from("Reminders")
 				.insert({
 					type:'cannotAttendMeetup',
@@ -547,7 +547,7 @@ class RecurringMeetupController {
 					.single()
 					.then(async data=>{
 						const channelParty = ChannelController.getChannel(newMember.client,CHANNEL_PARTY_ROOM)
-						const threadParty = await ChannelController.getThread(channelParty,data.body.msgId)
+						const threadParty = await ChannelController.getThread(channelParty,data.data.msgId)
 						const dataParty = await supabase.from("PartyRooms")
 							.select()
 							.eq('id',partyId)

@@ -20,40 +20,40 @@ class PointController{
                 let key,value 
                 switch (type) {
                     case ChannelType.GuildText:
-                        if (channelId === CHANNEL_GENERAL && Time.isMoreThanOneMinute(data.body?.lastTimeChatGeneral)) {
+                        if (channelId === CHANNEL_GENERAL && Time.isMoreThanOneMinute(data.data?.lastTimeChatGeneral)) {
                             key = 'lastTimeChatGeneral'
                             value = new Date()
-                        }else if(channelId === CHANNEL_MEMES && !PointController.isTodayDate(data.body?.lastDateMemes)){
+                        }else if(channelId === CHANNEL_MEMES && !PointController.isTodayDate(data.data?.lastDateMemes)){
                             key = "lastDateMemes"
                             value = Time.getTodayDateOnly()
-                        }else if(channelId === CHANNEL_SESSION_GOAL && !PointController.isTodayDate(data.body?.lastDateSessionGoal)){
+                        }else if(channelId === CHANNEL_SESSION_GOAL && !PointController.isTodayDate(data.data?.lastDateSessionGoal)){
                             key = "lastDateSessionGoal"
                             value = Time.getTodayDateOnly()
-                        }else if(channelId === CHANNEL_FORUM && !PointController.isTodayDate(data.body?.lastDateForum)){
+                        }else if(channelId === CHANNEL_FORUM && !PointController.isTodayDate(data.data?.lastDateForum)){
                             key = "lastDateForum"
                             value = Time.getTodayDateOnly()
-                        }else if(channelId === CHANNEL_CELEBRATE && PointController.isBiweeklyDate(data.body?.lastDateCelebrate)){
+                        }else if(channelId === CHANNEL_CELEBRATE && PointController.isBiweeklyDate(data.data?.lastDateCelebrate)){
                             key = "lastDateCelebrate"
                             value = Time.getTodayDateOnly()
-                        }else if(channelId === CHANNEL_GOALS && PointController.isBiweeklyDate(data.body?.lastDateGoal)){
+                        }else if(channelId === CHANNEL_GOALS && PointController.isBiweeklyDate(data.data?.lastDateGoal)){
                             key = "lastDateGoal"
                             value = Time.getTodayDateOnly()
                         }
                         break;
                     case ChannelType.PublicThread:
-                        if(Time.isMoreThanOneMinute(data.body?.lastTimeChatThread)){
+                        if(Time.isMoreThanOneMinute(data.data?.lastTimeChatThread)){
                             key = 'lastTimeChatThread'
                             value = new Date()
                         }
                         break;
                     case "goal":
-                        if(PointController.isBiweeklyDate(data.body?.lastDateGoal)){
+                        if(PointController.isBiweeklyDate(data.data?.lastDateGoal)){
                             key = 'lastDateGoal'
                             value = Time.getTodayDateOnly()
                         }
                         break;
                     case "reaction":
-                        if(Time.isMoreThanOneMinute(data.body?.lastTimeReaction)){
+                        if(Time.isMoreThanOneMinute(data.data?.lastTimeReaction)){
                             key = "lastTimeReaction"
                             value = new Date()
                         }
@@ -155,8 +155,8 @@ class PointController{
         }
 
 		if(data?.body){
-            const lastBoostDate = Time.getDateOnly(Time.getDate(data.body.lastBoost))
-			if (Time.isMoreThanOneMinute(data.body.lastBoost)) result.isMoreThanOneMinute = true
+            const lastBoostDate = Time.getDateOnly(Time.getDate(data.data.lastBoost))
+			if (Time.isMoreThanOneMinute(data.data.lastBoost)) result.isMoreThanOneMinute = true
             if(lastBoostDate !== Time.getTodayDateOnly()) result.isIncrementPoint = true
 		}else{
 			result.isMoreThanOneMinute = true

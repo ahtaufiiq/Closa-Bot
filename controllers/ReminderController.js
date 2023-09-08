@@ -32,9 +32,9 @@ class ReminderController{
 		.neq('goalId',null)
 		.gte('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 		.then(async data=>{
-			if (data.body) {
-				for (let i = 0; i < data.body.length; i++) {
-					const user = data.body[i];
+			if (data.data) {
+				for (let i = 0; i < data.data.length; i++) {
+					const user = data.data[i];
 					const [hours,minutes] = user.reminderProgress.split(/[.:]/)
 					let ruleReminderProgress = new schedule.RecurrenceRule();
 					ruleReminderProgress.hour = Time.minus7Hours(hours)
@@ -77,9 +77,9 @@ class ReminderController{
 			.neq('goalId',null)
 			.gte('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 			.then(data=>{
-				if(data.body){
-					for (let i = 0; i < data.body.length; i++) {
-						const user = data.body[i];
+				if(data.data){
+					for (let i = 0; i < data.data.length; i++) {
+						const user = data.data[i];
 						const [hours,minutes] = user.reminderHighlight.split(/[.:]/)
 						
 						let ruleReminderHighlight = new schedule.RecurrenceRule();
@@ -123,8 +123,8 @@ class ReminderController{
 			.gte('time',new Date().toUTCString())
 			.eq('type',"highlight")
 			.then(data=>{
-				if(data.body){
-					data.body.forEach(reminder=>{
+				if(data.data){
+					data.data.forEach(reminder=>{
 						schedule.scheduleJob(reminder.time,async function() {
 							ChannelController.sendToNotification(
 								client,

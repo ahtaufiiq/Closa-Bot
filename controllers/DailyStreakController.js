@@ -26,8 +26,8 @@ class DailyStreakController {
 					.gte('currentStreak',2)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
-						if (data.body) {
-							data.body.forEach(async member=>{
+						if (data.data) {
+							data.data.forEach(async member=>{
 								const {id:userId,notificationId} =  member
 								ChannelController.sendToNotification(
 									client,
@@ -54,8 +54,8 @@ class DailyStreakController {
 					.eq('onVacation',false)
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-2)))
 					.then(data=>{
-						if (data.body) {
-							data.body.forEach(async member=>{
+						if (data.data) {
+							data.data.forEach(async member=>{
 								const {id:userId,notificationId,currentStreak} = member
 								ChannelController.sendToNotification(
 									client,
@@ -75,8 +75,8 @@ class DailyStreakController {
 			.select('id,lastDone')
 			.gte('lastDone',Time.getDateOnly(Time.getNextDate(-7)))
 			.then(data=>{
-				if (data.body.length > 0) {
-					data.body.forEach(async member=>{
+				if (data.data.length > 0) {
+					data.data.forEach(async member=>{
 						UserController.updateLastSafety(Time.getDateOnly(Time.getNextDate(13)),member.id)
 						const safetyCooldown = []
 						if(member.lastDone === Time.getDateOnly(Time.getNextDate(-2))){
@@ -126,8 +126,8 @@ class DailyStreakController {
 					.gte('currentStreak',21)
 					.or(`lastDone.eq.${threeDayBefore},lastSafety.eq.${twoDayBefore}`)
 					.then(data=>{
-						if (data.body) {
-							data.body.forEach(async member=>{
+						if (data.data) {
+							data.data.forEach(async member=>{
 								const {id:userId,notificationId,currentStreak,lastDone,lastSafety} = member
 								if((lastDone === threeDayBefore && lastSafety <= threeDayBefore) || (lastSafety === twoDayBefore && lastDone < twoDayBefore)){
 									const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
@@ -202,7 +202,7 @@ class DailyStreakController {
 			.limit(1)
 			.single()
 
-		const alreadyBuyRepairStreak = data.body
+		const alreadyBuyRepairStreak = data.data
 		return !alreadyBuyRepairStreak
 	}
 
@@ -259,9 +259,9 @@ class DailyStreakController {
 			.not('avatarURL','is',null)
 			.gt('currentStreak',0)
 			.limit(5)
-		const sisa = 5 - data.body.length
+		const sisa = 5 - data.data.length
 		let counter = 0
-		const friends = data.body
+		const friends = data.data
 		if(sisa > 0){
 			const [higherStreak,lowerStreak] = await Promise.all([
 				supabase.from("Users")

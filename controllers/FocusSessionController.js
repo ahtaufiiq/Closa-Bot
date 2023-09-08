@@ -94,7 +94,7 @@ class FocusSessionController {
             .select()
             .eq('UserId',userId)
             .order('updatedAt',{ascending:false})
-        return data.body
+        return data.data
     }
 
     static getFormattedMenu(projects){
@@ -161,8 +161,8 @@ class FocusSessionController {
                 .select('*,Projects(id,name)')
                 .eq('threadId',threadId)
                 .single()
-            const taskName = data.body?.taskName
-            const projectName = data.body?.Projects?.name
+            const taskName = data.data?.taskName
+            const projectName = data.data?.Projects?.name
             if(focusRoomUser[UserId].isFocus){
                 FocusSessionController.countdownFocusSession(msgTimer,taskName,projectName,focusRoomUser,UserId,'restart')
             }else{
@@ -285,7 +285,7 @@ class FocusSessionController {
         .is('session',null)
         .single()
 
-        return data.body
+        return data.data
     }
 
     static async updateTime(userId,totalTime,focusTime,breakTime,projectName,yesterdayProgress){
@@ -322,8 +322,8 @@ class FocusSessionController {
             .neq('UserId',userId)
             .not('msgFocusTimerId','is',null)
             .then(async data => {
-                for (let i = 0; i < data.body.length; i++) {
-                    const {UserId} = data.body[i];
+                for (let i = 0; i < data.data.length; i++) {
+                    const {UserId} = data.data[i];
                     const id = FocusSessionController.getFormatIdCoworkingPartner(userId,UserId)
 
                     await supabase.from('CoworkingPartners')
@@ -339,8 +339,8 @@ class FocusSessionController {
             .select()
             .like('id',`%${userId}%`)
             .gt('currentSession',0)
-        for (let i = 0; i < data.body.length; i++) {
-            const {id,currentTime,totalSession,totalTime,updatedAt,lastCoworking,currentStreak,currentSession,longestStreak,endLongestStreak} = data.body[i];
+        for (let i = 0; i < data.data.length; i++) {
+            const {id,currentTime,totalSession,totalTime,updatedAt,lastCoworking,currentStreak,currentSession,longestStreak,endLongestStreak} = data.data[i];
             const date = Time.getDate(updatedAt)
             const dateOnly = Time.getDateOnly(date)
             FocusSessionController.decreaseCurrentSession(id)

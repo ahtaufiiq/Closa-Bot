@@ -49,7 +49,7 @@ class AchievementBadgeController{
                     .then(data=>{
                         ChannelController.sendToNotification(
                             client,
-                            AchievementBadgeMessage.achieveSevenCoworkingStreak(user,files,data.body,partner.username),
+                            AchievementBadgeMessage.achieveSevenCoworkingStreak(user,files,data.data,partner.username),
                             user.id
                         )
                     })
