@@ -74,7 +74,9 @@ module.exports = {
 		WeeklyReport.sendWeeklyStatus(client)
 		OnboardingController.reminderContinueQuest(client)
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
-		// PaymentController.remindMember(client)
+		PaymentController.remindMember(client)
+		PaymentController.handleSuccessExtendMembership(client)
+
 		// PaymentController.remindBeforeKickoffCohort(client)
 		// TimelineController.sendNotifBeforeCelebration(client)
 		// TimelineController.sendNotif5DaysBeforeCelebration(client)
