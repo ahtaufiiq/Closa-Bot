@@ -9,6 +9,7 @@ const PaymentMessage = require('../views/PaymentMessage');
 const ChannelController = require('./ChannelController');
 const MemberController = require('./MemberController');
 const UserController = require('./UserController');
+const GuidelineInfoController = require('./GuidelineInfoController');
 
 class PaymentController{
 
@@ -240,19 +241,18 @@ class PaymentController{
     static handleSuccessExtendMembership(client){
         supabase
 		.channel('any')
-		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Payments' }, payload => {
+		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Payments' }, async payload => {
             try {
-                setTimeout(async () => {
-                    const {UserId,price,type} = payload.new
-                    const dataUser = await UserController.getDetail(UserId,'endMembership,notificationId')
-                    if(dataUser){
-                        const {user} = await MemberController.getMember(client,UserId)
-                        const membershipType = type?.split('-')[0]
-                        const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
-                        user.send(PaymentMessage.successExtendMembership(endMembershipDate,membershipType))
-                        ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
-                    }
-                }, 5000);
+                const {UserId,price,type} = payload.new
+                const dataUser = await UserController.getDetail(UserId,'endMembership,notificationId')
+                if(dataUser){
+                    GuidelineInfoController.updateMessageGuideline(client,UserId)
+                    const {user} = await MemberController.getMember(client,UserId)
+                    const membershipType = type?.split('-')[0]
+                    const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
+                    user.send(PaymentMessage.successExtendMembership(endMembershipDate,membershipType))
+                    ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
+                }
                 
             } catch (error) {
                 ChannelController.sendError(error,'handle payment')
