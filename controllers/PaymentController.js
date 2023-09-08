@@ -243,13 +243,14 @@ class PaymentController{
 		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Payments' }, payload => {
             try {
                 setTimeout(async () => {
-                const {UserId,price,type} = payload.new
-                    const dataUser = await UserController.getDetail(UserId,'endMembership')
+                    const {UserId,price,type} = payload.new
+                    const dataUser = await UserController.getDetail(UserId,'endMembership,notificationId')
                     if(dataUser){
-                        const member = await MemberController.getMember(client,UserId)
-                        const membershipType = type.split('-')[0]
-                        member.send(PaymentMessage.successExtendMembership(dataUser.data.endMembership,membershipType))
-                        ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(dataUser.data.endMembership,membershipType))
+                        const {user} = await MemberController.getMember(client,UserId)
+                        const membershipType = type?.split('-')[0]
+                        const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
+                        user.send(PaymentMessage.successExtendMembership(endMembershipDate,membershipType))
+                        ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
                     }
                 }, 5000);
                 
