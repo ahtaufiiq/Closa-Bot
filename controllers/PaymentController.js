@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER, CHANNEL_STATUS } = require('../helpers/config');
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER, CHANNEL_STATUS, ROLE_PRO_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const LocalData = require('../helpers/LocalData.js');
 const MessageFormatting = require('../helpers/MessageFormatting');
@@ -86,6 +86,7 @@ class PaymentController{
                                 userId,
                                 notificationId
                             )
+                            MemberController.removeRole(client,userId,ROLE_PRO_MEMBER)
                             user.send(PaymentMessage.remindMembershipLateThreeDay(userId,membershipType))
                                 .catch(err=>console.log("Cannot send message to user"))
                         })
@@ -251,6 +252,9 @@ class PaymentController{
                     const membershipType = type?.split('-')[0]
                     const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
                     user.send(PaymentMessage.successExtendMembership(endMembershipDate,membershipType))
+                    if (membershipType === 'pro') {
+                        MemberController.addRole(client,UserId,ROLE_PRO_MEMBER)
+                    }
                     ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
                 }
                 
