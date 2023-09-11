@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER, CHANNEL_STATUS } = require('../helpers/config');
+const { CHANNEL_WELCOME, ROLE_NEW_MEMBER, ROLE_MEMBER, CHANNEL_STATUS, ROLE_PRO_MEMBER } = require('../helpers/config');
 const Email = require('../helpers/Email');
 const LocalData = require('../helpers/LocalData.js');
 const MessageFormatting = require('../helpers/MessageFormatting');
@@ -8,12 +8,14 @@ const Time = require('../helpers/time');
 const PaymentMessage = require('../views/PaymentMessage');
 const ChannelController = require('./ChannelController');
 const MemberController = require('./MemberController');
+const UserController = require('./UserController');
+const GuidelineInfoController = require('./GuidelineInfoController');
 
 class PaymentController{
 
     static getEndedMembership(dayLeft=0){
         return supabase.from('Users')
-        .select('id,endMembership,notificationId')
+        .select('id,endMembership,notificationId,membershipType')
         .eq('endMembership',Time.getReminderDate(dayLeft))
     }
     static async remindMember(client){
@@ -24,8 +26,8 @@ class PaymentController{
             
             PaymentController.getEndedMembership(5)
                 .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(dataUser=>{
+                    if (data.data) {
+                        data.data.forEach(dataUser=>{
                             PaymentController.sendMembershipReminder(client,dataUser,5)
                         })
                     }
@@ -33,16 +35,16 @@ class PaymentController{
 
 			PaymentController.getEndedMembership(1)
                 .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(dataUser=>{
+                    if (data.data) {
+                        data.data.forEach(dataUser=>{
                             PaymentController.sendMembershipReminder(client,dataUser,1)
                         })
                     }
                 })
 			PaymentController.getEndedMembership()
                 .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(dataUser=>{
+                    if (data.data) {
+                        data.data.forEach(dataUser=>{
                             const channelStatus = ChannelController.getChannel(client,CHANNEL_STATUS)
                             channelStatus.send(`💳 **Membership ended today for** ${MessageFormatting.tagUser(dataUser.id)}`)
                             PaymentController.sendMembershipReminder(client,dataUser)
@@ -57,61 +59,62 @@ class PaymentController{
 		schedule.scheduleJob(rulePaymentReminder,function(){
             PaymentController.getEndedMembership(-1)
                 .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(async dataUser=>{
-                            const {id:userId,endMembership,notificationId} = dataUser
+                    if (data.data) {
+                        data.data.forEach(async dataUser=>{
+                            const {id:userId,endMembership,notificationId,membershipType} = dataUser
                             const user = await MemberController.getMember(client,userId)
                             ChannelController.sendToNotification(
                                 client,
-                                PaymentMessage.remindMembershipLateOneDay(userId),
+                                PaymentMessage.remindMembershipLateOneDay(userId,membershipType),
                                 userId,
                                 notificationId
                             )
-                            user.send(PaymentMessage.remindMembershipLateOneDay(userId))
+                            user.send(PaymentMessage.remindMembershipLateOneDay(userId,membershipType))
                                 .catch(err=>console.log("Cannot send message to user"))
                         })
                     }
                 })
             PaymentController.getEndedMembership(-3)
                 .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(async dataUser=>{
-                            const {id:userId,endMembership,notificationId} = dataUser
+                    if (data.data) {
+                        data.data.forEach(async dataUser=>{
+                            const {id:userId,endMembership,notificationId,membershipType} = dataUser
                             const user = await MemberController.getMember(client,userId)
                             ChannelController.sendToNotification(
                                 client,
-                                PaymentMessage.remindMembershipLateThreeDay(userId),
+                                PaymentMessage.remindMembershipLateThreeDay(userId,membershipType),
                                 userId,
                                 notificationId
                             )
-                            user.send(PaymentMessage.remindMembershipLateThreeDay(userId))
+                            MemberController.removeRole(client,userId,ROLE_PRO_MEMBER)
+                            user.send(PaymentMessage.remindMembershipLateThreeDay(userId,membershipType))
                                 .catch(err=>console.log("Cannot send message to user"))
                         })
                     }
                 })
         })
 
-        let ruleRemindJoinNextCohort = new schedule.RecurrenceRule();
-		ruleRemindJoinNextCohort.hour = Time.minus7Hours(21)
-		ruleRemindJoinNextCohort.minute = 0
-		schedule.scheduleJob(rulePaymentReminder,function(){
-            PaymentController.getEndedMembership(-3)
-                .then(async data=>{
-                    if (data.body) {
-                        data.body.forEach(async dataUser=>{
-                            const {id:userId,endMembership,notificationId} = dataUser
-                            const user = await MemberController.getMember(client,userId)
-                            user.send(PaymentMessage.remindJoinNextCohort(userId))
-                                .catch(err=>console.log("Cannot send message to user"))
-                            MemberController.removeRole(client,userId,ROLE_NEW_MEMBER)
-                            MemberController.removeRole(client,userId,ROLE_MEMBER)
-                        })
-                    }
-                })
-        })
+        // let ruleRemindJoinNextCohort = new schedule.RecurrenceRule();
+		// ruleRemindJoinNextCohort.hour = Time.minus7Hours(21)
+		// ruleRemindJoinNextCohort.minute = 0
+		// schedule.scheduleJob(rulePaymentReminder,function(){
+        //     PaymentController.getEndedMembership(-3)
+        //         .then(async data=>{
+        //             if (data.data) {
+        //                 data.data.forEach(async dataUser=>{
+        //                     const {id:userId,endMembership,notificationId} = dataUser
+        //                     const user = await MemberController.getMember(client,userId)
+        //                     user.send(PaymentMessage.remindJoinNextCohort(userId))
+        //                         .catch(err=>console.log("Cannot send message to user"))
+        //                     MemberController.removeRole(client,userId,ROLE_NEW_MEMBER)
+        //                     MemberController.removeRole(client,userId,ROLE_MEMBER)
+        //                 })
+        //             }
+        //         })
+        // })
     }
     static async sendMembershipReminder(client,dataUser,dayLeft=0){
-        const {id:userId,endMembership,notificationId} = dataUser
+        const {id:userId,endMembership,notificationId,membershipType} = dataUser
         const user = await MemberController.getMember(client,userId)
         const endMembershipDate = Time.getFormattedDate(Time.getDate(endMembership))
 
@@ -119,11 +122,11 @@ class PaymentController{
 
         ChannelController.sendToNotification(
             client,
-            PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft),
+            PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft,membershipType),
             userId,
             notificationId
         )
-        user.send(PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft))
+        user.send(PaymentMessage.remindEndedMembership(userId,endMembershipDate,dayLeft,membershipType))
             .catch(err=>console.log("Cannot send message to user"))
     }
     static sendEmailReminder(members,dayLeft=0){
@@ -150,7 +153,7 @@ class PaymentController{
             .eq('UserId',userId)
             .eq('time',reminder5daysBeforeCohort.toUTCString())
         
-        if (data.body.length === 0) {
+        if (data.data.length === 0) {
             supabase.from('Reminders')
             .insert([
                 {
@@ -187,8 +190,8 @@ class PaymentController{
 			.gte('time',new Date().toUTCString())
 			.eq('type',"joinNextCohort")
 			.then(data=>{
-				if (data.body) {
-                    data.body.forEach(reminder=>{
+				if (data.data) {
+                    data.data.forEach(reminder=>{
                         schedule.scheduleJob(reminder.time,async function() {
                             const user = await MemberController.getMember(client,reminder.UserId)
                             if (reminder.message === "5") {
@@ -234,6 +237,32 @@ class PaymentController{
             user.send(PaymentMessage.remindEndedMembership(user,endedMembership))
                 .catch(err=>console.log("Cannot send message to user"))
         }
+    }
+
+    static handleSuccessExtendMembership(client){
+        supabase
+		.channel('any')
+		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Payments' }, async payload => {
+            try {
+                const {UserId,price,type} = payload.new
+                const dataUser = await UserController.getDetail(UserId,'endMembership,notificationId')
+                if(dataUser){
+                    GuidelineInfoController.updateMessageGuideline(client,UserId)
+                    const {user} = await MemberController.getMember(client,UserId)
+                    const membershipType = type?.split('-')[0]
+                    const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
+                    user.send(PaymentMessage.successExtendMembership(UserId,endMembershipDate,membershipType))
+                    if (membershipType === 'pro') {
+                        MemberController.addRole(client,UserId,ROLE_PRO_MEMBER)
+                    }
+                    ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(UserId,endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
+                }
+                
+            } catch (error) {
+                ChannelController.sendError(error,'handle payment')
+            }
+		})
+		.subscribe()
     }
 }
 

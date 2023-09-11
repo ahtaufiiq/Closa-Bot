@@ -27,11 +27,10 @@ Website → https://closa.me
 Twitter → https://twitter.com/joinclosa
 
 **Membership Status**
-Active until → ∞
+${membership ? `Active until → ${membership}` : 'Not started yet'}
 
 **Invite Friends **
 ${totalInvite} friends invited :gift:`)
-// ${membership ? `Active until → ${membership}` : 'Not started yet'}
             ],
             components:[MessageComponent.createComponent(
                 ...buttons

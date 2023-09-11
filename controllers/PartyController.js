@@ -171,10 +171,10 @@ class PartyController{
 			.select()
 			.eq('type',"reminderScheduleMeetup")
 			.gte('time',new Date().toUTCString())
-		if(data.body.length === 0 ) return
+		if(data.data.length === 0 ) return
 
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			PartyController.remindUserToResponseScheduleMeetup(client,time,partyId)
 		}
 	}
@@ -222,9 +222,9 @@ class PartyController{
 			.eq('type',"autoRescheduleMeetup")
 			.gte('time',new Date().toUTCString())
 		
-		if(data.body.length === 0 ) return
-		for (let i = 0; i < data.body.length; i++) {
-			const {time,message:partyId} = data.body[i];
+		if(data.data.length === 0 ) return
+		for (let i = 0; i < data.data.length; i++) {
+			const {time,message:partyId} = data.data[i];
 			PartyController.autoRescheduleMeetup(client,time,partyId)
 		}
 	}
@@ -253,8 +253,8 @@ class PartyController{
 			.select("*,MemberPartyRooms(Users(goalId),UserId,project,isLeader,isTrialMember)")
 			.eq('cohort',cohort)
 		
-		for (let i = 0; i < data.body.length; i++) {
-			const party = data.body[i]
+		for (let i = 0; i < data.data.length; i++) {
+			const party = data.data[i]
 			const members = PartyController.sortMemberByLeader(party?.MemberPartyRooms)
 			
 			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
@@ -452,12 +452,12 @@ class PartyController{
 			.eq('alreadySetHighlight',false)
 			.single()
 			.then(async data => {
-				 if(data.body){
+				 if(data.data){
 						supabase.from("Goals")
 							.update({alreadySetHighlight:true})
-							.eq('id',data.body.id)
+							.eq('id',data.data.id)
 							.then()
-						const {reminderHighlight,notificationId}= data.body.Users
+						const {reminderHighlight,notificationId}= data.data.Users
 						ChannelController.sendToNotification(
 							client,
 							reminderHighlight ? PartyMessage.settingReminderHighlightExistingUser(userId,reminderHighlight,task) : PartyMessage.settingReminderHighlight(userId,task),
@@ -481,7 +481,7 @@ class PartyController{
 		.eq('id',interaction.user.id)
 		.single()
 		.then(data => {
-			if (data.body.reminderProgress !== shareProgressAt) {
+			if (data.data.reminderProgress !== shareProgressAt) {
 				supabase.from("Users")
 				.update({reminderProgress:shareProgressAt})
 				.eq('id',interaction.user.id)
@@ -646,7 +646,7 @@ class PartyController{
 			.select()
 			.eq('cohort',this.getNextCohort())
 			.order('createdAt',{ascending:false})
-		return data.body
+		return data.data
 	}
 
 	static sortMemberByLeader(members){
@@ -737,7 +737,7 @@ class PartyController{
 			.eq('UserId',userId)
 			.eq('partyId',partyNumber)
 			.single()
-		return !!data.body
+		return !!data.data
 	}
 
 	static async saveDataJoinPartyToMemberPartyRoom(){
@@ -745,9 +745,9 @@ class PartyController{
 		.select("id,UserId,project")
 		.eq('cohort',PartyController.getThisCohort())
 
-		if(data.body){
+		if(data.data){
 			const endPartyDate = LocalData.getData().deadlineGoal
-			const memberPartyRooms = data.body.map(({id,UserId,project})=>{
+			const memberPartyRooms = data.data.map(({id,UserId,project})=>{
 				return {
 					UserId,
 					project,
@@ -778,10 +778,10 @@ class PartyController{
 									.eq("UserId",user.id)
 									.gte('endPartyDate',Time.getTodayDateOnly())
 									.single()
-								if(data.body){
-									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.body.PartyRooms.MemberPartyRooms,user.id)
+								if(data.data){
+									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.data.PartyRooms.MemberPartyRooms,user.id)
 									const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
-									const threadParty = await ChannelController.getThread(channelPartyRoom,data.body.PartyRooms.msgId)
+									const threadParty = await ChannelController.getThread(channelPartyRoom,data.data.PartyRooms.msgId)
 									threadParty.send(PartyMessage.partyReminder(user.id,dataActiveUser.body.UserId))
 								}
 							})
@@ -897,10 +897,10 @@ class PartyController{
 				.select("id,msgId,MemberPartyRooms(UserId,Users(name,lastDone,lastSafety))")
 				.gte('disbandDate',tomorrowDate)
 
-			if(data.body.length === 0) return
+			if(data.data.length === 0) return
 
 			const insertData = []
-			data.body.forEach(party=>{
+			data.data.forEach(party=>{
 				const {id,msgId,MemberPartyRooms} = party
 				const partyMember = {}
 				MemberPartyRooms.forEach((member)=>{
@@ -944,8 +944,8 @@ class PartyController{
 					.eq('date',Time.getTomorrowDateOnly())
 					.single()
 					.then(data=>{
-						if(data.body){
-							const {progressMember} = data.body
+						if(data.data){
+							const {progressMember} = data.data
 							progressMember[userId].lastDone = Time.getTodayDateOnly()
 							supabase.from("PartyProgressRecaps")
 							.update({progressMember})

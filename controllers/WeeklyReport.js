@@ -12,7 +12,7 @@ class WeeklyReport{
                      .select('price')
 
         let total = 0
-        data.body.forEach(payment=>{
+        data.data.forEach(payment=>{
             total += payment.price
         })
 
@@ -24,7 +24,7 @@ class WeeklyReport{
                         .select('price')
                         .gte('createdAt',Time.getDateOnly(Time.getBeginningOfTheMonth()))
         let total = 0
-        data.body.forEach(payment=>{
+        data.data.forEach(payment=>{
             total += payment.price
         })
         
@@ -38,7 +38,7 @@ class WeeklyReport{
             .gte('createdAt',Time.getDateOnly(Time.getBeginningOfTheMonth(-1)))
             .lt('createdAt',Time.getDateOnly(Time.getBeginningOfTheMonth()))
         let total = 0
-        data.body.forEach(payment=>{
+        data.data.forEach(payment=>{
             total += payment.price
         })
         
@@ -51,7 +51,7 @@ class WeeklyReport{
             .gte('endMembership',Time.getTodayDateOnly())
             .lt('lastActive',Time.getDateOnly(Time.getNextDate(-7)))
 
-        return data.body
+        return data.data
     }
 
     static async getNewMember(){
@@ -59,7 +59,7 @@ class WeeklyReport{
             .select('name')
             .gte('createdAt',Time.getDateOnly(Time.getBeginningOfTheMonth()))
             .eq('type','Payment')
-        return data.body
+        return data.data
     }
 
     static async getAllMember(){
@@ -67,7 +67,7 @@ class WeeklyReport{
             .select('name,lastActive')
             .gte('endMembership',Time.getTodayDateOnly())
             .order('lastActive',{ascending:false})
-        return data.body
+        return data.data
     }
 
     static async getAllMemberPreviousMonth(){
@@ -75,7 +75,7 @@ class WeeklyReport{
             .select('name,lastActive')
             .gte('endMembership',Time.getDateOnly(Time.getBeginningOfTheMonth(-1)))
             .order('lastActive',{ascending:false})
-        return data.body
+        return data.data
     }
 
     static async getPreviousWeeklyStat(){
@@ -84,7 +84,7 @@ class WeeklyReport{
             .eq('date',Time.getDateOnly(Time.getNextDate(-7)))
             .single()
 
-        return data.body
+        return data.data
     }
 
     static async getPreviousMonthlyRetentionRate(){
@@ -93,13 +93,13 @@ class WeeklyReport{
             .gte('date',Time.getDateOnly(Time.getBeginningOfTheMonth(-1)))
             .lt('date',Time.getDateOnly(Time.getBeginningOfTheMonth()))
 
-        if (data.body.length === 0) return 0
+        if (data.data.length === 0) return 0
         
         let retentionRate = 0
-        data.body.forEach(stat=>{
+        data.data.forEach(stat=>{
             retentionRate += stat.retentionRate
         })
-        retentionRate /= data.body.length
+        retentionRate /= data.data.length
         return Number(retentionRate.toFixed(0))
     }
 
@@ -108,13 +108,13 @@ class WeeklyReport{
             .select()
             .gte('date',Time.getDateOnly(Time.getBeginningOfTheMonth()))    
 
-        if (data.body.length === 0) return 0
+        if (data.data.length === 0) return 0
 
         let retentionRate = 0
-        data.body.forEach(stat=>{
+        data.data.forEach(stat=>{
             retentionRate += stat.retentionRate
         })
-        retentionRate /= data.body.length
+        retentionRate /= data.data.length
         return Number(retentionRate.toFixed(0))
     }
 

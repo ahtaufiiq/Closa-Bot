@@ -54,7 +54,7 @@ class UserController{
             .select('totalPoint')
             .eq('id',userId)
             .single()
-        return data.body.totalPoint
+        return data.data.totalPoint
     }
 
 	static async getNotificationId(userId){
@@ -62,7 +62,7 @@ class UserController{
 			.select('notificationId')
 			.eq('id',userId)
 			.single()
-		return data.body.notificationId
+		return data.data.notificationId
 	}
 
 	static async incrementTotalPoints(increment,id_user){

@@ -192,7 +192,7 @@ class ReferralCodeController{
         .single()
         .then(async data=>{
             const isAdditionalReferral = totalActiveReferral > 0
-            const {id:userId,notificationId} = data.body
+            const {id:userId,notificationId} = data.data
             const bufferReferralCover = await GenerateImage.referralCover(user)
             const files = [new AttachmentBuilder(bufferReferralCover,{name:`referral_cover_${user.username}.png`})]
             ChannelController.sendToNotification(
@@ -243,7 +243,7 @@ class ReferralCodeController{
                 .eq('id',userId)
                 .single()
                 
-        const totalDaysThisCohort = data.body.totalDaysThisCohort
+        const totalDaysThisCohort = data.data.totalDaysThisCohort
         let totalNewReferral = 0
         const slotReferral = 5 - totalActiveReferral
         if (totalDaysThisCohort >= 18) {
@@ -263,7 +263,7 @@ class ReferralCodeController{
             .select('id')
             .eq("UserId",userId)
             .is('redeemedBy',null)
-        return data.body.length
+        return data.data.length
     }
 
     static async isEligibleGenerateNewReferral(userId){
@@ -282,9 +282,9 @@ class ReferralCodeController{
             .eq('UserId',userId)
             .is('redeemedBy',null)
 
-        if (data.body?.length > 0) {
+        if (data.data?.length > 0) {
             let allReferralAlreadyBeenRedeemed = true
-            const referral = data.body.map(code=>{
+            const referral = data.data.map(code=>{
                 if(!code.isRedeemed) allReferralAlreadyBeenRedeemed = false
                 return `${code.referralCode}${code.isRedeemed ? " (redeemed ✅)" :''}`
             })
@@ -307,9 +307,9 @@ class ReferralCodeController{
             description:"",
             ownedBy:null
         }
-        if (data.body) {
-            const referral = data.body
-            response.ownedBy = data.body.UserId
+        if (data.data) {
+            const referral = data.data
+            response.ownedBy = data.data.UserId
             if(referral.isRedeemed){
                 response.valid = false
                 response.description = 'redeemed'
@@ -343,7 +343,7 @@ class ReferralCodeController{
         .eq("id",userId)
         .single()
 
-        return data.body.totalDay
+        return data.data.totalDay
     }
     static async getTotalDaysThisCohort(userId) {
         const data = await supabase.from("Users")
@@ -351,7 +351,7 @@ class ReferralCodeController{
         .eq("id",userId)
         .single()
 
-        return data.body.totalDaysThisCohort
+        return data.data.totalDaysThisCohort
     }
 
     static async updateTotalDaysThisCohort(userId){
@@ -407,7 +407,7 @@ class ReferralCodeController{
             .select("id")
             .eq('redeemedBy',userId)
         
-        return data.body?.length === 0
+        return data.data?.length === 0
     }
 
     static async isEligibleToRedeemRederral(userId){
@@ -416,7 +416,7 @@ class ReferralCodeController{
             .eq("id",userId)
             .single()
             
-        return data.body?.endMembership === null
+        return data.data?.endMembership === null
     }
 }
 

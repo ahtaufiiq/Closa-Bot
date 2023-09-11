@@ -95,8 +95,8 @@ class TimelineController{
             .select('id,notificationId')
             .gte('endMembership',Time.getDateOnly(Time.getDate()))
             .then(data=>{
-                if (data.body.length > 0) {
-                    data.body.forEach(async member=>{
+                if (data.data.length > 0) {
+                    data.data.forEach(async member=>{
                         const {id:userId,notificationId} = member
                         ChannelController.sendToNotification(
                             client,

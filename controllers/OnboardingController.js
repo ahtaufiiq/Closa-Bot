@@ -99,8 +99,8 @@ class OnboardingController {
             .eq('type','reminderContinueQuest')
             .eq('message',Time.getTodayDateOnly())
             .then(async data=>{
-                for (let i = 0; i < data.body.length; i++) {
-                    const reminder = data.body[i]
+                for (let i = 0; i < data.data.length; i++) {
+                    const reminder = data.data[i]
                     schedule.scheduleJob(reminder.time,async function() {
                         ChannelController.sendToNotification(
                             client,
@@ -164,7 +164,7 @@ class OnboardingController {
             GuidelineInfoController.updateStatusCompletedQuest(userId,'secondQuest')
             UserController.getDetail(userId,'goalId,lastDone')
                 .then(data=>{
-                    if(data.body.lastDone){
+                    if(data.data.lastDone){
                         OnboardingController.updateOnboardingStep(client,userId,'done')
                         ReferralCodeController.addNewReferral(userId,3)
                         OnboardingController.deleteReminderToStartOnboarding(userId)
@@ -179,7 +179,7 @@ class OnboardingController {
                             )
                             await MemberController.addRole(client,userId,ROLE_NEW_MEMBER)
                         }, 1000 * 15);
-                    }else if(data.body.goalId){
+                    }else if(data.data.goalId){
                         OnboardingController.updateOnboardingStep(client,userId,'thirdQuest')
                         setTimeout(() => {
                             ChannelController.sendToNotification(

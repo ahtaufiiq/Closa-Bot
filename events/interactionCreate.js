@@ -343,7 +343,7 @@ module.exports = {
 							.eq('id',interaction.message.id)
 							.single()
 							.then(data=>{
-								let {voiceRoomId} = data.body
+								let {voiceRoomId} = data.data
 								if(voiceRoomId){
 									CoworkingController.updateFocusRoom(interaction.client,interaction.user,voiceRoomId)
 								}
@@ -600,8 +600,8 @@ module.exports = {
 							.select('goalId,notificationId')
 							.eq('id',interaction.user.id)
 							.single()
-						notificationId = data.body.notificationId
-						await PartyController.addMemberPartyRoom(interaction.client,data.body?.goalId,value,interaction.user.id)
+						notificationId = data.data.notificationId
+						await PartyController.addMemberPartyRoom(interaction.client,data.data?.goalId,value,interaction.user.id)
 		
 						const dataPartyRooms = await supabase.from("PartyRooms")
 							.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -629,7 +629,7 @@ module.exports = {
 							)
 						}, 1000 * 60 * 15);
 
-						PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.body?.goalId)
+						PartyController.followGoalAccountabilityPartner(interaction.client,value,interaction.user.id,data.data?.goalId)
 						break;
 					case "joinPartyMode":{
 							const data = await supabase.from('JoinParties')
@@ -637,7 +637,7 @@ module.exports = {
 								.eq("UserId",interaction.user.id)
 								.eq('cohort',PartyController.getNextCohort())
 								.single()
-							if (data.body) {
+							if (data.data) {
 								await interaction.editReply(PartyMessage.alreadyJoinWaitingRoom())
 							}else{
 								ChannelController.sendToNotification(

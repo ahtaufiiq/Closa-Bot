@@ -233,7 +233,7 @@ class GoalController {
 			.limit(1)
 			.single()
 			.then(data=>{
-				if (!data.body) {
+				if (!data.data) {
 					supabase.from("Projects")
 						.insert({name:FormatString.capitalizeFirstChar(project),UserId:user.id})
 						.then()
@@ -271,7 +271,7 @@ class GoalController {
 			.select()
 			.eq('cohort',PartyController.getThisCohort())
 			.not('goal','is',null)
-			data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt})=>{
+			data.data.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt})=>{
 				const {user} = await MemberController.getMember(client,UserId)
 				GoalController.submitGoal(client,user,{project,goal,about,goalCategory,shareProgressAt})
 			})
@@ -292,7 +292,7 @@ class GoalController {
 		const thread = await ChannelController.createThread(msg,`Cohort ${PartyController.getThisCohort()}`)
 		const deadlineGoal = GoalController.getDeadlineGoal()
 		let roleChannel =''
-		data.body.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
+		data.data.forEach(async ({UserId,goal,project,about,goalCategory,shareProgressAt,role})=>{
 			const {user} = await MemberController.getMember(client,UserId)
 			if(roleChannel !== role) {
 				roleChannel = role
@@ -335,10 +335,10 @@ class GoalController {
         schedule.scheduleJob(ruleUpdateGoal,function(){
 			GoalController.getAllActiveGoal()
 				.then(async data=>{
-					if (data.body) {
-						for (let i = 0; i < data.body.length; i++) {
+					if (data.data) {
+						for (let i = 0; i < data.data.length; i++) {
 							await Time.wait(10000)
-							const goal = data.body[i];
+							const goal = data.data[i];
 							await GoalController.updateGoal(client,goal,goal?.Users?.preferredCoworkingTime)
 						}
 					}
@@ -358,8 +358,8 @@ class GoalController {
 				.eq('cohort',PartyController.getThisCohort())
 				.eq('alreadySetGoal',false)
 				.then(data=>{
-					if(data.body){
-						data.body.forEach(async member=>{
+					if(data.data){
+						data.data.forEach(async member=>{
 							const {UserId} = member
 							ChannelController.sendToNotification(
 								client,
@@ -411,12 +411,12 @@ class GoalController {
 
 	static async alreadyHaveGoal(userId){
 		const data = await supabase.from("Goals").select('id').eq("UserId",userId).gte('deadlineGoal',Time.getTodayDateOnly())
-		return data.body.length !== 0
+		return data.data.length !== 0
 	}
 
 	static async haveArchivedProject(UserId){
 		const data = await supabase.from("Goals").select("*").eq('UserId',UserId).lt('lastProgress',Time.getDateOnly(Time.getNextDate(-30))).limit(1).single()
-		return !!data.body
+		return !!data.data
 	}
 
     static async updateGoalId(goalId,userId){
@@ -579,7 +579,7 @@ class GoalController {
 		})
 		const thread = await ChannelController.getGoalThread(msg.client,goalId)
 		goalName = thread.name.split('by')[0]
-		let {totalDay,lastDone} = data.body
+		let {totalDay,lastDone} = data.data
 		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
 		const msgGoal = await thread.send(
 			GoalMessage.shareProgress(msg,files,totalDay)
@@ -618,16 +618,16 @@ class GoalController {
 				.single()
 		})
 		.then(async data=>{
-			let currentStreak = data.body.currentStreak + 1
-			let totalDay =  (data.body.totalDay || 0) + 1
+			let currentStreak = data.data.currentStreak + 1
+			let totalDay =  (data.data.totalDay || 0) + 1
 			
-			if (Time.isValidStreak(currentStreak,data.body.lastDone,data.body.lastSafety) || Time.isValidCooldownPeriod(data.body.lastDone)) {
-				if (Time.onlyMissOneDay(data.body.lastDone,data.body.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
+			if (Time.isValidStreak(currentStreak,data.data.lastDone,data.data.lastSafety) || Time.isValidCooldownPeriod(data.data.lastDone)) {
+				if (Time.onlyMissOneDay(data.data.lastDone,data.data.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
 					const missedDate = Time.getNextDate(-1)
 					missedDate.setHours(8)
 					await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
 				}
-				if (currentStreak > data.body.longestStreak) {
+				if (currentStreak > data.data.longestStreak) {
 					return supabase.from("Users")
 						.update({
 							currentStreak,
@@ -651,7 +651,7 @@ class GoalController {
 					currentStreak:1,
 					totalDay,
 				}
-				if (currentStreak > data.body.longestStreak) {
+				if (currentStreak > data.data.longestStreak) {
 					updatedData.longestStreak = currentStreak
 					updatedData.endLongestStreak = Time.getTodayDateOnly()
 				}
@@ -673,7 +673,7 @@ class GoalController {
 				totalPoint, 
 				endLongestStreak,
 				totalDaysThisCohort
-			} = data.body
+			} = data.data
 
 			if(totalDay === 20){
 				await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)

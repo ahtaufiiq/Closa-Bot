@@ -77,7 +77,7 @@ module.exports = {
 				.eq('id',user.id)
 				.single()
 			
-			if (!data.body) {
+			if (!data.data) {
 				await supabase.from("Users")
 					.insert([{
 						id:user.id,
@@ -196,7 +196,7 @@ module.exports = {
 			const user = interaction.options.getUser('user')
 			const data = await GoalController.getActiveGoal(user.id)
 
-			await GoalController.updateGoal(interaction.client,data.body,data.body.Users.preferredCoworkingTime)
+			await GoalController.updateGoal(interaction.client,data.data,data.data.Users.preferredCoworkingTime)
 			interaction.editReply('success update goal')
 		}else if(command === 'point'){
 			const user = interaction.options.getUser('user')

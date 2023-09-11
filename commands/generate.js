@@ -43,7 +43,7 @@ module.exports = {
 		}else if(command === 'repair'){
 			const user = interaction.options.getUser('user')
 			const data = await UserController.getDetail(user.id,'notificationId,currentStreak')
-			const {notificationId,currentStreak} = data.body
+			const {notificationId,currentStreak} = data.data
 			const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(user.id)
 			if(isValidGetRepairStreak){
 				const msg = await ChannelController.sendToNotification(

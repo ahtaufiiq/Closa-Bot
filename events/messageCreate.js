@@ -169,7 +169,7 @@ module.exports = {
 								msg.client,
 								HighlightReminderMessage.successScheduled(msg.content.split("🔆")[1].trim()),
 								msg.author.id,
-								data.body.notificationId
+								data.data.notificationId
 							)
 	
 							schedule.scheduleJob(date,async function () {
@@ -177,7 +177,7 @@ module.exports = {
 									msg.client,
 									HighlightReminderMessage.remindHighlightUser(msg.author.id,msg.content),
 									msg.author.id,
-									data.body.notificationId
+									data.data.notificationId
 								)
 							})
 							
@@ -233,7 +233,7 @@ module.exports = {
 						const msgSelectProject = await threadProgress.send(GoalMessage.selectGoal(msg.author.id,goalMenus,msg.id,taskId))
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
-							if(data.body.type === 'waiting'){
+							if(data.data.type === 'waiting'){
 								const goalId = allActiveGoal.body[0].id
 								await ChannelController.deleteMessage(msgSelectProject)
 								GoalController.postProgress(msg,goalId,taskId)
@@ -252,7 +252,7 @@ module.exports = {
 						const msgSelectProject = await threadProgress.send(GoalMessage.selectArchivedGoal(msg.author.id,goalMenus,msg.id,taskId))
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
-							if(data.body.type === 'waiting'){
+							if(data.data.type === 'waiting'){
 								const goalId = allArchivedGoal.body[0].id
 								await ChannelController.deleteMessage(msgSelectProject)
 								GoalController.postProgress(msg,goalId,taskId)
@@ -350,11 +350,11 @@ module.exports = {
 								const email = msgReferrence.embeds[0].fields[0].value
 								const totalMonth = type.toLowerCase() === 'year' ? total * 12 : total
 								const endMembership = await MembershipController.updateMembership(totalMonth,UserId)
-								Email.sendSuccessMembershipRenewal(data.body.name,data.body.email,endMembership)
+								Email.sendSuccessMembershipRenewal(data.data.name,data.data.email,endMembership)
 								user.send(`Hi <@${UserId}>, your membership status already extended until ${endMembership}.
 Thank you for your support to closa community!`)
 									.catch(err=>console.log("Cannot send message to user"))
-								msg.reply(`${data.body.name} membership status already extended until ${endMembership}`)
+								msg.reply(`${data.data.name} membership status already extended until ${endMembership}`)
 							}else if(paymentType === 'Payment'){
 								const email = msgReferrence.embeds[0].fields[4].value
 								const name = msgReferrence.embeds[0].fields[3].value
@@ -365,7 +365,7 @@ Thank you for your support to closa community!`)
 									.eq('id',UserId)
 									.single()
 									.then(data=>{
-										const date = Time.getFormattedDate(Time.getDate(data.body.endMembership))
+										const date = Time.getFormattedDate(Time.getDate(data.data.endMembership))
 										const startDate = Time.getFormattedDate(Time.getDate())
 										user.send(`Hi <@${UserId}>, your membership status until ${date}.
 Thank you for your support to closa community!`)
@@ -374,9 +374,9 @@ Thank you for your support to closa community!`)
 											.catch(err=>{
 											})
 											.finally(()=>{
-												Email.sendWelcomeToClosa(data.body.name,data.body.email,startDate)
+												Email.sendWelcomeToClosa(data.data.name,data.data.email,startDate)
 											})
-										msg.reply(`${data.body.name} membership status until ${date}`)
+										msg.reply(`${data.data.name} membership status until ${date}`)
 									})
 							}
 							

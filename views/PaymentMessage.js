@@ -1,7 +1,8 @@
+const { userMention } = require("discord.js")
 const { CHANNEL_REGISTRATION } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 class PaymentMessage{
-    static remindEndedMembership(userId,endedMembership,remindDay){
+    static remindEndedMembership(userId,endedMembership,remindDay,membershipType='pro'){
         let reminder = `within the next ${remindDay} day`
         if (remindDay === 0) {
             reminder = "Today"
@@ -9,26 +10,33 @@ class PaymentMessage{
             reminder = "Tomorrow"
         }
         return { 
-            content:`Hi <@${userId}> :wave:,
-Thank you for being part of Closa Community :sparkles:.
+            content:`Hi <@${userId}, a friendly reminder that your ${membershipType} membership will be ended ${reminder} on ${endedMembership}
 
-**A friendly reminder that your Closa membership will be ended ${reminder} on ${endedMembership}.**` , 
+You can continue supporting us as a ${membershipType} member via the button below.
+the fund will help us building a sustainable community for you.
 
+I hope you have a productive day ahead!`, 
             components: PaymentMessage.buttonLinkExtendMembership()
         }
     }
 
-    static remindMembershipLateOneDay(userId){
+    static remindMembershipLateOneDay(userId,membershipType='pro'){
         return { 
             content:`Hi <@${userId}>, we know you are busy. 
-So, we give you 3 more days for you to extend your membership.` , 
+So, you'll have 3 more days to keep your ${membershipType} membership.
+
+Your support will help us building a sustainable home for builders & passion projects.` , 
             components: PaymentMessage.buttonLinkExtendMembership()
         }
     }
-    static remindMembershipLateThreeDay(userId){
+    static remindMembershipLateThreeDay(userId,membershipType='pro'){
         return { 
-            content:`Hi <@${userId}>, today is the final call to extend your membership. 
-After that your community access will be restricted.` , 
+            content:`Hi <@${userId}>, it's been +3 days since since your ${membershipType} membership ended.
+
+You can continue supporting us as a ${membershipType} member via the button below,
+or Your will be revert back to free membership plan.
+
+I hope you have a productive day ahead!` , 
             components: PaymentMessage.buttonLinkExtendMembership()
         }
     }
@@ -85,10 +93,10 @@ learn more → <#${CHANNEL_REGISTRATION}>`
         }
     }
 
-    static buttonLinkExtendMembership(label="Extend membership"){
+    static  buttonLinkExtendMembership(label="Extend membership"){
         return [
             MessageComponent.createComponent(
-                MessageComponent.addLinkEmojiButton(label,"https://tally.so/r/wbRa2w",'💳')
+                MessageComponent.addLinkEmojiButton(label,"https://closa.me/pricing",'⭐')
             )
         ]
     }
@@ -100,8 +108,8 @@ learn more → <#${CHANNEL_REGISTRATION}>`
         ]
     }
 
-    static successExtendMembership(formattedDate){
-        return `Your closa membership status active until ${formattedDate}`
+    static successExtendMembership(UserId,formattedDate,membershipType){
+        return `Hi ${userMention(UserId)}, your ${membershipType} membership status active until ${formattedDate}`
     }
     
 }

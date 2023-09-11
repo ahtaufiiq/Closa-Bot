@@ -381,10 +381,10 @@ class AdvanceReportController{
             .eq('UserId',UserId)
             .eq('dateRange',AdvanceReportController.getWeekDateRange())
             .single()
-        if(data.body){
+        if(data.data){
             await supabase.from("CoworkingWeeklyReports")
                 .update({weeklyGoal:dailyWorkTime*7})
-                .eq('id',data.body.id)
+                .eq('id',data.data.id)
         }
     }
 
@@ -401,8 +401,8 @@ class AdvanceReportController{
             const data = await supabase.from('CoworkingWeeklyReports')
                 .select(`*,Users(totalFocusSession,avatarURL,username)`)
                 .eq('dateRange',dateRange)
-            for (let i = 0; i < data.body.length; i++) {
-                const advanceReport = data.body[i];
+            for (let i = 0; i < data.data.length; i++) {
+                const advanceReport = data.data[i];
                 const {totalFocusSession:totalSession,avatarURL,username} = advanceReport.Users
                 const dataPurchaseTicket = await supabase.from("WeeklyPurchaseTickets")
                 .select()

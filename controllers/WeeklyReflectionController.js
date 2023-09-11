@@ -13,8 +13,8 @@ class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
 		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 2`, async function(){
 			const data = LocalData.getData()
-			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-			const msg = await channelAnnouncement.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
+			const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+			const msg = await channelGeneral.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
 			ChannelController.createThread(msg,"Weekly Reflection",true)
 			data.msgIdWeeklyReflection = msg.id
 			LocalData.writeData(data)
@@ -42,8 +42,8 @@ class WeeklyReflectionController {
 		const date = Time.getDate()
 		if(!Time.isCooldownPeriod() && date.getDay() === 2 && date.getHours() >= 19){
 			const {msgIdWeeklyReflection} = LocalData.getData()
-			const channelAnnouncement = ChannelController.getChannel(client,CHANNEL_ANNOUNCEMENT)
-			const msg = await ChannelController.getMessage(channelAnnouncement,msgIdWeeklyReflection)
+			const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
+			const msg = await ChannelController.getMessage(channelGeneral,msgIdWeeklyReflection)
 			WeeklyReflectionController.countdownWritingReflection(msg)
 		}
 	}
@@ -110,7 +110,7 @@ class WeeklyReflectionController {
 			.select()
 			.eq('date',Time.getTodayDateOnly())
 
-		return data.body
+		return data.data
 	}
 
 	static getDataReflectionFromMessage(message){

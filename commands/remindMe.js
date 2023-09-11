@@ -63,7 +63,7 @@ module.exports = {
 						interaction.client,
 						HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
 						interaction.user.id,
-						data.body.notificationId
+						data.data.notificationId
 					)
 				})
 				

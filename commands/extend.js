@@ -34,7 +34,7 @@ module.exports = {
 			GuidelineInfoController.updateMessageGuideline(interaction.client,user.id)
 			await ChannelController.sendToNotification(
 				interaction.client,
-				PaymentMessage.successExtendMembership(formattedDate),
+				PaymentMessage.successExtendMembership(user.id,formattedDate,'pro'),
 				user.id
 			)
 			

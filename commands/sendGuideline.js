@@ -21,7 +21,7 @@ module.exports = {
 				.select('id,notificationId')
 				.eq('notificationId',interaction.channelId)
 				.single()
-			const {id,notificationId} = data.body
+			const {id,notificationId} = data.data
 			await GuidelineInfoController.generateGuideline(interaction.client,id,notificationId)
 		}else{
 			await GuidelineInfoController.generateGuideline(interaction.client,user.id)
