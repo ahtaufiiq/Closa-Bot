@@ -14,7 +14,7 @@ module.exports = {
 			.select('longestStreak')
 			.eq('id',interaction.user.id)
 			.single()
-		const {longestStreak} = dataUser.body
+		const {longestStreak} = dataUser.data
 
 		if(longestStreak < 7){
 			await interaction.editReply(`You don't have any achievements yet.

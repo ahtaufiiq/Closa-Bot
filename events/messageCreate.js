@@ -115,7 +115,7 @@ module.exports = {
 							const projects = await FocusSessionController.getAllProjects(userId)
 							const projectMenus = FocusSessionController.getFormattedMenu(projects)
 							const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
-							const taskId = dataSessionGoal.body.id
+							const taskId = dataSessionGoal.data.id
 	
 							threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
 								.then(msgSelecProject=>{
@@ -213,7 +213,7 @@ module.exports = {
 					const splittedMessage = msg.content.trimStart().split('\n')
 					let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 					if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
-					const threadProgress = await ChannelController.createThread(msg,titleProgress,allActiveGoal.body.length < 2)
+					const threadProgress = await ChannelController.createThread(msg,titleProgress,allActiveGoal.data.length < 2)
 					const dataProgress = await supabase.from("Todos")
 					.insert({
 						description:msg.content,
@@ -221,9 +221,9 @@ module.exports = {
 						msgProgressId:msg.id,
 						type:'waiting'
 					})
-					const taskId = dataProgress.body[0].id
-					if(allActiveGoal.body.length > 1 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
-						const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body)
+					const taskId = dataProgress.data[0].id
+					if(allActiveGoal.data.length > 1 || (allActiveGoal.data.length === 1 && haveArchivedProject)){
+						const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.data)
 						if(haveArchivedProject){
 							goalMenus.push({
 								label:'📁 Archived projects',
@@ -234,26 +234,26 @@ module.exports = {
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
 							if(data.data.type === 'waiting'){
-								const goalId = allActiveGoal.body[0].id
+								const goalId = allActiveGoal.data[0].id
 								await ChannelController.deleteMessage(msgSelectProject)
 								GoalController.postProgress(msg,goalId,taskId)
 								await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
 							}
 							threadProgress.setArchived(true)
 						}, Time.oneMinute() * 2);
-					}else if(allActiveGoal.body.length === 1){
-						const goalId = allActiveGoal.body[0].id
+					}else if(allActiveGoal.data.length === 1){
+						const goalId = allActiveGoal.data[0].id
 						GoalController.postProgress(msg,goalId,taskId)
 						await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
 						threadProgress.setArchived(true)
 					}else if(haveArchivedProject){
 						const allArchivedGoal = await GoalController.getArchivedGoalUser(msg.author.id)
-						const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
+						const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.data)
 						const msgSelectProject = await threadProgress.send(GoalMessage.selectArchivedGoal(msg.author.id,goalMenus,msg.id,taskId))
 						setTimeout(async () => {
 							const data = await supabase.from("Todos").select().eq('id',taskId).single()
 							if(data.data.type === 'waiting'){
-								const goalId = allArchivedGoal.body[0].id
+								const goalId = allArchivedGoal.data[0].id
 								await ChannelController.deleteMessage(msgSelectProject)
 								GoalController.postProgress(msg,goalId,taskId)
 								await threadProgress.send(`✅ updated to ${MessageFormatting.linkToInsideThread(goalId)}`)
@@ -291,14 +291,14 @@ module.exports = {
 						})
 					})
 	
-					if (dataUser.body?.goalId) {
-						const thread = await ChannelController.getGoalThread(msg.client,dataUser.body?.goalId)
+					if (dataUser.data?.goalId) {
+						const thread = await ChannelController.getGoalThread(msg.client,dataUser.data?.goalId)
 						thread.send({
 							content:msg.content,
 							files:filesCelebration
 						})
 					}
-					TestimonialController.askToWriteTestimonial(msg.client,msg.author.id,dataUser.body.notificationId)
+					TestimonialController.askToWriteTestimonial(msg.client,msg.author.id,dataUser.data.notificationId)
 					break;
 				case CHANNEL_MEMES:
 					const {isMemeContest} = LocalData.getData()
@@ -341,7 +341,7 @@ module.exports = {
 							.update({UserId})
 							.eq('id',idPayment)
 							.then(data=>{
-								if (data?.body) {
+								if (data?.data) {
 									 msg.react('✅')	
 								}
 							})

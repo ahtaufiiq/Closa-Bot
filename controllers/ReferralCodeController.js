@@ -58,8 +58,8 @@ class ReferralCodeController{
             .select('inviteCode')
             .eq('id',UserId)
             .single()
-        if(dataUser.body?.inviteCode){
-            return MessageFormatting.inviteLink(dataUser.body.inviteCode)
+        if(dataUser.data?.inviteCode){
+            return MessageFormatting.inviteLink(dataUser.data.inviteCode)
         }else{
             let invite = await ChannelController.getChannel(client,CHANNEL_GUIDELINE).createInvite({
                 maxAge:0,
@@ -273,7 +273,7 @@ class ReferralCodeController{
             .single()
         
 
-        return dataUser.body?.longestStreak >= 7
+        return dataUser.data?.longestStreak >= 7
     }
 
     static async getReferrals(userId){

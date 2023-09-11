@@ -25,9 +25,9 @@ module.exports = {
 			.eq('id',taggedUser.id)
 			.single()
 		if(command === 'notification'){
-			await interaction.reply({ephemeral:true,content:`Link to Notification: ${MessageFormatting.linkToInsideThread(dataUser.body?.notificationId)}`})			
+			await interaction.reply({ephemeral:true,content:`Link to Notification: ${MessageFormatting.linkToInsideThread(dataUser.data?.notificationId)}`})			
 		}else if(command === 'goal'){
-			await interaction.reply({ephemeral:true,content:`Link to Notification: ${MessageFormatting.linkToInsideThread(dataUser.body?.goalId)}`})			
+			await interaction.reply({ephemeral:true,content:`Link to Notification: ${MessageFormatting.linkToInsideThread(dataUser.data?.goalId)}`})			
 		}
 	},
 };

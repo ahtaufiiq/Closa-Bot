@@ -96,7 +96,7 @@ module.exports = {
 		}else if(command === 'party__add_user'){
 			const user = interaction.options.getUser('user')
 			const partyNumber = interaction.options.getString('party')
-			const {body:{goalId}} = await UserController.getDetail(user.id,'goalId')
+			const {data:{goalId}} = await UserController.getDetail(user.id,'goalId')
 			await PartyController.addMemberPartyRoom(interaction.client,goalId,partyNumber,user.id)
 			const dataPartyRooms = await supabase.from("PartyRooms")
 				.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
@@ -104,14 +104,14 @@ module.exports = {
 				.single()
 		
 			const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body.msgId)
+			const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.data.msgId)
 			threadPartyRoom.send(PartyMessage.userJoinedParty(user.id))
 			
-			PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,partyNumber)
+			PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.data.msgId,partyNumber)
 		
 			ChannelController.sendToNotification(
 				interaction.client,
-				PartyMessage.replySuccessJoinParty(user.id,dataPartyRooms.body.msgId),
+				PartyMessage.replySuccessJoinParty(user.id,dataPartyRooms.data.msgId),
 				user.id
 			)
 		
@@ -126,8 +126,8 @@ module.exports = {
 				.eq("UserId",user.id)
 				.order('endPartyDate',{ascending:false})
 				.single()
-			if(memberPartyRooms.body){
-				const {partyId,PartyRooms:{msgId},Users:{goalId}} = memberPartyRooms.body
+			if(memberPartyRooms.data){
+				const {partyId,PartyRooms:{msgId},Users:{goalId}} = memberPartyRooms.data
 				await PartyController.removeMemberPartyRoom(interaction.client,goalId,partyId,user.id)
 				const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
 				const threadPartyRoom = await ChannelController.getThread(channelParty,msgId)

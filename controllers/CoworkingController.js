@@ -232,17 +232,17 @@ class CoworkingController {
         ])
 
         
-        const {name,totalSlot,rules,totalMinute,date,HostId,voiceRoomId} = dataEvent.body
+        const {name,totalSlot,rules,totalMinute,date,HostId,voiceRoomId} = dataEvent.data
         const {user} = await MemberController.getMember(msg.client,HostId)
         const files = await CoworkingController.generateImageCoworking(user,dataAttendances,date,totalMinute,name,isLive)
-        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendances.body.length,rules,totalMinute,Time.getDate(date),files,isLive,voiceRoomId))
+        msg.edit(CoworkingMessage.coworkingEvent(eventId,name,user,totalSlot,dataAttendances.data.length,rules,totalMinute,Time.getDate(date),files,isLive,voiceRoomId))
             
     }
 
     static async generateImageCoworking(host,dataAttendances,date,totalMinute,name,isLive){
         const attendances = []
-        for (let i = 0; i < dataAttendances?.body?.length; i++) {
-            const attendance = dataAttendances.body[i].avatarUrl;
+        for (let i = 0; i < dataAttendances?.data?.length; i++) {
+            const attendance = dataAttendances.data[i].avatarUrl;
             attendances.push(attendance)
         }
         const image = await GenerateImage.coworkingEvent({
@@ -315,8 +315,8 @@ class CoworkingController {
 
     static async coworkingEventIsLive(eventId){
         const dataEvent = await CoworkingController.getCoworkingEvent(eventId)
-        if(!dataEvent.body) return null //handle kalau data event udah dihapus
-        return dataEvent.body?.status === 'live'  
+        if(!dataEvent.data) return null //handle kalau data event udah dihapus
+        return dataEvent.data?.status === 'live'  
     }
 
     static async setReminderFiveMinutesBeforeCoworking(client){
@@ -347,8 +347,8 @@ class CoworkingController {
             },
         ]
         if(!isImmeadiatelyStart) {
-            for (let i = 0; i < dataEvent.body.CoworkingAttendances.length; i++) {
-                const userId = dataEvent.body.CoworkingAttendances[i].UserId;
+            for (let i = 0; i < dataEvent.data.CoworkingAttendances.length; i++) {
+                const userId = dataEvent.data.CoworkingAttendances[i].UserId;
                 const {user} = await MemberController.getMember(client,userId)
                 permissionOverwrites.push({
                     id:user.id,
@@ -357,7 +357,7 @@ class CoworkingController {
                     ]
                 })
             }
-            const {user} = await MemberController.getMember(client,dataEvent.body.HostId)
+            const {user} = await MemberController.getMember(client,dataEvent.data.HostId)
             permissionOverwrites.push({
                 id:user.id,
                 allow:[
@@ -391,7 +391,7 @@ class CoworkingController {
                 })
             }, Time.oneMinute() * 5);
         }else{
-            CoworkingController.handleHowToStartSession(client,eventId,voiceChannel,dataEvent.body.HostId)
+            CoworkingController.handleHowToStartSession(client,eventId,voiceChannel,dataEvent.data.HostId)
         }
         supabase.from("CoworkingEvents")
             .update({status:'upcoming',voiceRoomId:voiceChannel.id})
@@ -411,23 +411,23 @@ class CoworkingController {
 		const oldEvent = await CoworkingController.getCoworkingEvent(eventId)
 		schedule.scheduleJob(time,async function() {
 			const newEvent = await CoworkingController.getCoworkingEvent(eventId)
-			if(newEvent.body && newEvent.body?.updatedAt === oldEvent.body?.updatedAt && newEvent.body.voiceRoomId === null){
+			if(newEvent.data && newEvent.data?.updatedAt === oldEvent.data?.updatedAt && newEvent.data.voiceRoomId === null){
                 const dataAttendances = await supabase.from("CoworkingAttendances")
                     .select()
                     .eq('EventId',eventId)
-				const channel = await CoworkingController.createFocusRoom(client,newEvent.body.voiceRoomName,newEvent.body.id,newEvent.body.totalSlot)
-                const {user} = await MemberController.getMember(client,newEvent.body.HostId)
-                dataAttendances.body.forEach(async attendance=>{
+				const channel = await CoworkingController.createFocusRoom(client,newEvent.data.voiceRoomName,newEvent.data.id,newEvent.data.totalSlot)
+                const {user} = await MemberController.getMember(client,newEvent.data.HostId)
+                dataAttendances.data.forEach(async attendance=>{
                     ChannelController.sendToNotification(
                         client,
                         CoworkingMessage.remindFiveMinutesBeforeCoworking(attendance.UserId,channel.id,UserController.getNameFromUserDiscord(user)),
                         attendance.UserId
                     )
                 })
-                const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel,newEvent.body.HostId)
+                const msg = await CoworkingController.handleHowToStartSession(client,eventId,channel,newEvent.data.HostId)
                 ChannelController.sendToNotification(
                     client,
-                    CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.body.HostId,channel.id,null,msg.id),
+                    CoworkingMessage.remindFiveMinutesBeforeCoworking(newEvent.data.HostId,channel.id,null,msg.id),
                     user.id
                 )
 			}
@@ -453,7 +453,7 @@ class CoworkingController {
                 const countdownAssignNewHost = setInterval(async () => {
                     minuteAssignNewHost--
                     const dataEvent = await CoworkingController.getCoworkingEvent(eventId)
-                    if(dataEvent.body.HostId !== HostId){
+                    if(dataEvent.data.HostId !== HostId){
                         clearInterval(countdownAssignNewHost)
                         return ChannelController.deleteMessage(msgAssignNewHost)
                     }
@@ -499,12 +499,12 @@ class CoworkingController {
                 .single()
         ])
 
-        if(dataHost.body){
-            return {voiceRoomId: dataHost.body.voiceRoomId}
+        if(dataHost.data){
+            return {voiceRoomId: dataHost.data.voiceRoomId}
         }
 
-        for (let i = 0; i < dataAttendance.body.length; i++) {
-            const {status,voiceRoomId} = dataAttendance.body[i]?.CoworkingEvents;
+        for (let i = 0; i < dataAttendance.data.length; i++) {
+            const {status,voiceRoomId} = dataAttendance.data[i]?.CoworkingEvents;
             if(status === 'upcoming' || status === 'live'){
                 return {voiceRoomId}
             }
@@ -527,7 +527,7 @@ class CoworkingController {
             const event = await supabase.from("CoworkingEvents")
                 .select()
                 .eq('voiceRoomId',joinedChannelId)
-            if(event.body.length > 0) listFocusRoom[joinedChannelId] = {
+            if(event.data.length > 0) listFocusRoom[joinedChannelId] = {
                 status:'upcoming'
             }
         }
@@ -612,8 +612,8 @@ class CoworkingController {
         const joinedChannelId = interaction.message.channelId
         const dataEvent = await CoworkingController.isHostCoworking(userId,joinedChannelId)
             
-        if(dataEvent.body){
-            const {id,rules,totalMinute,voiceRoomName} = dataEvent.body
+        if(dataEvent.data){
+            const {id,rules,totalMinute,voiceRoomName} = dataEvent.data
             const hostname = voiceRoomName.split('—')[1]
             supabase.from("CoworkingEvents")
                 .update({status:'live'})
@@ -621,11 +621,11 @@ class CoworkingController {
                 .then()
             listFocusRoom[joinedChannelId].status = 'live'
             const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
-            const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.body.id)
+            const coworkingEventMessage = await ChannelController.getMessage(channel,dataEvent.data.id)
             CoworkingController.updateCoworkingMessage(coworkingEventMessage,true)
             let currentMin = totalMinute
             const voiceChat = await ChannelController.getChannel(interaction.client,joinedChannelId)
-            const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.body.id)
+            const sessionGuests = await CoworkingController.getSessionGuests(dataEvent.data.id)
             voiceChat.send(CoworkingMessage.countdownCoworkingSession(userId,rules,totalMinute,currentMin,sessionGuests))
                 .then(msg=>{
                     const tagPeople = `${MessageFormatting.tagUser(userId)} ${sessionGuests.join(' ')}`
@@ -641,7 +641,7 @@ class CoworkingController {
                             setTimeout(() => {
                                 voiceChat.delete()
                                 coworkingEventMessage.delete()
-                                ChannelController.getThread(channel,dataEvent.body.id)
+                                ChannelController.getThread(channel,dataEvent.data.id)
                                     .then(coworkingEventThread =>{
                                         coworkingEventThread.delete()
                                     })

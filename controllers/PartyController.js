@@ -150,15 +150,15 @@ class PartyController{
 	}
 
 	static async getListMemberNotResponseScheduleMeetup(dataMembersParty,partyId){
-		const queryOr = dataMembersParty.body.map(member=>`UserId.eq.${member.UserId}`)
+		const queryOr = dataMembersParty.data.map(member=>`UserId.eq.${member.UserId}`)
 		const dataWeeklyMeetup = await supabase.from("WeeklyMeetups")
 			.select("UserId")
 			.or(queryOr.join(','))
 			.eq('PartyRoomId',partyId)
 
 		const memberList = {}
-		dataMembersParty.body.forEach(member=>memberList[member.UserId]=false)
-		dataWeeklyMeetup.body.forEach(member=>memberList[member.UserId]=true)
+		dataMembersParty.data.forEach(member=>memberList[member.UserId]=false)
+		dataWeeklyMeetup.data.forEach(member=>memberList[member.UserId]=true)
 		const tagMembers = []
 		for (const userId in memberList) {
 			if(!memberList[userId]) tagMembers.push(MessageFormatting.tagUser(userId))
@@ -187,14 +187,14 @@ class PartyController{
 						.select('msgId,meetupMessageId')
 						.eq('id',partyId)
 						.single()
-			const thread = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
+			const thread = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)
 			
-			if (!dataWeeklyMeetup.body) {
+			if (!dataWeeklyMeetup.data) {
 				const dataMembersParty = await supabase.from("MemberPartyRooms")
 					.select("UserId")
 					.eq('partyId',partyId)
 
-				if(dataMembersParty.body.length > 0){
+				if(dataMembersParty.data.length > 0){
 					const time = new Date()
 					time.setDate(time.getDate()+1)
 					await supabase.from("Reminders")
@@ -207,7 +207,7 @@ class PartyController{
 
 					const tagMembers = await PartyController.getListMemberNotResponseScheduleMeetup(dataMembersParty,partyId)
 
-					const msgMeetup = await ChannelController.getMessage(thread,dataParty.body?.meetupMessageId)
+					const msgMeetup = await ChannelController.getMessage(thread,dataParty.data?.meetupMessageId)
 					msgMeetup.reply(RecurringMeetupMessage.remindSomeoneToAcceptMeetup(tagMembers.join(' ')))
 				}
 
@@ -239,8 +239,8 @@ class PartyController{
 			const meetupDate = new Date(time)
 			meetupDate.setDate(meetupDate.getDate()+6)
 
-			if (!dataWeeklyMeetup.body) {
-				RecurringMeetupController.rescheduleMeetup(client,dataParty.body?.msgId,meetupDate,partyId)
+			if (!dataWeeklyMeetup.data) {
+				RecurringMeetupController.rescheduleMeetup(client,dataParty.data?.msgId,meetupDate,partyId)
 			}
 		})
 	}
@@ -304,7 +304,7 @@ class PartyController{
 	}
 
 	static async followGoalAccountabilityPartner(client,partyId,userId,msgGoalId){
-		const {body:members} = await supabase.from("MemberPartyRooms")
+		const {data:members} = await supabase.from("MemberPartyRooms")
 			.select("UserId,Users(goalId)")
 			.eq('partyId',partyId)
 			.neq('UserId',userId)
@@ -323,9 +323,9 @@ class PartyController{
 				.select('goalId')
 				.eq('id',userId)
 				.single()
-			msgGoalId = dataUser.body.goalId
+			msgGoalId = dataUser.data.goalId
 		}
-		const {body:members} = await supabase.from("MemberPartyRooms")
+		const {data:members} = await supabase.from("MemberPartyRooms")
 			.select("UserId,Users(goalId)")
 			.eq('partyId',partyId)
 			.neq('UserId',userId)
@@ -417,7 +417,7 @@ class PartyController{
 		.eq('id',partyNumber)
 		.single()
 		.then(async data=>{
-			const members = PartyController.sortMemberByLeader(data?.body?.MemberPartyRooms)
+			const members = PartyController.sortMemberByLeader(data?.data?.MemberPartyRooms)
 			const totalMember = members.length
 			const isFullParty = totalMember === PartyController.getMaxPartyMember()
 			msgParty.edit(PartyMessage.partyRoom(
@@ -566,15 +566,15 @@ class PartyController{
 		.gte('disbandDate',Time.getTodayDateOnly())
 
 		const partyRooms = []
-		for (let i = 0; i < dataParty.body.length; i++) {
-			const party = dataParty.body[i];
+		for (let i = 0; i < dataParty.data.length; i++) {
+			const party = dataParty.data[i];
 			const partyRoom = {}
 			partyRoom.msg = await ChannelController.getMessage(channelPartyRoom,party.msgId)
 			partyRoom.thread = await ChannelController.getThread(channelPartyRoom,party.msgId)
 			partyRooms.push(partyRoom)
 		}
 
-		if (dataParty.body.length > 0) {
+		if (dataParty.data.length > 0) {
 			schedule.scheduleJob(twoDaysBeforeDisbandParty,async ()=>{
 				for (let i = 0; i < partyRooms.length; i++) {
 					const party = partyRooms[i];
@@ -661,7 +661,7 @@ class PartyController{
 		.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 		.eq('id',partyNumber)
 		.single()
-		const members = dataParty.body?.MemberPartyRooms
+		const members = dataParty.data?.MemberPartyRooms
 		const totalMember = members.length
 		const result = {
 			isFull:false,
@@ -685,7 +685,7 @@ class PartyController{
 			.eq("UserId",userId)
 			.gte("endPartyDate",Time.getTodayDateOnly())
 			.single()
-		return dataJoinedParty.body
+		return dataJoinedParty.data
 	}
 
 	static async deleteUserFromParty(userId,partyNumber){
@@ -771,8 +771,8 @@ class PartyController{
 					.select('id,name')
 					.eq('lastDone',Time.getDateOnly(Time.getNextDate(-3)))
 					.then(dataUsers =>{
-						if (dataUsers.body) {
-							dataUsers.body.forEach(async user=>{
+						if (dataUsers.data) {
+							dataUsers.data.forEach(async user=>{
 								const data = await supabase.from("MemberPartyRooms")
 									.select("PartyRooms(MemberPartyRooms(UserId),msgId)")
 									.eq("UserId",user.id)
@@ -782,7 +782,7 @@ class PartyController{
 									const dataActiveUser = await PartyController.getRecentActiveUserInParty(data.data.PartyRooms.MemberPartyRooms,user.id)
 									const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 									const threadParty = await ChannelController.getThread(channelPartyRoom,data.data.PartyRooms.msgId)
-									threadParty.send(PartyMessage.partyReminder(user.id,dataActiveUser.body.UserId))
+									threadParty.send(PartyMessage.partyReminder(user.id,dataActiveUser.data.UserId))
 								}
 							})
 						}
@@ -830,9 +830,9 @@ class PartyController{
 	static async shareToPartyRoom(client,userId,message){
         const dataUser = await PartyController.getDataMember(userId)
 		
-        if(!dataUser.body) return 
+        if(!dataUser.data) return 
         
-        const msgId = dataUser.body.PartyRooms.msgId
+        const msgId = dataUser.data.PartyRooms.msgId
         
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
@@ -841,10 +841,10 @@ class PartyController{
 
 	static async notifyMemberPartyShareReflection(client,userId,msgIdReflection){
         const dataUser = await PartyController.getDataMember(userId)
-        if(!dataUser.body) return 
+        if(!dataUser.data) return 
         
-        const msgId = dataUser.body.PartyRooms.msgId
-        const project = dataUser.body.project
+        const msgId = dataUser.data.PartyRooms.msgId
+        const project = dataUser.data.project
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
 		threadParty.send(PartyMessage.notifyMemberShareReflection(userId,msgIdReflection,project))
@@ -852,10 +852,10 @@ class PartyController{
 
 	static async notifyMemberPartyShareCelebration(client,userId,msgIdCelebration){
         const dataUser = await PartyController.getDataMember(userId)
-        if(!dataUser.body) return 
+        if(!dataUser.data) return 
         
-        const msgId = dataUser.body.PartyRooms.msgId
-        const project = dataUser.body.project
+        const msgId = dataUser.data.PartyRooms.msgId
+        const project = dataUser.data.project
         const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 		const threadParty = await ChannelController.getThread(channelPartyRoom,msgId)
 		threadParty.send(PartyMessage.notifyMemberShareCelebration(userId,msgIdCelebration,project))
@@ -933,14 +933,14 @@ class PartyController{
 			.eq('UserId',userId)
 			.single()
 
-		if(!dataUser.body) return
+		if(!dataUser.data) return
 
 		const date = Time.getDate()
 		if(date.getHours() === 23){
 			if(date.getMinutes() >= 55){
 				supabase.from("PartyProgressRecaps")
 					.select()
-					.eq("PartyRoomId",dataUser.body.partyId)
+					.eq("PartyRoomId",dataUser.data.partyId)
 					.eq('date',Time.getTomorrowDateOnly())
 					.single()
 					.then(data=>{
@@ -949,7 +949,7 @@ class PartyController{
 							progressMember[userId].lastDone = Time.getTodayDateOnly()
 							supabase.from("PartyProgressRecaps")
 							.update({progressMember})
-							.eq("PartyRoomId",dataUser.body.partyId)
+							.eq("PartyRoomId",dataUser.data.partyId)
 							.eq('date',Time.getTomorrowDateOnly())
 							.then()
 						}
@@ -959,12 +959,12 @@ class PartyController{
 
 		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
 			.select()
-			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq("PartyRoomId",dataUser.data.partyId)
 			.eq('date',Time.getTodayDateOnly())
 			.single()
-		if(!dataPartyRecap.body) return
+		if(!dataPartyRecap.data) return
 
-		const {progressMember} = dataPartyRecap.body
+		const {progressMember} = dataPartyRecap.data
 		if(type === 'progress'){
 			progressMember[userId] = data
 		}else{
@@ -973,7 +973,7 @@ class PartyController{
 
 		supabase.from("PartyProgressRecaps")
 			.update({progressMember})
-			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq("PartyRoomId",dataUser.data.partyId)
 			.eq('date',Time.getTodayDateOnly())
 			.then()
 	}
@@ -984,22 +984,22 @@ class PartyController{
 			.eq('UserId',userId)
 			.single()
 
-		if(!dataUser.body) return
+		if(!dataUser.data) return
 
 		const dataPartyRecap = await supabase.from("PartyProgressRecaps")
 			.select()
-			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq("PartyRoomId",dataUser.data.partyId)
 			.eq('date',Time.getTodayDateOnly())
 			.single()
-		if(!dataPartyRecap.body) return
+		if(!dataPartyRecap.data) return
 
-		const {progressMember} = dataPartyRecap.body
+		const {progressMember} = dataPartyRecap.data
 		progressMember[userId].type = 'skip'
 		progressMember[userId].lastDone = Time.getDateOnly(Time.getNextDate(-2))
 
 		supabase.from("PartyProgressRecaps")
 			.update({progressMember})
-			.eq("PartyRoomId",dataUser.body.partyId)
+			.eq("PartyRoomId",dataUser.data.partyId)
 			.eq('date',Time.getDateOnly(Time.getNextDate(-1)))
 			.then()
 	}
@@ -1012,11 +1012,11 @@ class PartyController{
 			const dataPartyRecap = await supabase.from("PartyProgressRecaps")
 				.select()
 				.eq('date',Time.getDateOnly(Time.getNextDate(-1)))
-			if(dataPartyRecap.body.length === 0) return
+			if(dataPartyRecap.data.length === 0) return
 	
 			const channelPartyRoom = ChannelController.getChannel(client,CHANNEL_PARTY_ROOM)
 	
-			dataPartyRecap.body.forEach(async party=>{
+			dataPartyRecap.data.forEach(async party=>{
 				const {id,date,progressMember,PartyRoomId,msgIdParty} = party
 				const progressMembers = []
 				const noProgressMembers = []

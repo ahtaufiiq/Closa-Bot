@@ -180,7 +180,7 @@ class SickDayController{
 			const dataSickTicket = await supabase.from('SickTickets')
                 .select()
                 .eq('endDate',Time.getDateOnly(Time.getNextDate(-1)))
-            dataSickTicket.body.forEach(async sickTicket=>{
+            dataSickTicket.data.forEach(async sickTicket=>{
                 ChannelController.sendToNotification(
                     client,
                     SickDayMessage.sickDayEnded(sickTicket.UserId),

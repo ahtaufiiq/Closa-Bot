@@ -63,7 +63,7 @@ module.exports = {
 				.single(),
 				RedisController.get(`invite_${invite.code}`)
 			])
-			const UserId = dataUser.body?.id || inviteQuickRoom
+			const UserId = dataUser.data?.id || inviteQuickRoom
 
 			const [totalMember,totalInvite] = await Promise.all([
 				MemberController.getTotalMember(),

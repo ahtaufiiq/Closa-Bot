@@ -101,7 +101,7 @@ module.exports = {
 				switch (commandButton) {
 					case "remindContinueQuest":
 						const dataUser = await UserController.getDetail(interaction.user.id,'onboardingStep')
-						const {onboardingStep} = dataUser.body
+						const {onboardingStep} = dataUser.data
 						if(onboardingStep === 'done' || onboardingStep === null){
 							interaction.editReply("You've completed your onboarding quest previously ✅ ")
 						}else{
@@ -186,7 +186,7 @@ module.exports = {
 							unique:true,
 						}).then(async invite=>{
 							const dataUser = await UserController.getDetail(interaction.user.id,'totalInvite')
-							const totalInvite = dataUser.body.totalInvite
+							const totalInvite = dataUser.data.totalInvite
 							RedisController.set(`invite_${invite.code}`,interaction.user.id,86_400)
 							interaction.editReply(CoworkingMessage.shareInviteQuickRoom(invite.code,totalInvite))
 						})
@@ -206,8 +206,8 @@ module.exports = {
 							.select('statusCompletedQuest,Users(onboardingStep)')
 							.eq('UserId',interaction.user.id)
 							.single()
-						if(dataOnboarding.body){
-							const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.body
+						if(dataOnboarding.data){
+							const {statusCompletedQuest,Users:{onboardingStep}} = dataOnboarding.data
 							if(onboardingStep === 'done' || onboardingStep === null){
 								interaction.editReply("You've completed your onboarding quest previously ✅ ")
 							}else{
@@ -245,7 +245,7 @@ module.exports = {
 						break;
 					case 'startCoworkingRoom':
 						const coworkingEvent = await CoworkingController.getCoworkingEvent(value)
-						if(coworkingEvent.body?.HostId !== interaction.user.id) return await interaction.editReply('⚠️ only host can start room timer')
+						if(coworkingEvent.data?.HostId !== interaction.user.id) return await interaction.editReply('⚠️ only host can start room timer')
 						if(!CoworkingController.isValidToStartCoworkingTimer(focusRoomUser,interaction.user.id)){
 							return await interaction.editReply(CoworkingMessage.cannotStartTimer())
 						}
@@ -273,7 +273,7 @@ module.exports = {
 							msgNewHost.edit(CoworkingMessage.selectedNewHostCoworking(interaction.user.id,minuteToHost))
 							if(minuteToHost === 0){
 								const event = await CoworkingController.getCoworkingEvent(value)
-								const {id,voiceRoomId} = event.body
+								const {id,voiceRoomId} = event.data
 								const voiceRoom = ChannelController.getChannel(interaction.client,voiceRoomId)
 								if(voiceRoom) voiceRoom.delete()
 								const channelUpcomingSession = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
@@ -294,13 +294,13 @@ module.exports = {
 							.eq('UserId',interaction.user.id)
 							.eq('EventId',value)
 							.single()
-						if (dataAttendance.body) {
+						if (dataAttendance.data) {
 							const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
-							const threadCoworking = await ChannelController.getThread(channel,dataAttendance.body.EventId)
-							const msg = await ChannelController.getMessage(threadCoworking,dataAttendance.body.id)
+							const threadCoworking = await ChannelController.getThread(channel,dataAttendance.data.EventId)
+							const msg = await ChannelController.getMessage(threadCoworking,dataAttendance.data.id)
 							supabase.from("CoworkingAttendances")
 								.delete()
-								.eq('id',dataAttendance.body.id)
+								.eq('id',dataAttendance.data.id)
 								.then(()=>{
 									CoworkingController.updateCoworkingMessage(interaction.message)
 								})
@@ -312,17 +312,17 @@ module.exports = {
 							.eq('HostId',interaction.user.id)
 							.eq('id',value)
 							.single()
-							if(dataHost.body){
+							if(dataHost.data){
 								supabase.from("CoworkingEvents")
 									.delete()
-									.eq('id',dataHost.body.id)
+									.eq('id',dataHost.data.id)
 									.then()
 								const channel = ChannelController.getChannel(interaction.client,CHANNEL_UPCOMING_SESSION)
-								const msg = await ChannelController.getMessage(channel,dataHost.body.id)
+								const msg = await ChannelController.getMessage(channel,dataHost.data.id)
 								ChannelController.deleteMessage(msg)
 								interaction.editReply("your schedule has been canceled.")
-								if(dataHost.body.voiceRoomId){
-									ChannelController.getChannel(interaction.client,dataHost.body.voiceRoomId).delete()
+								if(dataHost.data.voiceRoomId){
+									ChannelController.getChannel(interaction.client,dataHost.data.voiceRoomId).delete()
 								}
 							}else{
 								interaction.editReply("can't cancel the session you're not even booking.")
@@ -553,11 +553,11 @@ module.exports = {
 							.eq("UserId",interaction.user.id)
 							.gte("endPartyDate",Time.getTodayDateOnly())
 							.single()
-						if (dataMemberParty.body) {
-							if(dataMemberParty.body.partyId === Number(value)){
-								await interaction.editReply(PartyMessage.confirmationLeaveParty(interaction.user.id,`${value}-${dataMemberParty.body.PartyRooms.msgId}`))
+						if (dataMemberParty.data) {
+							if(dataMemberParty.data.partyId === Number(value)){
+								await interaction.editReply(PartyMessage.confirmationLeaveParty(interaction.user.id,`${value}-${dataMemberParty.data.PartyRooms.msgId}`))
 							}else{
-								await interaction.editReply(PartyMessage.leaveOtherPartyRoom(dataMemberParty.body.PartyRooms.msgId))
+								await interaction.editReply(PartyMessage.leaveOtherPartyRoom(dataMemberParty.data.PartyRooms.msgId))
 							}
 						}else{
 							await interaction.editReply(PartyMessage.leaveBeforeJoinedParty())
@@ -574,11 +574,11 @@ module.exports = {
 						.eq('id',partyNumber)
 						.single()
 						.then(async data=>{
-							const members = data?.body?.MemberPartyRooms
+							const members = data?.data?.MemberPartyRooms
 							if(members.length === 3){
 								setTimeout(async () => {
 									const dataRecentUser = await PartyController.getRecentActiveUserInParty(members,interaction.user.id)
-									if(dataRecentUser.body) threadParty.send(PartyMessage.remindSharePartyWhenSomeoneLeaveParty(dataRecentUser.body.UserId,msgId))
+									if(dataRecentUser.data) threadParty.send(PartyMessage.remindSharePartyWhenSomeoneLeaveParty(dataRecentUser.data.UserId,msgId))
 								}, 1000 * 60 * 5);
 							}
 						})
@@ -609,14 +609,14 @@ module.exports = {
 							.single()
 
 						const channelParty = ChannelController.getChannel(interaction.client,CHANNEL_PARTY_ROOM)
-						const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.body.msgId)
+						const threadPartyRoom = await ChannelController.getThread(channelParty,dataPartyRooms.data.msgId)
 						threadPartyRoom.send(PartyMessage.userJoinedParty(interaction.user.id))
 						
-						PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.body.msgId,value)
-						await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId))
+						PartyController.updateMessagePartyRoom(interaction.client,dataPartyRooms.data.msgId,value)
+						await interaction.editReply(PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.data.msgId))
 						ChannelController.sendToNotification(
 							interaction.client,
-							PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.body.msgId),
+							PartyMessage.replySuccessJoinParty(interaction.user.id,dataPartyRooms.data.msgId),
 							interaction.user.id,
 							notificationId
 						)
@@ -783,7 +783,7 @@ module.exports = {
 							const {point} = AchievementBadgeMessage.achievementBadgePoint()[type][achievement]
 							await UserController.incrementTotalPoints(+point,targetUserId)
 							const dataUser = await UserController.getDetail(targetUserId,'totalPoint')
-							const totalPoint = dataUser.body.totalPoint
+							const totalPoint = dataUser.data.totalPoint
 							ChannelController.sendToNotification(
 								interaction.client,
 								AchievementBadgeMessage.approvedCelebration(targetUserId,type,achievement,totalPoint),
@@ -837,7 +837,7 @@ module.exports = {
 						if(valueMenu === 'archivedProject'){
 							await interaction.deferReply({ephemeral:true});
 							const allArchivedGoal = await GoalController.getArchivedGoalUser(interaction.user.id)
-							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.data)
 							await interaction.editReply(GoalMessage.selectArchivedGoal(interaction.user.id,goalMenus,msgProgressId,taskId,interaction.message.id))
 						}else{
 							await interaction.deferReply();
@@ -876,7 +876,7 @@ module.exports = {
 						if(valueMenu.includes('archivedProject')){
 							const UserId = valueMenu.split('-')[1]
 							const allArchivedGoal = await GoalController.getArchivedGoalUser(UserId)
-							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+							const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.data,true)
 							await interaction.editReply(GoalMessage.searchProject(UserId,goalMenus,interaction.user.id !== UserId,true))
 						}else{
 							const [msgGoalId,goalType] = valueMenu.split('-')
@@ -991,13 +991,13 @@ module.exports = {
 							.eq('id',value)
 							.single()
 							const dataUser  = await UserController.getDetail(interaction.user.id,'dailyWorkTime')
-							if (dataUser.body?.dailyWorkTime) {
+							if (dataUser.data?.dailyWorkTime) {
 								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'done'
 								FocusSessionController.handleStartFocusSession(interaction,interaction.user.id,focusRoomUser,value,valueMenu,listFocusRoom)
 							}else{
 								focusRoomUser[interaction.user.id].statusSetSessionGoal = 'setDailyWorkTime'
 								await interaction.editReply(
-									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.body?.id)
+									FocusSessionMessage.setDailyWorkTime(interaction.user.id,valueMenu,task.data?.id)
 								)
 							}
 							ChannelController.deleteMessage(interaction.message)

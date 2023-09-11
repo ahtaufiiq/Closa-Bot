@@ -216,7 +216,7 @@ module.exports = {
 				const project = modal.getTextInputValue('project');
 				const goal = modal.getTextInputValue('goal');
 				const dataUser = await UserController.getDetail(modal.user.id,'reminderProgress')
-				const shareProgressAt = dataUser.body.reminderProgress
+				const shareProgressAt = dataUser.data.reminderProgress
 				const deadlineGoal = Time.getDate(value)
 				const isSixWeekChallenge = !!modal.customId.split("_")[3]
 
@@ -271,7 +271,7 @@ module.exports = {
 					.select()
 					.eq('id',modal.user.id)
 					.single()
-				const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
+				const preferredCoworkingTime = dataUser.data?.preferredCoworkingTime
 				
 				const isSixWeekChallenge = modal.channelId === CHANNEL_6WIC ? true : false
 				const buffer = await GenerateImage.project({
@@ -387,8 +387,8 @@ The correct format:
 
 				let projectName = '-'
 				let threadGoal 
-				if (dataUser.body?.goalId) {
-					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
+				if (dataUser.data?.goalId) {
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.data.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
@@ -403,7 +403,7 @@ The correct format:
 				const incrementPoint = PointController.calculatePoint('reflection')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
-				const totalPoint = dataPoint.body?.totalPoint
+				const totalPoint = dataPoint.data?.totalPoint
 				WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:modal.user.id})
 				await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint,incrementPoint))
 				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
@@ -444,8 +444,8 @@ The correct format:
 	
 				let projectName = '-'
 				let threadGoal 
-				if (dataUser.body?.goalId) {
-					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.body.goalId)
+				if (dataUser.data?.goalId) {
+					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.data.goalId)
 					projectName = threadGoal.name.split('by')[0]
 				}
 				const channelCelebration = ChannelController.getChannel(modal.client,CHANNEL_CELEBRATE)
@@ -460,9 +460,9 @@ The correct format:
 				const incrementPoint = PointController.calculatePoint('celebration')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
-				const totalPoint = dataPoint.body?.totalPoint
+				const totalPoint = dataPoint.data?.totalPoint
 				CelebrationController.addCelebration({story,linkProject,linkDeck,UserId:modal.user.id})
-				TestimonialController.askToWriteTestimonial(modal.client,modal.user.id,dataUser.body.notificationId)
+				TestimonialController.askToWriteTestimonial(modal.client,modal.user.id,dataUser.data.notificationId)
 				await modal.editReply(CelebrationMessage.replySuccessSubmitCelebration(totalPoint,incrementPoint))
 				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'editCelebration'){
@@ -498,7 +498,7 @@ The correct format:
 				const incrementPoint = PointController.calculatePoint('intro')
 				await UserController.incrementTotalPoints(incrementPoint,modal.user.id)
 				const dataPoint = await UserController.getDetail(modal.user.id,'totalPoint')
-				const totalPoint = dataPoint.body?.totalPoint
+				const totalPoint = dataPoint.data?.totalPoint
 				await IntroController.addIntro({
 					name,about,expertise,needHelp,social,
 					id:msg.id,

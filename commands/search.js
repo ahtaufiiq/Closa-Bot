@@ -39,9 +39,9 @@ module.exports = {
 				.limit(1)
 				.single()
 				
-				if(!dataUser.body) return interaction.editReply("this member haven't made an intro")
+				if(!dataUser.data) return interaction.editReply("this member haven't made an intro")
 
-				const {id,name,about,expertise,needHelp,social} = dataUser.body
+				const {id,name,about,expertise,needHelp,social} = dataUser.data
 				
 				interaction.editReply({
 					embeds:[
@@ -67,9 +67,9 @@ module.exports = {
 				.limit(1)
 				.single()
 
-				if(!dataUser.body) return interaction.editReply("this member haven't made an goal")
+				if(!dataUser.data) return interaction.editReply("this member haven't made an goal")
 
-				const {id,role,goal,about,deadlineGoal} = dataUser.body
+				const {id,role,goal,about,deadlineGoal} = dataUser.data
 				const formattedDate = Time.getFormattedDate(Time.getDate(deadlineGoal))
 				const dayLeft = Time.getDiffDay(Time.getDate(Time.getTodayDateOnly()),Time.getDate(deadlineGoal))
 				let dayLeftDescription = `(${dayLeft} ${dayLeft > 1 ? "days": "day"} left)`

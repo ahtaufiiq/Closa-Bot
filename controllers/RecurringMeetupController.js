@@ -103,12 +103,12 @@ class RecurringMeetupController {
 			meetupDate.setDate(meetupDate.getDate() + 2)
 			const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)			
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)			
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.data.MemberPartyRooms)
 				const linkAddToCalendar = RecurringMeetupController.linkCalendarWeeklySync(partyId,meetupDate)
-				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.body?.id,meetupTime,linkAddToCalendar,tagPartyMembers))
+				threadParty.send(RecurringMeetupMessage.confirmationTwoDaysBeforeMeetup(partyId,oldWeeklyMeetup.data?.id,meetupTime,linkAddToCalendar,tagPartyMembers))
 			}
 		})
 	}
@@ -178,10 +178,10 @@ class RecurringMeetupController {
 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.data.MemberPartyRooms)
 				const meetupDate = Time.getDate(time)
 				meetupDate.setDate(meetupDate.getDate()+1)
 				const meetupTime = Time.getFormattedDate(meetupDate,true,'medium',true)
@@ -227,10 +227,10 @@ class RecurringMeetupController {
 
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.data.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.reminderOneHourBeforeMeetup(tagPartyMembers))
 			}
 		})
@@ -253,10 +253,10 @@ class RecurringMeetupController {
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
-			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
-				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.data.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.reminderTenMinBeforeMeetup(tagPartyMembers))
 			}
 		})
@@ -279,7 +279,7 @@ class RecurringMeetupController {
 		const oldWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
 		schedule.scheduleJob(time,async function() {
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
 				supabase.from("PartyRooms")
 					.select("MemberPartyRooms(UserId)")
 					.eq('id',partyId)
@@ -322,16 +322,16 @@ class RecurringMeetupController {
 		schedule.scheduleJob(time,async function() {
 			const dataParty = await RecurringMeetupController.getDataParty(partyId)
 
-			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.body?.msgId)
+			const threadParty = await ChannelController.getThread(channelPartyRoom,dataParty.data?.msgId)
 			const newWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-			if(newWeeklyMeetup.body && newWeeklyMeetup.body?.id === oldWeeklyMeetup.body?.id ){
+			if(newWeeklyMeetup.data && newWeeklyMeetup.data?.id === oldWeeklyMeetup.data?.id ){
 				if(RecurringMeetupController.isDateBeforeCelebrationDay(Time.getNextDate(7))){
 					const nextMeetupDate = new Date()
 					nextMeetupDate.setDate(nextMeetupDate.getDate() + 7)
-					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.body.msgId,partyId)
+					RecurringMeetupController.scheduleMeetup(client,nextMeetupDate,dataParty.data.msgId,partyId)
 				}
-				const voiceChannelId = dataParty.body.voiceChannelId
-				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.body.MemberPartyRooms)
+				const voiceChannelId = dataParty.data.voiceChannelId
+				const tagPartyMembers = RecurringMeetupController.formatTagPartyMembers(dataParty.data.MemberPartyRooms)
 				threadParty.send(RecurringMeetupMessage.remindUserJoinMeetupSession(voiceChannelId,tagPartyMembers))
 			}
 		})
@@ -392,7 +392,7 @@ class RecurringMeetupController {
 		const time =  new Date()
 		time.setHours(time.getHours()-1)
 		const result = {
-			body:null
+			data:null
 		}
 		
 		const dataWeeklyMeetup = await supabase.from("Reminders")
@@ -402,7 +402,7 @@ class RecurringMeetupController {
 			.gte('time',time.toUTCString())
 			.order('createdAt',{ascending:false})
 
-		if(dataWeeklyMeetup.body.length > 0) result.body = dataWeeklyMeetup.body[0]
+		if(dataWeeklyMeetup.data.length > 0) result.data = dataWeeklyMeetup.data[0]
 		return result
 	}
 
@@ -511,8 +511,8 @@ class RecurringMeetupController {
 			.then(async totalUser=>{
 				if (totalUser === 2) {
 					const dataWeeklyMeetup = await RecurringMeetupController.getWeeklyMeetupParty(partyId)
-					if(dataWeeklyMeetup.body){
-						const date = new Date(dataWeeklyMeetup.body.time)
+					if(dataWeeklyMeetup.data){
+						const date = new Date(dataWeeklyMeetup.data.time)
 						RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,date,partyId)
 					}
 				}
@@ -552,7 +552,7 @@ class RecurringMeetupController {
 							.select()
 							.eq('id',partyId)
 							.single()
-						const voiceChannelId = dataParty.body.voiceChannelId
+						const voiceChannelId = dataParty.data.voiceChannelId
 						const voiceChannel = ChannelController.getChannel(newMember.client,voiceChannelId)
 						let totalExtendTime = 0
 						let minutes = 30
@@ -568,7 +568,7 @@ class RecurringMeetupController {
 										.select()
 										.eq('id',voiceChannelId)
 										.single()
-									const extendTime = temporaryVoice.body?.extendTime
+									const extendTime = temporaryVoice.data?.extendTime
 									if(extendTime){
 										minutes += extendTime
 										totalExtendTime += extendTime

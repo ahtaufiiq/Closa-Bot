@@ -291,7 +291,7 @@ class OnboardingController {
 
             schedule.scheduleJob(reminderDate,async function () {
                 const dataUser = await UserController.getDetail(interaction.user.id,'onboardingStep,id,notificationId')
-                const {onboardingStep,notificationId,id:UserId} = dataUser.body
+                const {onboardingStep,notificationId,id:UserId} = dataUser.data
                 ChannelController.sendToNotification(
                     interaction.client,
                     OnboardingMessage.reminderContinueQuest(UserId,onboardingStep),

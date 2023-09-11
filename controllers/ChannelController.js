@@ -181,11 +181,11 @@ class ChannelController{
             .eq('UserId',userId)
             .gte("endPartyDate",Time.getTodayDateOnly())
             .single()
-        if(!dataUser.body) return 
+        if(!dataUser.data) return 
         
-        const partyId = dataUser.body.partyId
+        const partyId = dataUser.data.partyId
         
-        const {body:members} = await supabase.from("MemberPartyRooms")
+        const {data:members} = await supabase.from("MemberPartyRooms")
         .select("UserId")
         .eq('partyId',partyId)
         .neq('UserId',userId)

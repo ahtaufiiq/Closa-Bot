@@ -191,7 +191,7 @@ class GoalController {
 			.select()
 			.eq('id',user.id)
 			.single()
-		const preferredCoworkingTime = dataUser.body?.preferredCoworkingTime
+		const preferredCoworkingTime = dataUser.data?.preferredCoworkingTime
 		const channelId = isSixWeekChallenge ? CHANNEL_6WIC : CHANNEL_GOALS
 		const channelGoals = ChannelController.getChannel(client,channelId)
 		const buffer = await GenerateImage.project({
@@ -467,7 +467,7 @@ class GoalController {
 
 	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
 		const dataUser = await UserController.getDetail('dailyWorkTime')
-		const dailyWorkTime = dataUser.body?.dailyWorkTime
+		const dailyWorkTime = dataUser.data?.dailyWorkTime
 		const msg = await ChannelController.sendToNotification(
 			interaction.client,
 			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge,dailyWorkTime),
@@ -506,7 +506,7 @@ class GoalController {
 		}
 		try {
 			UserController.updateData({reminderProgress},interaction.user.id)
-			if(dataUser.body.reminderProgress !== reminderProgress){
+			if(dataUser.data.reminderProgress !== reminderProgress){
 				const [hours,minutes] = reminderProgress.split(/[.:]/)
 				let ruleReminderProgress = new schedule.RecurrenceRule();
 				ruleReminderProgress.hour = Time.minus7Hours(hours)
@@ -517,7 +517,7 @@ class GoalController {
 						.select()
 						.eq('id',interaction.user.id)
 						.single()
-						.then(async ({body:data})=>{
+						.then(async ({data:data})=>{
 							if (data) {
 								if (reminderProgress !== data.reminderProgress) {
 									scheduleReminderProgress.cancel()
@@ -732,8 +732,8 @@ class GoalController {
 			GoalController.getActiveGoalUser(user.id),
 			GoalController.haveArchivedProject(user.id)
 		])
-		if(allActiveGoal.body.length > 0 || (allActiveGoal.body.length === 1 && haveArchivedProject)){
-			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.body,true)
+		if(allActiveGoal.data.length > 0 || (allActiveGoal.data.length === 1 && haveArchivedProject)){
+			const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.data,true)
 			if(haveArchivedProject){
 				goalMenus.push({
 					label:'📁 Archived projects',
@@ -743,7 +743,7 @@ class GoalController {
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id))
 		}else if(haveArchivedProject){
 			const allArchivedGoal = await GoalController.getArchivedGoalUser(user.id)
-			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.body,true)
+			const goalMenus = GoalController.getFormattedGoalMenu(allArchivedGoal.data,true)
 			interaction.editReply(GoalMessage.searchProject(user.id,goalMenus,interaction.user.id !== user.id,true))
 		}else {
 			interaction.editReply(`${user} has never started a project.`)

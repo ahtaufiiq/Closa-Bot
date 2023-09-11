@@ -45,7 +45,7 @@ class ReminderController{
 							.select()
 							.eq('id',user.id)
 							.single()
-							.then(async ({body:data})=>{
+							.then(async ({data})=>{
 								if (data) {
 									if (user.reminderProgress !== data.reminderProgress) {
 										scheduleReminderProgress.cancel()
@@ -91,7 +91,7 @@ class ReminderController{
 								.select()
 								.eq('id',user.id)
 								.single()
-								.then(async ({body:data})=>{
+								.then(async ({data})=>{
 									if (data) {
 										if (user.reminderHighlight !== data.reminderHighlight) {
 											scheduleReminderHighlight.cancel()

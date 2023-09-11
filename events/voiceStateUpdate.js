@@ -64,9 +64,9 @@ module.exports = {
 
 			if(isFirsTimeJoinFocusRoom(listFocusRoom,focusRoomUser,joinedChannelId,userId)){
 				const dataUser = await UserController.getDetail(userId,'dailyWorkTime,breakReminder,totalFocusSession')
-				const dailyWorkTime = Number(dataUser.body?.dailyWorkTime)
-				const breakReminder = Number(dataUser.body?.breakReminder)
-				const totalFocusSession = Number(dataUser.body?.totalFocusSession)
+				const dailyWorkTime = Number(dataUser.data?.dailyWorkTime)
+				const breakReminder = Number(dataUser.data?.breakReminder)
+				const totalFocusSession = Number(dataUser.data?.totalFocusSession)
 				const totalTimeToday = await FocusSessionController.getTotalTaskTimeToday(userId)
 				focusRoomUser[userId] = {
 					timestamp:Time.getDate().getTime(),
@@ -150,9 +150,9 @@ module.exports = {
 					if (totalTime >= 5) {
 						supabase
 							.rpc('incrementTotalCoworkingTime', { increment:totalTime, row_id: userId })
-							.then(async ({body:totalCoworkingTime})=>{
+							.then(async ({data:totalCoworkingTime})=>{
 								const dataUser = await UserController.getDetail(userId,'totalFocusSession,badgeCoworkingTime')
-								const {badgeCoworkingTime,totalFocusSession} = dataUser.body
+								const {badgeCoworkingTime,totalFocusSession} = dataUser.data
 								let typeCoworkingTime
 								if(!badgeCoworkingTime && totalCoworkingTime >= 1000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['1000min']
 								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['1000min'] && totalCoworkingTime >= 3000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['50hr']
