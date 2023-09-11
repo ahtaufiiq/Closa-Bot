@@ -251,11 +251,11 @@ class PaymentController{
                     const {user} = await MemberController.getMember(client,UserId)
                     const membershipType = type?.split('-')[0]
                     const endMembershipDate = Time.getFormattedDate(Time.getDate(dataUser.data.endMembership))
-                    user.send(PaymentMessage.successExtendMembership(endMembershipDate,membershipType))
+                    user.send(PaymentMessage.successExtendMembership(UserId,endMembershipDate,membershipType))
                     if (membershipType === 'pro') {
                         MemberController.addRole(client,UserId,ROLE_PRO_MEMBER)
                     }
-                    ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
+                    ChannelController.sendToNotification(client,PaymentMessage.successExtendMembership(UserId,endMembershipDate,membershipType),UserId,dataUser.data.notificationId)
                 }
                 
             } catch (error) {

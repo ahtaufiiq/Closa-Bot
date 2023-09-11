@@ -1,3 +1,4 @@
+const { userMention } = require("discord.js")
 const { CHANNEL_REGISTRATION } = require("../helpers/config")
 const MessageComponent = require("../helpers/MessageComponent")
 class PaymentMessage{
@@ -107,8 +108,8 @@ learn more → <#${CHANNEL_REGISTRATION}>`
         ]
     }
 
-    static successExtendMembership(formattedDate,membershipType){
-        return `Your ${membershipType} membership status active until ${formattedDate}`
+    static successExtendMembership(UserId,formattedDate,membershipType){
+        return `Hi ${userMention(UserId)}, your ${membershipType} membership status active until ${formattedDate}`
     }
     
 }
