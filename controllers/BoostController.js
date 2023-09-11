@@ -55,13 +55,13 @@ class BoostController{
 						.lt('lastSafety',Time.getDateOnly(Time.getNextDate(-1)))
 						.gte('endMembership',Time.getDateOnly(Time.getDate()))
 				])
-				const totalBoost = dataSkipThreeDay.body.length + dataSkipTenDay.body.length + dataInactiveUser.body.length
+				const totalBoost = dataSkipThreeDay.data.length + dataSkipTenDay.data.length + dataInactiveUser.data.length
 				if(totalBoost > 0){
 					await ChannelController.updateChannelVisibilityForMember(client,CHANNEL_BOOST,true)
 					BoostController.incrementTotalBoostLocal(totalBoost)
 				}
-				if (dataSkipThreeDay.body.length > 0) {
-					dataSkipThreeDay.body.forEach(async member=>{
+				if (dataSkipThreeDay.data.length > 0) {
+					dataSkipThreeDay.data.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
 						const msg = await channelBoost.send(BoostMessage.notMakingProgress3Days(user))
 						supabase.from("Reminders")
@@ -74,8 +74,8 @@ class BoostController{
 				}
 
 
-				if(dataSkipTenDay.body.length > 0){
-					dataSkipTenDay.body.forEach(async member=>{
+				if(dataSkipTenDay.data.length > 0){
+					dataSkipTenDay.data.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
 						const msg = await channelBoost.send(BoostMessage.notMakingProgress10Days(user))
 						supabase.from("Reminders")
@@ -87,8 +87,8 @@ class BoostController{
 					})
 				}
 					
-				if (dataInactiveUser.body.length > 0) {
-					dataInactiveUser.body.forEach(async member=>{
+				if (dataInactiveUser.data.length > 0) {
+					dataInactiveUser.data.forEach(async member=>{
 						const {user} = await MemberController.getMember(client,member.id)
 						const msg = await channelBoost.send(BoostMessage.notActive5Days(user))
 						supabase.from("Reminders")
@@ -266,10 +266,10 @@ class BoostController{
 			.eq('type','boost')
 			.eq("UserId",userId)
 			.gte('createdAt',new Date(Time.getTodayDateOnly()).toUTCString())
-		if(dataBoost.body?.length <= 0) return
+		if(dataBoost.data?.length <= 0) return
 
 		const channelBoost = ChannelController.getChannel(client,CHANNEL_BOOST)
-		dataBoost.body.forEach(async boost=>{
+		dataBoost.data.forEach(async boost=>{
 			const msg = await ChannelController.getMessage(channelBoost,boost.message)
 			ChannelController.deleteMessage(msg)
 			await supabase.from('Reminders')

@@ -74,7 +74,7 @@ class TestimonialController{
             .eq("UserId",userId)
 
 
-        return dataTestimonial.body.length > 0
+        return dataTestimonial.data.length > 0
     }
 }
 

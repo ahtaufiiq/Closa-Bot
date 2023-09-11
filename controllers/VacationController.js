@@ -24,7 +24,7 @@ class VacationController{
             .select('longestStreak')
             .eq('id',userId)
             .single()
-        const {longestStreak} = dataUser.body
+        const {longestStreak} = dataUser.data
 
         if(!longestStreak) return 1
         else if(longestStreak >=365) return 7
@@ -291,7 +291,7 @@ class VacationController{
 			const dataVacation = await supabase.from('VacationTickets')
                 .select()
                 .eq('endDate',Time.getDateOnly(Time.getNextDate(-1)))
-            dataVacation.body.forEach(async vacation=>{
+            dataVacation.data.forEach(async vacation=>{
                 ChannelController.sendToNotification(
                     client,
                     VacationMessage.vacationDayEnded(vacation.UserId),

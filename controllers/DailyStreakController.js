@@ -280,29 +280,29 @@ class DailyStreakController {
 					.limit(sisa)
 					.order('currentStreak',{ascending:false})
 				])
-				if(lowerStreak.body.length <= higherStreak.body.length){
-					for (let i = 0; i < lowerStreak.body.length; i++) {
+				if(lowerStreak.data.length <= higherStreak.data.length){
+					for (let i = 0; i < lowerStreak.data.length; i++) {
 						if(i === Math.floor(sisa/2)) break;
-						const el = lowerStreak.body[i];
+						const el = lowerStreak.data[i];
 						counter++
 						friends.push(el)
 					}
-					for (let i = 0; i < higherStreak.body.length; i++) {
+					for (let i = 0; i < higherStreak.data.length; i++) {
 						if(counter === sisa) break;
-						const el = higherStreak.body[i];
+						const el = higherStreak.data[i];
 						counter++
 						friends.push(el)
 					}
 				}else{
-					for (let i = 0; i < higherStreak.body.length; i++) {
+					for (let i = 0; i < higherStreak.data.length; i++) {
 						if(i === Math.floor(sisa/2)) break;
-						const el = higherStreak.body[i];
+						const el = higherStreak.data[i];
 						counter++
 						friends.push(el)
 					}
-					for (let i = 0; i < lowerStreak.body.length; i++) {
+					for (let i = 0; i < lowerStreak.data.length; i++) {
 						if(counter === sisa) break;
-						const el = lowerStreak.body[i];
+						const el = lowerStreak.data[i];
 						counter++
 						friends.push(el)
 					}

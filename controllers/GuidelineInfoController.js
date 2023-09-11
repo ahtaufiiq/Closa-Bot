@@ -149,9 +149,9 @@ class GuidelineInfoController {
                 .select('*,Users(id,notificationId)')
                 .gt('totalNotification',0)
             const channelNotification = ChannelController.getChannel(client,CHANNEL_NOTIFICATION)
-            for (let i = 0; i < dataUser.body.length; i++) {
+            for (let i = 0; i < dataUser.data.length; i++) {
                 await Time.wait(5000)
-                const {Users:{id,notificationId}} = dataUser.body[i];
+                const {Users:{id,notificationId}} = dataUser.data[i];
                 try {
                     const {isHaveProfile,totalNotification,showSubmitTestimonial,endMembership,msgGuidelineId,totalInvite,onboardingStep,statusCompletedQuest} = await GuidelineInfoController.getData(id)
                     const threadNotification = await ChannelController.getThread(channelNotification,notificationId)

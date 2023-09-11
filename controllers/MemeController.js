@@ -37,10 +37,10 @@ class MemeController {
 
         msgMeme.edit({
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`upvoteMeme_${msg.author.id}_${dataSubmitMeme.body.id}`,'Upvote','⬆️',"SECONDARY")
+                MessageComponent.addEmojiButton(`upvoteMeme_${msg.author.id}_${dataSubmitMeme.data.id}`,'Upvote','⬆️',"SECONDARY")
             )]
         })
-        ChannelController.createThread(msgMeme,`by ${msg.author.username} – meme #${dataSubmitMeme.body.id}`,true)
+        ChannelController.createThread(msgMeme,`by ${msg.author.username} – meme #${dataSubmitMeme.data.id}`,true)
     }
 
     static async upvoteMeme(){

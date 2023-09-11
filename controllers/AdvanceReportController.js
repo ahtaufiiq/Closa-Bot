@@ -175,14 +175,14 @@ class AdvanceReportController{
                 .eq("UserId",UserId)
                 .eq('dateRange',AdvanceReportController.getWeekDateRange())
                 .single()
-            if(dataWeeklyPurchase.body){
+            if(dataWeeklyPurchase.data){
                 const data = {}
-                if(type === 'vacation') data.totalVacationTicket = dataWeeklyPurchase.body.totalVacationTicket + 1
-                else data.totalSickTicket = dataWeeklyPurchase.body.totalSickTicket + 1
+                if(type === 'vacation') data.totalVacationTicket = dataWeeklyPurchase.data.totalVacationTicket + 1
+                else data.totalSickTicket = dataWeeklyPurchase.data.totalSickTicket + 1
 
                 await supabase.from("WeeklyPurchaseTickets")
                     .update(data)
-                    .eq('id',dataWeeklyPurchase.body.id)
+                    .eq('id',dataWeeklyPurchase.data.id)
             }else{
                 const data = {
                     UserId,dateRange:AdvanceReportController.getWeekDateRange()
@@ -219,7 +219,7 @@ class AdvanceReportController{
                 .single()
             const listProductiveTime = AdvanceReportController.generateListProductiveTime(totalTime)
             
-            if(dataWeeklyReport.body){
+            if(dataWeeklyReport.data){
                 const {
                     dailyCoworkingStats,
                     productiveTime,
@@ -227,7 +227,7 @@ class AdvanceReportController{
                     totalSession,
                     tasks,
                     projects,
-                } = dataWeeklyReport.body
+                } = dataWeeklyReport.data
                 let updatedDailyCoworkingStats = false
                 for (const day in dailyCoworkingStats) {
                     if(day === AdvanceReportController.getThisDay(Time.getDateOnly(date))){
@@ -298,7 +298,7 @@ class AdvanceReportController{
                     .select()
                     .eq("id",UserId)
                     .single()
-                const {totalFocusSession:totalSession,dailyWorkTime} = dataUser.body
+                const {totalFocusSession:totalSession,dailyWorkTime} = dataUser.data
                 const dataLastWeek = await supabase.from("CoworkingWeeklyReports")
                     .select()
                     .eq("UserId",UserId)
@@ -309,9 +309,9 @@ class AdvanceReportController{
                     totalTimeLastWeek:null
                 }
     
-                if(dataLastWeek.body){
-                    lastWeekStats.totalSessionLastWeek = dataLastWeek.body.thisWeekStats.totalSessionThisWeek
-                    lastWeekStats.totalTimeLastWeek = dataLastWeek.body.thisWeekStats.totalTime
+                if(dataLastWeek.data){
+                    lastWeekStats.totalSessionLastWeek = dataLastWeek.data.thisWeekStats.totalSessionThisWeek
+                    lastWeekStats.totalTimeLastWeek = dataLastWeek.data.thisWeekStats.totalTime
                 }
     
                 const productiveTime = {}
@@ -367,12 +367,12 @@ class AdvanceReportController{
                 .eq('dateRange',dateRange)
                 .single()
         ])
-        if(!dataWeeklyReport.body) return null
+        if(!dataWeeklyReport.data) return null
         return {
-            totalSession:dataUser.body.totalFocusSession,
-            ...dataWeeklyReport.body,
-            totalSickTicket: dataPurchaseTicket.body?.totalSickTicket,
-            totalVacationTicket: dataPurchaseTicket.body?.totalVacationTicket,
+            totalSession:dataUser.data.totalFocusSession,
+            ...dataWeeklyReport.data,
+            totalSickTicket: dataPurchaseTicket.data?.totalSickTicket,
+            totalVacationTicket: dataPurchaseTicket.data?.totalVacationTicket,
         }
     }
 
@@ -418,8 +418,8 @@ class AdvanceReportController{
                 const dataWeeklyReport = {
                     ...advanceReport,
                     totalSession,
-                    totalSickTicket: dataPurchaseTicket.body?.totalSickTicket,
-                    totalVacationTicket: dataPurchaseTicket.body?.totalVacationTicket,
+                    totalSickTicket: dataPurchaseTicket.data?.totalSickTicket,
+                    totalVacationTicket: dataPurchaseTicket.data?.totalVacationTicket,
                 }
                 const buffer = await GenerateImage.advanceCoworkingReport(user,dataWeeklyReport,dateRange)
                 const weeklyReportFiles = [new AttachmentBuilder(buffer,{name:`advance_report_${user.username}.png`})]

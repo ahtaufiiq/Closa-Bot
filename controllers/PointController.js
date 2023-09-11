@@ -60,7 +60,7 @@ class PointController{
                         break;
                 }
 
-                if(data?.body === null){
+                if(data?.data === null){
                     if(key){
                         supabase.from("Points")
                             .insert({
@@ -154,7 +154,7 @@ class PointController{
             isIncrementPoint:false
         }
 
-		if(data?.body){
+		if(data?.data){
             const lastBoostDate = Time.getDateOnly(Time.getDate(data.data.lastBoost))
 			if (Time.isMoreThanOneMinute(data.data.lastBoost)) result.isMoreThanOneMinute = true
             if(lastBoostDate !== Time.getTodayDateOnly()) result.isIncrementPoint = true
