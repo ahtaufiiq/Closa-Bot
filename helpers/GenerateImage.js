@@ -28,7 +28,6 @@ class GenerateImage{
         const adjustmentX = (97 + 15) * imageResolution
         const adjustmentY = (106 + 15) * imageResolution
         const crop = 60
-        console.log(advanceReport.width);
         //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
         const advanceReportWidth = advanceReport.width - (crop * 2)
         const advanceReportHeight = advanceReport.height - (crop * 2)

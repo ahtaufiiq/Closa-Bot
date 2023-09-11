@@ -418,7 +418,6 @@ class FocusSessionController {
             .order('updatedAt',{ascending:false})
             .limit(6)
         const coworkingPartners = []
-        console.log(dataCoworkingPartner);
         for (let i = 0; i < dataCoworkingPartner?.data?.length; i++) {
             const partner = dataCoworkingPartner.data[i];
             const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
