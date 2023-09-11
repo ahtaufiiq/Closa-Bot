@@ -517,7 +517,7 @@ class GoalController {
 						.select()
 						.eq('id',interaction.user.id)
 						.single()
-						.then(async ({data:data})=>{
+						.then(async ({data})=>{
 							if (data) {
 								if (reminderProgress !== data.reminderProgress) {
 									scheduleReminderProgress.cancel()
