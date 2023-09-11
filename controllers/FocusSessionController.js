@@ -267,6 +267,7 @@ class FocusSessionController {
             .insert({
                 threadId,taskName,ProjectId,UserId,
              })
+             .select()
              .single()
     }
     static async updateProjectId(taskId,ProjectId){
@@ -275,6 +276,7 @@ class FocusSessionController {
                 ProjectId
              })
              .eq('id',taskId)
+             .select()
              .single()
     }
 
@@ -302,6 +304,7 @@ class FocusSessionController {
             .is('session',null)
             .order('createdAt',{ascending:false})
             .limit(1)
+            .select()
             .single()
     }
 
@@ -416,12 +419,12 @@ class FocusSessionController {
             .limit(6)
         const coworkingPartners = []
         for (let i = 0; i < dataCoworkingPartner?.data?.length; i++) {
-            const partner = dataCoworkingPartner.data?.data[i];
+            const partner = dataCoworkingPartner.data[i];
             const idPartner = FocusSessionController.getIdCoworkingPartner(userId,partner.id)
             const dataUser = await UserController.getDetail(idPartner,'avatarURL')
 
             coworkingPartners.push({
-                avatar:dataUser.data?.data.avatarURL,
+                avatar:dataUser.data?.avatarURL,
                 streak: partner.currentStreak
             })
         }
@@ -436,7 +439,7 @@ class FocusSessionController {
             UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime')
         ])
 
-        const {dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime} = dataUser.data?.data
+        const {dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime} = dataUser.data
 
         return {
             dailyWorkTime,totalPoint,tasks,coworkingPartners,totalSession:totalFocusSession,totalCoworkingTime
@@ -536,7 +539,7 @@ class FocusSessionController {
                     .select('id')
                     .eq('threadId',threadId)
                     .single()
-                taskId = dataTask.data?.data.id
+                taskId = dataTask.data?.id
             }
 
             if(focusRoomUser[userId]?.statusSetSessionGoal === 'done') return
@@ -544,7 +547,7 @@ class FocusSessionController {
                 await ChannelController.deleteMessage(msgSelecProject)
                 await FocusSessionController.updateProjectId(taskId,ProjectId)
                 const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
-                if (!dataUser.data?.data?.dailyWorkTime) {
+                if (!dataUser.data?.dailyWorkTime) {
                     await UserController.updateData({dailyWorkTime:60},userId)
                     AdvanceReportController.updateDataWeeklyGoal(60,userId)
                 }
@@ -561,7 +564,7 @@ class FocusSessionController {
                     await ChannelController.deleteMessage(msgSelecProject)
                     await FocusSessionController.updateProjectId(taskId,ProjectId)
                     const dataUser  = await UserController.getDetail(userId,'dailyWorkTime')
-                    if (!dataUser.data?.data?.dailyWorkTime) {
+                    if (!dataUser.data?.dailyWorkTime) {
                         await UserController.updateData({dailyWorkTime:60},userId)
                         AdvanceReportController.updateDataWeeklyGoal(60,userId)
                     }

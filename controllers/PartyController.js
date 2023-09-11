@@ -416,8 +416,8 @@ class PartyController{
 		.select("*,MemberPartyRooms(UserId,project,isLeader,isTrialMember)")
 		.eq('id',partyNumber)
 		.single()
-		.then(async data=>{
-			const members = PartyController.sortMemberByLeader(data?.data?.MemberPartyRooms)
+		.then(async ({data})=>{
+			const members = PartyController.sortMemberByLeader(data?.MemberPartyRooms)
 			const totalMember = members.length
 			const isFullParty = totalMember === PartyController.getMaxPartyMember()
 			msgParty.edit(PartyMessage.partyRoom(
@@ -485,6 +485,7 @@ class PartyController{
 				supabase.from("Users")
 				.update({reminderProgress:shareProgressAt})
 				.eq('id',interaction.user.id)
+				.select()
 				.single()
 				.then(async ({data:user})=>{
 					const [hours,minutes] = user.reminderProgress.split(/[.:]/)

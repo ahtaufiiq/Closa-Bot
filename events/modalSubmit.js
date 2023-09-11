@@ -582,7 +582,7 @@ The correct format:
 					totalSlot,
 					updatedAt:new Date()
 				})
-				.eq('id',msg.id).single()
+				.eq('id',msg.id).select().single()
 				.then(async coworkingEvent=>{
 					if(!coworkingEvent.voiceRoomId){
 						CoworkingController.updateCoworkingMessage(msg,false)
@@ -675,7 +675,7 @@ The correct format:
 						})
 						.then()
 
-					const data = await supabase.from('Users')
+					await supabase.from('Users')
 						.update({lastHighlight})
 						.eq('id',modal.user.id)
 						.single()

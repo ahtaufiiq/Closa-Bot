@@ -201,8 +201,9 @@ class GuidelineInfoController {
         const updatedData = await supabase.from("GuidelineInfos")
             .update({statusCompletedQuest})
             .eq('UserId',UserId)
+            .select()
             .single()
-        return data.data.statusCompletedQuest[step] === updateddata.data.statusCompletedQuest[step]
+        return data.data.statusCompletedQuest[step] === updatedData.data.statusCompletedQuest[step]
 
     }
 }

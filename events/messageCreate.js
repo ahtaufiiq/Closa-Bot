@@ -163,6 +163,7 @@ module.exports = {
 							const data = await supabase.from('Users')
 								.update({lastHighlight})
 								.eq('id',msg.author.id)
+								.select()
 								.single()
 							
 							ChannelController.sendToNotification(
@@ -220,7 +221,7 @@ module.exports = {
 						UserId:msg.author.id,
 						msgProgressId:msg.id,
 						type:'waiting'
-					})
+					}).select()
 					const taskId = dataProgress.data[0].id
 					if(allActiveGoal.data.length > 1 || (allActiveGoal.data.length === 1 && haveArchivedProject)){
 						const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.data)
@@ -340,8 +341,9 @@ module.exports = {
 							supabase.from("Payments")
 							.update({UserId})
 							.eq('id',idPayment)
-							.then(data=>{
-								if (data?.data) {
+							.select()
+							.then(({data})=>{
+								if (data) {
 									 msg.react('✅')	
 								}
 							})
@@ -363,6 +365,7 @@ Thank you for your support to closa community!`)
 								supabase.from('Users')
 									.update({"endMembership":Time.getEndMembership(type,total,data.createdAt),email,name})
 									.eq('id',UserId)
+									.select()
 									.single()
 									.then(data=>{
 										const date = Time.getFormattedDate(Time.getDate(data.data.endMembership))

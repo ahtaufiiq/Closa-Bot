@@ -318,7 +318,7 @@ class DailyStreakController {
 		rule.minute = 1
 		schedule.scheduleJob(rule,async function(){
 			const dateOnly = Time.getDateOnly(Time.getNextDate(-3))
-			const data = await supabase.from("Users")
+			await supabase.from("Users")
 				.update({currentStreak:0})
 				.lt('lastDone',dateOnly)
 				.or(`lastSafety.lt.${dateOnly},lastSafety.is.null`)

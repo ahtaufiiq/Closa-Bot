@@ -150,6 +150,7 @@ class ReminderController{
 		supabase.from("Users")
 			.update({reminderHighlight:time})
 			.eq('id',userId)
+			.select()
 			.single()
 			.then(async ({data:user})=>{
 				let ruleReminderHighlight = new schedule.RecurrenceRule();

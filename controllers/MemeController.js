@@ -33,7 +33,7 @@ class MemeController {
                 imgUrl:memeUrl,
                 content:msg.content,
                 UserId:msg.author.id
-            }).single()
+            }).select().single()
 
         msgMeme.edit({
             components:[MessageComponent.createComponent(
