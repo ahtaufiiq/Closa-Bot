@@ -484,6 +484,7 @@ module.exports = {
 								UserId:interaction.user.id,
 								MemeId:Number(value),
 							})
+							.select()
 							.single()
 							.then(data => {
 								let message

@@ -485,6 +485,7 @@ class PartyController{
 				supabase.from("Users")
 				.update({reminderProgress:shareProgressAt})
 				.eq('id',interaction.user.id)
+				.select()
 				.single()
 				.then(async ({data:user})=>{
 					const [hours,minutes] = user.reminderProgress.split(/[.:]/)

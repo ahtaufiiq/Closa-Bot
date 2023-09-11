@@ -357,10 +357,9 @@ class ReferralCodeController{
     static async updateTotalDaysThisCohort(userId){
         const totalDaysThisCohort = await ReferralCodeController.getTotalDaysThisCohort(userId)
 
-        const data = await supabase.from("Users")
+        await supabase.from("Users")
             .update({totalDaysThisCohort:totalDaysThisCohort+1})
             .eq('id',userId)
-        return data
     }
 
     static async resetTotalDaysThisCohort(){

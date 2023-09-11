@@ -14,6 +14,10 @@ const MemberController = require('../controllers/MemberController');
 const GoalController = require('../controllers/GoalController');
 const InfoUser = require('../helpers/InfoUser');
 const OnboardingController = require('../controllers/OnboardingController');
+const AdvanceReportHelper = require('../helpers/AdvanceReportHelper');
+const AdvanceReportController = require('../controllers/AdvanceReportController');
+const GenerateImage = require('../helpers/GenerateImage');
+const AdvanceReportMessage = require('../views/AdvanceReportMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -59,6 +63,17 @@ module.exports = {
 				.addStringOption(option => option.setName('point').setDescription("total point").setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('report')
+				.setDescription('report weekly')
+				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
+				.addStringOption(option=> option.setName('date').setDescription('Search your productivity report in the past').addChoices(
+					{ name: 'this week', value: '0' },
+					{ name: 'last week', value: '-1' },
+					{ name: AdvanceReportHelper.getWeekDateRange(-2), value: '-2' },
+					{ name: AdvanceReportHelper.getWeekDateRange(-3), value: '-3' }
+				)))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('referral')
 				.setDescription('generate new referral')
 				.addUserOption(option => option.setName('user').setDescription('user'))
@@ -68,7 +83,19 @@ module.exports = {
 		const command = interaction.options.getSubcommand()
 		await interaction.deferReply({ephemeral:true});
 		
-		if(command === 'welcome__onboarding'){
+		if(command === 'report'){
+			const user = interaction.options.getUser('user')
+			const week = interaction.options.getString('date') || 0
+			const dateRange = AdvanceReportHelper.getWeekDateRange(week)
+			const weeklyReport = await AdvanceReportController.getDataWeeklyReport(user.id,dateRange)
+			if(weeklyReport){
+				const bufferImage = await GenerateImage.advanceCoworkingReport(user,weeklyReport)
+				const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${user.username}.png`})]
+				await interaction.editReply(AdvanceReportMessage.onlyReport(user.id,weeklyReportFiles,dateRange))
+			}else{
+				interaction.editReply(AdvanceReportMessage.emptyReport(week,user.id))
+			}
+		}else if(command === 'welcome__onboarding'){
 			const user = interaction.options.getUser('user')
 			MemberController.addRole(interaction.client,user.id,ROLE_ACTIVE_MEMBER)
 		

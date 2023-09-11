@@ -163,6 +163,7 @@ module.exports = {
 							const data = await supabase.from('Users')
 								.update({lastHighlight})
 								.eq('id',msg.author.id)
+								.select()
 								.single()
 							
 							ChannelController.sendToNotification(
@@ -340,6 +341,7 @@ module.exports = {
 							supabase.from("Payments")
 							.update({UserId})
 							.eq('id',idPayment)
+							.select()
 							.then(data=>{
 								if (data?.data) {
 									 msg.react('✅')	
@@ -363,6 +365,7 @@ Thank you for your support to closa community!`)
 								supabase.from('Users')
 									.update({"endMembership":Time.getEndMembership(type,total,data.createdAt),email,name})
 									.eq('id',UserId)
+									.select()
 									.single()
 									.then(data=>{
 										const date = Time.getFormattedDate(Time.getDate(data.data.endMembership))

@@ -68,6 +68,7 @@ module.exports = {
 					supabase.from("Users")
 						.update({reminderProgress:time})
 						.eq('id',userId)
+						.select()
 						.single()
 						.then(async ({data:user})=>{
 							let ruleReminderProgress = new schedule.RecurrenceRule();

@@ -373,7 +373,7 @@ class RecurringMeetupController {
 				type:'weeklyMeetup'
 			})
 			.single()
-			.then(async scheduleWeeklyMeetup=>{
+			.then(async ()=>{
 				if(!isFirstMeetup) RecurringMeetupController.remindTwoDayBeforeMeetup(client,twoDayBefore,partyId)
 				RecurringMeetupController.remindOneDayBeforeMeetup(client,oneDayBefore,partyId)
 				RecurringMeetupController.remindOneHourBeforeMeetup(client,oneHourBefore,partyId)
@@ -447,7 +447,6 @@ class RecurringMeetupController {
 				.eq("UserId",interaction.user.id)
 				.eq("PartyRoomId",partyId)
 				.gte('meetupDate',new Date().toUTCString())
-				.then()
 		}
 		
 		if(isAcceptMeetup) interaction.editReply(`${interaction.user} just accepted the meetup invitation ✅`)

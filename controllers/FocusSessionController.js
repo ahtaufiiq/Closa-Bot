@@ -267,6 +267,7 @@ class FocusSessionController {
             .insert({
                 threadId,taskName,ProjectId,UserId,
              })
+             .select()
              .single()
     }
     static async updateProjectId(taskId,ProjectId){
@@ -275,6 +276,7 @@ class FocusSessionController {
                 ProjectId
              })
              .eq('id',taskId)
+             .select()
              .single()
     }
 
@@ -302,6 +304,7 @@ class FocusSessionController {
             .is('session',null)
             .order('createdAt',{ascending:false})
             .limit(1)
+            .select()
             .single()
     }
 

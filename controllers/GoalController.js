@@ -636,6 +636,7 @@ class GoalController {
 							'endLongestStreak':Time.getTodayDateOnly()
 						})
 						.eq('id',msg.author.id)
+						.select()
 						.single()
 				}else{
 					return supabase.from("Users")
@@ -644,6 +645,7 @@ class GoalController {
 							totalDay
 						})
 						.eq('id',msg.author.id)
+						.select()
 						.single()
 				}
 			}else{
@@ -658,6 +660,7 @@ class GoalController {
 				return supabase.from("Users")
 					.update(updatedData)
 					.eq('id',msg.author.id)
+					.select()
 					.single()
 			}
 		})
