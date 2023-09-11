@@ -342,8 +342,8 @@ module.exports = {
 							.update({UserId})
 							.eq('id',idPayment)
 							.select()
-							.then(data=>{
-								if (data?.data) {
+							.then(({data})=>{
+								if (data) {
 									 msg.react('✅')	
 								}
 							})

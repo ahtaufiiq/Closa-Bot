@@ -574,8 +574,8 @@ module.exports = {
 						.select("*,MemberPartyRooms(UserId)")
 						.eq('id',partyNumber)
 						.single()
-						.then(async data=>{
-							const members = data?.data?.MemberPartyRooms
+						.then(async ({data})=>{
+							const members = data?.MemberPartyRooms
 							if(members.length === 3){
 								setTimeout(async () => {
 									const dataRecentUser = await PartyController.getRecentActiveUserInParty(members,interaction.user.id)

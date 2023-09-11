@@ -99,12 +99,12 @@ module.exports = {
 			const user = interaction.options.getUser('user')
 			MemberController.addRole(interaction.client,user.id,ROLE_ACTIVE_MEMBER)
 		
-			const data = await supabase.from("Users")
+			const {data} = await supabase.from("Users")
 				.select('notificationId')
 				.eq('id',user.id)
 				.single()
 			
-			if (!data.data) {
+			if (!data) {
 				await supabase.from("Users")
 					.insert([{
 						id:user.id,
@@ -221,9 +221,9 @@ module.exports = {
 			
 		}else if(command === 'update__goal'){
 			const user = interaction.options.getUser('user')
-			const data = await GoalController.getActiveGoal(user.id)
+			const {data} = await GoalController.getActiveGoal(user.id)
 
-			await GoalController.updateGoal(interaction.client,data.data,data.data.Users.preferredCoworkingTime)
+			await GoalController.updateGoal(interaction.client,data,data.Users.preferredCoworkingTime)
 			interaction.editReply('success update goal')
 		}else if(command === 'point'){
 			const user = interaction.options.getUser('user')

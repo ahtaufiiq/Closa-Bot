@@ -17,11 +17,10 @@ module.exports = {
 		const user = interaction.options.getUser('user')
 		if(!user){
 			
-			const data = await supabase.from("Users")
+			const {data:{id,notificationId}} = await supabase.from("Users")
 				.select('id,notificationId')
 				.eq('notificationId',interaction.channelId)
 				.single()
-			const {id,notificationId} = data.data
 			await GuidelineInfoController.generateGuideline(interaction.client,id,notificationId)
 		}else{
 			await GuidelineInfoController.generateGuideline(interaction.client,user.id)

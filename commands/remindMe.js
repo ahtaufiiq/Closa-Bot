@@ -34,7 +34,7 @@ module.exports = {
 }
 			return 		
 		}
-		const data = await supabase.from("Users")
+		const {data} = await supabase.from("Users")
 			.select()
 			.eq('id',userId)
 			.single()
@@ -63,7 +63,7 @@ module.exports = {
 						interaction.client,
 						HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
 						interaction.user.id,
-						data.data.notificationId
+						data.notificationId
 					)
 				})
 				
