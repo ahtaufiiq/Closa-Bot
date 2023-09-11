@@ -221,7 +221,7 @@ module.exports = {
 						UserId:msg.author.id,
 						msgProgressId:msg.id,
 						type:'waiting'
-					})
+					}).select()
 					const taskId = dataProgress.data[0].id
 					if(allActiveGoal.data.length > 1 || (allActiveGoal.data.length === 1 && haveArchivedProject)){
 						const goalMenus = GoalController.getFormattedGoalMenu(allActiveGoal.data)
