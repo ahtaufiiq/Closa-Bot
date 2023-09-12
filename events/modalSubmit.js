@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC, CHANNEL_GENERAL } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -368,7 +368,7 @@ The correct format:
 				}
 			}else if(commandButton === "writeReflection" ){
 				await modal.deferReply({
-					ephemeral: modal.channel.id === CHANNEL_ANNOUNCEMENT
+					ephemeral: modal.channel.id === CHANNEL_GENERAL
 				})
 				const highlight = modal.getTextInputValue('highlight');
 				const lowlight = modal.getTextInputValue('lowlight');
@@ -406,7 +406,7 @@ The correct format:
 				const totalPoint = dataPoint.data?.totalPoint
 				WeeklyReflectionController.addReflection({highlight,lowlight,actionPlan,note,UserId:modal.user.id})
 				await modal.editReply(WeeklyReflectionMessage.replySuccessSubmitReflection(totalPoint,incrementPoint))
-				if(modal.channel.id !== CHANNEL_ANNOUNCEMENT) ChannelController.deleteMessage(modal.message)
+				if(modal.channel.id !== CHANNEL_GENERAL) ChannelController.deleteMessage(modal.message)
 			}else if(commandButton === 'editReflection'){
 				await modal.deferReply({ephemeral:true})
 				const highlight = modal.getTextInputValue('highlight');
