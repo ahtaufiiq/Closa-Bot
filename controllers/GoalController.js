@@ -675,7 +675,6 @@ class GoalController {
 				totalDay ,
 				totalPoint, 
 				endLongestStreak,
-				totalDaysThisCohort
 			} = data.data
 
 			if(totalDay === 20){
@@ -692,7 +691,7 @@ class GoalController {
 					.then()
 			}
 
-			if(totalDaysThisCohort === 12 && !Time.isCooldownPeriod()){
+			if(totalDay === 12){
 				ChannelController.sendToNotification(
 					msg.client,
 					ReferralCodeMessage.appreciationForActiveUser(msg.author.id),

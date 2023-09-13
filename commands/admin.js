@@ -89,7 +89,7 @@ module.exports = {
 			const dateRange = AdvanceReportHelper.getWeekDateRange(week)
 			const weeklyReport = await AdvanceReportController.getDataWeeklyReport(user.id,dateRange)
 			if(weeklyReport){
-				const bufferImage = await GenerateImage.advanceCoworkingReport(user,weeklyReport)
+				const bufferImage = await GenerateImage.advanceCoworkingReport(user,weeklyReport,dateRange)
 				const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${user.username}.png`})]
 				await interaction.editReply(AdvanceReportMessage.onlyReport(user.id,weeklyReportFiles,dateRange))
 			}else{

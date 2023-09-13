@@ -181,8 +181,7 @@ class ReferralCodeController{
         if(totalActiveReferral >= 5) return
 
 
-        const totalNewReferral = await ReferralCodeController.getTotalNewReferral(userId,totalActiveReferral)
-        if(totalNewReferral === 0) return
+        const totalNewReferral = 3
 
         ReferralCodeController.addNewReferral(userId,totalNewReferral)
 
@@ -235,27 +234,6 @@ class ReferralCodeController{
         )
         user.send(ReferralCodeMessage.achieveFirstDailyStreak(totalNewReferral,totalStreak,userId,files)) 
             .catch(err=>console.log("Cannot send message to user"))
-    }
-
-    static async getTotalNewReferral(userId,totalActiveReferral){
-        const data = await supabase.from("Users")
-                .select('totalDaysThisCohort')
-                .eq('id',userId)
-                .single()
-                
-        const totalDaysThisCohort = data.data.totalDaysThisCohort
-        let totalNewReferral = 0
-        const slotReferral = 5 - totalActiveReferral
-        if (totalDaysThisCohort >= 18) {
-            totalNewReferral = 2
-        }else if(totalDaysThisCohort >= 12){
-            totalNewReferral = 1
-        }
-        
-        
-        if(totalNewReferral > slotReferral) return slotReferral
-
-        return totalNewReferral
     }
 
     static async getTotalActiveReferral(userId){
@@ -362,18 +340,7 @@ class ReferralCodeController{
             .eq('id',userId)
     }
 
-    static async resetTotalDaysThisCohort(){
-        const {kickoffDate} = LocalData.getData()
 
-        const date =  Time.getDate(kickoffDate)
-        schedule.scheduleJob(date,function(){
-            supabase.from("Users")
-                .update({totalDaysThisCohort:0})
-                .gt('totalDaysThisCohort',0)
-                .then()
-        })
-        
-    }
 
     static isTimeToGenerateReferral(){
         const {celebrationDate} = LocalData.getData()
