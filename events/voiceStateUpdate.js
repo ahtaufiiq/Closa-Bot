@@ -148,6 +148,8 @@ module.exports = {
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 					await FocusSessionController.updateCoworkingPartner(oldMember.client,userId)
 					if (totalTime >= 5) {
+						const dataUser = await UserController.getDetail(userId,'membershipType')
+						const isProMember = dataUser.data?.membershipType === 'pro'
 						supabase
 							.rpc('incrementTotalCoworkingTime', { increment:totalTime, row_id: userId })
 							.then(async ({data:totalCoworkingTime})=>{
@@ -198,7 +200,7 @@ module.exports = {
 								totalTaskFocusTime += Number(task.focusTime)
 							}
 							const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
-							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,-1))
+							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,isProMember))
 						}
 						const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,totalCoworkingTime,tasks} = await FocusSessionController.getRecapFocusSession(userId)
 						const buffer = await GenerateImage.dailySummary({
@@ -226,7 +228,7 @@ module.exports = {
 							coworkingPartners,
 							yesterdayProgress
 						)
-						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
+						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,isProMember))
 						OnboardingController.handleOnboardingCoworking(oldMember.client,newMember.member.user)
 						
 					}

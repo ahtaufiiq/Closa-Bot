@@ -225,7 +225,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 .setFooter({text:UserController.getNameFromUserDiscord(user), iconURL:InfoUser.getAvatar(user)})
     }
 
-    static recapDailySummary(user,files,incrementVibePoint,totalPoint,totalTime,totalFocusTime,dailyWorkTime,week=0){
+    static recapDailySummary(user,files,incrementVibePoint,totalPoint,totalTime,totalFocusTime,dailyWorkTime,isProMember=false){
         const totalBreakTime = totalTime - totalFocusTime
         const percentageWorkHours = Math.round(totalTime/dailyWorkTime*100)
         let content = `Here's your recap ${user}\n`
@@ -242,7 +242,7 @@ Wrap up your day and let's share your ${MessageFormatting.tagChannel(CHANNEL_TOD
                 FocusSessionMessage.embedPointReward(incrementVibePoint,totalPoint,user)
             ],
             components:[MessageComponent.createComponent(
-                MessageComponent.addEmojiButton(`advanceReport_${user.id}_${AdvanceReportController.getWeekDateRange(week)}`,'Advance Report →','📊',ButtonStyle.Secondary)
+                MessageComponent.addEmojiButton(`advanceReport_${user.id}_${AdvanceReportController.getWeekDateRange()}${isProMember?'-pro':''}`,'Advance Report →','📊',ButtonStyle.Secondary)
             )]
         }
     }

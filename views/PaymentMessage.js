@@ -96,7 +96,15 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     static  buttonLinkExtendMembership(label="Extend membership"){
         return [
             MessageComponent.createComponent(
-                MessageComponent.addLinkEmojiButton(label,"https://closa.me/pricing",'⭐')
+                MessageComponent.addLinkEmojiButton(label,"https://closa.me/pricing",'💎')
+            )
+        ]
+    }
+
+    static  buttonBecomeProMember(){
+        return [
+            MessageComponent.createComponent(
+                MessageComponent.addLinkEmojiButton("Become pro member","https://closa.me/pricing",'💎')
             )
         ]
     }
@@ -110,6 +118,24 @@ learn more → <#${CHANNEL_REGISTRATION}>`
 
     static successExtendMembership(UserId,formattedDate,membershipType){
         return `Hi ${userMention(UserId)}, your ${membershipType} membership status active until ${formattedDate}`
+    }
+    static notEligibleGenerateAdvanceReport(){
+        return {
+            ephemeral:true,
+            content:`Advance report is a pro feature.
+
+Support the community by becoming a pro member & get:
+✓ Unlimited coworking session
+✓ Unlimited active projects
+✓ Unlimited progress
+✓ Advance report
+✓ Pro-only channel
+✓ Many more +
+
+here's the sample analytics:`,
+            files:['./assets/images/sampleAdvanceReport.png'],
+            components:[PaymentMessage.buttonBecomeProMember()]
+        }
     }
     
 }

@@ -151,11 +151,13 @@ module.exports = {
 						break;
 					}case "advanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.reply({content:"You can't generate advance report of someone else",ephemeral:true})
+						const [dateRange,isProMember] = value.split('-')
+						if(!isProMember) return interaction.reply(PaymentMessage.notEligibleGenerateAdvanceReport())
 						await interaction.deferReply();
-						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
+						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,dateRange)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
 						const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
-						await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,value,'thisWeek'))
+						await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,dateRange,'thisWeek'))
 						interaction.message.edit({components:[]})
 						break;
 					case "verifyDM":
