@@ -264,6 +264,35 @@ class PaymentController{
 		})
 		.subscribe()
     }
+
+    static async resetTotalUsage(client){
+        const {kickoffDate} = LocalData.getData()
+        const rule = new schedule.RecurrenceRule()
+        rule.date = 1
+        rule.hour = 0
+        rule.minute = 0
+        rule.tz = "Asia/Jakarta"
+        const date =  Time.getDate(kickoffDate)
+        schedule.scheduleJob(date,async function(){
+            const dataActiveUser = await supabase.from("Usages")
+                .select('Users(id,membershipType,notificationId)')
+                .or('totalCoworking.gte.17,totalProgress.gte.17')
+            setTimeout(async () => {
+                for (let i = 0; i < dataActiveUser.data.length; i++) {
+                    const {Users:{id,membershipType,notificationId}} = dataActiveUser.data[i];
+                    if(!membershipType){
+                        await Time.wait(2000)
+                        await ChannelController.sendToNotification(client,PaymentMessage.notifResetUsage(id),id,notificationId,true)
+                    }
+                }
+            }, 29_100_000);
+            supabase.from("Usages")
+                .update({totalCoworking:0,totalProgress:0})
+                .or('totalCoworking.gt.0,totalProgress.gt.0')
+                .then()
+        })
+        
+    }
 }
 
 module.exports = PaymentController

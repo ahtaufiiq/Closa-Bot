@@ -137,6 +137,15 @@ here's the sample analytics:`,
             components:[PaymentMessage.buttonBecomeProMember()]
         }
     }
+
+    static notifResetUsage(UserId){
+        return `Your closa monthly free usage is here ${UserId} 🎁
+\`\`\`
+👩‍💻 20/20 coworking session
+——
+enjoy your free usage ✨
+\`\`\``
+    }
     
 }
 

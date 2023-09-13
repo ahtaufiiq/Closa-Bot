@@ -48,9 +48,6 @@ module.exports = {
 
 		TimelineController.updateTimeline(client)
 
-
-		ReferralCodeController.resetTotalDaysThisCohort()
-
 		
 		ReminderController.remindHighlightUser(client)
 		
@@ -76,6 +73,7 @@ module.exports = {
 		WeeklyReflectionController.sendReflectionEveryWeek(client)
 		PaymentController.remindMember(client)
 		PaymentController.handleSuccessExtendMembership(client)
+		PaymentController.resetTotalUsage(client)
 
 		// PaymentController.remindBeforeKickoffCohort(client)
 		// TimelineController.sendNotifBeforeCelebration(client)
