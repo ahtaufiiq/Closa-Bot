@@ -220,25 +220,22 @@ module.exports = {
 					let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
 					if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 					
-					const todayTodos = await RequestAxios.get(`todos/${msg.author.id}`)
-					if(todayTodos.length === 0){
-						const {totalCoworking,totalProgress,membershipType} = await UsageController.incrementTotalProgress(msg.author.id)
-						if((membershipType === 'lite' && totalProgress > 30) || (membershipType === null && totalProgress > 20)){
-							const threadProgress = await ChannelController.createThread(msg,titleProgress)
-							threadProgress.send(UsageMessage.alreadyReachedLimit(msg.author.id,{totalCoworking,totalProgress,membershipType},'progress'))
-							const isFreeUser = membershipType === null
-							setTimeout(() => {
-								ChannelController.sendToNotification(
-									msg.client,
-									UsageMessage.notifyDeleteProgress(msg.author.id,{totalCoworking,totalProgress,progressContent:msg.content},isFreeUser),
-									msg.author.id
-								)
-								ChannelController.deleteMessage(msg)
-								threadProgress.delete()
-							}, Time.oneMinute() * 2);
-							return
-						}
-					} 
+					const {totalCoworking,totalProgress,membershipType} = await UsageController.incrementTotalProgress(msg.author.id)
+					if((membershipType === 'lite' && totalProgress > 30) || (membershipType === null && totalProgress > 20)){
+						const threadProgress = await ChannelController.createThread(msg,titleProgress)
+						threadProgress.send(UsageMessage.alreadyReachedLimit(msg.author.id,{totalCoworking,totalProgress,membershipType},'progress'))
+						const isFreeUser = membershipType === null
+						setTimeout(() => {
+							ChannelController.sendToNotification(
+								msg.client,
+								UsageMessage.notifyDeleteProgress(msg.author.id,{totalCoworking,totalProgress,progressContent:msg.content},isFreeUser),
+								msg.author.id
+							)
+							ChannelController.deleteMessage(msg)
+							threadProgress.delete()
+						}, Time.oneMinute() * 2);
+						return
+					}
 
 					const [allActiveGoal,haveArchivedProject] = await Promise.all([
 						GoalController.getActiveGoalUser(msg.author.id),
