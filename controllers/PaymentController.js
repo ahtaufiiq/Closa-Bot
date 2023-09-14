@@ -87,6 +87,7 @@ class PaymentController{
                                 notificationId
                             )
                             MemberController.removeRole(client,userId,ROLE_PRO_MEMBER)
+                            UserController.updateData({membershipType:null},userId)
                             user.send(PaymentMessage.remindMembershipLateThreeDay(userId,membershipType))
                                 .catch(err=>console.log("Cannot send message to user"))
                         })
