@@ -40,8 +40,10 @@ class UsageController{
             .select('totalCoworking,totalProgress,Users(membershipType)')
             .eq('UserId',UserId)
             .single()
-        const totalProgress = data.data?.totalProgress + 1
-        const {totalCoworking,Users:{membershipType}}= data.data
+        let {totalCoworking,totalProgress,Users:{membershipType}}= data.data
+        if((membershipType === 'lite' && totalProgress < 30) || (membershipType === null && totalProgress < 20) || membershipType === 'pro'){
+            totalProgress += 1
+        }
         supabase.from("Usages")
             .update({totalProgress})
             .eq("UserId",UserId)
