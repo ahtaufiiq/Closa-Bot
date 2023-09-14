@@ -10,11 +10,9 @@ class MessageComponent {
     }
 
     static  buttonBecomeProMember(){
-        return [
-            MessageComponent.createComponent(
+        return MessageComponent.createComponent(
                 MessageComponent.addLinkEmojiButton("Become pro member","https://closa.me/pricing",'💎')
             )
-        ]
     }
 
     static addButton(id,text,style="SUCCESS"){

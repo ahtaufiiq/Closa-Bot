@@ -102,11 +102,9 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     }
 
     static  buttonBecomeProMember(){
-        return [
-            MessageComponent.createComponent(
+        return MessageComponent.createComponent(
                 MessageComponent.addLinkEmojiButton("Become pro member","https://closa.me/pricing",'💎')
             )
-        ]
     }
     static buttonRemindJoinNextCohort(userId){
         return [

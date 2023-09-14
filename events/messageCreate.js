@@ -24,6 +24,8 @@ const DiscordWebhook = require("../helpers/DiscordWebhook");
 const GoalController = require("../controllers/GoalController");
 const GoalMessage = require("../views/GoalMessage");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const UsageController = require("../controllers/UsageController");
+const UsageMessage = require("../views/UsageMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -112,21 +114,30 @@ module.exports = {
 								msg.id
 							)
 							const userId = msg.author.id
-							const projects = await FocusSessionController.getAllProjects(userId)
-							const projectMenus = FocusSessionController.getFormattedMenu(projects)
-							const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
-							const taskId = dataSessionGoal.data.id
-	
-							threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
-								.then(msgSelecProject=>{
-									focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
-								})
-							if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
-							focusRoomUser[userId].threadId = msg.id
-							focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
-	
-							
-							FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+							const alreadyReachedLimitCoworking = await UsageController.alreadyReachedLimitCoworking(userId)
+							if(alreadyReachedLimitCoworking){
+								threadSession.send(UsageMessage.alreadyReachedLimit(userId))
+								setTimeout(() => {
+									threadSession.setArchived(true)
+									threadSession.edit({name:`⚪ Ended — ${msg.content}`})
+								}, 1000 * 60 * 5);
+							}else {
+								const projects = await FocusSessionController.getAllProjects(userId)
+								const projectMenus = FocusSessionController.getFormattedMenu(projects)
+								const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
+								const taskId = dataSessionGoal.data.id
+		
+								threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
+									.then(msgSelecProject=>{
+										focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
+									})
+								if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
+								focusRoomUser[userId].threadId = msg.id
+								focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
+		
+								
+								FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+							}
 						} catch (error) {
 							DiscordWebhook.sendError(error,msg.author.id+' messageCreate '+msg.id)
 						}
