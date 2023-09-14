@@ -27,6 +27,7 @@ const DailyStreakController = require('./DailyStreakController');
 const ReferralCodeMessage = require('../views/ReferralCodeMessage');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const AchievementBadgeController = require('./AchievementBadgeController');
+const UsageMessage = require('../views/UsageMessage');
 
 class GoalController {
 
@@ -466,16 +467,22 @@ class GoalController {
 	}
 
 	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
-		const dataUser = await UserController.getDetail('dailyWorkTime')
-		const dailyWorkTime = dataUser.data?.dailyWorkTime
-		const msg = await ChannelController.sendToNotification(
-			interaction.client,
-			GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge,dailyWorkTime),
-			targetUserId
-		)
-		const notificationId = await UserController.getNotificationId(targetUserId)
-		if(!msg) DiscordWebhook.sendError('msg null start project',targetUserId)
-		await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg?.id))
+		const dataUser = await UserController.getDetail('dailyWorkTime,membershipType')
+		
+		const membershipType = dataUser.data?.membershipType
+		if(membershipType !== 'pro'){
+			await interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
+		}else{
+			const dailyWorkTime = dataUser.data?.dailyWorkTime
+			const msg = await ChannelController.sendToNotification(
+				interaction.client,
+				GoalMessage.setDailyWorkTime(targetUserId,null,isSixWeekChallenge,dailyWorkTime),
+				targetUserId
+			)
+			const notificationId = await UserController.getNotificationId(targetUserId)
+			if(!msg) DiscordWebhook.sendError('msg null start project',targetUserId)
+			await interaction.editReply(GoalMessage.replyStartSetGoal(notificationId,msg?.id))
+		}
 	}
 
 	static getFormattedGoalMenu(goals,withGoalType=false){
@@ -608,8 +615,7 @@ class GoalController {
 			if (data.length > 0) {
 				throw new Error("Tidak perlu kirim daily streak ke channel")
 			} else {
-				supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()
-				if(!Time.isCooldownPeriod()) await ReferralCodeController.updateTotalDaysThisCohort(msg.author.id)
+				supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()				
 			}
 			
 			return supabase.from("Users")

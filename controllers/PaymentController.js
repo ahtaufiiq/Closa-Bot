@@ -282,7 +282,7 @@ class PaymentController{
             setTimeout(async () => {
                 for (let i = 0; i < dataActiveUser.data.length; i++) {
                     const {Users:{id,membershipType,notificationId}} = dataActiveUser.data[i];
-                    if(!membershipType){
+                    if(membershipType === null){
                         await Time.wait(2000)
                         await ChannelController.sendToNotification(client,UsageMessage.notifResetUsage(id),id,notificationId,true)
                     }

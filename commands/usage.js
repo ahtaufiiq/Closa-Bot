@@ -11,7 +11,7 @@ module.exports = {
 		const dataUsage = await UsageController.getUsage(interaction.user.id)
 		interaction.editReply(UsageMessage.checkMonthlyUsage(
 			interaction.user.id,
-			dataUsage.data?.totalCoworking,
+			dataUsage.data,
 			dataUsage.data?.Users?.membershipType,
 		))
 	},

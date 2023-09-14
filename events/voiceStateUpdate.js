@@ -180,10 +180,10 @@ module.exports = {
 
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
 						UsageController.incrementTotalCoworking(userId)
-							.then(totalCoworking=>{
+							.then(({totalCoworking,totalProgress})=>{
 								if(isFreeMember){
 									if(totalCoworking === 17){
-										ChannelController.sendToNotification(oldMember.client,UsageMessage.remindAboutToReachLimitUsage(userId,totalCoworking),userId,notificationId)
+										ChannelController.sendToNotification(oldMember.client,UsageMessage.remindAboutToReachLimitUsage(userId,{totalCoworking,totalProgress},membershipType),userId,notificationId)
 									}else if(totalCoworking === 20){
 										ChannelController.sendToNotification(oldMember.client,UsageMessage.alreadyReachedLimit(userId),userId,notificationId)
 									}
