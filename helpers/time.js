@@ -88,6 +88,13 @@ class Time {
         return beginningMonthDate
     }
 
+    static getNextResetDay(){
+        const todayDate = Time.getDate()
+        const nextMonthDate = Time.getDate()
+        nextMonthDate.setMonth(nextMonthDate.getMonth()+1,1)
+        return Time.getDiffDay(todayDate,nextMonthDate)
+    }
+
     static getDay(date,type='long'){
         return this.getDate(date).toLocaleDateString("en-US", { weekday: type})
     }
