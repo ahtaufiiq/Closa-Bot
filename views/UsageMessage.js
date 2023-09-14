@@ -145,7 +145,7 @@ enjoy your free usage ✨
     static notifyDeleteProgress(UserId,{totalCoworking,totalProgress,progressContent},isFreeUser){
         const nextResetDay = Time.getNextResetDay()
         return {
-            content:`Hi ${userMention(UserId)}, we just delete your recent progress due to you've reached your monthly free usage.
+            content:`Hi ${userMention(UserId)}, we just deleted your recent progress due to you've reached your monthly free usage.
 You can share your progress again once you become pro member or your monthly free usage got reset.
 
 Your recent progress:
