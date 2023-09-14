@@ -28,6 +28,7 @@ const ReferralCodeMessage = require('../views/ReferralCodeMessage');
 const DailyStreakMessage = require('../views/DailyStreakMessage');
 const AchievementBadgeController = require('./AchievementBadgeController');
 const UsageMessage = require('../views/UsageMessage');
+const UsageController = require('./UsageController');
 
 class GoalController {
 
@@ -730,9 +731,18 @@ class GoalController {
 			}
 			
 		})
-		
 		.catch(err => {
 		})
+		const {totalCoworking,totalProgress,membershipType} = await UsageController.incrementTotalProgress(msg.author.id)
+		if((membershipType === 'lite' && totalProgress === 27) || (membershipType === null && totalProgress === 17)){
+			setTimeout(() => {
+				ChannelController.sendToNotification(
+					msg.client,
+					UsageMessage.remindAboutToReachLimitUsage(msg.author.id,{totalCoworking,totalProgress},membershipType),
+					msg.author.id
+				)
+			}, 1000 * 10);
+		}
 	}
 	
 	static async interactionSearchProject(interaction,user){
