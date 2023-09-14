@@ -23,15 +23,30 @@ class UsageController{
     }
     static async incrementTotalCoworking(UserId){
         const data = await supabase.from("Usages")
-            .select('totalCoworking')
+            .select('totalCoworking,totalProgress')
             .eq('UserId',UserId)
             .single()
         const totalCoworking = data.data?.totalCoworking + 1
+        const totalProgress = data.data.totalProgress
+
         supabase.from("Usages")
             .update({totalCoworking})
             .eq("UserId",UserId)
             .then()
-        return totalCoworking
+        return {totalCoworking,totalProgress}
+    }
+    static async incrementTotalProgress(UserId){
+        const data = await supabase.from("Usages")
+            .select('totalCoworking,totalProgress,Users(membershipType)')
+            .eq('UserId',UserId)
+            .single()
+        const totalProgress = data.data?.totalProgress + 1
+        const {totalCoworking,Users:{membershipType}}= data.data
+        supabase.from("Usages")
+            .update({totalProgress})
+            .eq("UserId",UserId)
+            .then()
+        return {totalProgress,totalCoworking,membershipType}
     }
 }
 
