@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const VacationController = require('../controllers/VacationController');
 const UsageController = require('../controllers/UsageController');
 const UsageMessage = require('../views/UsageMessage');
 

@@ -52,6 +52,16 @@ module.exports = {
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('update__usage')
+				.setDescription('update usage')
+				.addNumberOption(option => option.setName('coworking').setDescription('total coworking'))
+				.addStringOption(option=> option.setName('membership').setDescription('Membership type').addChoices(
+					{ name: 'pro', value: 'pro' },
+					{ name: 'lite', value: 'lite' },
+					{ name: 'free', value: 'free' },
+				)))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('reset__onboarding')
 				.setDescription('reset onboarding')
 				.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)))
@@ -83,7 +93,21 @@ module.exports = {
 		const command = interaction.options.getSubcommand()
 		await interaction.deferReply({ephemeral:true});
 		
-		if(command === 'report'){
+		if(command === 'update__usage'){
+			const membership = interaction.options.getString('membership')
+			const totalCoworking = interaction.options.getNumber('coworking')
+			if(membership!== null){
+				const membershipType = membership === 'free' ? null : membership
+				UserController.updateData({membershipType},interaction.user.id)
+			}
+			if(totalCoworking!== null){
+				supabase.from("Usages")
+					.update({totalCoworking})
+					.eq("UserId",interaction.user.id)
+					.then()
+			}
+			interaction.editReply('success update usage')
+		}else if(command === 'report'){
 			const user = interaction.options.getUser('user')
 			const week = interaction.options.getString('date') || 0
 			const dateRange = AdvanceReportHelper.getWeekDateRange(week)
