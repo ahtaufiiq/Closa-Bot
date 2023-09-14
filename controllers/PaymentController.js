@@ -10,6 +10,7 @@ const ChannelController = require('./ChannelController');
 const MemberController = require('./MemberController');
 const UserController = require('./UserController');
 const GuidelineInfoController = require('./GuidelineInfoController');
+const UsageMessage = require('../views/UsageMessage');
 
 class PaymentController{
 
@@ -283,7 +284,7 @@ class PaymentController{
                     const {Users:{id,membershipType,notificationId}} = dataActiveUser.data[i];
                     if(!membershipType){
                         await Time.wait(2000)
-                        await ChannelController.sendToNotification(client,PaymentMessage.notifResetUsage(id),id,notificationId,true)
+                        await ChannelController.sendToNotification(client,UsageMessage.notifResetUsage(id),id,notificationId,true)
                     }
                 }
             }, 29_100_000);

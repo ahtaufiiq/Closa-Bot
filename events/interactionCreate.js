@@ -49,6 +49,7 @@ const RedisController = require("../helpers/RedisController");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
+const UsageMessage = require("../views/UsageMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -152,7 +153,7 @@ module.exports = {
 					}case "advanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.reply({content:"You can't generate advance report of someone else",ephemeral:true})
 						const [dateRange,isProMember] = value.split('-')
-						if(!isProMember) return interaction.reply(PaymentMessage.notEligibleGenerateAdvanceReport())
+						if(!isProMember) return interaction.reply(UsageMessage.notEligibleGenerateAdvanceReport())
 						await interaction.deferReply();
 						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,dateRange)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)

@@ -74,6 +74,34 @@ enjoy your unlimited usage ✨
 \`\`\``
         }
     }
+
+    static notEligibleGenerateAdvanceReport(){
+        return {
+            ephemeral:true,
+            content:`Advance report is a pro feature.
+
+Support the community by becoming a pro member & get:
+✓ Unlimited coworking session
+✓ Unlimited active projects
+✓ Unlimited progress
+✓ Advance report
+✓ Pro-only channel
+✓ Many more +
+
+here's the sample analytics:`,
+            files:['./assets/images/sampleAdvanceReport.png'],
+            components:[MessageComponent.buttonBecomeProMember()]
+        }
+    }
+
+    static notifResetUsage(UserId){
+        return `Your closa monthly free usage is here ${UserId} 🎁
+\`\`\`
+👩‍💻 20/20 coworking session
+——
+enjoy your free usage ✨
+\`\`\``
+    }
 }
 
 module.exports = UsageMessage
