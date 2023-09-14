@@ -8,6 +8,8 @@ const TodoReminderMessage = require('../views/TodoReminderMessage');
 const ChannelController = require('../controllers/ChannelController');
 const MessageComponent = require('../helpers/MessageComponent');
 const ReminderController = require('../controllers/ReminderController');
+const UsageController = require('../controllers/UsageController');
+const UsageMessage = require('../views/UsageMessage');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('remind')
@@ -43,35 +45,41 @@ module.exports = {
 		switch (command) {
 			case 'me':
 				await interaction.deferReply({ephemeral:true})
-				const differentTime = time.toLowerCase().includes(' wita') ? 1 : time.toLowerCase().includes(' wit') ? 2 : 0
-				const date = Time.getDate()
-				date.setHours(Number(hours) - differentTime,minutes)
-				const isMoreThanTenMinutes = Time.getDiffTime(Time.getDate(),date) > 10
-				if(isMoreThanTenMinutes) date.setMinutes(date.getMinutes()-10)
-				
-				date.setHours(date.getHours() - TIMEZONE)
-				supabase.from('Reminders')
-					.insert({
-						message:`${message} at ${time}`,
-						time:date,
-						UserId:interaction.user.id,
+				const isProUser = await UsageController.isProUser(interaction.user.id)
+				if(isProUser){
+					const differentTime = time.toLowerCase().includes(' wita') ? 1 : time.toLowerCase().includes(' wit') ? 2 : 0
+					const date = Time.getDate()
+					date.setHours(Number(hours) - differentTime,minutes)
+					const isMoreThanTenMinutes = Time.getDiffTime(Time.getDate(),date) > 10
+					if(isMoreThanTenMinutes) date.setMinutes(date.getMinutes()-10)
+					
+					date.setHours(date.getHours() - TIMEZONE)
+					supabase.from('Reminders')
+						.insert({
+							message:`${message} at ${time}`,
+							time:date,
+							UserId:interaction.user.id,
+						})
+						.then()
+	
+					schedule.scheduleJob(date,async function () {
+						ChannelController.sendToNotification(
+							interaction.client,
+							HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
+							interaction.user.id,
+							data.notificationId
+						)
 					})
-					.then()
-
-				schedule.scheduleJob(date,async function () {
-					ChannelController.sendToNotification(
-						interaction.client,
-						HighlightReminderMessage.remindHighlightUser(interaction.user.id,`${message} at ${time}`),
-						interaction.user.id,
-						data.notificationId
-					)
-				})
-				
-				await interaction.editReply({
-					content:`Reminder set: \`\`${message} at ${time}\`\` ${interaction.user}
-
+					
+					await interaction.editReply({
+						content:`Reminder set: \`\`${message} at ${time}\`\` ${interaction.user}
+	
 ${isMoreThanTenMinutes ? "**i'll remind you 10 minutes before the schedule**" : ''}`
-				})			
+					})			
+
+				}else{
+					await interaction.editReply(UsageMessage.notEligibleUseCustomReminder())
+				}
 				break;
 			default:
 				break;

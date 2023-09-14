@@ -15,6 +15,13 @@ class UsageController{
             .single()
         return data.data?.membershipType === null
     }
+    static async isProUser(UserId){
+        const data = await supabase.from("Users")
+            .select("membershipType")
+            .eq("id",UserId)
+            .single()
+        return data.data?.membershipType === 'pro'
+    }
 
     static async alreadyReachedLimitCoworking(UserId){
         const data = await UsageController.getUsage(UserId)

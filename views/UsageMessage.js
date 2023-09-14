@@ -94,6 +94,22 @@ enjoy your unlimited usage ✨
         }
     }
 
+    static notEligibleUseCustomReminder(){
+        return {
+            content:`\`\`/remind me/\`\` command is pro feature.
+
+Support the community by becoming a pro member & get:
+✓ Unlimited coworking session
+✓ Unlimited active projects
+✓ Unlimited progress
+✓ Advance report
+✓ Pro-only channel
+✓ Many more +
+
+the fund will help closa running sustainably.`,
+            components:[MessageComponent.buttonBecomeProMember()]
+        }
+    }
     static notEligibleJoinSixWeekChallenge(){
         return {
             content:`6-week challenge is a pro feature.
