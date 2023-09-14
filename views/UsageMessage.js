@@ -20,7 +20,9 @@ Support the community by becoming a pro member & get:
 ✓ Unlimited progress
 ✓ Advance report
 ✓ Pro-only channel
-✓ Many more +`,
+✓ Many more +
+
+the fund will help closa running sustainably.`,
             components:[MessageComponent.buttonBecomeProMember()]
         }
     }
@@ -40,7 +42,9 @@ Support the community by becoming a pro member & get:
 ✓ Unlimited progress
 ✓ Advance report
 ✓ Pro-only channel
-✓ Many more +`,
+✓ Many more +
+
+the fund will help closa running sustainably.`,
             components:[MessageComponent.buttonBecomeProMember()]
         }
     }
@@ -61,7 +65,9 @@ Support the community by becoming a pro member & get:
 ✓ Unlimited progress
 ✓ Advance report
 ✓ Pro-only channel
-✓ Many more +`,
+✓ Many more +
+
+the fund will help closa running sustainably.`,
                 components:[MessageComponent.buttonBecomeProMember()]
             }
         }else{
@@ -87,6 +93,8 @@ Support the community by becoming a pro member & get:
 ✓ Advance report
 ✓ Pro-only channel
 ✓ Many more +
+
+the fund will help closa running sustainably.
 
 here's the sample analytics:`,
             files:['./assets/images/sampleAdvanceReport.png'],
