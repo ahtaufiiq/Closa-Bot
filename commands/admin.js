@@ -54,6 +54,7 @@ module.exports = {
 			subcommand
 				.setName('update__usage')
 				.setDescription('update usage')
+				.addNumberOption(option => option.setName('progress').setDescription('total progress'))
 				.addNumberOption(option => option.setName('coworking').setDescription('total coworking'))
 				.addStringOption(option=> option.setName('membership').setDescription('Membership type').addChoices(
 					{ name: 'pro', value: 'pro' },
@@ -96,6 +97,7 @@ module.exports = {
 		if(command === 'update__usage'){
 			const membership = interaction.options.getString('membership')
 			const totalCoworking = interaction.options.getNumber('coworking')
+			const totalProgress = interaction.options.getNumber('progress')
 			if(membership!== null){
 				const membershipType = membership === 'free' ? null : membership
 				UserController.updateData({membershipType},interaction.user.id)
@@ -103,6 +105,12 @@ module.exports = {
 			if(totalCoworking!== null){
 				supabase.from("Usages")
 					.update({totalCoworking})
+					.eq("UserId",interaction.user.id)
+					.then()
+			}
+			if(totalProgress!== null){
+				supabase.from("Usages")
+					.update({totalProgress})
 					.eq("UserId",interaction.user.id)
 					.then()
 			}
