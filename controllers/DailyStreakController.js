@@ -163,7 +163,7 @@ class DailyStreakController {
 					components:[
 						MessageComponent.createComponent(
 							MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️').setDisabled(true),
-							MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 5000 pts',"🪙","SUCCESS").setDisabled(true),
+							MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts',"🪙","SUCCESS").setDisabled(true),
 						)
 					]
 				})

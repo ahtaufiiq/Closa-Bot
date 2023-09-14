@@ -96,12 +96,12 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
             buttons.push(
                 MessageComponent.addEmojiButton(`freeRepairStreak_${userId}`,'Repair for free','💎',"SUCCESS"),
                 MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
-                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 5000 pts','🪙',"SECONDARY"),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SECONDARY"),
             )
         }else{
             buttons.push(
                 MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
-                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 5000 pts','🪙',"SUCCESS"),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SUCCESS"),
             )
         }
         return {
@@ -121,7 +121,7 @@ Time left: \`\`${time}\`\` ⏳`,
 
     static confirmationBuyRepairStreak(totalPoint,msgId){
         return {
-            content:`**Are you sure to repair using 5000 points?**
+            content:`**Are you sure to repair using 3500 points?**
 
 \`\`Your points:\`\` ${totalPoint} :coin:`,
             components:[

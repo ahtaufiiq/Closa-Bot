@@ -447,7 +447,7 @@ module.exports = {
 					case "repairStreak":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
 						const totalPoint = await UserController.getTotalPoint(interaction.user.id)
-						if(totalPoint < 5000){
+						if(totalPoint < 3500){
 							interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
 						}else{
 							interaction.editReply(DailyStreakMessage.confirmationBuyRepairStreak(totalPoint,interaction.message.id))
@@ -457,15 +457,14 @@ module.exports = {
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
 						const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
 						interaction.editReply(msgSuccessRepairStreak)
-						const msg = await ChannelController.getMessage(interaction.message.channel,value)
-						msg.delete()
+						ChannelController.deleteMessage(interaction.message)
 						break;
 					case 'confirmBuyRepairStreak':
 						const currentPoint = await UserController.getTotalPoint(interaction.user.id)
-						if(currentPoint < 5000){
+						if(currentPoint < 3500){
 							interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
 						}else{
-							await UserController.incrementTotalPoints(-5000,interaction.user.id)
+							await UserController.incrementTotalPoints(-3500,interaction.user.id)
 							const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
 							interaction.editReply(msgSuccessRepairStreak)
 							const msg = await ChannelController.getMessage(interaction.message.channel,value)
