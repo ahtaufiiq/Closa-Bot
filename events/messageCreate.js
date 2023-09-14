@@ -117,9 +117,9 @@ module.exports = {
 							const alreadyReachedLimitCoworking = await UsageController.alreadyReachedLimitCoworking(userId)
 							if(alreadyReachedLimitCoworking){
 								threadSession.send(UsageMessage.alreadyReachedLimit(userId))
-								setTimeout(() => {
+								setTimeout(async () => {
+									await threadSession.edit({name:`⚪ Ended — ${msg.content}`})
 									threadSession.setArchived(true)
-									threadSession.edit({name:`⚪ Ended — ${msg.content}`})
 								}, 1000 * 60 * 5);
 							}else {
 								const projects = await FocusSessionController.getAllProjects(userId)
