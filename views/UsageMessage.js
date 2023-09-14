@@ -54,7 +54,9 @@ Support the community by becoming a pro member & get:
 ✓ Pro-only channel
 ✓ Many more +
 
-the fund will help closa running sustainably.`,
+the fund will help closa running sustainably.
+
+${type === 'progress' ? "this post will auto-delete in **2 min**.":""}`,
             components:[MessageComponent.buttonBecomeProMember()]
         }
     }
