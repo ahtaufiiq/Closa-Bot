@@ -42,12 +42,12 @@ module.exports = {
 			interaction.editReply('success generate all party')
 		}else if(command === 'repair'){
 			const user = interaction.options.getUser('user')
-			const {data:{notificationId,currentStreak}} = await UserController.getDetail(user.id,'notificationId,currentStreak')
+			const {data:{notificationId,currentStreak,membershipType}} = await UserController.getDetail(user.id,'notificationId,currentStreak,membershipType')
 			const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(user.id)
 			if(isValidGetRepairStreak){
 				const msg = await ChannelController.sendToNotification(
 					interaction.client,
-					DailyStreakMessage.repairStreak(currentStreak,user.id,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
+					DailyStreakMessage.repairStreak(currentStreak,user.id,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly()),membershipType),
 					user.id,
 					notificationId
 				)

@@ -87,7 +87,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward' || commandButton === 'inviteQuickRoom'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak'|| commandButton === 'freeRepairStreak') {
 					await interaction.deferReply();
 				}else if(commandButton !== 'advanceReport'){
 					await interaction.deferReply({ephemeral:true});
@@ -447,18 +447,25 @@ module.exports = {
 					case "repairStreak":
 						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
 						const totalPoint = await UserController.getTotalPoint(interaction.user.id)
-						if(totalPoint < 3500){
+						if(totalPoint < 5000){
 							interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
 						}else{
 							interaction.editReply(DailyStreakMessage.confirmationBuyRepairStreak(totalPoint,interaction.message.id))
 						}
 						break;
+					case 'freeRepairStreak':
+						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
+						const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
+						interaction.editReply(msgSuccessRepairStreak)
+						const msg = await ChannelController.getMessage(interaction.message.channel,value)
+						msg.delete()
+						break;
 					case 'confirmBuyRepairStreak':
 						const currentPoint = await UserController.getTotalPoint(interaction.user.id)
-						if(currentPoint < 3500){
+						if(currentPoint < 5000){
 							interaction.editReply(DailyStreakMessage.notHaveEnoughPoint())
 						}else{
-							await UserController.incrementTotalPoints(-3500,interaction.user.id)
+							await UserController.incrementTotalPoints(-5000,interaction.user.id)
 							const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
 							interaction.editReply(msgSuccessRepairStreak)
 							const msg = await ChannelController.getMessage(interaction.message.channel,value)
