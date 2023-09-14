@@ -61,7 +61,7 @@ the fund will help closa running sustainably.`,
 
     static checkMonthlyUsage(UserId,{totalCoworking,totalProgress},membershipType){
         const nextResetDay = Time.getNextResetDay()
-        if(!membershipType){
+        if(membershipType !== 'pro'){
             return {
                 content:`Here are your monthly usage ${userMention(UserId)}
 \`\`\`
