@@ -401,6 +401,7 @@ class AdvanceReportController{
             const data = await supabase.from('CoworkingWeeklyReports')
                 .select(`*,Users(totalFocusSession,avatarURL,username)`)
                 .eq('dateRange',dateRange)
+                .eq('membershipType','pro')
             for (let i = 0; i < data.data.length; i++) {
                 const advanceReport = data.data[i];
                 const {totalFocusSession:totalSession,avatarURL,username} = advanceReport.Users

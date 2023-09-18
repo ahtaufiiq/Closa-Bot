@@ -24,6 +24,8 @@ const DiscordWebhook = require("../helpers/DiscordWebhook");
 const GoalController = require("../controllers/GoalController");
 const GoalMessage = require("../views/GoalMessage");
 const MessageFormatting = require("../helpers/MessageFormatting");
+const UsageController = require("../controllers/UsageController");
+const UsageMessage = require("../views/UsageMessage");
 
 module.exports = {
 	name: 'messageCreate',
@@ -112,21 +114,30 @@ module.exports = {
 								msg.id
 							)
 							const userId = msg.author.id
-							const projects = await FocusSessionController.getAllProjects(userId)
-							const projectMenus = FocusSessionController.getFormattedMenu(projects)
-							const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
-							const taskId = dataSessionGoal.data.id
-	
-							threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
-								.then(msgSelecProject=>{
-									focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
-								})
-							if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
-							focusRoomUser[userId].threadId = msg.id
-							focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
-	
-							
-							FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+							const alreadyReachedLimitCoworking = await UsageController.alreadyReachedLimitCoworking(userId)
+							if(alreadyReachedLimitCoworking){
+								threadSession.send(UsageMessage.alreadyReachedLimit(userId))
+								setTimeout(async () => {
+									await threadSession.edit({name:`⚪ Ended — ${msg.content}`})
+									threadSession.setArchived(true)
+								}, 1000 * 60 * 5);
+							}else {
+								const projects = await FocusSessionController.getAllProjects(userId)
+								const projectMenus = FocusSessionController.getFormattedMenu(projects)
+								const dataSessionGoal = await FocusSessionController.insertFocusSession(userId,msg.content,null,msg.id)
+								const taskId = dataSessionGoal.data.id
+		
+								threadSession.send(FocusSessionMessage.selectProject(userId,projectMenus,taskId))
+									.then(msgSelecProject=>{
+										focusRoomUser[userId].msgSelecProjectId = msgSelecProject.id
+									})
+								if(!focusRoomUser[userId]) focusRoomUser[userId] = {}
+								focusRoomUser[userId].threadId = msg.id
+								focusRoomUser[userId].statusSetSessionGoal = 'selectProject'
+		
+								
+								FocusSessionController.handleAutoSelectProject(msg.client,focusRoomUser,userId,taskId)
+							}
 						} catch (error) {
 							DiscordWebhook.sendError(error,msg.author.id+' messageCreate '+msg.id)
 						}
@@ -205,15 +216,33 @@ module.exports = {
 						)
 						return
 					}
+					const splittedMessage = msg.content.trimStart().split('\n')
+					let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
+					if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 					
+					const dataUsage = await UsageController.getUsage(msg.author.id)
+					const {totalProgress,totalCoworking,Users:{membershipType}} = dataUsage.data
+					if((membershipType === 'lite' && totalProgress >= 30) || (membershipType === null && totalProgress >= 20)){
+						const threadProgress = await ChannelController.createThread(msg,titleProgress)
+						threadProgress.send(UsageMessage.alreadyReachedLimit(msg.author.id,{totalCoworking,totalProgress,membershipType},'progress'))
+						const isFreeUser = membershipType === null
+						setTimeout(() => {
+							ChannelController.sendToNotification(
+								msg.client,
+								UsageMessage.notifyDeleteProgress(msg.author.id,{totalCoworking,totalProgress,progressContent:msg.content},isFreeUser),
+								msg.author.id
+							)
+							ChannelController.deleteMessage(msg)
+							threadProgress.delete()
+						}, Time.oneMinute() * 2);
+						return
+					}
+
 					const [allActiveGoal,haveArchivedProject] = await Promise.all([
 						GoalController.getActiveGoalUser(msg.author.id),
 						GoalController.haveArchivedProject(msg.author.id)
 					])
 					
-					const splittedMessage = msg.content.trimStart().split('\n')
-					let titleProgress = splittedMessage[0].length < 5 ? splittedMessage[1] : splittedMessage[0]
-					if(FormatString.notCharacter(titleProgress[0])) titleProgress = titleProgress.slice(1).trimStart()
 					const threadProgress = await ChannelController.createThread(msg,titleProgress,allActiveGoal.data.length < 2)
 					const dataProgress = await supabase.from("Todos")
 					.insert({

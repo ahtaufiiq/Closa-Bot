@@ -9,6 +9,13 @@ class MessageComponent {
             )
     }
 
+    static  buttonBecomeProMember(){
+        return MessageComponent.createComponent(
+                MessageComponent.addLinkEmojiButton("Become pro member","https://closa.me/pricing",'💎'),
+                MessageComponent.addLinkButton('Learn more','https://closa.me')
+            )
+    }
+
     static addButton(id,text,style="SUCCESS"){
         return new ButtonBuilder()
             .setCustomId(id)

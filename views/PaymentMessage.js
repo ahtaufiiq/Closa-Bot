@@ -96,10 +96,11 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     static  buttonLinkExtendMembership(label="Extend membership"){
         return [
             MessageComponent.createComponent(
-                MessageComponent.addLinkEmojiButton(label,"https://closa.me/pricing",'⭐')
+                MessageComponent.addLinkEmojiButton(label,"https://closa.me/pricing",'💎')
             )
         ]
     }
+
     static buttonRemindJoinNextCohort(userId){
         return [
             MessageComponent.createComponent(
@@ -111,7 +112,6 @@ learn more → <#${CHANNEL_REGISTRATION}>`
     static successExtendMembership(UserId,formattedDate,membershipType){
         return `Hi ${userMention(UserId)}, your ${membershipType} membership status active until ${formattedDate}`
     }
-    
 }
 
 module.exports = PaymentMessage

@@ -24,6 +24,8 @@ const GuidelineInfoController = require('../controllers/GuidelineInfoController'
 const AdvanceReportController = require('../controllers/AdvanceReportController');
 const InfoUser = require('../helpers/InfoUser');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
+const UsageController = require('../controllers/UsageController');
+const UsageMessage = require('../views/UsageMessage');
 
 let closaCafe = {
 
@@ -148,11 +150,14 @@ module.exports = {
 					await FocusSessionController.updateTime(userId,totalTime,focusTime,breakTime,projectName,focusRoomUser[userId]?.yesterdayProgress)
 					await FocusSessionController.updateCoworkingPartner(oldMember.client,userId)
 					if (totalTime >= 5) {
+						const dataUser = await UserController.getDetail(userId,'membershipType,totalFocusSession,badgeCoworkingTime,notificationId')
+						const {badgeCoworkingTime,totalFocusSession,membershipType,notificationId} = dataUser.data
+
+						const isProMember = membershipType === 'pro'
+						const isFreeMember = membershipType === null
 						supabase
 							.rpc('incrementTotalCoworkingTime', { increment:totalTime, row_id: userId })
 							.then(async ({data:totalCoworkingTime})=>{
-								const dataUser = await UserController.getDetail(userId,'totalFocusSession,badgeCoworkingTime')
-								const {badgeCoworkingTime,totalFocusSession} = dataUser.data
 								let typeCoworkingTime
 								if(!badgeCoworkingTime && totalCoworkingTime >= 1000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['1000min']
 								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['1000min'] && totalCoworkingTime >= 3000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['50hr']
@@ -174,6 +179,16 @@ module.exports = {
 							})
 
 						await supabase.rpc('incrementTotalSession',{row_id:userId})
+						UsageController.incrementTotalCoworking(userId)
+							.then(({totalCoworking,totalProgress})=>{
+								if(isFreeMember){
+									if(totalCoworking === 17){
+										ChannelController.sendToNotification(oldMember.client,UsageMessage.remindAboutToReachLimitUsage(userId,{totalCoworking,totalProgress},membershipType),userId,notificationId)
+									}else if(totalCoworking === 20){
+										ChannelController.sendToNotification(oldMember.client,UsageMessage.alreadyReachedLimit(userId),userId,notificationId)
+									}
+								}
+							})
 						const yesterdayProgress = focusRoomUser[userId]?.yesterdayProgress
 						const incrementVibePoint = totalTime - (yesterdayProgress?.totalTime || 0)
 						PointController.addPoint(userId,'voice',incrementVibePoint)
@@ -198,7 +213,7 @@ module.exports = {
 								totalTaskFocusTime += Number(task.focusTime)
 							}
 							const files = [new AttachmentBuilder(buffer,{name:`daily_summary${newMember.member.username}.png`})]
-							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,-1))
+							await channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,isProMember))
 						}
 						const {coworkingPartners,dailyWorkTime,totalPoint,totalSession,totalCoworkingTime,tasks} = await FocusSessionController.getRecapFocusSession(userId)
 						const buffer = await GenerateImage.dailySummary({
@@ -226,7 +241,7 @@ module.exports = {
 							coworkingPartners,
 							yesterdayProgress
 						)
-						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime))
+						channelSessionLog.send(FocusSessionMessage.recapDailySummary(newMember.member.user,files,incrementVibePoint,totalPoint,totalTaskTime,totalTaskFocusTime,dailyWorkTime,isProMember))
 						OnboardingController.handleOnboardingCoworking(oldMember.client,newMember.member.user)
 						
 					}

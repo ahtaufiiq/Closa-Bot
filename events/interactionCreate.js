@@ -49,6 +49,7 @@ const RedisController = require("../helpers/RedisController");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
+const UsageMessage = require("../views/UsageMessage");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -86,7 +87,7 @@ module.exports = {
 				if(targetUserId === 'null') targetUserId = interaction.user.id
 				if(commandButton === 'buyOneVacationTicket' || commandButton === 'settingFocusTimer' || commandButton === 'claimReward' || commandButton === 'inviteQuickRoom'){
 					await interaction.deferReply({ephemeral:true});
-				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak') {
+				}else if (commandButton === 'verifyDM' || commandButton === 'continueFocus' || commandButton === 'startOnboarding' || commandButton === 'remindOnboardingAgain' || commandButton === 'startOnboardingLater' || commandButton === 'assignNewHost' || commandButton === 'breakFiveMinute' || commandButton === 'breakFifteenMinute' || commandButton=== "postGoal" || commandButton.includes('Reminder') ||commandButton.includes('Time') || commandButton.includes('role') || commandButton === 'goalCategory'  || commandButton.includes('Meetup') || commandButton.includes('VacationTicket') || commandButton === "extendTemporaryVoice" || commandButton === 'confirmBuyRepairStreak'|| commandButton === 'freeRepairStreak') {
 					await interaction.deferReply();
 				}else if(commandButton !== 'advanceReport'){
 					await interaction.deferReply({ephemeral:true});
@@ -151,11 +152,13 @@ module.exports = {
 						break;
 					}case "advanceReport":
 						if(targetUserId !== interaction.user.id) return interaction.reply({content:"You can't generate advance report of someone else",ephemeral:true})
+						const [dateRange,isProMember] = value.split('-')
+						if(!isProMember) return interaction.reply(UsageMessage.notEligibleGenerateAdvanceReport())
 						await interaction.deferReply();
-						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,value)
+						const dataWeeklyReport = await AdvanceReportController.getDataWeeklyReport(targetUserId,dateRange)
 						const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,dataWeeklyReport)
 						const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
-						await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,value,'thisWeek'))
+						await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,dateRange,'thisWeek'))
 						interaction.message.edit({components:[]})
 						break;
 					case "verifyDM":
@@ -449,6 +452,12 @@ module.exports = {
 						}else{
 							interaction.editReply(DailyStreakMessage.confirmationBuyRepairStreak(totalPoint,interaction.message.id))
 						}
+						break;
+					case 'freeRepairStreak':
+						if(targetUserId !== interaction.user.id) return interaction.editReply("You can't repair streak someone else")
+						const msgSuccessRepairStreak = await DailyStreakController.applyRepairStreak(interaction.client,interaction.user)
+						interaction.editReply(msgSuccessRepairStreak)
+						ChannelController.deleteMessage(interaction.message)
 						break;
 					case 'confirmBuyRepairStreak':
 						const currentPoint = await UserController.getTotalPoint(interaction.user.id)

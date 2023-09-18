@@ -122,19 +122,19 @@ class DailyStreakController {
 				const threeDayBefore = Time.getDateOnly(Time.getNextDate(-3))
 				const twoDayBefore = Time.getDateOnly(Time.getNextDate(-2))
 				supabase.from("Users")
-					.select('id,name,currentStreak,notificationId,lastDone,lastSafety')
+					.select('id,name,currentStreak,notificationId,lastDone,lastSafety,membershipType')
 					.gte('currentStreak',21)
 					.or(`lastDone.eq.${threeDayBefore},lastSafety.eq.${twoDayBefore}`)
 					.then(data=>{
 						if (data.data) {
 							data.data.forEach(async member=>{
-								const {id:userId,notificationId,currentStreak,lastDone,lastSafety} = member
+								const {id:userId,notificationId,currentStreak,lastDone,lastSafety,membershipType} = member
 								if((lastDone === threeDayBefore && lastSafety <= threeDayBefore) || (lastSafety === twoDayBefore && lastDone < twoDayBefore)){
 									const isValidGetRepairStreak = await DailyStreakController.isValidGetRepairStreak(userId)
 									if(isValidGetRepairStreak){
 										const msg = await ChannelController.sendToNotification(
 											client,
-											DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly())),
+											DailyStreakMessage.repairStreak(currentStreak,userId,DailyStreakController.getTimeLeftRepairStreak(Time.getTodayDateOnly()),membershipType),
 											userId,
 											notificationId
 										)

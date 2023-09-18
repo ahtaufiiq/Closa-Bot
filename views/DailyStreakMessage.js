@@ -90,7 +90,20 @@ Share your daily ${MessageFormatting.tagChannel(CHANNEL_TODO)} today to keep it 
         }
     }
 
-    static repairStreak(streak,userId,time){
+    static repairStreak(streak,userId,time,membershipType){ 
+        const buttons = []
+        if(membershipType === 'pro'){
+            buttons.push(
+                MessageComponent.addEmojiButton(`freeRepairStreak_${userId}`,'Repair for free','💎',"SUCCESS"),
+                MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SECONDARY"),
+            )
+        }else{
+            buttons.push(
+                MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
+                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SUCCESS"),
+            )
+        }
         return {
             content:`**${streak}-day streak lost! ${MessageFormatting.tagUser(userId)}** 😭
 
@@ -101,8 +114,7 @@ this fund helps us keep the community running.
 
 Time left: \`\`${time}\`\` ⏳`,
             components:[MessageComponent.createComponent(
-                MessageComponent.addLinkEmojiButton('Repair for IDR 49.900','https://tally.so/r/n9BWrX','🛠️'),
-                MessageComponent.addEmojiButton(`repairStreak_${userId}`,'Repair for 3500 pts','🪙',"SUCCESS"),
+                ...buttons
             )]
         }
     }
