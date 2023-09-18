@@ -471,7 +471,7 @@ class GoalController {
 		const dataUser = await UserController.getDetail('dailyWorkTime,membershipType')
 		
 		const membershipType = dataUser.data?.membershipType
-		if(membershipType !== 'pro'){
+		if(membershipType !== 'pro' && isSixWeekChallenge){
 			await interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
 		}else{
 			const dailyWorkTime = dataUser.data?.dailyWorkTime
