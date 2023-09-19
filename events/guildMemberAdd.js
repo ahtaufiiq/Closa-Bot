@@ -35,6 +35,8 @@ module.exports = {
 					totalPoint:0,
 					lastActive:Time.getTodayDateOnly(),
 				}])
+			await supabase.from("Usages")
+				.insert({UserId:member.user.id})
 		}
 		const newInvites = await member.guild.invites.fetch()
 		const oldInvites = invites;
