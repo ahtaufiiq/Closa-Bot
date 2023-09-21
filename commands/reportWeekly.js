@@ -3,6 +3,8 @@ const AdvanceReportController = require('../controllers/AdvanceReportController'
 const AdvanceReportMessage = require('../views/AdvanceReportMessage');
 const GenerateImage = require('../helpers/GenerateImage');
 const AdvanceReportHelper = require('../helpers/AdvanceReportHelper');
+const UsageController = require('../controllers/UsageController');
+const UsageMessage = require('../views/UsageMessage');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -21,15 +23,22 @@ module.exports = {
 	async execute(interaction) {
 		const week = interaction.options.getString('date') || 0
 		const dateRange = AdvanceReportHelper.getWeekDateRange(week)
-		const weeklyReport = await AdvanceReportController.getDataWeeklyReport(interaction.user.id,dateRange)
-		if(weeklyReport){
-			await interaction.deferReply();
-			const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,weeklyReport,dateRange)
-			const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
-			await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,dateRange))
+		const [isProUser,weeklyReport] = await Promise.all([
+			UsageController.isProUser(interaction.user.id),
+			AdvanceReportController.getDataWeeklyReport(interaction.user.id,dateRange)
+		])
+		if (isProUser) {
+			if(weeklyReport){
+				await interaction.deferReply();
+				const bufferImage = await GenerateImage.advanceCoworkingReport(interaction.user,weeklyReport,dateRange)
+				const weeklyReportFiles = [new AttachmentBuilder(bufferImage,{name:`advance_report_${interaction.user.username}.png`})]
+				await interaction.editReply(AdvanceReportMessage.onlyReport(interaction.user.id,weeklyReportFiles,dateRange))
+			}else{
+				await interaction.deferReply({ephemeral:true});
+				interaction.editReply(AdvanceReportMessage.emptyReport(week,interaction.user.id))
+			}
 		}else{
-			await interaction.deferReply({ephemeral:true});
-			interaction.editReply(AdvanceReportMessage.emptyReport(week,interaction.user.id))
+			interaction.reply(UsageMessage.notEligibleGenerateAdvanceReport())
 		}
 	},
 };
