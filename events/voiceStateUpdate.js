@@ -185,7 +185,7 @@ module.exports = {
 									if(totalCoworking === 17){
 										ChannelController.sendToNotification(oldMember.client,UsageMessage.remindAboutToReachLimitUsage(userId,{totalCoworking,totalProgress},membershipType),userId,notificationId)
 									}else if(totalCoworking === 20){
-										ChannelController.sendToNotification(oldMember.client,UsageMessage.alreadyReachedLimit(userId),userId,notificationId)
+										ChannelController.sendToNotification(oldMember.client,UsageMessage.alreadyReachedLimit(userId,{totalCoworking,totalProgress,membershipType}),userId,notificationId)
 									}
 								}
 							})
