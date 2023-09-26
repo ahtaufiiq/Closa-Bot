@@ -23,10 +23,13 @@ class UsageController{
         return data.data?.membershipType === 'pro'
     }
 
-    static async alreadyReachedLimitCoworking(UserId){
+    static async checkLimitCoworking(UserId){
         const data = await UsageController.getUsage(UserId)
-        const {totalCoworking,Users:{membershipType}} = data.data
-        return membershipType === null && totalCoworking >= 20
+        const {totalCoworking,totalProgress,Users:{membershipType}} = data.data
+        return {
+            isAlreadyReachedLimit:membershipType === null && totalCoworking >= 20,
+            totalCoworking,totalProgress,membershipType
+        }
     }
     static async incrementTotalCoworking(UserId){
         const data = await supabase.from("Usages")

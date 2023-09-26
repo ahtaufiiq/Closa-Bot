@@ -114,9 +114,9 @@ module.exports = {
 								msg.id
 							)
 							const userId = msg.author.id
-							const alreadyReachedLimitCoworking = await UsageController.alreadyReachedLimitCoworking(userId)
-							if(alreadyReachedLimitCoworking){
-								threadSession.send(UsageMessage.alreadyReachedLimit(userId))
+							const {totalCoworking,totalProgress,membershipType,isAlreadyReachedLimit} = await UsageController.checkLimitCoworking(userId)
+							if(isAlreadyReachedLimit){
+								threadSession.send(UsageMessage.alreadyReachedLimit(userId,{totalCoworking,totalProgress,membershipType}))
 								setTimeout(async () => {
 									await threadSession.edit({name:`⚪ Ended — ${msg.content}`})
 									threadSession.setArchived(true)
