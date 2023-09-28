@@ -10,7 +10,7 @@ class PaymentMessage{
             reminder = "Tomorrow"
         }
         return { 
-            content:`Hi <@${userId}, a friendly reminder that your ${membershipType} membership will be ended ${reminder} on ${endedMembership}
+            content:`Hi <@${userId}>, a friendly reminder that your ${membershipType} membership will be ended ${reminder} on ${endedMembership}
 
 You can continue supporting us as a ${membershipType} member via the button below.
 the fund will help us building a sustainable community for you.
