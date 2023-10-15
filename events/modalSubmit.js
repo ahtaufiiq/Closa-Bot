@@ -220,7 +220,14 @@ module.exports = {
 
 				const channelStatus = ChannelController.getChannel(modal.client,CHANNEL_STATUS)
 				channelStatus.send({
-					embeds:[MessageComponent.embedMessage({title:project,description:goal,user:modal.user})]
+					embeds:[
+						MessageComponent.embedMessage({title:`${modal.user} just joined 6-week challenge! 🔥`,user:modal.user})
+						.addFields(
+							{ name: '**Project**', value:FormatString.truncateString( project,1020) },
+							{ name: "**Goal**", value:FormatString.truncateString(goal,1020) },
+							{ name: "**Role**", value:FormatString.truncateString(role,1020) },
+						)
+					]
 				})
 
 				modal.editReply(`Thank you for participating ✅
