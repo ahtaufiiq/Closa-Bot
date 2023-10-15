@@ -220,7 +220,7 @@ module.exports = {
 
 				const channelGeneral = ChannelController.getChannel(modal.client,CHANNEL_GENERAL)
 				channelGeneral.send({
-					content:`${modal.user} just joined 6-week challenge! 🔥`,
+					content:`**${modal.user} just joined 6-week challenge! 🔥**`,
 					embeds:[
 						MessageComponent.embedMessage({user:modal.user})
 						.addFields(
@@ -231,9 +231,9 @@ module.exports = {
 					]
 				})
 
-				modal.editReply(`Thank you for participating ✅
+				modal.editReply(`**Thank you for participating ✅
 
-see you on our kick-off day.`)
+see you on our kick-off day.**`)
 				if(!fs.existsSync('6wic.json')) fs.writeFileSync('6wic.json','[]')
 				const data = JSON.parse(fs.readFileSync('6wic.json'))
 				data.push({

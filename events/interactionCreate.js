@@ -106,7 +106,7 @@ module.exports = {
 						const isProUser = await UsageController.isProUser(interaction.user.id)
 						if(isProUser){
 							interaction.editReply({
-								content:'Please select your role first:',
+								content:'**Please select your role first:**',
 								components:[MessageComponent.createComponent(
 									MessageComponent.addMenu(
 										'roleJoin6WIC',
@@ -879,7 +879,7 @@ module.exports = {
 				switch (commandMenu) {
 					case "roleJoin6WIC":
 						interaction.editReply({
-							content:`What do you want to accomplish in 6 week challenge?`,
+							content:`**What do you want to accomplish in 6 week challenge?**`,
 							components:[MessageComponent.createComponent(
 								MessageComponent.addLinkButton('Read guideline first','https://closa.me/how-to-set-right-goal').setEmoji('📋'),
 								MessageComponent.addButton(`applySixWeekChallenge_${interaction.user.id}_${valueMenu}`,"Set project's goal").setEmoji('🎯')
