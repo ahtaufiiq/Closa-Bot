@@ -8,7 +8,7 @@ const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
 const WeeklyReflectionController = require("../controllers/WeeklyReflectionController");
-const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC, CHANNEL_GENERAL, CHANNEL_STATUS } = require("../helpers/config");
+const { ROLE_NEW_MEMBER, CHANNEL_WELCOME, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL_PRIVATE, CHANNEL_GOALS, CHANNEL_CELEBRATE, CHANNEL_ANNOUNCEMENT, CHANNEL_INTRO, CHANNEL_UPCOMING_SESSION, CHANNEL_NOTIFICATION, ROLE_ONBOARDING_COWORKING, ROLE_ONBOARDING_PROJECT, CHANNEL_6WIC, CHANNEL_GENERAL } = require("../helpers/config");
 const FormatString = require("../helpers/formatString");
 const MessageFormatting = require("../helpers/MessageFormatting");
 const supabase = require("../helpers/supabaseClient");
@@ -218,8 +218,8 @@ module.exports = {
 				const goal = modal.getTextInputValue('goal');
 				const role = modal.customId.split("_")[2]
 
-				const channelStatus = ChannelController.getChannel(modal.client,CHANNEL_STATUS)
-				channelStatus.send({
+				const channelGeneral = ChannelController.getChannel(modal.client,CHANNEL_GENERAL)
+				channelGeneral.send({
 					content:`${modal.user} just joined 6-week challenge! 🔥`,
 					embeds:[
 						MessageComponent.embedMessage({user:modal.user})
