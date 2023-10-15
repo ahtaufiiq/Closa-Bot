@@ -50,6 +50,7 @@ const MessageFormatting = require("../helpers/MessageFormatting");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
 const TodoReminderMessage = require("../views/TodoReminderMessage");
 const UsageMessage = require("../views/UsageMessage");
+const UsageController = require("../controllers/UsageController");
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction,focusRoomUser,listFocusRoom) {
@@ -62,6 +63,7 @@ module.exports = {
 				if(GoalController.showModalEditGoal(interaction)) return 
 				if(GoalController.showModalPreferredCoworkingTime(interaction)) return 
 				if(GoalController.showModalStartNewProject(interaction)) return 
+				if(GoalController.showModalApplySixWeekChallenge(interaction)) return 
 				if(VacationController.showModalCustomDate(interaction)) return
 				if(RecurringMeetupController.showModalRescheduleMeetup(interaction)) return
 				if(RecurringMeetupController.showModalExtendTime(interaction)) return
@@ -100,6 +102,40 @@ module.exports = {
 				
 				const targetUser = interaction.user.id === targetUserId ? interaction.user : await MemberController.getMember(interaction.client,targetUserId)
 				switch (commandButton) {
+					case "joinSixWeekChallenge":
+						const isProUser = await UsageController.isProUser(interaction.user.id)
+						if(isProUser){
+							interaction.editReply({
+								content:'**Please select your role first:**',
+								components:[MessageComponent.createComponent(
+									MessageComponent.addMenu(
+										'roleJoin6WIC',
+										'— Select your role —',
+										[
+											{
+												label:'Developer',
+												value:`Developer`
+											},
+											{
+												label:'Designer',
+												value:`Designer`
+											},
+											{
+												label:'Creator',
+												value:`Dreator`
+											},
+											{
+												label:'Other',
+												value:`Other`
+											},
+										]
+									)
+								)]
+							})
+						}else {
+							interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
+						}
+						break;
 					case "remindContinueQuest":
 						const dataUser = await UserController.getDetail(interaction.user.id,'onboardingStep')
 						const {onboardingStep} = dataUser.data
@@ -832,7 +868,7 @@ module.exports = {
 						await interaction.editReply(BoostMessage.warningReplyYourself())
 						return	
 					}
-				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' ){
+				}else if(commandMenu === 'buyVacationTicket' || commandMenu === 'searchProject' || commandMenu === 'roleJoin6WIC'){
 					await interaction.deferReply({ephemeral:true});
 				}else if(commandMenu !== 'selectGoal' && commandMenu !== 'setReminderContinueQuest' && commandMenu !== 'inactiveReply' && commandMenu !== 'setReminderShareProgress' && commandMenu !== 'setDeadlineProject' && commandMenu !== 'setDailyWorkTime' && commandMenu !== 'selectDailyWorkTime' && commandMenu !== 'selectDailyWorkGoal' && commandMenu !== "selectProject" && commandMenu !== 'selectPreferredCoworkingTime'){
 					await interaction.deferReply();
@@ -841,6 +877,15 @@ module.exports = {
 				const targetUser = await MemberController.getMember(interaction.client,targetUserId)
 				const valueMenu = interaction.values[0]
 				switch (commandMenu) {
+					case "roleJoin6WIC":
+						interaction.editReply({
+							content:`**What do you want to accomplish in 6-week challenge?**`,
+							components:[MessageComponent.createComponent(
+								MessageComponent.addLinkButton('Read guideline first','https://closa.me/how-to-set-right-goal').setEmoji('📋'),
+								MessageComponent.addButton(`applySixWeekChallenge_${interaction.user.id}_${valueMenu}`,"Set project's goal").setEmoji('🎯')
+							)]
+						})
+						break;
 					case 'selectGoal':{
 						if(interaction.user.id !== targetUserId) return interaction.reply({content:`You can't select others project 🚫`,ephemeral:true})
 						const [msgProgressId,taskId,msgIdSelectMenu] = value.split('-')

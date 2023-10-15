@@ -43,7 +43,8 @@ const AchievementBadgeMessage = require("../views/AchievementBadgeMessage");
 const ReminderController = require("../controllers/ReminderController");
 const DiscordWebhook = require("../helpers/DiscordWebhook");
 const AdvanceReportController = require("../controllers/AdvanceReportController");
-
+const fs = require('fs');
+const MessageComponent = require("../helpers/MessageComponent");
 module.exports = {
 	name: 'modalSubmit',
 	async execute(modal,focusRoomUser) {
@@ -210,6 +211,38 @@ module.exports = {
 					
 				}
 				
+			}else if(commandButton === "applySixWeekChallenge"){
+				await modal.deferReply({ephemeral:true})
+
+				const project = modal.getTextInputValue('project');
+				const goal = modal.getTextInputValue('goal');
+				const role = modal.customId.split("_")[2]
+
+				const channelGeneral = ChannelController.getChannel(modal.client,CHANNEL_GENERAL)
+				channelGeneral.send({
+					content:`**${modal.user} just joined 6-week challenge! 🔥**`,
+					embeds:[
+						MessageComponent.embedMessage({user:modal.user})
+						.addFields(
+							{ name: '**Project**', value:FormatString.truncateString( project,1020) },
+							{ name: "**Goal**", value:FormatString.truncateString(goal,1020) },
+							{ name: "**Role**", value:FormatString.truncateString(role,1020) },
+						)
+					]
+				})
+
+				modal.editReply(`**Thank you for participating ✅
+
+see you on our kick-off day.**`)
+				if(!fs.existsSync('6wic.json')) fs.writeFileSync('6wic.json','[]')
+				const data = JSON.parse(fs.readFileSync('6wic.json'))
+				data.push({
+					project,
+					goal,
+					role,
+					UserId:modal.user.id
+				})
+				fs.writeFileSync('6wic.json',JSON.stringify(data,null,2))
 			}else if(commandButton === "startNewProject"){
 				await modal.deferReply()
 
