@@ -567,6 +567,21 @@ class GoalController {
 		}
         return false
     }
+	static showModalApplySixWeekChallenge(interaction){
+		let [commandButton,_,value] = interaction.customId.split("_")
+        if(commandButton === 'applySixWeekChallenge'){
+			const modal = new Modal()
+			.setCustomId(interaction.customId)
+			.setTitle("Set your goal 🎯")
+			.addComponents(
+				new TextInputComponent().setCustomId('project').setLabel("Project's name").setPlaceholder("short project's name up to 5 words.").setStyle("SHORT").setRequired(true),
+				new TextInputComponent().setCustomId('goal').setLabel("Goal (that excites you)").setPlaceholder("idea you want to buid with measurable result").setStyle("SHORT").setRequired(true),
+			)
+			showModal(modal, { client: interaction.client, interaction: interaction});
+			return true
+		}
+        return false
+    }
 
 	static async postProgress(msg,goalId,taskId){
 		const ChannelStreak = ChannelController.getChannel(msg.client,CHANNEL_STREAK)
