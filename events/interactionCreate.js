@@ -114,19 +114,19 @@ module.exports = {
 										[
 											{
 												label:'Developer',
-												value:`developer`
+												value:`Developer`
 											},
 											{
 												label:'Designer',
-												value:`designer`
+												value:`Designer`
 											},
 											{
 												label:'Creator',
-												value:`creator`
+												value:`Dreator`
 											},
 											{
 												label:'Other',
-												value:`other`
+												value:`Other`
 											},
 										]
 									)
