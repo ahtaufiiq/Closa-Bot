@@ -20,7 +20,7 @@ module.exports = {
             if(command === 'start'){
                 const channelAnnouncement = ChannelController.getChannel(interaction.client,CHANNEL_ANNOUNCEMENT)
                 const msg = await channelAnnouncement.send({
-                    components:[MessageComponent.createComponent(MessageComponent.addButton('joinSixWeekChallenge','🕹️ Join 6-week challenge'))]
+                    components:[MessageComponent.createComponent(MessageComponent.addButton('joinSixWeekChallenge','🕹️ Register 6-week challenge'))]
                 })
                 interaction.editReply(linkToMessage(CHANNEL_ANNOUNCEMENT,msg.id))
             }
