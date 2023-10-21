@@ -272,21 +272,28 @@ Go to your party room → ${MessageFormatting.linkToInsideThread(msgId)}`
     }
 
     static welcomingPartyRoom(partyId,tagPartyMembers){
-       return `**Welcome to Party #${partyId}**! ${tagPartyMembers}
-**Let's introduce yourself and connect with each other :raised_hands:**
+       return {
+        content:`**Welcome to party #${partyId}**! ${tagPartyMembers}
+Let's introduce yourself and connect with each other 👋
 
-**What you can do inside this party?**
-• Casual chit-chat.
-• Remind if someone not making a progress.
-• Discuss your group meetup or 1 on 1 session.
-• Invite someone to join virtual co-working session at closa cafe.
+What can you do at this party?
+- Casual chit-chat
+- Remind each other to make progress.
+- Discuss & ask for feedback on your project.
+- Invite your new folks to join coworking session.
 
-This party will active for the next \`\`28 days\`\` until celebration day.
-And then, it will automatically disbanded.
-*Because every story has a beginning and an ending*:sparkles:.
+This party will active for — 42 days (until Dec 3, 2023)
+and then, it will automatically disband.
+*because every story has a beginning & an end* ✨
 
-Wish you all success with your project!
-let's make some good memories~`
+i wish you all success with your project!
+
+learn more about how to make the best of your party here
+↓`,
+        components:[MessageComponent.createComponent(
+            MessageComponent.addLinkButton('Accountability Guideline','https://closa.me/accountability-guidelines').setEmoji('📜')
+        )]
+       }
     }
 
     static reminderSetHighlightAfterJoinParty(userId){

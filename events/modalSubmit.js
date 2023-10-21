@@ -3,7 +3,7 @@ const GoalController = require("../controllers/GoalController");
 const MemberController = require("../controllers/MemberController");
 const MembershipController = require("../controllers/MembershipController");
 const PartyController = require("../controllers/PartyController");
-const RecurringMeetupController = require("../controllers/RecurringMeetupController");
+const RecurringMeetupController = require("../controllers/RecurringCoworkingController");
 const ReferralCodeController = require("../controllers/ReferralCodeController");
 const TestimonialController = require("../controllers/TestimonialController");
 const VacationController = require("../controllers/VacationController");
@@ -352,31 +352,30 @@ The correct format:
 			}else if(commandButton === "rescheduleMeetup"){
 				await modal.deferReply()
 				
-				const customDate = modal.getTextInputValue('date');
+				// const customDate = modal.getTextInputValue('date');
 				const time = modal.getTextInputValue('time');
 				
 				// handle format: 18 Decemember and December 18
-				const date = customDate.match(/(\d+)/)[0]
-				const month = customDate.split(date).filter(Boolean)[0]
-				const monthInNumber = Time.convertMonthInNumber(month)
+				// const date = customDate.match(/(\d+)/)[0]
+				// const month = customDate.split(date).filter(Boolean)[0]
+				// const monthInNumber = Time.convertMonthInNumber(month)
 				
 				const patternTime = /\d+[.:]\d+/
 				if (!patternTime.test(time) || monthInNumber === -1 || !FormatString.isNumber(date)) {
-					return await modal.editReply(`Incorrect format, please make sure there is no typo or invalid date & time.
+					return await modal.editReply(`Incorrect format, please make sure there is no typo or invalid time.
 		
-The correct format:
-\`\`/schedule meetup month date at time\`\``)
+The correct format: \`\`20.00\`\``)
 		
 				}
 		
 				const [hours,minutes] = time.split(/[.:]/)
 		
-				const meetupDate = Time.getDate()
-				meetupDate.setDate(date)
-				if (monthInNumber < meetupDate.getMonth()) meetupDate.setFullYear(meetupDate.getFullYear()+1)
-				meetupDate.setMonth(monthInNumber)
-				meetupDate.setHours(Time.minus7Hours(hours,false))
-				meetupDate.setMinutes(minutes)
+				// const meetupDate = Time.getDate()
+				// meetupDate.setDate(date)
+				// if (monthInNumber < meetupDate.getMonth()) meetupDate.setFullYear(meetupDate.getFullYear()+1)
+				// meetupDate.setMonth(monthInNumber)
+				// meetupDate.setHours(Time.minus7Hours(hours,false))
+				// meetupDate.setMinutes(minutes)
 		
 				const partyId = modal.channel.name.split(' ')[1]
 				RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)

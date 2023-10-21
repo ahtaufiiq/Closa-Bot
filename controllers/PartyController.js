@@ -9,7 +9,7 @@ const schedule = require('node-schedule');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
-const RecurringMeetupController = require('./RecurringMeetupController');
+const RecurringMeetupController = require('./RecurringCoworkingController');
 const MessageComponent = require('../helpers/MessageComponent');
 const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
@@ -265,11 +265,11 @@ class PartyController{
 			for (let i = 0; i < members.length; i++) {
 				const member = members[i];
 				const goalId = member.Users.goalId
-				for (let j = 0; j < members.length; j++) {
-					const userId = members[j].UserId;
-					if(member.UserId === userId) continue
-					ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
-				}
+				// for (let j = 0; j < members.length; j++) {
+				// 	const userId = members[j].UserId;
+				// 	if(member.UserId === userId) continue
+				// 	ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId) //add to thread goal
+				// }
 				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
 			}
 			
@@ -280,15 +280,15 @@ class PartyController{
 			}, 1000 * 60 * 5);
 
 			setTimeout(async () => {
-				const time = new Date()
-				time.setDate(time.getDate() + 1)
-				await supabase.from("Reminders")
-					.insert({
-						time,
-						message:party.id,
-						type:'reminderScheduleMeetup'
-					})
-				PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
+				// const time = new Date()
+				// time.setDate(time.getDate() + 1)
+				// await supabase.from("Reminders")
+				// 	.insert({
+				// 		time,
+				// 		message:party.id,
+				// 		type:'reminderScheduleMeetup'
+				// 	})
+				// PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
 
 				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id,tagPartyMembers))
 				
@@ -1097,6 +1097,10 @@ class PartyController{
 
 	static getTotalSkipDay(lastDone,date){
 		return Time.getDiffDay(Time.getDate(lastDone),Time.getDate(date))
+	}
+
+	static recurringCoworking(client){
+
 	}
 
 }

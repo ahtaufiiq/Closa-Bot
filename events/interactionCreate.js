@@ -10,7 +10,7 @@ const PartyController = require("../controllers/PartyController");
 const supabase = require("../helpers/supabaseClient");
 const LocalData = require("../helpers/LocalData");
 const { ROLE_TRIAL_MEMBER, CHANNEL_PARTY_ROOM, CHANNEL_GOALS, CHANNEL_REFLECTION, CHANNEL_TESTIMONIAL, CHANNEL_UPCOMING_SESSION, CHANNEL_ACHIEVEMENTS, CHANNEL_6WIC, CHANNEL_TODO } = require("../helpers/config");
-const RecurringMeetupController = require("../controllers/RecurringMeetupController");
+const RecurringMeetupController = require("../controllers/RecurringCoworkingController");
 const Time = require("../helpers/time");
 const RecurringMeetupMessage = require("../views/RecurringMeetupMessage");
 const schedule = require('node-schedule');
@@ -122,7 +122,7 @@ module.exports = {
 											},
 											{
 												label:'Creator',
-												value:`Dreator`
+												value:`Creator`
 											},
 											{
 												label:'Other',
@@ -561,7 +561,9 @@ module.exports = {
 					case "boostBack":
 						BoostController.interactionBoostBack(interaction,targetUser)
 						break;
-					case "joinPartyRoom":
+					case "joinPartyRoom":{
+						const isProUser =await UsageController.isProUser(interaction.user.id)
+						if(isProUser) return interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
 						const dataJoinedParty = await PartyController.dataJoinedParty(interaction.user.id)
 						if (dataJoinedParty) {
 							ChannelController.sendToNotification(
@@ -591,7 +593,7 @@ module.exports = {
 							const notificationId = await UserController.getNotificationId(targetUserId)
 							await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,notificationId))
 						}
-
+					}
 						break
 					case "leavePartyRoom":
 						const dataMemberParty = await supabase.from("MemberPartyRooms")

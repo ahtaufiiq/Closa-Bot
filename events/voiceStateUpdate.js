@@ -26,6 +26,7 @@ const InfoUser = require('../helpers/InfoUser');
 const DiscordWebhook = require('../helpers/DiscordWebhook');
 const UsageController = require('../controllers/UsageController');
 const UsageMessage = require('../views/UsageMessage');
+const RecurringCoworkingController = require('../controllers/RecurringCoworkingController');
 
 let closaCafe = {
 
@@ -43,9 +44,8 @@ module.exports = {
 			const joinedChannelId = newMember?.channelId
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
 			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember,listCafeTable)
+			RecurringCoworkingController.handleQuickPartyRoom(oldMember,listFocusRoom,totalOldMember)
 	
-			RecurringMeetupController.handleVoiceRoomWeeklySync(newMember,meetup,userId)
-
 			if(oldMember.channel === null){
 				closaCafe[userId] = Time.getDate()
 				UserController.updateData(
