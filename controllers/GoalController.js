@@ -468,7 +468,7 @@ class GoalController {
 	}
 
 	static async interactionStartProject(interaction,targetUserId,isSixWeekChallenge=false){
-		const dataUser = await UserController.getDetail('dailyWorkTime,membershipType')
+		const dataUser = await UserController.getDetail(targetUserId,'dailyWorkTime,membershipType')
 		
 		const membershipType = dataUser.data?.membershipType
 		if(membershipType !== 'pro' && isSixWeekChallenge){
