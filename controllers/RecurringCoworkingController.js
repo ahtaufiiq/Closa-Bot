@@ -202,7 +202,9 @@ class RecurringCoworkingController {
 	static handleQuickPartyRoom(oldMember,listFocusRoom,totalOldMember){
 		if(RecurringCoworkingController.isEmptyPartyRoom(oldMember,listFocusRoom,totalOldMember)){
 			oldMember.channel.delete()
-			delete listFocusRoom[oldMember.channelId]
+			setTimeout(() => {
+				delete listFocusRoom[oldMember.channelId]
+			}, Time.oneMinute() * 5);
 		}
 	}
 }
