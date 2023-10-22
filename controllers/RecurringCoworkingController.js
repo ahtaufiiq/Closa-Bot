@@ -29,7 +29,7 @@ class RecurringCoworkingController {
 		date.setMinutes(date.getMinutes()-5)
 		const ruleFiveMinuteBeforeCoworking = new schedule.RecurrenceRule();
 		ruleFiveMinuteBeforeCoworking.hour = date.getHours()
-		ruleFiveMinuteBeforeCoworking.minute = date.getMinutes
+		ruleFiveMinuteBeforeCoworking.minute = date.getMinutes()
 		const reminderFiveMinutes = schedule.scheduleJob(ruleFiveMinuteBeforeCoworking,async() =>{
 			const isRescheduleCoworkingTime = await RecurringCoworkingController.isRescheduleCoworkingTime(lastUpdatedCoworkingTime,partyId)
 			if(isRescheduleCoworkingTime) return reminderFiveMinutes.cancel()
