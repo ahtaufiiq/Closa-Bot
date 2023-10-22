@@ -1107,14 +1107,22 @@ class PartyController{
 
 	}
 
-	static updateCoworkingTime(partyId,coworkingTime){
-		supabase.from('PartyRooms')
+	static async updateCoworkingTime(partyId,coworkingTime){
+		return await supabase.from('PartyRooms')
 			.update({
 				coworkingTime,
 				lastUpdatedCoworkingTime:new Date()
 			})
 			.eq('id',partyId)
-			.then()
+			.select()
+			.single()
+	}
+
+	static async getDetailParty(partyId){
+		return await supabase.from("PartyRooms")
+			.select(`*`)
+			.eq('id',partyId)
+			.single()
 	}
 
 }

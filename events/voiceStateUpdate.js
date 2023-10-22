@@ -44,7 +44,8 @@ module.exports = {
 			const joinedChannelId = newMember?.channelId
 			await CoworkingController.addCoworkingRoomToListFocusRoom(listFocusRoom,joinedChannelId)
 			await CoworkingController.handleQuickCreateRoom(oldMember,newMember,listFocusRoom,totalOldMember,listCafeTable)
-			RecurringCoworkingController.handleQuickPartyRoom(oldMember,listFocusRoom,totalOldMember)
+			RecurringCoworkingController.handleLeavePartyRoom(oldMember,listFocusRoom,totalOldMember)
+			RecurringCoworkingController.handleJoinPartyRoom(newMember,newMember?.channel?.members?.size || 0,totalOldMember,listFocusRoom)
 	
 			if(oldMember.channel === null){
 				closaCafe[userId] = Time.getDate()

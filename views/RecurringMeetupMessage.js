@@ -2,12 +2,12 @@ const MessageComponent = require("../helpers/MessageComponent")
 const MessageFormatting = require("../helpers/MessageFormatting")
 
 class RecurringMeetupMessage {
-    static askToScheduleRecurringMeetup(formattedDate,meetupDate,partyId,tagPartyMembers){
+    static askToScheduleRecurringMeetup(coworkingTime,partyId,tagPartyMembers){
         return {
             content:`Schedule default coworking time :woman_technologist::man_technologist:🕗
 
 current default coworking time:
-at **20.00 WIB every day.**
+at **${coworkingTime} WIB every day.**
 starting tomorrow.
 
 you can also discuss with others to change the time.
@@ -15,8 +15,8 @@ you can also discuss with others to change the time.
 please confirm ${tagPartyMembers}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Confirm'),
-                    MessageComponent.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Skip","SECONDARY"),
+                    MessageComponent.addButton(`attendMeetup`,'Confirm'),
+                    MessageComponent.addButton(`cannotAttendMeetup`,"Skip","SECONDARY"),
                     MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Change time","SECONDARY"),
                 )
             ]
@@ -64,16 +64,17 @@ p.s: minimal 2 people accepted the invitation to host virtual meetup.
 see you soon everyone!`
     }
 
-    static reminderOneHourBeforeMeetup(tagPartyMembers){
+    static reminderOneHourBeforeMeetup(tagPartyMembers,partyId,coworkingTime){
         return {
             content:`Reminder 🔔
 
-**1 hour** before coworking session started at 20.00 WIB
+**1 hour** before coworking session started at ${coworkingTime} WIB
 
 please confirm your attendance: ${tagPartyMembers}`,
             components:[MessageComponent.createComponent(
                 MessageComponent.addButton(`attendMeetup`,'Yes'),
                 MessageComponent.addButton(`cannotAttendMeetup`,"No","SECONDARY"),
+                MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Reschedule","SECONDARY"),
             )]
         }
     }
@@ -127,14 +128,13 @@ Have a good time! @everyone
         }
     }
 
-    static remindUserJoinMeetupSession(channelId,tagPartyMembers){
+    static remindUserJoinMeetupSession(channelId,tagPartyMembers,coworkingTime='20.00'){
         return {
-            content:`Reminder :bell:
+            content:`**5 minutes** before coworking started at ${coworkingTime} WIB :bell:
 
-**5 minutes** before coworking session started at 20.00 WIB
-
-please join now: ${tagPartyMembers}
-Read: [How to host coworking session ↗](https://closa.me/coworking-guideline) 👩‍💻👨‍💻
+1. Please join now: ${tagPartyMembers}
+2. Turn-on video/sharescreen :camera: / :computer: *required or auto-kick (rules).
+3. Read: [How to host coworking session ↗](https://closa.me/coworking-guideline) :woman_technologist::man_technologist:
 
 ${MessageFormatting.tagChannel(channelId)}`,
         }
@@ -189,6 +189,18 @@ Feel free to share your moment anywhere and tag \`\`@joinclosa\`\` :smile:`
 
 That's a wrap! 🙌 
 Thank you everyone~`
+    }
+
+    static guidelineForFirstJoinedVoiceChannel(UserId){
+        return {
+            content:`Please read the coworking guideline below ${MessageFormatting.tagUser(UserId)} & others.
+
+Please start your session in 2 mins (to avoid auto-kick)
+↳ write 1 specific task at ⁠#session-goals (if you haven't)`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addLinkButton('How to host coworking session','https://closa.me/coworking-guideline')
+            )]
+        }
     }
 }
 

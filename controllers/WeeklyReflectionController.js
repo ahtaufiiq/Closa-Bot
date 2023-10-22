@@ -40,7 +40,7 @@ class WeeklyReflectionController {
 
 	static async updateAnnouncementReflection(client){
 		const date = Time.getDate()
-		if(!Time.isCooldownPeriod() && date.getDay() === 2 && date.getHours() >= 19){
+		if(!Time.isCooldownPeriod() && date.getDay() === 0 && date.getHours() >= 19){
 			const {msgIdWeeklyReflection} = LocalData.getData()
 			const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
 			const msg = await ChannelController.getMessage(channelGeneral,msgIdWeeklyReflection)
