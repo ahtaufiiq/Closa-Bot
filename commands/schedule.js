@@ -32,8 +32,8 @@ The correct format:
 		// meetupDate.setHours(Time.minus7Hours(hours,false))
 		// meetupDate.setMinutes(minutes)
 		
-		PartyController.updateCoworkingTime(partyId,time)
 		const partyId = modal.channel.name.split(' ')[1]
+		PartyController.updateCoworkingTime(partyId,time)
 		// RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
 		await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the new default coworking time at **${time} every day** ✅`)
 	},
