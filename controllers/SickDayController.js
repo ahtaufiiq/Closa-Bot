@@ -99,7 +99,7 @@ class SickDayController{
             UserController.updateOnVacation(true,interaction.user.id)
             SickDayController.shareToProgress(interaction.client,[{name:interaction.user.username,id:interaction.user.id}])
             AdvanceReportController.updateDataWeeklyPurchaseTicket(interaction.user.id,'sick')
-            // PartyController.updateDataProgressRecap(interaction.user.id,'sick')
+            PartyController.updateDataProgressRecap(interaction.user.id,'sick')
             const startDateFormatted = Time.getFormattedDate(Time.getDate(startDate))
             const endDateFormatted = Time.getFormattedDate(Time.getNextDate(totalTicket,startDate))
             await interaction.editReply(SickDayMessage.successBuySickDayTicket(interaction.user.id,pointLeft,startDateFormatted,endDateFormatted))
@@ -119,7 +119,7 @@ class SickDayController{
                 const sickTicket = data.data[i];
                 const userId = sickTicket.UserId
                 AdvanceReportController.updateDataWeeklyPurchaseTicket(userId,'sick')
-                // PartyController.updateDataProgressRecap(userId,'sick')
+                PartyController.updateDataProgressRecap(userId,'sick')
                 const {goalId,longestStreak,totalDay,totalPoint,lastDone} = sickTicket.Users
                 const channelStreak = ChannelController.getChannel(client,CHANNEL_STREAK)
                 const {user} = await MemberController.getMember(client,userId)

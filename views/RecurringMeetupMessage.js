@@ -4,24 +4,20 @@ const MessageFormatting = require("../helpers/MessageFormatting")
 class RecurringMeetupMessage {
     static askToScheduleRecurringMeetup(formattedDate,meetupDate,partyId,tagPartyMembers){
         return {
-            content:`**Attend your first virtual party meetup!:wave: **
-Your first meetup will be held next week on **${formattedDate} at 21.00 WIB :calendar_spiral: **
+            content:`Schedule default coworking time :woman_technologist::man_technologist:🕗
 
-> \`Our goal at closa is To make it easy for you to genuinely connect, share & reflect on your progress.\`
+current default coworking time:
+at **20.00 WIB every day.**
+starting tomorrow.
 
-notes:
-• Your default party meetup: every tuesday at \`21.00 WIB\`
-• Minimum \`2 people\` accepted to host the meetup.
-• *the bot will create a temporary \`\`30 min\`\` discord voice room for you to join & talk on the day of meetup.
-• Then the room will automatically deleted by bot*. 
-• if majority people answer no then the meetup will be rescheduled.
-
-**Confirm** ${tagPartyMembers}`,
+you can also discuss with others to change the time.
+↓
+please confirm ${tagPartyMembers}`,
             components:[
                 MessageComponent.createComponent(
-                    MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Accept'),
-                    MessageComponent.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Decline","DANGER"),
-                    MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Reschedule","SECONDARY"),
+                    MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Confirm'),
+                    MessageComponent.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Skip","SECONDARY"),
+                    MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Change time","SECONDARY"),
                 )
             ]
         }
@@ -69,8 +65,17 @@ see you soon everyone!`
     }
 
     static reminderOneHourBeforeMeetup(tagPartyMembers){
-        return `Today is the day! 
-\`\`1h\`\` before the virtual meetup begin ${tagPartyMembers}`
+        return {
+            content:`Reminder 🔔
+
+**1 hour** before coworking session started at 20.00 WIB
+
+please confirm your attendance: ${tagPartyMembers}`,
+            components:[MessageComponent.createComponent(
+                MessageComponent.addButton(`attendMeetup`,'Yes'),
+                MessageComponent.addButton(`cannotAttendMeetup`,"No","SECONDARY"),
+            )]
+        }
     }
 
     static reminderTenMinBeforeMeetup(tagPartyMembers){
@@ -123,11 +128,16 @@ Have a good time! @everyone
     }
 
     static remindUserJoinMeetupSession(channelId,tagPartyMembers){
-        return `Hi ${tagPartyMembers} the virtual meetup room is ready.
+        return {
+            content:`Reminder :bell:
 
-Waiting for 2 people to start the virtual meetup session.
+**5 minutes** before coworking session started at 20.00 WIB
 
-Join → ${MessageFormatting.tagChannel(channelId)}`
+please join now: ${tagPartyMembers}
+Read: [How to host coworking session ↗](https://closa.me/coworking-guideline) 👩‍💻👨‍💻
+
+${MessageFormatting.tagChannel(channelId)}`,
+        }
     }
 
     static reminderFiveMinutesBeforeEnded(voiceChannelId){

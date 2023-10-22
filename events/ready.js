@@ -10,7 +10,7 @@ const TimelineController = require('../controllers/TimelineController');
 const ReferralCodeController = require('../controllers/ReferralCodeController');
 const PartyController = require('../controllers/PartyController');
 const GoalController = require('../controllers/GoalController');
-const RecurringMeetupController = require('../controllers/RecurringMeetupController');
+const RecurringMeetupController = require('../controllers/RecurringCoworkingController');
 const VacationController = require('../controllers/VacationController');
 const WeeklyReflectionController = require('../controllers/WeeklyReflectionController');
 const SickDayController = require('../controllers/SickDayController');
@@ -19,6 +19,7 @@ const CelebrationController = require('../controllers/CelebrationController');
 const FocusSessionController = require('../controllers/FocusSessionController');
 const OnboardingController = require('../controllers/OnboardingController');
 const AdvanceReportController = require('../controllers/AdvanceReportController');
+const RecurringCoworkingController = require('../controllers/RecurringCoworkingController');
 
 
 module.exports = {
@@ -27,7 +28,7 @@ module.exports = {
 	async execute(client,focusRoomUser,listFocusRoom,invites) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		user.send("Restart Bot")
+		// user.send("Restart Bot")
 
 		AdvanceReportController.sendAdvanceReportEveryMonday(client)
 
@@ -86,15 +87,16 @@ module.exports = {
 		// PartyController.removeWaitingRoom(client)
 		// PartyController.generateWaitingRoomPartyMode(client)
 		// PartyController.announcePartyModeAvailable(client)
-		// PartyController.partyReminder(client)
+		PartyController.partyReminder(client)
 		// PartyController.updateMessageWaitingRoom(client)
-		// PartyController.disbandParty(client)
+		PartyController.disbandParty(client)
 
 		// PartyController.setReminderScheduleMeetup(client)
 		// PartyController.setReminderAutoRescheduleMeetup(client)
-		// PartyController.generateTemplateProgressRecap()
-		// PartyController.sendProgressRecap(client)
-
+		PartyController.generateTemplateProgressRecap()
+		PartyController.sendProgressRecap(client)
+		
+		// RecurringCoworkingController.scheduleAllRecurringCoworking(client,listFocusRoom)
 		// RecurringMeetupController.setReminderTwoDayBeforeMeetup(client)
 		// RecurringMeetupController.setReminderOneDayBeforeMeetup(client)
 		// RecurringMeetupController.setReminderOneHourBeforeMeetup(client)

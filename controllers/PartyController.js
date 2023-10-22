@@ -9,9 +9,9 @@ const schedule = require('node-schedule');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
-const RecurringMeetupController = require('./RecurringMeetupController');
+const RecurringMeetupController = require('./RecurringCoworkingController');
 const MessageComponent = require('../helpers/MessageComponent');
-const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
+const { EmbedBuilder, GuildScheduledEventEntityType, ChannelType } = require('discord.js');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 class PartyController{
 
@@ -252,6 +252,7 @@ class PartyController{
 		const data = await supabase.from("PartyRooms")
 			.select("*,MemberPartyRooms(Users(goalId),UserId,project,isLeader,isTrialMember)")
 			.eq('cohort',cohort)
+			.order('id')
 		
 		for (let i = 0; i < data.data.length; i++) {
 			const party = data.data[i]
@@ -259,36 +260,36 @@ class PartyController{
 			
 			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
 			PartyController.saveMessagePartyRoomId(msgPartyRoom.id,party.id)
-
-			const thread = await ChannelController.createThread(msgPartyRoom,`Party ${party.id}`)
+			const thread = await msgPartyRoom.startThread({
+                name: `Party ${party.id}`,
+                type: ChannelType.PrivateThread
+            });
 			thread.send(PartyMessage.shareLinkPartyRoom(msgPartyRoom.id))
 			for (let i = 0; i < members.length; i++) {
 				const member = members[i];
 				const goalId = member.Users.goalId
-				for (let j = 0; j < members.length; j++) {
-					const userId = members[j].UserId;
-					if(member.UserId === userId) continue
-					ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId)
-				}
+				// for (let j = 0; j < members.length; j++) {
+				// 	const userId = members[j].UserId;
+				// 	if(member.UserId === userId) continue
+				// 	ChannelController.addUserToThread(client,CHANNEL_GOALS,goalId,userId) //add to thread goal
+				// }
 				await thread.send(PartyMessage.userJoinedParty(member.UserId))	
 			}
 			
 			let tagPartyMembers = PartyController.formatTagPartyMembers(members)
-			setTimeout(async () => {
-				await thread.send(PartyMessage.welcomingPartyRoom(party.id,tagPartyMembers))
-				thread.send('————————')
-			}, 1000 * 60 * 5);
+			await thread.send(PartyMessage.welcomingPartyRoom(party.id,tagPartyMembers))
+			thread.send('————————')
 
 			setTimeout(async () => {
-				const time = new Date()
-				time.setDate(time.getDate() + 1)
-				await supabase.from("Reminders")
-					.insert({
-						time,
-						message:party.id,
-						type:'reminderScheduleMeetup'
-					})
-				PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
+				// const time = new Date()
+				// time.setDate(time.getDate() + 1)
+				// await supabase.from("Reminders")
+				// 	.insert({
+				// 		time,
+				// 		message:party.id,
+				// 		type:'reminderScheduleMeetup'
+				// 	})
+				// PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
 
 				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id,tagPartyMembers))
 				
@@ -296,7 +297,7 @@ class PartyController{
 					.update({meetupMessageId:msgPartyRoom.id})
 					.eq('id',party.id)
 					.then()
-			}, 1000 * 60 * 10);
+			}, Time.oneMinute() * 3);
 
 			PartyController.sendReminderSetHighlightAfterJoinParty(client,members)
 
@@ -397,8 +398,11 @@ class PartyController{
 	}
 
 	static async addMemberPartyRoom(client,goalId,partyId,UserId){
-		const thread = await ChannelController.getGoalThread(client,goalId)
-		let project = thread.name.split('by')[0]
+		let project = ''
+		if(goalId){
+			const thread = await ChannelController.getGoalThread(client,goalId)
+			project = thread.name.split('by')[0]
+		}
 		const endPartyDate = LocalData.getData().deadlineGoal
 		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})
 	}
@@ -1097,6 +1101,20 @@ class PartyController{
 
 	static getTotalSkipDay(lastDone,date){
 		return Time.getDiffDay(Time.getDate(lastDone),Time.getDate(date))
+	}
+
+	static recurringCoworking(client){
+
+	}
+
+	static updateCoworkingTime(partyId,coworkingTime){
+		supabase.from('PartyRooms')
+			.update({
+				coworkingTime,
+				lastUpdatedCoworkingTime:new Date()
+			})
+			.eq('id',partyId)
+			.then()
 	}
 
 }
