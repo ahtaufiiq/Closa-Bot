@@ -11,7 +11,7 @@ const UserController = require('./UserController');
 const MemberController = require('./MemberController');
 class WeeklyReflectionController {
 	static async sendReflectionEveryWeek(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 2`, async function(){
+		schedule.scheduleJob(`5 ${Time.minus7Hours(20)} * * 0`, async function(){
 			const data = LocalData.getData()
 			const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
 			const msg = await channelGeneral.send(WeeklyReflectionMessage.announcement(WeeklyReflectionController.getTimeLeft()))
@@ -22,14 +22,14 @@ class WeeklyReflectionController {
 		});
 	}
 	static async hideChannelReflection(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(19)} * * 3`, async function(){
+		schedule.scheduleJob(`59 ${Time.minus7Hours(23)} * * 1`, async function(){
 			if(!Time.isCooldownPeriod()){
 				ChannelController.updateChannelVisibilityForMember(client,CHANNEL_REFLECTION,false)
 			}
 		});
 	}
 	static async sendReminderReflection(client){
-		schedule.scheduleJob(`30 ${Time.minus7Hours(18)} * * 2`, async function(){
+		schedule.scheduleJob(`5 ${Time.minus7Hours(19)} * * 0`, async function(){
 			if(!Time.isCooldownPeriod()){
 				await ChannelController.updateChannelVisibilityForMember(client,CHANNEL_REFLECTION,true)
 				const channelGeneral = ChannelController.getChannel(client,CHANNEL_GENERAL)
@@ -146,8 +146,9 @@ class WeeklyReflectionController {
 
 	static getTimeLeft(){
 		const endDate = Time.getDate()
+		endDate.setDate(endDate.getDate()+1)
 		endDate.setHours(23)
-		endDate.setMinutes(30)
+		endDate.setMinutes(59)
 		const diffTime = Time.getDiffTime(Time.getDate(),endDate)
 		return `${Time.convertTime(diffTime,'short')} left`
 	}

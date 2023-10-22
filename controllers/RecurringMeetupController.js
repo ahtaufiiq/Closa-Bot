@@ -134,7 +134,6 @@ class RecurringMeetupController {
                 .setCustomId(interaction.customId)
                 .setTitle("🗓 Reschedule Meetup")
                 .addComponents(
-                    new TextInputComponent().setCustomId('date').setLabel("Date").setPlaceholder("e.g. 29 August").setStyle("SHORT").setRequired(true),
                     new TextInputComponent().setCustomId('time').setLabel("Time").setPlaceholder("e.g 21.00 (24-hour format)").setStyle("SHORT").setRequired(true),
                 )
 			showModal(modal, { client: interaction.client, interaction: interaction});
@@ -383,6 +382,35 @@ class RecurringMeetupController {
 			})
 	}
 
+	static async scheduleRecurringCoworking(client,partyId){
+		const ruleOneHourBeforeCoworking = new schedule.RecurrenceRule();
+        ruleOneHourBeforeCoworking.hour = Time.minus7Hours(19)
+        ruleOneHourBeforeCoworking.minute = 0
+
+		const ruleTenMinuteBeforeCoworking = new schedule.RecurrenceRule();
+        ruleTenMinuteBeforeCoworking.hour = Time.minus7Hours(19)
+        ruleTenMinuteBeforeCoworking.minute = 50
+
+		const ruleFiveMinuteBeforeCoworking = new schedule.RecurrenceRule();
+        ruleFiveMinuteBeforeCoworking.hour = Time.minus7Hours(19)
+        ruleFiveMinuteBeforeCoworking.minute = 55
+		schedule.scheduleJob(ruleOneHourBeforeCoworking,async() =>{
+			RecurringMeetupController.remindOneHourBeforeMeetup(client,oneHourBefore,partyId)
+		})
+		schedule.scheduleJob(ruleTenMinuteBeforeCoworking,async() =>{
+			RecurringMeetupController.remindTenMinuteBeforeMeetup(client,tenMinutesBefore,partyId)
+		})
+		schedule.scheduleJob(ruleFiveMinuteBeforeCoworking,async() =>{
+			RecurringMeetupController.scheduleCreateTemporaryVoiceChannel(client,fiveMinutesBefore,partyId)
+		})
+
+		if(!isFirstMeetup) data.push({ message:partyId, time:twoDayBefore, type:'twoDayBeforeMeetup'})
+
+
+				
+				RecurringMeetupController.remindWeeklyMeetup(client,scheduleMeetupDate,partyId)
+	}
+
 	static isDateBeforeCelebrationDay(date){
 		const {celebrationDate} = LocalData.getData()
 		return Time.getDateOnly(date) < celebrationDate
@@ -424,46 +452,48 @@ class RecurringMeetupController {
 
 	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
 		const [partyId,meetupDateOnly] = value.split('|')
-		const meetupDate = Time.getDate(meetupDateOnly)
-		meetupDate.setHours(Time.minus7Hours(21))
-		meetupDate.setMinutes(0)
-		const data = await supabase.from("WeeklyMeetups")
-			.select()
-			.eq('PartyRoomId',partyId)
-			.eq('UserId',interaction.user.id)
-			.gte('meetupDate',new Date().toUTCString())
+		// const meetupDate = Time.getDate(meetupDateOnly)
+		// meetupDate.setHours(Time.minus7Hours(21))
+		// meetupDate.setMinutes(0)
+		// const data = await supabase.from("WeeklyMeetups")
+		// 	.select()
+		// 	.eq('PartyRoomId',partyId)
+		// 	.eq('UserId',interaction.user.id)
+		// 	.gte('meetupDate',new Date().toUTCString())
 
-		if (data.data.length === 0) {
-			await supabase.from("WeeklyMeetups")
-			.insert({
-				meetupDate,
-				isAcceptMeetup,
-				UserId:interaction.user.id,
-				PartyRoomId:partyId
-			})
-		}else{
-			await supabase.from("WeeklyMeetups")
-				.update({isAcceptMeetup})
-				.eq("UserId",interaction.user.id)
-				.eq("PartyRoomId",partyId)
-				.gte('meetupDate',new Date().toUTCString())
-		}
+		// if (data.data.length === 0) {
+		// 	await supabase.from("WeeklyMeetups")
+		// 	.insert({
+		// 		meetupDate,
+		// 		isAcceptMeetup,
+		// 		UserId:interaction.user.id,
+		// 		PartyRoomId:partyId
+		// 	})
+		// }else{
+		// 	await supabase.from("WeeklyMeetups")
+		// 		.update({isAcceptMeetup})
+		// 		.eq("UserId",interaction.user.id)
+		// 		.eq("PartyRoomId",partyId)
+		// 		.gte('meetupDate',new Date().toUTCString())
+		// }
 		
-		if(isAcceptMeetup) interaction.editReply(`${interaction.user} just accepted the meetup invitation ✅`)
-		else interaction.editReply(`${interaction.user} just declined the meetup invitation`)
+		if(isAcceptMeetup) interaction.editReply(`✅ **${interaction.user} will attend the coworking session.**`)
+		else interaction.editReply(`❌ **${interaction.user} can't attend the coworking session.**`)
 		
-		RecurringMeetupController.getTotalResponseMemberMeetup(partyId,isAcceptMeetup)
-			.then(async totalUser=>{
-				if (totalUser === 2) {
-					if(isAcceptMeetup) {
-						await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId,true)
-						const meetupSchedule = Time.getDate(meetupDateOnly)
-						meetupSchedule.setHours(21)
-						meetupSchedule.setMinutes(0)
-						RecurringMeetupController.notifyMeetupSchedule(interaction.client,interaction.message.channelId,meetupSchedule)
-					}else RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
-				}
-			})
+		// RecurringMeetupController.getTotalResponseMemberMeetup(partyId,isAcceptMeetup)
+		// 	.then(async totalUser=>{
+		// 		if (totalUser === 2) {
+		// 			if(isAcceptMeetup) {
+		// 				// await RecurringMeetupController.scheduleMeetup(interaction.client,meetupDate,interaction.message.channelId,partyId,true)
+		// 				// const meetupSchedule = Time.getDate(meetupDateOnly)
+		// 				// meetupSchedule.setHours(21)
+		// 				// meetupSchedule.setMinutes(0)
+		// 				RecurringMeetupController.notifyMeetupSchedule(interaction.client,interaction.message.channelId,meetupSchedule)
+		// 			}else {
+		// 				// RecurringMeetupController.rescheduleMeetup(interaction.client,interaction.message.channelId,meetupDate,partyId)
+		// 			}
+		// 		}
+		// 	})
 					
 	}
 
