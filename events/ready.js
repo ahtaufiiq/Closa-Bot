@@ -28,7 +28,7 @@ module.exports = {
 	async execute(client,focusRoomUser,listFocusRoom,invites) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		const {user} = await client.guilds.cache.get(GUILD_ID).members.fetch(MY_ID)
-		// user.send("Restart Bot")
+		user.send("Restart Bot")
 
 		AdvanceReportController.sendAdvanceReportEveryMonday(client)
 
