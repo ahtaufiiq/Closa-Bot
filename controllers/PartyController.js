@@ -291,7 +291,7 @@ class PartyController{
 				// 	})
 				// PartyController.remindUserToResponseScheduleMeetup(client,time,party.id)
 
-				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup(formattedDate,meetupDate,party.id,tagPartyMembers))
+				const msgPartyRoom = await thread.send(RecurringMeetupMessage.askToScheduleRecurringMeetup('20.00',party.id,tagPartyMembers))
 				
 				supabase.from("PartyRooms")
 					.update({meetupMessageId:msgPartyRoom.id})
@@ -1117,14 +1117,6 @@ class PartyController{
 			.select()
 			.single()
 	}
-
-	static async getDetailParty(partyId){
-		return await supabase.from("PartyRooms")
-			.select(`*`)
-			.eq('id',partyId)
-			.single()
-	}
-
 }
 
 module.exports = PartyController

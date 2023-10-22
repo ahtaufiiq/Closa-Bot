@@ -200,7 +200,7 @@ class RecurringCoworkingController {
 
 	static async getAllActiveParty(){
 		return await supabase.from("PartyRooms")
-			.select(`*`)
+			.select(`*,MemberPartyRooms(UserId)`)
 			.gte('disbandDate',Time.getTodayDateOnly())
 	}
 
