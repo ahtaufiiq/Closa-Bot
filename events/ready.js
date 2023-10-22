@@ -96,7 +96,7 @@ module.exports = {
 		PartyController.generateTemplateProgressRecap()
 		PartyController.sendProgressRecap(client)
 		
-		// RecurringCoworkingController.scheduleAllRecurringCoworking(client,listFocusRoom)
+		RecurringCoworkingController.scheduleAllRecurringCoworking(client,listFocusRoom)
 		// RecurringMeetupController.setReminderTwoDayBeforeMeetup(client)
 		// RecurringMeetupController.setReminderOneDayBeforeMeetup(client)
 		// RecurringMeetupController.setReminderOneHourBeforeMeetup(client)

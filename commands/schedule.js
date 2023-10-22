@@ -5,6 +5,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const Time = require('../helpers/time');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const PartyController = require('../controllers/PartyController');
+const RecurringCoworkingController = require('../controllers/RecurringCoworkingController');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,6 +35,11 @@ The correct format:
 		
 		const partyId = modal.channel.name.split(' ')[1]
 		PartyController.updateCoworkingTime(partyId,time)
+		.then(data=>{
+			if(data.data){
+				RecurringCoworkingController.scheduleRecurringCoworking(modal.client,listFocusRoom,data.data)
+			}
+		})
 		// RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
 		await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the new default coworking time at **${time} every day** ✅`)
 	},
