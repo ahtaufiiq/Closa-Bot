@@ -135,9 +135,9 @@ class RecurringCoworkingController {
         if(interaction.customId.includes('rescheduleMeetup')){
             const modal = new Modal()
                 .setCustomId(interaction.customId)
-                .setTitle("🗓 Reschedule Meetup")
+                .setTitle("🕗 Change coworking time")
                 .addComponents(
-                    new TextInputComponent().setCustomId('time').setLabel("Time").setPlaceholder("e.g 21.00 (24-hour format)").setStyle("SHORT").setRequired(true),
+                    new TextInputComponent().setCustomId('time').setLabel("Time (every day).").setPlaceholder("e.g. 06.30 (24h format)").setStyle("SHORT").setRequired(true),
                 )
 			showModal(modal, { client: interaction.client, interaction: interaction});
             return true

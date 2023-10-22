@@ -252,6 +252,7 @@ class PartyController{
 		const data = await supabase.from("PartyRooms")
 			.select("*,MemberPartyRooms(Users(goalId),UserId,project,isLeader,isTrialMember)")
 			.eq('cohort',cohort)
+			.order('id')
 		
 		for (let i = 0; i < data.data.length; i++) {
 			const party = data.data[i]
@@ -276,10 +277,8 @@ class PartyController{
 			}
 			
 			let tagPartyMembers = PartyController.formatTagPartyMembers(members)
-			setTimeout(async () => {
-				await thread.send(PartyMessage.welcomingPartyRoom(party.id,tagPartyMembers))
-				thread.send('————————')
-			}, 1000 * 60 * 5);
+			await thread.send(PartyMessage.welcomingPartyRoom(party.id,tagPartyMembers))
+			thread.send('————————')
 
 			setTimeout(async () => {
 				// const time = new Date()
@@ -298,7 +297,7 @@ class PartyController{
 					.update({meetupMessageId:msgPartyRoom.id})
 					.eq('id',party.id)
 					.then()
-			}, 1000 * 60 * 10);
+			}, Time.oneMinute() * 3);
 
 			PartyController.sendReminderSetHighlightAfterJoinParty(client,members)
 
@@ -1106,6 +1105,16 @@ class PartyController{
 
 	static recurringCoworking(client){
 
+	}
+
+	static updateCoworkingTime(partyId,coworkingTime){
+		supabase.from('PartyRooms')
+			.update({
+				coworkingTime,
+				lastUpdatedCoworkingTime:new Date()
+			})
+			.eq('id',partyId)
+			.then()
 	}
 
 }

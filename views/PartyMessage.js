@@ -282,7 +282,7 @@ What can you do at this party?
 - Discuss & ask for feedback on your project.
 - Invite your new folks to join coworking session.
 
-This party will active for — 42 days (until Dec 3, 2023)
+This party will active for — **42 days (until Dec 3, 2023)**
 and then, it will automatically disband.
 *because every story has a beginning & an end* ✨
 

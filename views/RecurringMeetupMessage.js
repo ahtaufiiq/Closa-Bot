@@ -17,7 +17,7 @@ please confirm ${tagPartyMembers}`,
                 MessageComponent.createComponent(
                     MessageComponent.addButton(`attendMeetup_null_${partyId}|${meetupDate}`,'Confirm'),
                     MessageComponent.addButton(`cannotAttendMeetup_null_${partyId}|${meetupDate}`,"Skip","SECONDARY"),
-                    // MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Change time","SECONDARY"),
+                    MessageComponent.addButton(`rescheduleMeetup_null_${partyId}`,"Change time","SECONDARY"),
                 )
             ]
         }

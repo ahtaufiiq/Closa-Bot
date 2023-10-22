@@ -353,7 +353,7 @@ The correct format:
 				await modal.deferReply()
 				
 				// const customDate = modal.getTextInputValue('date');
-				const time = modal.getTextInputValue('time');
+				const time = Time.getTimeFromText(modal.getTextInputValue('time'));
 				
 				// handle format: 18 Decemember and December 18
 				// const date = customDate.match(/(\d+)/)[0]
@@ -376,11 +376,10 @@ The correct format: \`\`20.00\`\``)
 				// meetupDate.setMonth(monthInNumber)
 				// meetupDate.setHours(Time.minus7Hours(hours,false))
 				// meetupDate.setMinutes(minutes)
-		
+				PartyController.updateCoworkingTime(partyId,time)
 				const partyId = modal.channel.name.split(' ')[1]
-				RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
-				await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the meetup schedule on \`\`${Time.getFormattedDate(meetupDate)} at ${time}\`\`✅`)
-
+				// RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
+				await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the new default coworking time at **${time} every day** ✅`)
 			}else if(commandButton.includes("submitTestimonial")){
 				if(commandButton === 'submitTestimonialGuideline' || commandButton === 'submitTestimonialAchievement') await modal.deferReply({ephemeral:true})
 				else await modal.deferReply()
