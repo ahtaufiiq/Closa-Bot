@@ -189,12 +189,10 @@ Every time you share your work at ${channelMention(CHANNEL_TODO)}—it will auto
 so, you can always see the history of all your progress here.`
     }
 
-    static templateShareSixWIC(projectName,aboutProject){
+    static templateShareSixWIC(projectName){
         return `Hi Twitter!
 
 currently, I'm working on ${projectName} for the next few weeks.
-
-${aboutProject}
 
 this is my goal at @joinclosa:`
     }
@@ -374,15 +372,19 @@ Your current daily goal: \`\`${Time.convertTime(dailyWorkTime)}\`\``
         const sixWeekDeadlineDate = Time.getNextDate(7*6)
         if(isSixWeekChallenge){
             const {deadlineDate,dayLeft} = Time.getDayLeftBeforeDemoDay()
-            options.push(
-                {
+            const values = []
+            if(Time.getDateOnly(sixWeekDeadlineDate) !== Time.getDateOnly(deadlineDate)){
+                values.push({
                     label: `6 weeks — ${Time.getFormattedDate(sixWeekDeadlineDate)} (set your own)`,
                     value: `${Time.getDateOnly(sixWeekDeadlineDate)}`
-                },
-                {
-                    label: `${dayLeft} day${dayLeft>1?'s':''} — ${Time.getFormattedDate(deadlineDate)} (join community deadline)`,
-                    value: `${Time.getDateOnly(deadlineDate)}`
-                }
+                })
+            }
+            values.push({
+                label: `${dayLeft} day${dayLeft>1?'s':''} — ${Time.getFormattedDate(deadlineDate)} (join community deadline)`,
+                value: `${Time.getDateOnly(deadlineDate)}`
+            })
+            options.push(
+                ...values
             )
         }else {
             const fourWeekDeadlineDate = Time.getNextDate(7*4)

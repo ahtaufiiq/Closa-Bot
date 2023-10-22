@@ -45,9 +45,10 @@ const DiscordWebhook = require("../helpers/DiscordWebhook");
 const AdvanceReportController = require("../controllers/AdvanceReportController");
 const fs = require('fs');
 const MessageComponent = require("../helpers/MessageComponent");
+const RecurringCoworkingController = require("../controllers/RecurringCoworkingController");
 module.exports = {
 	name: 'modalSubmit',
-	async execute(modal,focusRoomUser) {
+	async execute(modal,focusRoomUser,listFocusRoom) {
 		try {
 			const [commandButton,targetUserId=modal.user.id,value] = modal.customId.split("_")
 			if(commandButton === 'setReminderContinueQuest'){
@@ -376,10 +377,15 @@ The correct format: \`\`20.00\`\``)
 				// meetupDate.setMonth(monthInNumber)
 				// meetupDate.setHours(Time.minus7Hours(hours,false))
 				// meetupDate.setMinutes(minutes)
-				PartyController.updateCoworkingTime(partyId,time)
 				const partyId = modal.channel.name.split(' ')[1]
-				// RecurringMeetupController.scheduleMeetup(modal.client,meetupDate,modal.channelId,partyId)
 				await modal.editReply(`${MessageFormatting.tagUser(modal.user.id)} just set the new default coworking time at **${time} every day** ✅`)
+
+				PartyController.updateCoworkingTime(partyId,time)
+					.then(data=>{
+						if(data.data){
+							RecurringCoworkingController.scheduleRecurringCoworking(modal.client,listFocusRoom,data.data)
+						}
+					})
 			}else if(commandButton.includes("submitTestimonial")){
 				if(commandButton === 'submitTestimonialGuideline' || commandButton === 'submitTestimonialAchievement') await modal.deferReply({ephemeral:true})
 				else await modal.deferReply()
