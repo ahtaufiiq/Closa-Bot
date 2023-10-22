@@ -361,7 +361,7 @@ The correct format:
 				// const monthInNumber = Time.convertMonthInNumber(month)
 				
 				const patternTime = /\d+[.:]\d+/
-				if (!patternTime.test(time) || monthInNumber === -1 || !FormatString.isNumber(date)) {
+				if (!patternTime.test(time)) {
 					return await modal.editReply(`Incorrect format, please make sure there is no typo or invalid time.
 		
 The correct format: \`\`20.00\`\``)
