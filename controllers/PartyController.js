@@ -11,7 +11,7 @@ const MessageFormatting = require('../helpers/MessageFormatting');
 const RecurringMeetupMessage = require('../views/RecurringMeetupMessage');
 const RecurringMeetupController = require('./RecurringCoworkingController');
 const MessageComponent = require('../helpers/MessageComponent');
-const { EmbedBuilder, GuildScheduledEventEntityType } = require('discord.js');
+const { EmbedBuilder, GuildScheduledEventEntityType, ChannelType } = require('discord.js');
 const HighlightReminderMessage = require('../views/HighlightReminderMessage');
 class PartyController{
 
@@ -259,8 +259,10 @@ class PartyController{
 			
 			const msgPartyRoom = await PartyController.createPartyRoom(channelParty,members,party.id)
 			PartyController.saveMessagePartyRoomId(msgPartyRoom.id,party.id)
-
-			const thread = await ChannelController.createThread(msgPartyRoom,`Party ${party.id}`)
+			const thread = await msgPartyRoom.startThread({
+                name: `Party ${party.id}`,
+                type: ChannelType.PrivateThread
+            });
 			thread.send(PartyMessage.shareLinkPartyRoom(msgPartyRoom.id))
 			for (let i = 0; i < members.length; i++) {
 				const member = members[i];
@@ -397,8 +399,11 @@ class PartyController{
 	}
 
 	static async addMemberPartyRoom(client,goalId,partyId,UserId){
-		const thread = await ChannelController.getGoalThread(client,goalId)
-		let project = thread.name.split('by')[0]
+		let project = ''
+		if(goalId){
+			const thread = await ChannelController.getGoalThread(client,goalId)
+			project = thread.name.split('by')[0]
+		}
 		const endPartyDate = LocalData.getData().deadlineGoal
 		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})
 	}

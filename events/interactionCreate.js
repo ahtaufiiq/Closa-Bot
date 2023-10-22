@@ -563,7 +563,7 @@ module.exports = {
 						break;
 					case "joinPartyRoom":{
 						const isProUser =await UsageController.isProUser(interaction.user.id)
-						if(isProUser) return interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
+						if(!isProUser) return interaction.editReply(UsageMessage.notEligibleJoinSixWeekChallenge())
 						const dataJoinedParty = await PartyController.dataJoinedParty(interaction.user.id)
 						if (dataJoinedParty) {
 							ChannelController.sendToNotification(
@@ -580,19 +580,8 @@ module.exports = {
 							await interaction.editReply(PartyMessage.replyPartyIsFull())
 							return
 						}
-						const isAlreadyHaveGoal = await GoalController.alreadyHaveGoal(interaction.user.id)
 
-						if (isAlreadyHaveGoal) {
-							await interaction.editReply(PartyMessage.confirmationJoinParty(interaction.user.id,value))
-						}else{
-							ChannelController.sendToNotification(
-								interaction.client,
-								GoalMessage.pickYourRole(interaction.user.id,`joinParty${value}`),
-								targetUserId
-							)
-							const notificationId = await UserController.getNotificationId(targetUserId)
-							await interaction.editReply(PartyMessage.replyCannotJoinPartyBeforeSetGoal(interaction.user.id,notificationId))
-						}
+						await interaction.editReply(PartyMessage.confirmationJoinParty(interaction.user.id,value))
 					}
 						break
 					case "leavePartyRoom":
