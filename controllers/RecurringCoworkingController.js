@@ -205,8 +205,10 @@ class RecurringCoworkingController {
 	}
 
 	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
-		if(isAcceptMeetup) interaction.editReply(`✅ **${interaction.user} will attend the coworking session.**`)
-		else interaction.editReply(`❌ **${interaction.user} can't attend the coworking session.**`)
+		const msgReply = await interaction.editReply('.')
+		await ChannelController.deleteMessage(msgReply)
+		if(isAcceptMeetup) interaction.channel.send(`✅ **${interaction.user} will attend the coworking session.**`)
+		else interaction.channel.send(`❌ **${interaction.user} can't attend the coworking session.**`)
 	}
 
 	static formatTagPartyMembers(members){
