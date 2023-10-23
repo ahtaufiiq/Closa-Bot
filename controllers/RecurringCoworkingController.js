@@ -36,17 +36,17 @@ class RecurringCoworkingController {
 			RecurringCoworkingController.remindDailyCoworking(client,dataParty,listFocusRoom)
 		})
 
-		date.setMinutes(date.getMinutes()-5)
-		const ruleTenMinuteBeforeCoworking = new schedule.RecurrenceRule();
-		ruleTenMinuteBeforeCoworking.hour = date.getHours()
-		ruleTenMinuteBeforeCoworking.minute = date.getMinutes()
-		const reminderTenMinutes = schedule.scheduleJob(ruleTenMinuteBeforeCoworking,async() =>{
-			const isRescheduleCoworkingTime = await RecurringCoworkingController.isRescheduleCoworkingTime(lastUpdatedCoworkingTime,partyId)
-			if(isRescheduleCoworkingTime) return reminderTenMinutes.cancel()
-			RecurringCoworkingController.remindTenMinuteBeforeMeetup(client,dataParty)
-		})
+		// date.setMinutes(date.getMinutes()-5)
+		// const ruleTenMinuteBeforeCoworking = new schedule.RecurrenceRule();
+		// ruleTenMinuteBeforeCoworking.hour = date.getHours()
+		// ruleTenMinuteBeforeCoworking.minute = date.getMinutes()
+		// const reminderTenMinutes = schedule.scheduleJob(ruleTenMinuteBeforeCoworking,async() =>{
+		// 	const isRescheduleCoworkingTime = await RecurringCoworkingController.isRescheduleCoworkingTime(lastUpdatedCoworkingTime,partyId)
+		// 	if(isRescheduleCoworkingTime) return reminderTenMinutes.cancel()
+		// 	RecurringCoworkingController.remindTenMinuteBeforeMeetup(client,dataParty)
+		// })
 
-		date.setMinutes(date.getMinutes()-50)
+		date.setMinutes(date.getMinutes()-55)
 		const ruleOneHourBeforeCoworking = new schedule.RecurrenceRule();
 		ruleOneHourBeforeCoworking.hour = date.getHours()
 		ruleOneHourBeforeCoworking.minute = date.getMinutes()
@@ -205,8 +205,10 @@ class RecurringCoworkingController {
 	}
 
 	static async interactionConfirmationMeetup(interaction,isAcceptMeetup,value){
-		if(isAcceptMeetup) interaction.editReply(`✅ **${interaction.user} will attend the coworking session.**`)
-		else interaction.editReply(`❌ **${interaction.user} can't attend the coworking session.**`)
+		const msgReply = await interaction.editReply('.')
+		await ChannelController.deleteMessage(msgReply)
+		if(isAcceptMeetup) interaction.channel.send(`✅ **${interaction.user} will attend the coworking session.**`)
+		else interaction.channel.send(`❌ **${interaction.user} can't attend the coworking session.**`)
 	}
 
 	static formatTagPartyMembers(members){
