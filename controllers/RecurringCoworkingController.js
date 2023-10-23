@@ -36,17 +36,17 @@ class RecurringCoworkingController {
 			RecurringCoworkingController.remindDailyCoworking(client,dataParty,listFocusRoom)
 		})
 
-		date.setMinutes(date.getMinutes()-5)
-		const ruleTenMinuteBeforeCoworking = new schedule.RecurrenceRule();
-		ruleTenMinuteBeforeCoworking.hour = date.getHours()
-		ruleTenMinuteBeforeCoworking.minute = date.getMinutes()
-		const reminderTenMinutes = schedule.scheduleJob(ruleTenMinuteBeforeCoworking,async() =>{
-			const isRescheduleCoworkingTime = await RecurringCoworkingController.isRescheduleCoworkingTime(lastUpdatedCoworkingTime,partyId)
-			if(isRescheduleCoworkingTime) return reminderTenMinutes.cancel()
-			RecurringCoworkingController.remindTenMinuteBeforeMeetup(client,dataParty)
-		})
+		// date.setMinutes(date.getMinutes()-5)
+		// const ruleTenMinuteBeforeCoworking = new schedule.RecurrenceRule();
+		// ruleTenMinuteBeforeCoworking.hour = date.getHours()
+		// ruleTenMinuteBeforeCoworking.minute = date.getMinutes()
+		// const reminderTenMinutes = schedule.scheduleJob(ruleTenMinuteBeforeCoworking,async() =>{
+		// 	const isRescheduleCoworkingTime = await RecurringCoworkingController.isRescheduleCoworkingTime(lastUpdatedCoworkingTime,partyId)
+		// 	if(isRescheduleCoworkingTime) return reminderTenMinutes.cancel()
+		// 	RecurringCoworkingController.remindTenMinuteBeforeMeetup(client,dataParty)
+		// })
 
-		date.setMinutes(date.getMinutes()-50)
+		date.setMinutes(date.getMinutes()-55)
 		const ruleOneHourBeforeCoworking = new schedule.RecurrenceRule();
 		ruleOneHourBeforeCoworking.hour = date.getHours()
 		ruleOneHourBeforeCoworking.minute = date.getMinutes()

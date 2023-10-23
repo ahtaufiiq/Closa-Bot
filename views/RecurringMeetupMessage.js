@@ -68,7 +68,7 @@ see you soon everyone!`
         return {
             content:`Reminder 🔔
 
-**1 hour** before coworking session started at ${coworkingTime} WIB
+\`\`1 hour\`\` before coworking session started at ${coworkingTime} WIB
 
 please confirm your attendance: ${tagPartyMembers}`,
             components:[MessageComponent.createComponent(
@@ -130,13 +130,13 @@ Have a good time! @everyone
 
     static remindUserJoinMeetupSession(channelId,tagPartyMembers,coworkingTime='20.00'){
         return {
-            content:`**5 minutes** before coworking started at ${coworkingTime} WIB :bell:
+            content:`\`\`5 minutes\`\` before coworking started at ${coworkingTime} WIB :bell:
 
 1. Please join now: ${tagPartyMembers}
 2. Turn-on video/sharescreen :camera: / :computer: *required or auto-kick (rules).
 3. Read: [How to host coworking session ↗](https://closa.me/coworking-guideline) :woman_technologist::man_technologist:
 
-${MessageFormatting.tagChannel(channelId)}`,
+${MessageFormatting.linkToChannel(channelId)}`,
         }
     }
 
