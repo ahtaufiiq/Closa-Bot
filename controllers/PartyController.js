@@ -1114,7 +1114,7 @@ class PartyController{
 				lastUpdatedCoworkingTime:new Date()
 			})
 			.eq('id',partyId)
-			.select()
+			.select(`*,MemberPartyRooms(UserId)`)
 			.single()
 	}
 }
