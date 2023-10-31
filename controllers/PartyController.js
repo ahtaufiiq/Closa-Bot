@@ -894,7 +894,7 @@ class PartyController{
         ruleGenerateProgressRecap.minute = 55
 		schedule.scheduleJob(ruleGenerateProgressRecap,async function(){
 			const {celebrationDate} = LocalData.getData()
-			const startCohortDate = Time.getDateOnly(Time.getNextDate(-28,celebrationDate))
+			const startCohortDate = Time.getDateOnly(Time.getNextDate(-42,celebrationDate))
 
 			const tomorrowDate = Time.getDateOnly(Time.getNextDate(1))
 
