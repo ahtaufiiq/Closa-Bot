@@ -268,14 +268,12 @@ class PaymentController{
     }
 
     static async resetTotalUsage(client){
-        const {kickoffDate} = LocalData.getData()
         const rule = new schedule.RecurrenceRule()
         rule.date = 1
         rule.hour = 0
         rule.minute = 0
         rule.tz = "Asia/Jakarta"
-        const date =  Time.getDate(kickoffDate)
-        schedule.scheduleJob(date,async function(){
+        schedule.scheduleJob(rule,async function(){
             const dataActiveUser = await supabase.from("Usages")
                 .select('Users(id,membershipType,notificationId)')
                 .or('totalCoworking.gte.17,totalProgress.gte.17')
