@@ -222,7 +222,7 @@ module.exports = {
 					
 					const dataUsage = await UsageController.getUsage(msg.author.id)
 					const {totalProgress,totalCoworking,Users:{membershipType}} = dataUsage.data
-					if((membershipType === 'lite' && totalProgress >= 30) || (membershipType === null && totalProgress >= 20)){
+					if((membershipType === 'lite' && totalProgress >= 30) || (membershipType === null && totalProgress >= 16)){
 						const threadProgress = await ChannelController.createThread(msg,titleProgress)
 						threadProgress.send(UsageMessage.alreadyReachedLimit(msg.author.id,{totalCoworking,totalProgress,membershipType},'progress'))
 						const isFreeUser = membershipType === null

@@ -5,8 +5,8 @@ const { truncateString } = require("../helpers/formatString")
 
 class UsageMessage{
     static getLimitedUsage(membershipType,{totalCoworking,totalProgress}){
-        let usage = `👩‍💻 ${totalCoworking}/20 coworking session
-✅ ${totalProgress}/20 progress shared`        
+        let usage = `👩‍💻 ${totalCoworking}/16 coworking session
+✅ ${totalProgress}/16 progress shared`        
         if(membershipType === 'lite'){
             usage = `👩‍💻 ${totalCoworking} coworking session
 ✅ ${totalProgress}/30 progress shared`
@@ -151,8 +151,8 @@ here's the sample analytics:`,
     static notifResetUsage(UserId){
         return `Your closa monthly free usage is here ${userMention(UserId)} 🎁
 \`\`\`
-👩‍💻 0/20 coworking session
-✅ 0/20 progress shared
+👩‍💻 0/16 coworking session
+✅ 0/16 progress shared
 ——
 enjoy your free usage ✨
 \`\`\``
@@ -170,8 +170,8 @@ ${truncateString(progressContent,1200)}
 \`\`\`
 here's your usage this month:
 \`\`\`
-👩‍💻 ${totalCoworking}${isFreeUser ? '/20':''} coworking session
-✅ ${totalProgress}/20 progress shared 
+👩‍💻 ${totalCoworking}${isFreeUser ? '/16':''} coworking session
+✅ ${totalProgress}/16 progress shared 
 ——
 ⏳ next reset in ${nextResetDay} day${nextResetDay>1?'s':''}
 \`\`\`

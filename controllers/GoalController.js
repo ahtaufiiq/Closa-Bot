@@ -749,7 +749,7 @@ class GoalController {
 		.catch(err => {
 		})
 		const {totalCoworking,totalProgress,membershipType} = await UsageController.incrementTotalProgress(msg.author.id)
-		if((membershipType === 'lite' && totalProgress === 27) || (membershipType === null && totalProgress === 17)){
+		if((membershipType === 'lite' && totalProgress === 27) || (membershipType === null && totalProgress === 13)){
 			setTimeout(() => {
 				ChannelController.sendToNotification(
 					msg.client,

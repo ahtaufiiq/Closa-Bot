@@ -27,7 +27,7 @@ class UsageController{
         const data = await UsageController.getUsage(UserId)
         const {totalCoworking,totalProgress,Users:{membershipType}} = data.data
         return {
-            isAlreadyReachedLimit:membershipType === null && totalCoworking >= 20,
+            isAlreadyReachedLimit:membershipType === null && totalCoworking >= 16,
             totalCoworking,totalProgress,membershipType
         }
     }
