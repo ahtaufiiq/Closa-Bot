@@ -165,7 +165,7 @@ module.exports = {
 								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['50hr'] && totalCoworkingTime >= 6000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['100hr']
 								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['100hr'] && totalCoworkingTime >= 18000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['300hr']
 								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['300hr'] && totalCoworkingTime >= 30000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['500hr']
-								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['1000hr'] && totalCoworkingTime >= 60000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['1000hr']
+								else if(badgeCoworkingTime === AchievementBadgeMessage.typeCoworkingTime['500hr'] && totalCoworkingTime >= 60000) typeCoworkingTime = AchievementBadgeMessage.typeCoworkingTime['1000hr']
 
 								if(typeCoworkingTime){
 									AchievementBadgeController.achieveCoworkingTimeBadge(

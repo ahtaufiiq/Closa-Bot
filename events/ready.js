@@ -47,7 +47,7 @@ module.exports = {
 		SickDayController.activateSickTicket(client)
 		SickDayController.notifySickEnded(client)
 
-		TimelineController.updateTimeline(client)
+		// TimelineController.updateTimeline(client)
 
 		
 		ReminderController.remindHighlightUser(client)
