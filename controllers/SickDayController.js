@@ -1,6 +1,5 @@
 const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Define the discord-modals package!
 const { AttachmentBuilder } = require("discord.js")
-const RequestAxios = require("../helpers/axios")
 const { CHANNEL_STREAK, CHANNEL_GOALS, CHANNEL_SHOP, ROLE_365STREAK, ROLE_100STREAK, ROLE_30STREAK, ROLE_7STREAK, CHANNEL_TODO } = require("../helpers/config")
 const GenerateImage = require("../helpers/GenerateImage")
 const InfoUser = require("../helpers/InfoUser")
