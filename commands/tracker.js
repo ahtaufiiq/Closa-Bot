@@ -1,5 +1,4 @@
 const { AttachmentBuilder,SlashCommandBuilder } = require('discord.js');
-const RequestAxios = require('../helpers/axios');
 const { GUILD_ID, CHANNEL_GOALS, CHANNEL_STREAK, CHANNEL_GENERAL, CHANNEL_COMMAND } = require('../helpers/config');
 const GenerateImage = require('../helpers/GenerateImage');
 const InfoUser = require('../helpers/InfoUser');

@@ -5,7 +5,6 @@ const {ROLE_7STREAK,ROLE_30STREAK,ROLE_100STREAK,ROLE_365STREAK, CHANNEL_GOALS, 
 const Time = require('../helpers/time');
 const supabase = require('../helpers/supabaseClient');
 const ChannelController = require('./ChannelController');
-const RequestAxios = require('../helpers/axios');
 const InfoUser = require('../helpers/InfoUser');
 const GenerateImage = require('../helpers/GenerateImage');
 const { AttachmentBuilder } = require('discord.js');
@@ -225,7 +224,7 @@ class DailyStreakController {
 		}
 		if(data){
 			const [progressRecently,nearestStreakFriends] = await Promise.all([
-				RequestAxios.get('todos/tracker/'+user.id),
+				supabase.rpc('getProgressInLastFourWeeks', { row_id:user.id }),
 				DailyStreakController.getNearestStreakFriends(user.id,data.currentStreak),
 			])
 			const avatarUrl = InfoUser.getAvatar(user)

@@ -3,7 +3,6 @@ const {Modal,TextInputComponent,showModal} = require('discord-modals'); // Defin
 const FocusSessionMessage = require("../views/FocusSessionMessage");
 const ChannelController = require("./ChannelController");
 const Time = require("../helpers/time");
-const RequestAxios = require("../helpers/axios");
 const UserController = require("./UserController");
 const MemberController = require("./MemberController");
 const InfoUser = require("../helpers/InfoUser");
@@ -432,10 +431,11 @@ class FocusSessionController {
     }
 
     static async getRecapFocusSession(userId,dateOnly){
-        const queryDate = dateOnly ? `?date=${dateOnly}` : ''
+        const date_summary = dateOnly ? dateOnly : Time.getTodayDateOnly()
         const [coworkingPartners, tasks,dataUser] = await Promise.all([
             FocusSessionController.getAllCoworkingPartners(userId),
-            RequestAxios.get(`voice/dailySummary/${userId}${queryDate}`),
+            supabase
+        .rpc('getDailyFocusSummary', { date_summary,row_id:userId}),
             UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime')
         ])
 
@@ -459,7 +459,9 @@ class FocusSessionController {
     }
 
     static async getTotalTaskTimeToday(userId){
-        const data = await RequestAxios.get('voice/dailySummary/'+userId)
+        const data = await supabase
+        .rpc('getDailyFocusSummary', { row_id:userId,date_summary:Time.getTodayDateOnly() })
+    
         let totalTime = 0
         for (let i = 0; i < data.length; i++) {
             const el = data[i];

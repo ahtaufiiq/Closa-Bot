@@ -20,7 +20,6 @@ const DiscordWebhook = require('../helpers/DiscordWebhook');
 const TodoReminderMessage = require('../views/TodoReminderMessage');
 const OnboardingController = require('./OnboardingController');
 const BoostController = require('./BoostController');
-const RequestAxios = require('../helpers/axios');
 const InfoUser = require('../helpers/InfoUser');
 const ReferralCodeController = require('./ReferralCodeController');
 const DailyStreakController = require('./DailyStreakController');
@@ -618,7 +617,7 @@ class GoalController {
 		OnboardingController.handleOnboardingProgress(msg.client,msg.author)
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
-		RequestAxios.get(`todos/${msg.author.id}`)
+		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
 		.then(async (data) => {
 			await supabase.from("Todos")
 				.update({
