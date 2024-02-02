@@ -618,7 +618,7 @@ class GoalController {
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
 		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
-		.then(async (data) => {
+		.then(async ({data:data}) => {
 			await supabase.from("Todos")
 				.update({
 					attachments,
@@ -698,51 +698,51 @@ class GoalController {
 				endLongestStreak,
 			} = data.data
 
-			// if(totalDay === 20){
-			// 	await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
-			// 	MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
-			// 	ChannelController.sendToNotification(
-			// 		msg.client,
-			// 		ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
-			// 		msg.author.id
-			// 	)
-			// 	supabase.from("Users")
-			// 		.update({type:'member'})
-			// 		.eq('id',msg.author.id)
-			// 		.then()
-			// }
+			if(totalDay === 20){
+				await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
+				MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+				ChannelController.sendToNotification(
+					msg.client,
+					ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
+					msg.author.id
+				)
+				supabase.from("Users")
+					.update({type:'member'})
+					.eq('id',msg.author.id)
+					.then()
+			}
 
-			// if(totalDay === 12){
-			// 	ChannelController.sendToNotification(
-			// 		msg.client,
-			// 		ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
-			// 		msg.author.id
-			// 	)
-			// }
+			if(totalDay === 12){
+				ChannelController.sendToNotification(
+					msg.client,
+					ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
+					msg.author.id
+				)
+			}
 			
-			// if (goalName) {
-			// 	DailyStreakController.generateHabitBuilder(msg.client,msg.author)
-			// 		.then(async files=>{
-			// 			await ChannelStreak.send({
-			// 				embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
-			// 				files
-			// 			})
+			if (goalName) {
+				DailyStreakController.generateHabitBuilder(msg.client,msg.author)
+					.then(async files=>{
+						await ChannelStreak.send({
+							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
+							files
+						})
 
-			// 			if(endLongestStreak === Time.getTodayDateOnly()){
-			// 				if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-			// 					AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
-			// 				}
-			// 			}else {
-			// 				if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-			// 					AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
-			// 				}
-			// 			}
-			// 		})
-			// }else{
-			// 	ChannelStreak.send({
-			// 		embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
-			// 	})
-			// }
+						if(endLongestStreak === Time.getTodayDateOnly()){
+							if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
+							}
+						}else {
+							if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
+							}
+						}
+					})
+			}else{
+				ChannelStreak.send({
+					embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
+				})
+			}
 			
 		})
 		.catch(err => {
