@@ -432,7 +432,7 @@ class FocusSessionController {
 
     static async getRecapFocusSession(userId,dateOnly){
         const date_summary = dateOnly ? dateOnly : Time.getTodayDateOnly()
-        const [coworkingPartners, tasks,dataUser] = await Promise.all([
+        const [coworkingPartners, {data:tasks},dataUser] = await Promise.all([
             FocusSessionController.getAllCoworkingPartners(userId),
             supabase.rpc('getDailyFocusSummary', { date_summary,row_id:userId}),
             UserController.getDetail(userId,'dailyWorkTime,totalPoint,totalFocusSession,totalCoworkingTime')
@@ -458,7 +458,7 @@ class FocusSessionController {
     }
 
     static async getTotalTaskTimeToday(userId){
-        const data = await supabase
+        const {data:data} = await supabase
         .rpc('getDailyFocusSummary', { row_id:userId,date_summary:Time.getTodayDateOnly() })
     
         let totalTime = 0
