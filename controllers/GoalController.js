@@ -618,7 +618,7 @@ class GoalController {
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
 		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
-		.then(async (data) => {
+		.then(async ({data:data}) => {
 			await supabase.from("Todos")
 				.update({
 					attachments,
@@ -698,51 +698,51 @@ class GoalController {
 				endLongestStreak,
 			} = data.data
 
-			if(totalDay === 20){
-				await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
-				MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
-				ChannelController.sendToNotification(
-					msg.client,
-					ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
-					msg.author.id
-				)
-				supabase.from("Users")
-					.update({type:'member'})
-					.eq('id',msg.author.id)
-					.then()
-			}
+			// if(totalDay === 20){
+			// 	await MemberController.addRole(msg.client,msg.author.id,ROLE_MEMBER)
+			// 	MemberController.removeRole(msg.client,msg.author.id,ROLE_NEW_MEMBER)
+			// 	ChannelController.sendToNotification(
+			// 		msg.client,
+			// 		ReferralCodeMessage.levelUpBecomeMember(msg.author.id),
+			// 		msg.author.id
+			// 	)
+			// 	supabase.from("Users")
+			// 		.update({type:'member'})
+			// 		.eq('id',msg.author.id)
+			// 		.then()
+			// }
 
-			if(totalDay === 12){
-				ChannelController.sendToNotification(
-					msg.client,
-					ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
-					msg.author.id
-				)
-			}
+			// if(totalDay === 12){
+			// 	ChannelController.sendToNotification(
+			// 		msg.client,
+			// 		ReferralCodeMessage.appreciationForActiveUser(msg.author.id),
+			// 		msg.author.id
+			// 	)
+			// }
 			
-			if (goalName) {
-				DailyStreakController.generateHabitBuilder(msg.client,msg.author)
-					.then(async files=>{
-						await ChannelStreak.send({
-							embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
-							files
-						})
+			// if (goalName) {
+			// 	DailyStreakController.generateHabitBuilder(msg.client,msg.author)
+			// 		.then(async files=>{
+			// 			await ChannelStreak.send({
+			// 				embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`,
+			// 				files
+			// 			})
 
-						if(endLongestStreak === Time.getTodayDateOnly()){
-							if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
-							}
-						}else {
-							if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
-								AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
-							}
-						}
-					})
-			}else{
-				ChannelStreak.send({
-					embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
-				})
-			}
+			// 			if(endLongestStreak === Time.getTodayDateOnly()){
+			// 				if(currentStreak === 7 || currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+			// 					AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author,true)
+			// 				}
+			// 			}else {
+			// 				if(currentStreak === 30 || currentStreak === 100 || currentStreak === 200 || currentStreak === 365) {
+			// 					AchievementBadgeController.achieveProgressStreak(msg.client,currentStreak,msg.author)
+			// 				}
+			// 			}
+			// 		})
+			// }else{
+			// 	ChannelStreak.send({
+			// 		embeds:[DailyStreakMessage.dailyStreak(currentStreak,msg.author,longestStreak)],content:`${msg.author}`
+			// 	})
+			// }
 			
 		})
 		.catch(err => {
@@ -757,6 +757,95 @@ class GoalController {
 				)
 			}, 1000 * 10);
 		}
+	}
+	static async saveProgress(msg,goalId,taskId){
+		const data = await UserController.getDetail(msg.author.id)
+		const attachments = []
+		let files = []
+
+		msg.attachments.each(data=>{
+			const fileSizeInMB = Math.ceil(data.size / 1e6)
+			if(fileSizeInMB <= 24){
+				files.push({
+					attachment:data.attachment
+				})
+			}
+			attachments.push(data.attachment)
+		})
+		let {totalDay,lastDone} = data.data
+		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
+
+		supabase.from("Goals").update({lastProgress:new Date()}).eq('id',goalId).then()
+
+		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
+		.then(async (data) => {
+			await supabase.from("Todos")
+				.update({
+					attachments,
+					type:null
+				})
+				.eq('id',taskId)
+
+			return supabase.from("Users")
+				.select()
+				.eq('id',msg.author.id)
+				.single()
+		})
+		.then(async data=>{
+			let currentStreak = data.data.currentStreak + 1
+			let totalDay =  (data.data.totalDay || 0) + 1
+			
+			if (Time.isValidStreak(currentStreak,data.data.lastDone,data.data.lastSafety) || Time.isValidCooldownPeriod(data.data.lastDone)) {
+				if (Time.onlyMissOneDay(data.data.lastDone,data.data.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
+					const missedDate = Time.getNextDate(-1)
+					missedDate.setHours(8)
+					await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
+				}
+				if (currentStreak > data.data.longestStreak) {
+					return supabase.from("Users")
+						.update({
+							currentStreak,
+							totalDay,
+							'longestStreak':currentStreak,
+							'endLongestStreak':Time.getTodayDateOnly()
+						})
+						.eq('id',msg.author.id)
+						.select()
+						.single()
+				}else{
+					return supabase.from("Users")
+						.update({
+							currentStreak,
+							totalDay
+						})
+						.eq('id',msg.author.id)
+						.select()
+						.single()
+				}
+			}else{
+				const updatedData = {
+					currentStreak:1,
+					totalDay,
+				}
+				if (currentStreak > data.data.longestStreak) {
+					updatedData.longestStreak = currentStreak
+					updatedData.endLongestStreak = Time.getTodayDateOnly()
+				}
+				return supabase.from("Users")
+					.update(updatedData)
+					.eq('id',msg.author.id)
+					.select()
+					.single()
+			}
+		})
+		.then(async data => {
+			supabase.from('Users')
+				.update({lastDone:Time.getTodayDateOnly()})
+				.eq('id',msg.author.id)
+				.then()
+		})
+		.catch(err => {
+		})
 	}
 	
 	static async interactionSearchProject(interaction,user){
