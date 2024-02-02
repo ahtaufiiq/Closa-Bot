@@ -618,7 +618,7 @@ class GoalController {
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
 		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
-		.then(async ({data:data}) => {
+		.then(async (data) => {
 			await supabase.from("Todos")
 				.update({
 					attachments,
