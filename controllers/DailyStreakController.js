@@ -223,7 +223,7 @@ class DailyStreakController {
 			goalName = thread.name.split('by')[0]
 		}
 		if(data){
-			const [progressRecently,nearestStreakFriends] = await Promise.all([
+			const [{data:progressRecently},nearestStreakFriends] = await Promise.all([
 				supabase.rpc('getProgressInLastFourWeeks', { row_id:user.id }),
 				DailyStreakController.getNearestStreakFriends(user.id,data.currentStreak),
 			])
