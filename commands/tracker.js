@@ -33,7 +33,7 @@ module.exports = {
 	
 		if (data?.goalId) {
 			const thread = await ChannelController.getGoalThread(interaction.client,data.goalId)
-			goalName = thread.name.split('by')[0]
+			goalName = thread.name.split(' by')[0]
 		}
 		if(data){
 			const embeds = [DailyStreakMessage.dailyStreak(data.currentStreak,user,data.longestStreak)]

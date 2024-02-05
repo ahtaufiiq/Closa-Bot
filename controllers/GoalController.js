@@ -600,7 +600,7 @@ class GoalController {
 			attachments.push(data.attachment)
 		})
 		const thread = await ChannelController.getGoalThread(msg.client,goalId)
-		goalName = thread.name.split('by')[0]
+		goalName = thread.name.split(' by')[0]
 		let {totalDay,lastDone} = data.data
 		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
 		const msgGoal = await thread.send(
@@ -617,7 +617,7 @@ class GoalController {
 		OnboardingController.handleOnboardingProgress(msg.client,msg.author)
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
-		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
+		supabase.rpc('getTodayTodos', { row_id:msg.author.id,today_date:Time.getStartToday()})
 		.then(async ({data:data}) => {
 			await supabase.from("Todos")
 				.update({
@@ -777,7 +777,7 @@ class GoalController {
 
 		supabase.from("Goals").update({lastProgress:new Date()}).eq('id',goalId).then()
 
-		supabase.rpc('getTodayTodos', { row_id:msg.author.id})
+		supabase.rpc('getTodayTodos', { row_id:msg.author.id,today_date:Time.getStartToday()})
 		.then(async (data) => {
 			await supabase.from("Todos")
 				.update({

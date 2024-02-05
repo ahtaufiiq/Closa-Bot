@@ -43,7 +43,7 @@ class SickDayController{
         let goalName = 'Consistency'
         if (goalId) {
             const thread = await ChannelController.getGoalThread(interaction.client,goalId)
-            goalName = thread.name.split('by')[0]
+            goalName = thread.name.split(' by')[0]
         }
         const startDate = Time.getTodayDateOnly()
         const endDate = Time.getDateOnly(Time.getNextDate(totalTicket-1,startDate))
@@ -127,7 +127,7 @@ class SickDayController{
                 let goalName = 'Consistency'
                 if (goalId) {
                     const thread = await ChannelController.getGoalThread(client,goalId)
-                    goalName = thread.name.split('by')[0]
+                    goalName = thread.name.split(' by')[0]
                 }
 
                 UserController.updateLastSafety(Time.getTodayDateOnly(),userId)

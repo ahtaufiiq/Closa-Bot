@@ -1,6 +1,17 @@
 const {TIMEZONE} = require('../helpers/config')
 const LocalData = require('./LocalData.js')
 class Time {
+    static getStartToday(date){
+        if (date.getHours()>=17) {
+            date.setHours(24)
+        }else{
+            date.setHours(0)
+        }
+        date.setHours(-TIMEZONE)
+        date.setMinutes(0)
+        return date.toISOString()
+    }
+
     static haveTime(text){
         const patternTime = /\d+[.:]\d+/
         return patternTime.test(text)

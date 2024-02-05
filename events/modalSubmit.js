@@ -426,7 +426,7 @@ The correct format: \`\`20.00\`\``)
 				let threadGoal 
 				if (dataUser.data?.goalId) {
 					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.data.goalId)
-					projectName = threadGoal.name.split('by')[0]
+					projectName = threadGoal.name.split(' by')[0]
 				}
 				const channelReflection = ChannelController.getChannel(modal.client,CHANNEL_REFLECTION)
 				const msg = await channelReflection.send(WeeklyReflectionMessage.postReflection({
@@ -483,7 +483,7 @@ The correct format: \`\`20.00\`\``)
 				let threadGoal 
 				if (dataUser.data?.goalId) {
 					threadGoal = await ChannelController.getGoalThread(modal.client,dataUser.data.goalId)
-					projectName = threadGoal.name.split('by')[0]
+					projectName = threadGoal.name.split(' by')[0]
 				}
 				const channelCelebration = ChannelController.getChannel(modal.client,CHANNEL_CELEBRATE)
 				const msg = await channelCelebration.send(CelebrationMessage.postCelebration({

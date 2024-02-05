@@ -401,7 +401,7 @@ class PartyController{
 		let project = ''
 		if(goalId){
 			const thread = await ChannelController.getGoalThread(client,goalId)
-			project = thread.name.split('by')[0]
+			project = thread.name.split(' by')[0]
 		}
 		const endPartyDate = LocalData.getData().deadlineGoal
 		return await supabase.from("MemberPartyRooms").insert({project,partyId,endPartyDate,UserId})

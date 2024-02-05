@@ -220,7 +220,7 @@ class DailyStreakController {
 
 		if (data?.goalId) {
 			const thread = await ChannelController.getGoalThread(client,data.goalId)
-			goalName = thread.name.split('by')[0]
+			goalName = thread.name.split(' by')[0]
 		}
 		if(data){
 			const [{data:progressRecently},nearestStreakFriends] = await Promise.all([
