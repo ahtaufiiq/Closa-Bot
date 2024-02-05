@@ -64,7 +64,7 @@ class VacationController{
         let goalName = 'Consistency'
         if (goalId) {
             const thread = await ChannelController.getGoalThread(interaction.client,goalId)
-            goalName = thread.name.split('by')[0]
+            goalName = thread.name.split(' by')[0]
         }
         if(data.data?.totalPoint >= 250){
             VacationController.updateMessageTotalTicketSold(interaction.client,1)
@@ -122,7 +122,7 @@ class VacationController{
                 let goalName = 'Consistency'
                 if (goalId) {
                     const thread = await ChannelController.getGoalThread(interaction.client,goalId)
-                    goalName = thread.name.split('by')[0]
+                    goalName = thread.name.split(' by')[0]
                 }
 
                 VacationController.updateMessageTotalTicketSold(interaction.client,totalTicket)
@@ -214,7 +214,7 @@ class VacationController{
                 let goalName = 'Consistency'
                 if (goalId) {
                     const thread = await ChannelController.getGoalThread(client,goalId)
-                    goalName = thread.name.split('by')[0]
+                    goalName = thread.name.split(' by')[0]
                 }
                 VacationController.addSafetyDotIfMissOnce(userId,lastDone)
                 UserController.updateLastSafety(Time.getTodayDateOnly(),userId)
