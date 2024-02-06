@@ -1,7 +1,8 @@
 const {TIMEZONE} = require('../helpers/config')
 const LocalData = require('./LocalData.js')
 class Time {
-    static getStartToday(date){
+    static getStartToday(){
+        const date = new Date()
         if (date.getHours()>=17) {
             date.setHours(24)
         }else{
