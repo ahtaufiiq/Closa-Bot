@@ -617,28 +617,28 @@ class GoalController {
 		OnboardingController.handleOnboardingProgress(msg.client,msg.author)
 		BoostController.deleteBoostMessage(msg.client,msg.author.id)
 		
-		supabase.rpc('getTodayTodos', { row_id:msg.author.id,today_date:Time.getStartToday()})
-		.then(async ({data:data}) => {
-			await supabase.from("Todos")
-				.update({
-					attachments,
-					msgGoalId,
-					type:null
-				})
-				.eq('id',taskId)
 
-			if (data.length > 0) {
+		supabase.from("Todos")
+		.update({
+			attachments,
+			msgGoalId,
+			type:null
+		})
+		.eq('id',taskId)
+		.then(()=>{
+			if (lastDone === Time.getTodayDateOnly()) {
 				throw new Error("Tidak perlu kirim daily streak ke channel")
 			} else {
 				supabase.from("Users").update({avatarURL:InfoUser.getAvatar(msg.author),username:UserController.getNameFromUserDiscord(msg.author)}).eq('id',msg.author.id).then()				
 			}
-			
+
 			return supabase.from("Users")
 				.select()
 				.eq('id',msg.author.id)
 				.single()
 		})
 		.then(async data=>{
+
 			let currentStreak = data.data.currentStreak + 1
 			let totalDay =  (data.data.totalDay || 0) + 1
 			
@@ -757,95 +757,6 @@ class GoalController {
 				)
 			}, 1000 * 10);
 		}
-	}
-	static async saveProgress(msg,goalId,taskId){
-		const data = await UserController.getDetail(msg.author.id)
-		const attachments = []
-		let files = []
-
-		msg.attachments.each(data=>{
-			const fileSizeInMB = Math.ceil(data.size / 1e6)
-			if(fileSizeInMB <= 24){
-				files.push({
-					attachment:data.attachment
-				})
-			}
-			attachments.push(data.attachment)
-		})
-		let {totalDay,lastDone} = data.data
-		if(lastDone !== Time.getTodayDateOnly()) totalDay += 1
-
-		supabase.from("Goals").update({lastProgress:new Date()}).eq('id',goalId).then()
-
-		supabase.rpc('getTodayTodos', { row_id:msg.author.id,today_date:Time.getStartToday()})
-		.then(async (data) => {
-			await supabase.from("Todos")
-				.update({
-					attachments,
-					type:null
-				})
-				.eq('id',taskId)
-
-			return supabase.from("Users")
-				.select()
-				.eq('id',msg.author.id)
-				.single()
-		})
-		.then(async data=>{
-			let currentStreak = data.data.currentStreak + 1
-			let totalDay =  (data.data.totalDay || 0) + 1
-			
-			if (Time.isValidStreak(currentStreak,data.data.lastDone,data.data.lastSafety) || Time.isValidCooldownPeriod(data.data.lastDone)) {
-				if (Time.onlyMissOneDay(data.data.lastDone,data.data.lastSafety) && (!Time.isCooldownPeriod() || Time.isFirstDayCooldownPeriod())) {
-					const missedDate = Time.getNextDate(-1)
-					missedDate.setHours(8)
-					await DailyStreakController.addSafetyDot(msg.author.id,missedDate)
-				}
-				if (currentStreak > data.data.longestStreak) {
-					return supabase.from("Users")
-						.update({
-							currentStreak,
-							totalDay,
-							'longestStreak':currentStreak,
-							'endLongestStreak':Time.getTodayDateOnly()
-						})
-						.eq('id',msg.author.id)
-						.select()
-						.single()
-				}else{
-					return supabase.from("Users")
-						.update({
-							currentStreak,
-							totalDay
-						})
-						.eq('id',msg.author.id)
-						.select()
-						.single()
-				}
-			}else{
-				const updatedData = {
-					currentStreak:1,
-					totalDay,
-				}
-				if (currentStreak > data.data.longestStreak) {
-					updatedData.longestStreak = currentStreak
-					updatedData.endLongestStreak = Time.getTodayDateOnly()
-				}
-				return supabase.from("Users")
-					.update(updatedData)
-					.eq('id',msg.author.id)
-					.select()
-					.single()
-			}
-		})
-		.then(async data => {
-			supabase.from('Users')
-				.update({lastDone:Time.getTodayDateOnly()})
-				.eq('id',msg.author.id)
-				.then()
-		})
-		.catch(err => {
-		})
 	}
 	
 	static async interactionSearchProject(interaction,user){
