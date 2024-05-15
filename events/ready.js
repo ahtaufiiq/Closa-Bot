@@ -63,15 +63,15 @@ module.exports = {
 		BoostController.remindUserAboutToLoseStreak(client)
 		BoostController.resetChannelBoost(client)
 
-		WeeklyReflectionController.sendReminderReflection(client)
-		WeeklyReflectionController.updateAnnouncementReflection(client)
-		WeeklyReflectionController.hideChannelReflection(client)
+		// WeeklyReflectionController.sendReminderReflection(client)
+		// WeeklyReflectionController.updateAnnouncementReflection(client)
+		// WeeklyReflectionController.hideChannelReflection(client)
 
 		DailyReport.inactiveMember(client)
 
 		WeeklyReport.sendWeeklyStatus(client)
 		OnboardingController.reminderContinueQuest(client)
-		WeeklyReflectionController.sendReflectionEveryWeek(client)
+		// WeeklyReflectionController.sendReflectionEveryWeek(client)
 		PaymentController.remindMember(client)
 		PaymentController.handleSuccessExtendMembership(client)
 		PaymentController.resetTotalUsage(client)
